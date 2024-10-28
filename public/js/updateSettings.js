@@ -4,10 +4,6 @@ import { showAlert } from "./alert";
 // Create updateSettings function for updating name, email, and password
 export const updateSettings = async (data, type) => {
   try {
-    type === "password"
-      ? (document.querySelector("#savePassword").textContent = "Updating ...")
-      : (document.querySelector("#saveSettings").textContent = "Updating ...");
-
     const url =
       type === "password"
         ? "/api/v1/users/updateMyPassword"
@@ -20,6 +16,10 @@ export const updateSettings = async (data, type) => {
     });
 
     if (res.data.status === "success") {
+      type === "password"
+        ? (document.querySelector("#savePassword").textContent = "Updating ...")
+        : (document.querySelector("#saveSettings").textContent =
+            "Updating ...");
       showAlert("success", `${type.toUpperCase()} updated successfully!`);
       window.setTimeout(() => {
         location.reload();
