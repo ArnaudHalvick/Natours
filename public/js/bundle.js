@@ -6123,7 +6123,7 @@ var login = exports.login = /*#__PURE__*/function () {
           _context.next = 3;
           return (0, _axios.default)({
             method: "POST",
-            url: "http://127.0.0.1:8000/api/v1/users/login",
+            url: "/api/v1/users/login",
             data: {
               email: email,
               password: password
@@ -6163,7 +6163,7 @@ var logout = exports.logout = /*#__PURE__*/function () {
           _context2.next = 3;
           return (0, _axios.default)({
             method: "GET",
-            url: "http://127.0.0.1:8000/api/v1/users/logout"
+            url: "/api/v1/users/logout"
           });
         case 3:
           res = _context2.sent;
@@ -47523,7 +47523,7 @@ var updateSettings = exports.updateSettings = /*#__PURE__*/function () {
         case 0:
           _context.prev = 0;
           type === "password" ? document.querySelector("#savePassword").textContent = "Updating ..." : document.querySelector("#saveSettings").textContent = "Updating ...";
-          url = type === "password" ? "http://127.0.0.1:8000/api/v1/users/updateMyPassword" : "http://127.0.0.1:8000/api/v1/users/updateMe";
+          url = type === "password" ? "/api/v1/users/updateMyPassword" : "/api/v1/users/updateMe";
           _context.next = 5;
           return (0, _axios.default)({
             method: "PATCH",
@@ -47658,7 +47658,7 @@ var bookTour = exports.bookTour = /*#__PURE__*/function () {
           stripe = Stripe("pk_test_51QE9Pr01SQ3XzN0XdG38jyXT83vljVXop3ZXsPSSvKBz9nk98c3gcTyoIHvO3vAXocBSuUwWDSnAflmrstAcIqHM00hseI1ZMn");
           _context.prev = 4;
           _context.next = 7;
-          return _axios.default.get("http://127.0.0.1:8000/api/v1/bookings/checkout-session/".concat(tourId));
+          return _axios.default.get("/api/v1/bookings/checkout-session/".concat(tourId));
         case 7:
           session = _context.sent;
           _context.next = 10;
@@ -47823,7 +47823,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "43273" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "40233" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

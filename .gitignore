@@ -1,8 +1,4 @@
 config.env
 node_modules
-dev-data/data
-.vscode
 eslint.config.mjs
-package-lock.json
-package.json
-
+*.env

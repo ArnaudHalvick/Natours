@@ -7,6 +7,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const hpp = require("hpp");
 const cookieParser = require("cookie-parser");
+const compression = require("compression");
 
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
@@ -66,12 +67,12 @@ if (process.env.NODE_ENV === "development") {
 // Use Helmet with the updated configuration
 app.use(helmet(helmetConfig));
 
-// 2.2) Development Logging Middleware
+// Development Logging Middleware
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev")); // Logs requests in the development environment
 }
 
-// 2.3) Rate Limiting Middleware: Limit requests from the same IP
+// Rate Limiting Middleware: Limit requests from the same IP
 const limiter = rateLimit({
   max: 100, // Max 100 requests per IP
   windowMs: 60 * 60 * 1000, // 1 hour window
@@ -79,17 +80,17 @@ const limiter = rateLimit({
 });
 app.use("/api", limiter); // Apply rate limiting to API routes
 
-// 2.4) Body Parser: Read incoming data into `req.body` (limit 10kb)
+// Body Parser: Read incoming data into `req.body` (limit 10kb)
 app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
 
-// 2.5) Data Sanitization against NoSQL Injection
+// Data Sanitization against NoSQL Injection
 app.use(mongoSanitize()); // Sanitize input to prevent NoSQL injection attacks
 
-// 2.6) Data Sanitization against XSS
+// Data Sanitization against XSS
 app.use(xss()); // Sanitize input to prevent cross-site scripting (XSS) attacks
 
-// 2.7) Prevent Parameter Pollution (Allow certain params)
+// Prevent Parameter Pollution (Allow certain params)
 app.use(
   hpp({
     whitelist: [
@@ -104,10 +105,12 @@ app.use(
   }),
 );
 
-// 2.8) Serving static files (e.g., images, CSS, JS)
+app.use(compression());
+
+// Serving static files (e.g., images, CSS, JS)
 app.use(express.static(path.join(__dirname, "public")));
 
-// 2.9) Custom Middleware: Add request time to `req` object
+// Custom Middleware: Add request time to `req` object
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
