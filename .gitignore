@@ -5,5 +5,4 @@ dev-data/data
 eslint.config.mjs
 package-lock.json
 package.json
-.vscode
 
