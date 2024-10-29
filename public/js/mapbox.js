@@ -19,6 +19,8 @@ export const displayMap = locations => {
     // Add popup for the location with description
     new mapboxgl.Popup({
       offset: 30, // Offset the popup to prevent overlapping with the marker
+      closeOnClick: false, // Prevent popup from closing when clicking on the map
+      closeButton: false, // Remove the close button from the popup
     })
       .setLngLat(loc.coordinates)
       .setHTML(`<p>Day ${loc.day}: ${loc.description}</p>`)
