@@ -17,33 +17,25 @@ const signToken = id => {
 };
 
 // Helper function to create and send JWT token via cookie
-const createSendToken = (user, statusCode, res) => {
-  const token = signToken(user._id); // Create a JWT token with the user's ID
+const createSendToken = (user, statusCode, res, req) => {
+  // Add req as a parameter
+  const token = signToken(user._id);
 
-  // Define cookie options
   const cookieOptions = {
     expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
-    ), // Convert JWT_COOKIE_EXPIRES_IN to milliseconds
-    httpOnly: true, // Cookie cannot be accessed or modified by the browser's JavaScript (helps prevent XSS attacks)
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 86400000,
+    ),
+    httpOnly: true,
+    secure: req.secure || req.headers["x-forwarded-proto"] === "https", // Use req here
   };
 
-  // Use secure cookies in production (only send cookies over HTTPS)
-  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
-
-  // Send the cookie with the JWT
   res.cookie("jwt", token, cookieOptions);
-
-  // Remove the password from the output (optional)
   user.password = undefined;
 
-  // Send the response
   res.status(statusCode).json({
     status: "success",
-    token, // Optional: include the token in the response body (for non-cookie-based implementations)
-    data: {
-      user,
-    },
+    token,
+    data: { user },
   });
 };
 
