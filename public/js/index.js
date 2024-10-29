@@ -3,6 +3,7 @@ import { displayMap } from "./mapbox";
 import { updateSettings } from "./updateSettings";
 import { signup } from "./signup";
 import { bookTour } from "./stripe";
+import { showAlert } from "./alert";
 
 // Element selectors for forms and buttons
 const loginForm = document.querySelector("#loginForm");
@@ -77,3 +78,6 @@ if (bookBtn)
     const { tourId } = e.target.dataset;
     bookTour(tourId);
   });
+
+const alertMessage = document.querySelector("body").dataset.alert;
+if (alert) showAlert("success", alertMessage, 20);

@@ -5,6 +5,8 @@ const bookingController = require("../controllers/bookingController");
 
 const router = express.Router();
 
+router.use(viewsController.alerts);
+
 // Check if the user is logged in for all routes
 router.use(authController.isLoggedIn);
 
