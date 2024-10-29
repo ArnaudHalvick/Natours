@@ -18,7 +18,6 @@ const signToken = id => {
 
 // Helper function to create and send JWT token via cookie
 const createSendToken = (user, statusCode, res, req) => {
-  // Add req as a parameter
   const token = signToken(user._id);
 
   const cookieOptions = {
@@ -26,7 +25,9 @@ const createSendToken = (user, statusCode, res, req) => {
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 86400000,
     ),
     httpOnly: true,
-    secure: req.secure || req.headers["x-forwarded-proto"] === "https", // Use req here
+    secure:
+      process.env.NODE_ENV === "production" &&
+      (req.secure || req.headers["x-forwarded-proto"] === "https"), // Apply secure flag only in production
   };
 
   res.cookie("jwt", token, cookieOptions);
