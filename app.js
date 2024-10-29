@@ -8,6 +8,8 @@ const xss = require("xss-clean");
 const hpp = require("hpp");
 const cookieParser = require("cookie-parser");
 const compression = require("compression");
+const cors = require("cors"); // Added this line
+const bookingController = require("./controllers/bookingController"); // Added this line
 
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
@@ -27,6 +29,8 @@ if (process.env.NODE_ENV === "production") {
 // 1) Set Pug as the template engine
 app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
+
+app.use(cors()); // This is now correctly required
 
 // 2) GLOBAL MIDDLEWARES
 
@@ -84,8 +88,16 @@ const limiter = rateLimit({
 });
 app.use("/api", limiter); // Apply rate limiting to API routes
 
+// Use express.raw() middleware for the Stripe webhook endpoint
+app.post(
+  "/webhook-checkout",
+  express.raw({ type: "application/json" }),
+  bookingController.webhookCheckout,
+);
+
 // Body Parser: Read incoming data into `req.body` (limit 10kb)
 app.use(express.json({ limit: "10kb" }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Data Sanitization against NoSQL Injection
