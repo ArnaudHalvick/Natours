@@ -1,0 +1,22 @@
+extends base
+
+block append head
+  script(src="https://js.stripe.com/v3/") 
+
+block content
+  section.section-booking
+    .booking
+      h2.heading-secondary Book your tour
+      .booking__details
+        img(src=`/img/tours/${tour.imageCover}`, alt=`${tour.name}`)
+        h3= tour.name
+        p= tour.summary
+        form#bookingForm
+          .form__group
+            label(for="startDate") Select a start date
+            select(name="startDate", id="startDate")
+              each dateString in tour.startDates
+                - const date = new Date(dateString)
+                option(value=date.toISOString())= date.toDateString()
+          button.btn.btn--green(type="submit", id="bookTour", data-tour-id=`${tour.id}`) Book now
+

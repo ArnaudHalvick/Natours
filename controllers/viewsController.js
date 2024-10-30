@@ -71,3 +71,18 @@ exports.getMyTours = catchAsync(async (req, res, next) => {
     tours,
   });
 });
+
+exports.getCheckout = catchAsync(async (req, res, next) => {
+  // 1. Get the tour data based on the slug
+  const tour = await Tour.findOne({ slug: req.params.slug });
+
+  if (!tour) {
+    return next(new AppError("There is no tour with that name.", 404));
+  }
+
+  // 2. Render the booking page with the tour data
+  res.status(200).render("checkout", {
+    title: `Book ${tour.name} Tour`,
+    tour,
+  });
+});

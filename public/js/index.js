@@ -12,6 +12,7 @@ const userDataForm = document.querySelector("#updateForm");
 const passwordForm = document.querySelector("#passwordForm");
 const logoutBtn = document.querySelector(".nav__el--logout");
 const bookBtn = document.querySelector("#bookTour");
+const bookingForm = document.querySelector("#bookingForm");
 
 // Event listener for login form
 if (loginForm) {
@@ -72,12 +73,16 @@ document.addEventListener("DOMContentLoaded", function () {
 // Event listener for logout button
 if (logoutBtn) logoutBtn.addEventListener("click", logout);
 
-if (bookBtn)
-  bookBtn.addEventListener("click", e => {
-    e.target.textContent = "Processing ...";
-    const { tourId } = e.target.dataset;
-    bookTour(tourId);
-  });
-
 const alertMessage = document.querySelector("body").dataset.alert;
 if (alertMessage) showAlert("success", alertMessage, 15);
+
+// Event listener for booking form submission
+if (bookingForm) {
+  bookingForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const startDate = document.getElementById("startDate").value;
+    const tourId = document.getElementById("bookTour").dataset.tourId;
+    e.target.querySelector("#bookTour").textContent = "Processing...";
+    bookTour(tourId, startDate); // Pass startDate here
+  });
+}

@@ -2,8 +2,8 @@ import { showAlert } from "./alert";
 import axios from "axios";
 
 // Function to initiate the booking process for a tour
-export const bookTour = async tourId => {
-  // Check if Stripe library is loaded (to avoid bugs when bundle.js says Stripe is undefined on pages where we dont load Stripe)
+export const bookTour = async (tourId, startDate) => {
+  // Check if Stripe library is loaded
   if (typeof Stripe === "undefined") {
     showAlert(
       "error",
@@ -18,9 +18,11 @@ export const bookTour = async tourId => {
   );
 
   try {
-    // 1) Fetch the checkout session from the API with the tour ID
+    // 1) Fetch the checkout session from the API with the tour ID and startDate
     const session = await axios.get(
-      `/api/v1/bookings/checkout-session/${tourId}`,
+      `/api/v1/bookings/checkout-session/${tourId}?startDate=${encodeURIComponent(
+        startDate,
+      )}`,
     );
 
     // 2) Redirect to Stripe's checkout page using the session ID
