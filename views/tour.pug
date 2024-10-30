@@ -5,7 +5,7 @@ block append head
     script(src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js")
     link(href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet")
     script(src="https://js.stripe.com/v3/")
-
+    link(href="/css/tour.css" rel="stylesheet")
 
 mixin overviewBox(label, text, icon)
     .overview-box__detail
@@ -33,12 +33,25 @@ block content
                         use(xlink:href='/img/icons.svg#icon-map-pin')
                     span.heading-box__text= tour.startLocation.description
 
+
+    // Availability banner
+    section.section-availability
+        .banner
+            each startDate in tour.startDates.slice(0, 3)
+                - const spotsLeft = tour.maxGroupSize - startDate.participants;
+                - const dateFormatted = new Date(startDate.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                p= `${dateFormatted}: ${spotsLeft} spots left!`
+            if user
+                a.btn.btn--green(href=`/tour/${tour.slug}/checkout`) Book Now!
+            else
+              a.btn.btn--green(href="/login") Log in to book a tour
+
     section.section-description
         .overview-box
             div
                 .overview-box__group
                     h2.heading-secondary.ma-bt-lg Quick facts
-                    - const date = new Date(tour.startDates[0]).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })
+                    - const date = new Date(tour.startDates[0].date).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })
                     +overviewBox("Next date",date,"calendar")
                     +overviewBox("Difficulty",tour.difficulty,"trending-up")
                     +overviewBox("Participants",`${tour.maxGroupSize} people`,"user")
@@ -52,17 +65,16 @@ block content
                             span.overview-box__label= guide.role === "lead-guide" ? "Lead Guide" : "Tour Guide"
                             span.overview-box__text= guide.name
 
-
         .description-box
             h2.heading-secondary.ma-bt-lg= `About the ${tour.name} tour`
-            -const paragraphs = tour.description.split("\n")
+            - const paragraphs = tour.description.split("\n")
             each p in paragraphs
                 p.description__text= p
 
     section.section-pictures
         each img, i in tour.images
             .picture-box
-                img.picture-box__img(src=`/img/tours/${img}`, alt=`${tour.name} ${i+1}`, class= `.picture-box__img--${i+1}`)
+                img.picture-box__img(src=`/img/tours/${img}`, alt=`${tour.name} ${i+1}`, class=`.picture-box__img--${i+1}`)
 
     section.section-map
         #map(data-locations=`${JSON.stringify(tour.locations)}`)
@@ -71,7 +83,6 @@ block content
         .reviews
             each review in tour.reviews
                 +reviewCard(review)
-
 
     section.section-cta
         .cta
@@ -83,8 +94,12 @@ block content
                 h2.heading-secondary What are you waiting for?
                 p.cta__text= `${tour.duration} days. 1 adventure. Infinite memories. Make it yours today!`
                 if user
-                       a.btn.btn--green.span-all-rows(href=`/tour/${tour.slug}/checkout`) Book tour now!
+                    a.btn.btn--green.span-all-rows(href=`/tour/${tour.slug}/checkout`) Book tour now!
                 else
                     a.btn.btn--green.span-all-rows(href="/login") Log in to book a tour
 
-
+    // Floating booking button
+    if user
+        a.btn--floating(href=`/tour/${tour.slug}/checkout`) Book Now!
+    else
+        a.btn--floating(href="/login") Log in to book
