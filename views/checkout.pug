@@ -41,7 +41,7 @@ block content
               if availableStartDates && availableStartDates.length > 0
                 each dateObj in availableStartDates
                   - const date = new Date(dateObj.date)
-                  option(value=date.toISOString())= date.toDateString()
+                  option(value=date.toISOString())= `${date.toDateString()} (${dateObj.availableSpots} spots left)`
               else
                 option(value='') No available dates
           .form__group
