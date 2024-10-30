@@ -4,7 +4,6 @@ block append head
   script(src="https://js.stripe.com/v3/") 
   link(rel="stylesheet" href="/css/checkout.css")
 
-
 block content
   section.section-booking
     .booking
@@ -21,7 +20,7 @@ block content
         .booking__data
           svg.booking__icon
             use(xlink:href='img/icons.svg#icon-calendar')
-          span= new Date(tour.startDates[0]).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })
+          span= new Date(tour.startDates[0].date).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })
         .booking__data
           svg.booking__icon
             use(xlink:href='img/icons.svg#icon-flag')
@@ -34,13 +33,16 @@ block content
           p
             span.card__footer-value= `$${tour.price} `
             span.card__footer-text per person
-        form#bookingForm
+        form#bookingForm(action=`/create-checkout-session/${tour.id}`, method="GET")
           .form__group
             label.form__label(for="startDate") Select a start date
             select.form__input(name="startDate", id="startDate", required)
               option(value='') Select a date
-              each dateString in tour.startDates
-                - const date = new Date(dateString)
-                option(value=date.toISOString())= date.toDateString()
+              if availableStartDates && availableStartDates.length > 0
+                each dateObj in availableStartDates
+                  - const date = new Date(dateObj.date)
+                  option(value=date.toISOString())= date.toDateString()
+              else
+                option(value='') No available dates
           .form__group
             button.btn.btn--green(type="submit", id="bookTour", data-tour-id=`${tour.id}`) Book now

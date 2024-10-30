@@ -80,9 +80,15 @@ exports.getCheckout = catchAsync(async (req, res, next) => {
     return next(new AppError("There is no tour with that name.", 404));
   }
 
-  // 2. Render the booking page with the tour data
+  // 2. Extract available start dates from the tour object
+  const availableStartDates = tour.startDates.map(startDate => ({
+    date: startDate.date,
+  }));
+
+  // 3. Render the booking page with the tour data and available start dates
   res.status(200).render("checkout", {
     title: `Book ${tour.name} Tour`,
     tour,
+    availableStartDates,
   });
 });

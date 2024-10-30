@@ -4,6 +4,17 @@ const validator = require("validator");
 const User = require("./userModel");
 const AppError = require("../utils/appError");
 
+const startDateSchema = new mongoose.Schema({
+  date: {
+    type: Date,
+    required: [true, "A tour must have a start date"],
+  },
+  participants: {
+    type: Number,
+    default: 0,
+  },
+});
+
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -84,15 +95,7 @@ const tourSchema = new mongoose.Schema(
       default: Date.now(),
       select: false,
     },
-    startDates: {
-      type: [Date],
-      validate: {
-        validator: function (val) {
-          return val && val.length > 0;
-        },
-        message: "A tour must have at least one start date",
-      },
-    },
+    startDates: [startDateSchema],
     secretTour: {
       type: Boolean,
       default: false,

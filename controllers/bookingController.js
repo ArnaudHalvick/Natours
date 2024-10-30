@@ -1,20 +1,17 @@
+const mongoose = require("mongoose");
 const Tour = require("../models/tourModel");
 const User = require("../models/userModel");
 const Booking = require("../models/bookingModel");
 const catchAsync = require("../utils/catchAsync");
 const factory = require("./handlerFactory");
-const AppError = require("./../utils/appError");
+const AppError = require("../utils/appError");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // Function to get the Stripe checkout session
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
-  // 1) Get the tour being booked
   const tour = await Tour.findById(req.params.tourId);
 
-  // 2) Get the startDate from req.query
   const { startDate } = req.query;
-
-  // Validate startDate
   let startDateISO = "";
   if (startDate) {
     const dateObj = new Date(startDate);
@@ -26,7 +23,6 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError("Start date is required.", 400));
   }
 
-  // 3) Create checkout session
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     success_url: `${req.protocol}://${req.get("host")}/my-tours?alert=booking`,
@@ -37,7 +33,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
       {
         price_data: {
           currency: "usd",
-          unit_amount: tour.price * 100, // Amount in cents
+          unit_amount: tour.price * 100,
           product_data: {
             name: `${tour.name} Tour`,
             description: tour.summary,
@@ -51,11 +47,10 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     ],
     mode: "payment",
     metadata: {
-      startDate: startDateISO, // Include startDate in metadata
+      startDate: startDateISO,
     },
   });
 
-  // 4) Send session as response
   res.status(200).json({
     status: "success",
     session,
@@ -64,34 +59,59 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 
 // Function to create a booking in the database
 const createBookingCheckout = async session => {
-  const tourId = session.client_reference_id; // Tour ID passed in as client reference
-  const userEmail = session.customer_email; // User email from Stripe session
-  const price = session.amount_total / 100; // Amount is in cents, so divide by 100
+  const tourId = session.client_reference_id;
+  const userEmail = session.customer_email;
+  const price = session.amount_total / 100;
   const startDate = session.metadata.startDate
     ? new Date(session.metadata.startDate)
-    : null; // Retrieve and parse startDate
+    : null;
 
-  // Find the user by email
   const user = await User.findOne({ email: userEmail });
   if (!user) {
     console.error(`No user found with email: ${userEmail}`);
     return;
   }
 
-  // Create a new booking document in the database
-  await Booking.create({ tour: tourId, user: user._id, price, startDate });
+  const mongooseSession = await mongoose.startSession();
+  mongooseSession.startTransaction();
+
+  try {
+    const tour = await Tour.findById(tourId).session(mongooseSession);
+    if (!tour) throw new Error("Tour not found.");
+
+    const startDateObj = tour.startDates.find(
+      sd => sd.date.getTime() === startDate.getTime(),
+    );
+
+    if (!startDateObj) throw new Error("Start date not found.");
+    if (startDateObj.participants >= tour.maxGroupSize)
+      throw new Error("No spots left for this start date.");
+
+    startDateObj.participants += 1;
+    await tour.save({ session: mongooseSession });
+
+    await Booking.create([{ tour: tourId, user: user._id, price, startDate }], {
+      session: mongooseSession,
+    });
+
+    await mongooseSession.commitTransaction();
+    mongooseSession.endSession();
+  } catch (error) {
+    await mongooseSession.abortTransaction();
+    mongooseSession.endSession();
+    console.error("Error during booking transaction:", error);
+    throw new AppError(error.message, 400);
+  }
 };
 
 // Stripe webhook handler
 exports.webhookCheckout = (req, res, next) => {
   const signature = req.headers["stripe-signature"];
-
   let event;
 
   try {
-    // Verify and construct the Stripe event using the raw body
     event = stripe.webhooks.constructEvent(
-      req.body, // req.body is the raw body because of express.raw()
+      req.body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET,
     );
@@ -100,11 +120,8 @@ exports.webhookCheckout = (req, res, next) => {
     return res.status(400).send(`Webhook error: ${err.message}`);
   }
 
-  // Handle the checkout.session.completed event
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
-
-    // Create booking from session data
     createBookingCheckout(session);
   }
 

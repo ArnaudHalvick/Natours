@@ -6402,20 +6402,24 @@ var bookTour = exports.bookTour = /*#__PURE__*/function () {
             sessionId: session.data.session.id
           });
         case 10:
-          _context.next = 16;
+          if (result.error) {
+            // Show an error message to your customer
+            (0, _alert.showAlert)("error", result.error.message);
+          }
+          _context.next = 17;
           break;
-        case 12:
-          _context.prev = 12;
+        case 13:
+          _context.prev = 13;
           _context.t0 = _context["catch"](4);
           console.error(_context.t0); // Log error to console for debugging
 
           // Show an alert if there is an error during the booking process
           (0, _alert.showAlert)("error", ((_error$response = _context.t0.response) === null || _error$response === void 0 || (_error$response = _error$response.data) === null || _error$response === void 0 ? void 0 : _error$response.message) || "Something went wrong with booking the tour. Please try again.");
-        case 16:
+        case 17:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[4, 12]]);
+    }, _callee, null, [[4, 13]]);
   }));
   return function bookTour(_x, _x2) {
     return _ref.apply(this, arguments);
