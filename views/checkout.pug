@@ -2,21 +2,45 @@ extends base
 
 block append head
   script(src="https://js.stripe.com/v3/") 
+  link(rel="stylesheet" href="/css/checkout.css")
+
 
 block content
   section.section-booking
     .booking
-      h2.heading-secondary Book your tour
+      h2.heading-secondary Book Your Tour
       .booking__details
-        img(src=`/img/tours/${tour.imageCover}`, alt=`${tour.name}`)
-        h3= tour.name
-        p= tour.summary
+        img.booking__image(src=`/img/tours/${tour.imageCover}`, alt=`${tour.name}`)
+        h3.booking__title #{tour.name}
+        h4.booking__sub-heading= `${tour.difficulty} ${tour.duration}-day tour`
+        p.booking__text= tour.summary
+        .booking__data
+          svg.booking__icon
+            use(xlink:href='img/icons.svg#icon-map-pin')
+          span= tour.startLocation.description
+        .booking__data
+          svg.booking__icon
+            use(xlink:href='img/icons.svg#icon-calendar')
+          span= new Date(tour.startDates[0]).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })
+        .booking__data
+          svg.booking__icon
+            use(xlink:href='img/icons.svg#icon-flag')
+          span= `${tour.locations.length} stops`
+        .booking__data
+          svg.booking__icon
+            use(xlink:href='img/icons.svg#icon-user')
+          span= `${tour.maxGroupSize} people max.`
+        .booking__price
+          p
+            span.card__footer-value= `$${tour.price} `
+            span.card__footer-text per person
         form#bookingForm
           .form__group
-            label(for="startDate") Select a start date
-            select(name="startDate", id="startDate")
+            label.form__label(for="startDate") Select a start date
+            select.form__input(name="startDate", id="startDate", required)
+              option(value='') Select a date
               each dateString in tour.startDates
                 - const date = new Date(dateString)
                 option(value=date.toISOString())= date.toDateString()
-          button.btn.btn--green(type="submit", id="bookTour", data-tour-id=`${tour.id}`) Book now
-
+          .form__group
+            button.btn.btn--green(type="submit", id="bookTour", data-tour-id=`${tour.id}`) Book now

@@ -1347,3 +1347,113 @@ body {
   -webkit-transform: translateY(-2px);
   transform: translateY(-2px);
 }
+
+/* Booking Section */
+.booking {
+  max-width: 120rem;
+  margin: 0 auto;
+  padding: 5rem;
+}
+
+.booking__details {
+  text-align: center;
+  margin-bottom: 5rem;
+}
+
+.booking__image {
+  width: 100%;
+  max-width: 50rem;
+  margin-bottom: 3rem;
+  border-radius: 3px;
+}
+
+.booking__sub-heading {
+  font-size: 2rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #55c57a;
+}
+
+.booking__text {
+  font-size: 1.6rem;
+  margin-bottom: 3rem;
+}
+
+.booking__data {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.booking__icon {
+  height: 2rem;
+  width: 2rem;
+  fill: #55c57a;
+  margin-right: 1rem;
+}
+
+.booking__price {
+  font-size: 1.6rem;
+  margin-bottom: 4rem;
+}
+
+.card__footer-value {
+  font-weight: 700;
+  font-size: 2rem;
+}
+
+.card__footer-text {
+  color: #999;
+}
+
+/* Form Styles */
+.form__group {
+  margin-bottom: 2.5rem;
+  text-align: left;
+}
+
+.form__label {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.form__input {
+  font-size: 1.5rem;
+  padding: 1rem;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form__input:focus {
+  outline: none;
+  border-color: #55c57a;
+}
+
+/* Button */
+.btn {
+  font-size: 1.6rem;
+  padding: 1.4rem 3rem;
+  border-radius: 10rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.4s;
+  font-weight: 400;
+  border: none;
+  cursor: pointer;
+}
+
+.btn--green {
+  background-color: #55c57a;
+  color: #fff;
+}
+
+.btn--green:hover {
+  background-color: #28b487;
+}
