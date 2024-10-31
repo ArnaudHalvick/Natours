@@ -23,7 +23,7 @@ const globalErrorHandler = require("./controllers/errorController");
 const app = express();
 
 if (process.env.NODE_ENV === "production") {
-  app.set("trust proxy");
+  app.set("trust proxy", true);
 }
 
 // 1) Set Pug as the template engine
