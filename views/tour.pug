@@ -40,7 +40,10 @@ block content
             each startDate in tour.startDates.slice(0, 3)
                 - const spotsLeft = tour.maxGroupSize - startDate.participants;
                 - const dateFormatted = new Date(startDate.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-                p= `${dateFormatted}: ${spotsLeft} spots left!`
+                if spotsLeft > 0
+                    p= `${dateFormatted}: ${spotsLeft} spots left!`
+                else
+                    p= `${dateFormatted}: Sold Out`
             if user
                 a.btn.btn--green(href=`/tour/${tour.slug}/checkout`) Book Now!
             else
