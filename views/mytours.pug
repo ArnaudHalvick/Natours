@@ -1,0 +1,24 @@
+extends base
+
+block append head
+  link(rel="stylesheet" href="/css/mytours.css")
+
+block content
+  .mytours-container
+    h1.heading-secondary My Bookings
+    if bookings.length > 0
+      each booking in bookings
+        .booking
+          h2.booking__title= booking.tour.name
+          p.booking__detail
+            strong Purchase Date: 
+            | #{new Date(booking.createdAt).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
+          p.booking__detail
+            strong Price: 
+            | $#{booking.price}
+          p.booking__detail
+            strong Start Date: 
+            | #{new Date(booking.startDate).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
+          a.btn.btn--green.btn--small(href="/tour/#{booking.tour.slug}") View Tour Details
+    else
+      p No bookings found.

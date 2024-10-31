@@ -58,19 +58,18 @@ exports.getAccount = (req, res) => {
   });
 };
 
-exports.getMyTours = catchAsync(async (req, res, next) => {
-  // 1) Find all bookings
-  const bookings = await Booking.find({ user: req.user.id });
-
-  // 2) Find tours with the return IDs
-  const tourIDs = bookings.map(el => el.tour);
-  const tours = await Tour.find({ _id: { $in: tourIDs } });
-
-  res.status(200).render("overview", {
-    title: "My Tours",
-    tours,
-  });
-});
+exports.getMyTours = async (req, res) => {
+  try {
+    const bookings = await Booking.find({ user: req.user.id }).populate("tour");
+    res.status(200).render("mytours", {
+      title: "My Tours",
+      bookings,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+};
 
 exports.getCheckout = catchAsync(async (req, res, next) => {
   // 1. Get the tour data based on the slug
