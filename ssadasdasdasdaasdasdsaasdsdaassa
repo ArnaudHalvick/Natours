@@ -1,0 +1,19 @@
+[33mcommit 699c9ba0bd3302c5e0df3ef3ab0f8a4f9f3586f4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: ArnaudHalvick <arnaud.halvick@gmail.com>
+Date:   Thu Oct 31 11:12:20 2024 -0300
+
+    Bigger text for No booking found
+
+[33mcommit 9308742598221cfa16a1d7b9535e96c74edf3ba8[m[33m ([m[1;31morigin/main[m[33m, [m[1;31mheroku/main[m[33m)[m
+Author: ArnaudHalvick <arnaud.halvick@gmail.com>
+Date:   Thu Oct 31 10:59:07 2024 -0300
+
+    Fix some error handling and cookieOptions for Heroku
+
+[33mcommit 78f2d61c2666b0629bc45858207d72004ca30555[m
+Author: ArnaudHalvick <arnaud.halvick@gmail.com>
+Date:   Thu Oct 31 10:47:10 2024 -0300
+
+    Update my-tours page to look better
+    
+    More information about purchase date and start date

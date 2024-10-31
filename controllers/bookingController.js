@@ -115,8 +115,6 @@ const createBookingCheckout = async session => {
   } catch (error) {
     await mongooseSession.abortTransaction();
     mongooseSession.endSession();
-    console.error("Error during booking transaction:", error);
-    throw new AppError(error.message, 400);
   }
 };
 
