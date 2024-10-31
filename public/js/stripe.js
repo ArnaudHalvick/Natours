@@ -35,13 +35,19 @@ export const bookTour = async (tourId, startDate) => {
       showAlert("error", result.error.message);
     }
   } catch (error) {
-    console.error(error); // Log error to console for debugging
-
-    // Show an alert if there is an error during the booking process
-    showAlert(
-      "error",
-      error.response?.data?.message ||
+    if (error.response && error.response.data && error.response.data.message) {
+      showAlert("error", error.response.data.message);
+    } else {
+      showAlert(
+        "error",
         "Something went wrong with booking the tour. Please try again.",
-    );
+      );
+    }
+
+    // Reset the button text to 'Book Now' or appropriate text
+    const bookBtn = document.getElementById("bookTour");
+    if (bookBtn) {
+      bookBtn.textContent = "Book Now";
+    }
   }
 };

@@ -23,6 +23,22 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError("Start date is required.", 400));
   }
 
+  // Check for existing booking
+  const existingBooking = await Booking.findOne({
+    tour: req.params.tourId,
+    user: req.user.id,
+    startDate: startDateISO,
+  });
+
+  if (existingBooking) {
+    return next(
+      new AppError(
+        "You have already booked this tour on the selected date.",
+        400,
+      ),
+    );
+  }
+
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     success_url: `${req.protocol}://${req.get("host")}/my-tours?alert=booking`,
