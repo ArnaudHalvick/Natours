@@ -116,29 +116,29 @@ const createBookingCheckout = async session => {
     await mongooseSession.abortTransaction();
     mongooseSession.endSession();
     console.error("Error during booking transaction:", error);
+    throw new AppError(error.message, 400);
   }
 };
 
 // Stripe webhook handler
 exports.webhookCheckout = (req, res, next) => {
-  const sig = req.headers["stripe-signature"];
+  const signature = req.headers["stripe-signature"];
   let event;
 
   try {
     event = stripe.webhooks.constructEvent(
-      req.rawBody,
-      sig,
+      req.body,
+      signature,
       process.env.STRIPE_WEBHOOK_SECRET,
     );
   } catch (err) {
-    console.error("Stripe webhook signature verification failed:", err);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    console.error("Webhook signature verification failed.", err.message);
+    return res.status(400).send(`Webhook error: ${err.message}`);
   }
 
   if (event.type === "checkout.session.completed") {
-    createBookingCheckout(event.data.object).catch(err => {
-      console.error("Error in createBookingCheckout:", err);
-    });
+    const session = event.data.object;
+    createBookingCheckout(session);
   }
 
   res.status(200).json({ received: true });
