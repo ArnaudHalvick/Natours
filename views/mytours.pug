@@ -21,4 +21,4 @@ block content
             | #{new Date(booking.startDate).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
           a.btn.btn--green.btn--small(href="/tour/#{booking.tour.slug}") View Tour Details
     else
-      p No bookings found.
+      p.booking__detail No booking found.
