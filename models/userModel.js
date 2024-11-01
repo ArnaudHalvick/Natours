@@ -32,6 +32,8 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "default.jpg", // Set a default photo for the user
   },
+  twoFACode: String,
+  twoFACodeExpires: Date,
   role: {
     type: String,
     enum: ["user", "guide", "lead-guide", "admin"],

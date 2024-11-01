@@ -1,0 +1,12 @@
+extends base
+
+block content
+  .main
+    .container
+      .heading-secondary Enter 2FA Code
+      form.form(action="/api/v1/users/verify2FA", method="POST")
+        .form__group
+          label(for="code") 2FA Code
+          input.form__input(type="text" name="code" required)
+        .form__group
+          button.btn.btn--green(type="submit") Submit

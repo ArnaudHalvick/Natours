@@ -1,11 +1,11 @@
 extends baseEmail
 
 block content
-    h1(style="text-align:center;") Your 2FA Code
-    p Hello, #{firstName}! 
-    p To complete your login, please use the following 2FA code. It’s valid for 10 minutes:
-    p(style="font-size: 24px; font-weight: bold; text-align: center; color: #55c57a;") #{code}
-    p If you didn’t request this code, please disregard this email.
-    hr
-    p(style="text-align: center;") Need help? Contact us at 
-    a(href="mailto:support@natours.com", style="color: #55c57a;") support@natours.com
+  .main
+    .container
+      .heading-secondary Your 2FA Code
+      p 
+        | Use the following code to complete your login:
+      h2= code
+      p 
+        | If you did not request this, please ignore this email.

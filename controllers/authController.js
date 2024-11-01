@@ -84,7 +84,7 @@ exports.confirmEmail = catchAsync(async (req, res, next) => {
   res.status(200).redirect("/confirmSuccess");
 });
 
-// User Login Controller with 2FA
+// Login Controller with 2FA
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -107,10 +107,12 @@ exports.login = catchAsync(async (req, res, next) => {
   // Generate and send 2FA code via email
   const twoFACode = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
   user.twoFACode = twoFACode;
-  user.twoFACodeExpires = Date.now() + 10 * 60 * 1000; // valid for 10 minutes
+  user.twoFACodeExpires = Date.now() + 15 * 60 * 1000; // valid for 15 minutes
   await user.save({ validateBeforeSave: false });
-
-  await new Email(user, undefined).sendTwoFACode(twoFACode);
+  console.log(user.twoFACode);
+  console.log(user.twoFACodeExpires);
+  // Send 2FA code to user's email
+  await new Email(user).sendTwoFACode(twoFACode);
 
   res.status(200).json({
     status: "success",

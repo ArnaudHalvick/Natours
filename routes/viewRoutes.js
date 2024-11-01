@@ -22,8 +22,9 @@ router.get(
   viewsController.getCheckout,
 );
 
-// Check email and confirmation success
+// Check email, confirmation success and 2FA
 router.get("/checkEmail", viewsController.getCheckEmail);
 router.get("/confirmSuccess", viewsController.getConfirmSuccess);
+router.get("/verify-2fa", viewsController.getVerify2FA);
 
 module.exports = router;

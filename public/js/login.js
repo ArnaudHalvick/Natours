@@ -13,13 +13,13 @@ export const login = async (email, password) => {
     });
 
     if (res.data.status === "success") {
-      showAlert("success", "Logged in successfully!"); // Display success alert
+      showAlert("success", "2FA code sent to your email. Please check.");
       window.setTimeout(() => {
-        location.assign("/"); // Redirect to homepage after 1 second
+        location.assign("/verify-2fa"); // Redirect to 2FA verification page
       }, 1000);
     }
   } catch (err) {
-    showAlert("error", "Incorrect email address or password"); // Display error alert
+    showAlert("error", "Incorrect email address or password");
   }
 };
 
