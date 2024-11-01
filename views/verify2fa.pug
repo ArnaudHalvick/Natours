@@ -4,10 +4,9 @@ block content
   .main
     .container
       .heading-secondary Enter 2FA Code
-      form.form(action="/api/v1/users/verify2FA", method="POST")
-        input(type="hidden" name="email" value=email)
+      form.form#twoFAForm
         .form__group
           label(for="code") 2FA Code
-          input.form__input(type="text" name="code" required)
+          input.form__input(type="text" name="code" id="code" required)
         .form__group
-          button.btn.btn--green(type="submit") Submit
+          button.btn.btn--green(type="submit") Submit 

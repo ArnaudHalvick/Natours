@@ -1,6 +1,29 @@
 import axios from "axios";
 import { showAlert } from "./alert";
 
+export const verify2FA = async code => {
+  try {
+    const res = await axios({
+      method: "POST",
+      url: "/api/v1/users/verify2FA",
+      data: {
+        code,
+      },
+    });
+
+    if (res.data.status === "success") {
+      showAlert("success", "Login successful!");
+
+      // Redirect to homepage after 1.5 seconds
+      window.setTimeout(() => {
+        location.assign("/");
+      }, 1500);
+    }
+  } catch (err) {
+    showAlert("error", err.response.data.message);
+  }
+};
+
 export const login = async (email, password) => {
   try {
     const res = await axios({
@@ -14,8 +37,7 @@ export const login = async (email, password) => {
 
     if (res.data.status === "success") {
       showAlert("success", "2FA code sent to your email. Please check.");
-      // Set a cookie for the email, with a short expiration time (e.g., 15 minutes)
-      document.cookie = `email=${encodeURIComponent(email)}; max-age=900; path=/`;
+
       window.setTimeout(() => {
         location.assign("/verify-2fa"); // Redirect to 2FA verification page without query parameter
       }, 1000);

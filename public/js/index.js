@@ -1,4 +1,4 @@
-import { login, logout } from "./login";
+import { login, logout, verify2FA } from "./login";
 import { displayMap } from "./mapbox";
 import { updateSettings } from "./updateSettings";
 import { signup } from "./signup";
@@ -11,8 +11,8 @@ const signupForm = document.querySelector("#signupForm");
 const userDataForm = document.querySelector("#updateForm");
 const passwordForm = document.querySelector("#passwordForm");
 const logoutBtn = document.querySelector(".nav__el--logout");
-const bookBtn = document.querySelector("#bookTour");
 const bookingForm = document.querySelector("#bookingForm");
+const twoFAForm = document.querySelector("#twoFAForm");
 
 // Event listener for login form
 if (loginForm) {
@@ -85,5 +85,14 @@ if (bookingForm) {
     const tourId = document.getElementById("bookTour").dataset.tourId;
     e.target.querySelector("#bookTour").textContent = "Processing...";
     bookTour(tourId, startDate, numParticipants);
+  });
+}
+
+if (twoFAForm) {
+  twoFAForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const code = document.getElementById("code").value;
+    console.log(code);
+    verify2FA(code);
   });
 }

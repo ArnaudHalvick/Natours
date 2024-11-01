@@ -121,12 +121,15 @@ exports.login = catchAsync(async (req, res, next) => {
 
 // Verify 2FA code
 exports.verify2FA = catchAsync(async (req, res, next) => {
-  const email = req.body.email || req.cookies.email;
   const { code } = req.body;
 
-  const user = await User.findOne({ email });
+  // Find the user by 2FA code and ensure it hasn't expired
+  const user = await User.findOne({
+    twoFACode: code,
+    twoFACodeExpires: { $gt: Date.now() },
+  });
 
-  if (!user || user.twoFACode !== code || Date.now() > user.twoFACodeExpires) {
+  if (!user) {
     return next(new AppError("Invalid or expired 2FA code", 400));
   }
 
