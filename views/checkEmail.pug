@@ -1,8 +1,12 @@
 extends base
 
+block append head
+  link(rel="stylesheet" href="/css/emailConfirm.css")
+
 block content
-  .container
-    h1 Please Check Your Email
-    p A confirmation email has been sent to your email address. Please check your inbox and click on the link to confirm your account.
-    p(style="margin-top: 15px;") Didn’t receive the email?
-    a(href="/resendConfirmation", style="color: #55c57a;") Click here to resend it.
+  .main
+    .container.message-container
+      .heading-secondary Check Your Email
+      p 
+        | We’ve sent a confirmation link to your email. Please click the link to confirm your account.
+      a.btn.btn--green(href="/") Go Back to Home

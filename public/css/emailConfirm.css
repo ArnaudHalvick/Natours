@@ -1,0 +1,24 @@
+/* Styling for checkEmail and confirmSuccess pages */
+.message-container {
+  max-width: 60rem;
+  margin: 0 auto;
+  text-align: center;
+  padding: 3rem;
+}
+
+.message-container .heading-secondary {
+  font-size: 3rem; /* Increase font size for better visibility */
+  margin-bottom: 2rem;
+}
+
+.message-container p {
+  font-size: 1.8rem; /* Increase paragraph font size */
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.message-container .btn--green {
+  font-size: 1.6rem; /* Ensure button font size matches text */
+  padding: 1.5rem 3rem;
+}
