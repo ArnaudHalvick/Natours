@@ -40,40 +40,102 @@ const createSendToken = (user, statusCode, res, req) => {
 
 // User Signup Controller
 exports.signup = catchAsync(async (req, res, next) => {
-  // Create a new user (manually specifying fields to avoid security issues)
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
   });
-  const url = `${req.protocol}://${req.get("host")}/me`;
-  console.log();
 
-  await new Email(newUser, url).sendWelcome();
+  // Generate confirmation token
+  const confirmationToken = newUser.createEmailConfirmationToken();
+  await newUser.save({ validateBeforeSave: false });
 
-  // Use the helper to create and send JWT token
-  createSendToken(newUser, 201, res);
+  const confirmationUrl = `${req.protocol}://${req.get("host")}/api/v1/users/confirmEmail/${confirmationToken}`;
+  await new Email(newUser, confirmationUrl).sendConfirmation();
+
+  res.status(201).json({
+    status: "success",
+    message: "Account created! Please check your email to confirm.",
+  });
 });
 
-// User Login Controller
+// Confirm email using token
+exports.confirmEmail = catchAsync(async (req, res, next) => {
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    emailConfirmationToken: hashedToken,
+    emailConfirmed: false,
+  });
+
+  if (!user) {
+    return next(new AppError("Invalid or expired token", 400));
+  }
+
+  user.emailConfirmed = true;
+  user.emailConfirmationToken = undefined;
+  await user.save();
+
+  res.status(200).json({
+    status: "success",
+    message: "Email confirmed successfully!",
+  });
+});
+
+// User Login Controller with 2FA
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  // Check if both email and password are provided
   if (!email || !password) {
     return next(new AppError("Please provide email and password!", 400));
   }
 
-  // Find user by email and explicitly select password (as it's excluded by default in schema)
   const user = await User.findOne({ email }).select("+password");
 
-  // Check if user exists and if the password is correct
   if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(new AppError("Incorrect email or password", 401)); // Unauthorized error
+    return next(new AppError("Incorrect email or password", 401));
   }
 
-  // Use the helper to create and send JWT token
+  if (!user.emailConfirmed) {
+    return next(
+      new AppError("Please confirm your email before logging in.", 401),
+    );
+  }
+
+  // Generate and send 2FA code via email
+  const twoFACode = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+  user.twoFACode = twoFACode;
+  user.twoFACodeExpires = Date.now() + 10 * 60 * 1000; // valid for 10 minutes
+  await user.save({ validateBeforeSave: false });
+
+  await new Email(user, undefined).sendTwoFACode(twoFACode);
+
+  res.status(200).json({
+    status: "success",
+    message: "2FA code sent to your email!",
+  });
+});
+
+// Verify 2FA code
+exports.verify2FA = catchAsync(async (req, res, next) => {
+  const { email, code } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (!user || user.twoFACode !== code || Date.now() > user.twoFACodeExpires) {
+    return next(new AppError("Invalid or expired 2FA code", 400));
+  }
+
+  // Clear 2FA code once validated
+  user.twoFACode = undefined;
+  user.twoFACodeExpires = undefined;
+  await user.save({ validateBeforeSave: false });
+
+  // Complete login
   createSendToken(user, 200, res);
 });
 

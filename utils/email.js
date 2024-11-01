@@ -68,4 +68,12 @@ module.exports = class Email {
       "Your password reset token (valid for only 10min)",
     );
   }
+
+  async sendConfirmation() {
+    await this.send("confirmEmail", "Confirm your Natours account!");
+  }
+
+  async sendTwoFACode(code) {
+    await this.send("twoFA", "Your 2FA code", { code });
+  }
 };

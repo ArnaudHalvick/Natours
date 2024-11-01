@@ -19,6 +19,10 @@ const resetLimiter = rateLimit({
   message: "Too many password reset attempts, please try again later.",
 });
 
+// Confirm the user’s email + 2FA route
+router.get("/confirmEmail/:token", authController.confirmEmail);
+router.post("/verify2FA", authController.verify2FA);
+
 // Signup route
 router.post(
   "/signup",

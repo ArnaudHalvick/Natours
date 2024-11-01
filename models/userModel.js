@@ -23,6 +23,11 @@ const userSchema = new mongoose.Schema({
     lowercase: true, // Convert email to lowercase
     validate: [validator.isEmail, "Please provide a valid email"], // Validate the email format
   },
+  emailConfirmed: {
+    type: Boolean,
+    default: false,
+  },
+  emailConfirmationToken: String,
   photo: {
     type: String,
     default: "default.jpg", // Set a default photo for the user
@@ -40,13 +45,17 @@ const userSchema = new mongoose.Schema({
   },
   passwordConfirm: {
     type: String,
-    required: [true, "Please confirm your password"], // Password confirmation is required
-    validate: {
-      // This only works on CREATE and SAVE operations!
-      validator: function (el) {
-        return el === this.password; // Check if passwordConfirm matches password
+    required: [
+      function () {
+        return this.isNew || this.isModified("password");
       },
-      message: "Passwords do not match", // Error message if they don't match
+      "Please confirm your password",
+    ],
+    validate: {
+      validator: function (el) {
+        return el === this.password; // Ensure passwordConfirm matches password
+      },
+      message: "Passwords do not match",
     },
   },
   passwordChangedAt: Date,
@@ -58,6 +67,16 @@ const userSchema = new mongoose.Schema({
     select: false, // We don't want to return this field in queries
   },
 });
+
+// Generate email confirmation token
+userSchema.methods.createEmailConfirmationToken = function () {
+  const confirmationToken = crypto.randomBytes(32).toString("hex");
+  this.emailConfirmationToken = crypto
+    .createHash("sha256")
+    .update(confirmationToken)
+    .digest("hex");
+  return confirmationToken;
+};
 
 userSchema.pre(/^find/, function (next) {
   // `this` points to the current query

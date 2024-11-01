@@ -31,6 +31,9 @@ const server = app.listen(port, () => {
   console.log(`App running on port ${port}`);
 });
 
+if (process.env.NODE_ENV === "development") console.log("Dev mode");
+if (process.env.NODE_ENV === "production") console.log("Production mode");
+
 // 4. Handle server-level errors
 server.on("error", err => {
   if (err.code === "EADDRINUSE") {
