@@ -14,8 +14,10 @@ export const login = async (email, password) => {
 
     if (res.data.status === "success") {
       showAlert("success", "2FA code sent to your email. Please check.");
+      // Set a cookie for the email, with a short expiration time (e.g., 15 minutes)
+      document.cookie = `email=${encodeURIComponent(email)}; max-age=900; path=/`;
       window.setTimeout(() => {
-        location.assign(`/verify-2fa?email=${encodeURIComponent(email)}`); // Redirect to 2FA verification page
+        location.assign("/verify-2fa"); // Redirect to 2FA verification page without query parameter
       }, 1000);
     }
   } catch (err) {

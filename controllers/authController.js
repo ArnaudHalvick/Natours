@@ -121,7 +121,8 @@ exports.login = catchAsync(async (req, res, next) => {
 
 // Verify 2FA code
 exports.verify2FA = catchAsync(async (req, res, next) => {
-  const { email, code } = req.body;
+  const email = req.body.email || req.cookies.email;
+  const { code } = req.body;
 
   const user = await User.findOne({ email });
 
