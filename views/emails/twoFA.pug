@@ -3,9 +3,9 @@ extends baseEmail
 block content
   .main
     .container
-      .heading-secondary Your 2FA Code
-      p 
+      .heading-secondary(style="color: #000") Your 2FA Code
+      p(style="color: #000") 
         | Use the following code to complete your login:
-      h2= code
-      p 
+      h2(style="font-size: 2.5rem; color: #000; margin: 1rem 0;")= code
+      p(style="color: #000") 
         | If you did not request this, please ignore this email.

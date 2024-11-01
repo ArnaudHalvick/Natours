@@ -34,7 +34,7 @@ module.exports = class Email {
   }
 
   // Send the actual email
-  async send(template, subject) {
+  async send(template, subject, data = {}) {
     // 1) Render HTML based on a pug template
     const html = pug.renderFile(
       `${__dirname}/../views/emails/${template}.pug`,
@@ -42,6 +42,7 @@ module.exports = class Email {
         firstName: this.firstName,
         url: this.url,
         subject,
+        ...data, // Pass additional data like 2FA code here
       },
     );
 

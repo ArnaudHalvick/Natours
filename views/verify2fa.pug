@@ -5,6 +5,7 @@ block content
     .container
       .heading-secondary Enter 2FA Code
       form.form(action="/api/v1/users/verify2FA", method="POST")
+        input(type="hidden" name="email" value=email)
         .form__group
           label(for="code") 2FA Code
           input.form__input(type="text" name="code" required)
