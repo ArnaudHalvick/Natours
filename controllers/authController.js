@@ -6,6 +6,8 @@ const AppError = require("./../utils/appError");
 const crypto = require("crypto");
 const Email = require("../utils/email");
 
+const MAX_2FA_ATTEMPTS = 5; // Define maximum 2FA attempts allowed
+
 // Function to sign the JWT token using the user ID
 const signToken = id => {
   if (!process.env.JWT_SECRET || !process.env.JWT_EXPIRES_IN) {
@@ -119,11 +121,10 @@ exports.login = catchAsync(async (req, res, next) => {
   });
 });
 
-// Verify 2FA code
 exports.verify2FA = catchAsync(async (req, res, next) => {
   const { code } = req.body;
 
-  // Find the user by 2FA code and ensure it hasn't expired
+  // Find the user by 2FA code and check if it hasn't expired
   const user = await User.findOne({
     twoFACode: code,
     twoFACodeExpires: { $gt: Date.now() },
@@ -133,12 +134,27 @@ exports.verify2FA = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid or expired 2FA code", 400));
   }
 
-  // Clear 2FA code once validated
+  // Check if user has exceeded max attempts
+  if (user.twoFAAttemptCount && user.twoFAAttemptCount >= MAX_2FA_ATTEMPTS) {
+    return next(
+      new AppError("Too many attempts. Please try again later.", 429),
+    );
+  }
+
+  // Verify the code
+  if (user.twoFACode !== code) {
+    user.twoFAAttemptCount = (user.twoFAAttemptCount || 0) + 1;
+    await user.save({ validateBeforeSave: false });
+    return next(new AppError("Invalid 2FA code", 400));
+  }
+
+  // Reset attempt count on successful validation and clear 2FA code
+  user.twoFAAttemptCount = 0;
   user.twoFACode = undefined;
   user.twoFACodeExpires = undefined;
   await user.save({ validateBeforeSave: false });
 
-  // Complete login
+  // Complete login and issue token
   createSendToken(user, 200, res);
 });
 

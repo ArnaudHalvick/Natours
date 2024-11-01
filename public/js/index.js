@@ -92,7 +92,7 @@ if (twoFAForm) {
   twoFAForm.addEventListener("submit", e => {
     e.preventDefault();
     const code = document.getElementById("code").value;
-    console.log(code);
+
     verify2FA(code);
   });
 }

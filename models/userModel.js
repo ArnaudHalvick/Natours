@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema({
   },
   twoFACode: String,
   twoFACodeExpires: Date,
+  twoFAAttemptCount: {
+    type: Number,
+    default: 0,
+  },
   role: {
     type: String,
     enum: ["user", "guide", "lead-guide", "admin"],
