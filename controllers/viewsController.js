@@ -110,5 +110,6 @@ exports.getConfirmSuccess = (req, res) => {
 exports.getVerify2FA = (req, res) => {
   res.status(200).render("verify2fa", {
     title: "Enter 2FA Code",
+    email: req.query.email,
   });
 };

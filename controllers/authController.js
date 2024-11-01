@@ -109,8 +109,7 @@ exports.login = catchAsync(async (req, res, next) => {
   user.twoFACode = twoFACode;
   user.twoFACodeExpires = Date.now() + 15 * 60 * 1000; // valid for 15 minutes
   await user.save({ validateBeforeSave: false });
-  console.log(user.twoFACode);
-  console.log(user.twoFACodeExpires);
+
   // Send 2FA code to user's email
   await new Email(user).sendTwoFACode(twoFACode);
 

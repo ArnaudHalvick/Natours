@@ -15,7 +15,7 @@ export const login = async (email, password) => {
     if (res.data.status === "success") {
       showAlert("success", "2FA code sent to your email. Please check.");
       window.setTimeout(() => {
-        location.assign("/verify-2fa"); // Redirect to 2FA verification page
+        location.assign(`/verify-2fa?email=${encodeURIComponent(email)}`); // Redirect to 2FA verification page
       }, 1000);
     }
   } catch (err) {

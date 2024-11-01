@@ -6135,7 +6135,7 @@ var login = exports.login = /*#__PURE__*/function () {
           if (res.data.status === "success") {
             (0, _alert.showAlert)("success", "2FA code sent to your email. Please check.");
             window.setTimeout(function () {
-              location.assign("/verify-2fa"); // Redirect to 2FA verification page
+              location.assign("/verify-2fa?email=".concat(encodeURIComponent(email))); // Redirect to 2FA verification page
             }, 1000);
           }
           _context.next = 10;
@@ -6570,7 +6570,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "40505" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "45423" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
