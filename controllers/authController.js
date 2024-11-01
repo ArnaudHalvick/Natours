@@ -78,12 +78,10 @@ exports.confirmEmail = catchAsync(async (req, res, next) => {
 
   user.emailConfirmed = true;
   user.emailConfirmationToken = undefined;
-  await user.save();
+  await user.save({ validateBeforeSave: false });
 
-  res.status(200).json({
-    status: "success",
-    message: "Email confirmed successfully!",
-  });
+  // Redirect to the confirmation success page
+  res.status(200).redirect("/confirmSuccess");
 });
 
 // User Login Controller with 2FA

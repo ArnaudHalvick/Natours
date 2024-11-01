@@ -94,3 +94,15 @@ exports.getCheckout = catchAsync(async (req, res, next) => {
     availableStartDates,
   });
 });
+
+exports.getCheckEmail = (req, res) => {
+  res.status(200).render("checkEmail", {
+    title: "Check Your Email",
+  });
+};
+
+exports.getConfirmSuccess = (req, res) => {
+  res.status(200).render("confirmSuccess", {
+    title: "Email Confirmed",
+  });
+};

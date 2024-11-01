@@ -6311,7 +6311,7 @@ function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 var signup = exports.signup = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(name, email, password, passwordConfirm) {
-    var res, _err$response, messages, _err$response2;
+    var res, _err$response, _err$response2, messages;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
@@ -6330,28 +6330,21 @@ var signup = exports.signup = /*#__PURE__*/function () {
         case 3:
           res = _context.sent;
           if (res.data.status === "success") {
-            (0, _alert.showAlert)("success", "Account created successfully! Redirecting...");
+            (0, _alert.showAlert)("success", "Account created successfully! Please check your email to confirm.");
             setTimeout(function () {
-              return window.location.href = "/";
-            }, 1500);
+              return window.location.href = "/checkEmail";
+            }, 2000);
           }
-          _context.next = 10;
+          _context.next = 11;
           break;
         case 7:
           _context.prev = 7;
           _context.t0 = _context["catch"](0);
-          // Check if there are multiple validation errors
-          if ((_err$response = _context.t0.response) !== null && _err$response !== void 0 && (_err$response = _err$response.data) !== null && _err$response !== void 0 && _err$response.errors && Array.isArray(_context.t0.response.data.errors)) {
-            // Collect all error messages into a single string
-            messages = _context.t0.response.data.errors.map(function (err) {
-              return err.msg;
-            }).join(". ");
-            (0, _alert.showAlert)("error", messages);
-          } else {
-            // Handle a generic or single error message
-            (0, _alert.showAlert)("error", ((_err$response2 = _context.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || "Error signing up. Please try again later.");
-          }
-        case 10:
+          messages = ((_err$response = _context.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 || (_err$response = _err$response.errors) === null || _err$response === void 0 ? void 0 : _err$response.map(function (error) {
+            return error.msg;
+          }).join(". ")) || ((_err$response2 = _context.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || "Error signing up. Please try again later.";
+          (0, _alert.showAlert)("error", messages);
+        case 11:
         case "end":
           return _context.stop();
       }
