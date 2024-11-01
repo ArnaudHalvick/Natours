@@ -21,9 +21,21 @@
   color: #333;
 }
 
+.booking__info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .booking__info {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
 .booking__detail {
   font-size: 1.6rem;
-  margin-bottom: 0.75rem;
   color: #777;
 }
 
@@ -32,6 +44,34 @@
   color: #555;
 }
 
-.btn {
+.booking__buttons {
+  display: flex;
+  justify-content: space-between; /* Separate buttons to left and right */
   margin-top: 1.5rem;
+}
+
+.btn {
+  padding: 1rem 2rem;
+  font-size: 1.4rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: #fff;
+  cursor: pointer;
+  text-align: center;
+}
+
+.btn--green {
+  background-color: #55c57a;
+}
+
+.btn--green:hover {
+  background-color: #28b487;
+}
+
+.btn--blue {
+  background-color: #3498db;
+}
+
+.btn--blue:hover {
+  background-color: #2980b9;
 }

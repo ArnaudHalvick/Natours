@@ -10,15 +10,21 @@ block content
       each booking in bookings
         .booking
           h2.booking__title= booking.tour.name
-          p.booking__detail
-            strong Purchase Date: 
-            | #{new Date(booking.createdAt).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
-          p.booking__detail
-            strong Price: 
-            | $#{booking.price}
-          p.booking__detail
-            strong Start Date: 
-            | #{new Date(booking.startDate).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
-          a.btn.btn--green.btn--small(href=`/tour/${booking.tour.slug}`) View Tour Details
+          .booking__info
+            .booking__detail
+              strong Purchase Date: 
+              | #{new Date(booking.createdAt).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
+            .booking__detail
+              strong Price: 
+              | $#{booking.price}
+            .booking__detail
+              strong Start Date: 
+              | #{new Date(booking.startDate).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
+            .booking__detail
+              strong Participants: 
+              | #{booking.numParticipants}
+          .booking__buttons
+            a.btn.btn--green.btn--small(href=`/tour/${booking.tour.slug}`) View Tour Details
+            a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/checkout`) Purchase additional spots
     else
-      p.booking__detail No booking found.
+      p.booking__detail No bookings found.
