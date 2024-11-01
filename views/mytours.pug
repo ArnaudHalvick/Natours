@@ -19,6 +19,6 @@ block content
           p.booking__detail
             strong Start Date: 
             | #{new Date(booking.startDate).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
-          a.btn.btn--green.btn--small(href="/tour/#{booking.tour.slug}") View Tour Details
+          a.btn.btn--green.btn--small(href=`/tour/${booking.tour.slug}`) View Tour Details
     else
       p.booking__detail No booking found.

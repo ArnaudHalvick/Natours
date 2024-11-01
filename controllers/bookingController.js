@@ -97,7 +97,6 @@ const createBookingCheckout = async session => {
     ? parseInt(session.metadata.numParticipants, 10)
     : 1;
 
-  // User lookup
   const user = await User.findOne({ email: userEmail });
   if (!user) {
     console.error(`No user found with email: ${userEmail}`);
@@ -116,13 +115,19 @@ const createBookingCheckout = async session => {
     );
 
     if (!startDateObj) throw new Error("Start date not found.");
+
     const availableSpots = tour.maxGroupSize - startDateObj.participants;
     if (numParticipants > availableSpots)
       throw new Error(`Only ${availableSpots} spots left for this start date.`);
 
-    // Update participants count
+    // Update participants count correctly
     startDateObj.participants += numParticipants;
-    await tour.save({ session: mongooseSession });
+
+    // Inform Mongoose that 'startDates' has been modified
+    tour.markModified("startDates");
+
+    // Save the tour without a session to isolate if the issue is session-related
+    await tour.save();
 
     // Create booking with numParticipants
     await Booking.create(
@@ -145,6 +150,7 @@ const createBookingCheckout = async session => {
   } catch (error) {
     await mongooseSession.abortTransaction();
     mongooseSession.endSession();
+    console.error(error);
   }
 };
 
