@@ -11,7 +11,15 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const tour = await Tour.findById(req.params.tourId);
 
-  const { startDate } = req.query;
+  const { startDate, numParticipants } = req.query;
+
+  // Validate and parse numParticipants
+  const numParticipantsInt = parseInt(numParticipants, 10);
+  if (isNaN(numParticipantsInt) || numParticipantsInt < 1) {
+    return next(new AppError("Invalid number of participants.", 400));
+  }
+
+  // Validate startDate as before
   let startDateISO = "";
   if (startDate) {
     const dateObj = new Date(startDate);
@@ -23,22 +31,23 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError("Start date is required.", 400));
   }
 
-  // Check for existing booking
-  const existingBooking = await Booking.findOne({
-    tour: req.params.tourId,
-    user: req.user.id,
-    startDate: startDateISO,
-  });
+  // Find the startDate object in the tour
+  const startDateObj = tour.startDates.find(
+    sd => new Date(sd.date).getTime() === new Date(startDateISO).getTime(),
+  );
+  if (!startDateObj) {
+    return next(new AppError("Start date not found.", 400));
+  }
 
-  if (existingBooking) {
+  // Check available spots
+  const availableSpots = tour.maxGroupSize - startDateObj.participants;
+  if (numParticipantsInt > availableSpots) {
     return next(
-      new AppError(
-        "You have already booked this tour on the selected date.",
-        400,
-      ),
+      new AppError(`Only ${availableSpots} spots left for this date.`, 400),
     );
   }
 
+  // Create Stripe checkout session
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     success_url: `${req.protocol}://${req.get("host")}/my-tours?alert=booking`,
@@ -49,21 +58,24 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
       {
         price_data: {
           currency: "usd",
-          unit_amount: tour.price * 100,
+          unit_amount: tour.price * 100, // Price per participant
           product_data: {
             name: `${tour.name} Tour`,
             description: tour.summary,
             images: [
-              `${req.protocol}://${req.get("host")}/img/tours/${tour.imageCover}`,
+              `${req.protocol}://${req.get(
+                "host",
+              )}/img/tours/${tour.imageCover}`,
             ],
           },
         },
-        quantity: 1,
+        quantity: numParticipantsInt, // Number of participants
       },
     ],
     mode: "payment",
     metadata: {
       startDate: startDateISO,
+      numParticipants: numParticipantsInt.toString(), // Store as string
     },
   });
 
@@ -81,7 +93,11 @@ const createBookingCheckout = async session => {
   const startDate = session.metadata.startDate
     ? new Date(session.metadata.startDate)
     : null;
+  const numParticipants = session.metadata.numParticipants
+    ? parseInt(session.metadata.numParticipants, 10)
+    : 1;
 
+  // User lookup
   const user = await User.findOne({ email: userEmail });
   if (!user) {
     console.error(`No user found with email: ${userEmail}`);
@@ -100,15 +116,29 @@ const createBookingCheckout = async session => {
     );
 
     if (!startDateObj) throw new Error("Start date not found.");
-    if (startDateObj.participants >= tour.maxGroupSize)
-      throw new Error("No spots left for this start date.");
+    const availableSpots = tour.maxGroupSize - startDateObj.participants;
+    if (numParticipants > availableSpots)
+      throw new Error(`Only ${availableSpots} spots left for this start date.`);
 
-    startDateObj.participants += 1;
+    // Update participants count
+    startDateObj.participants += numParticipants;
     await tour.save({ session: mongooseSession });
 
-    await Booking.create([{ tour: tourId, user: user._id, price, startDate }], {
-      session: mongooseSession,
-    });
+    // Create booking with numParticipants
+    await Booking.create(
+      [
+        {
+          tour: tourId,
+          user: user._id,
+          price,
+          startDate,
+          numParticipants,
+        },
+      ],
+      {
+        session: mongooseSession,
+      },
+    );
 
     await mongooseSession.commitTransaction();
     mongooseSession.endSession();

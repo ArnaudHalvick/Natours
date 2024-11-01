@@ -81,8 +81,9 @@ if (bookingForm) {
   bookingForm.addEventListener("submit", e => {
     e.preventDefault();
     const startDate = document.getElementById("startDate").value;
+    const numParticipants = document.getElementById("numParticipants").value;
     const tourId = document.getElementById("bookTour").dataset.tourId;
     e.target.querySelector("#bookTour").textContent = "Processing...";
-    bookTour(tourId, startDate); // Pass startDate here
+    bookTour(tourId, startDate, numParticipants);
   });
 }

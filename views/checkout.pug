@@ -45,4 +45,13 @@ block content
               else
                 option(value='') No available dates
           .form__group
+            label.form__label(for="numParticipants") Number of Participants
+            input.form__input(
+              type="number",
+              name="numParticipants",
+              id="numParticipants",
+              min="1",
+              value="1",
+              required)
+          .form__group
             button.btn.btn--green(type="submit", id="bookTour", data-tour-id=`${tour.id}`) Book now

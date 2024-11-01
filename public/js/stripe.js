@@ -2,7 +2,7 @@ import { showAlert } from "./alert";
 import axios from "axios";
 
 // Function to initiate the booking process for a tour
-export const bookTour = async (tourId, startDate) => {
+export const bookTour = async (tourId, startDate, numParticipants) => {
   // Check if Stripe library is loaded
   if (typeof Stripe === "undefined") {
     showAlert(
@@ -18,22 +18,17 @@ export const bookTour = async (tourId, startDate) => {
   );
 
   try {
-    // 1) Fetch the checkout session from the API with the tour ID and startDate
+    // 1) Fetch the checkout session from the API with the tour ID, startDate, and numParticipants
     const session = await axios.get(
       `/api/v1/bookings/checkout-session/${tourId}?startDate=${encodeURIComponent(
         startDate,
-      )}`,
+      )}&numParticipants=${encodeURIComponent(numParticipants)}`,
     );
 
     // 2) Redirect to Stripe's checkout page using the session ID
     await stripe.redirectToCheckout({
       sessionId: session.data.session.id,
     });
-
-    if (result.error) {
-      // Show an error message to your customer
-      showAlert("error", result.error.message);
-    }
   } catch (error) {
     if (error.response && error.response.data && error.response.data.message) {
       showAlert("error", error.response.data.message);

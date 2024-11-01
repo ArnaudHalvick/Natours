@@ -19,6 +19,11 @@ const bookingSchema = new mongoose.Schema({
     type: Date,
     required: [true, "Booking must have a date"],
   },
+  numParticipants: {
+    type: Number,
+    required: [true, "Booking must have a number of participants"],
+    min: [1, "Number of participants must be at least 1"],
+  },
   createdAt: {
     type: Date,
     default: Date.now,
