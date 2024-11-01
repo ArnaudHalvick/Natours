@@ -1,19 +1,21 @@
+// authController.js
 const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const User = require("./../models/userModel");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
-const crypto = require("crypto");
 const Email = require("../utils/email");
 
-const MAX_2FA_ATTEMPTS = 5; // Define maximum 2FA attempts allowed
+const MAX_2FA_ATTEMPTS = 5; // Maximum 2FA attempts allowed
+const LOCK_TIME = 15 * 60 * 1000; // Lock account for 15 minutes after max attempts
 
 // Function to sign the JWT token using the user ID
-const signToken = id => {
+const signToken = (id, options = {}) => {
   if (!process.env.JWT_SECRET || !process.env.JWT_EXPIRES_IN) {
     throw new AppError("JWT secret or expiration time is not defined.", 500);
   }
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+  return jwt.sign({ id, ...options }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 };
@@ -27,7 +29,10 @@ const createSendToken = (user, statusCode, res, req) => {
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 86400000,
     ),
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure:
+      req.secure ||
+      req.headers["x-forwarded-proto"] === "https" ||
+      process.env.NODE_ENV === "production",
   };
 
   res.cookie("jwt", token, cookieOptions);
@@ -53,7 +58,9 @@ exports.signup = catchAsync(async (req, res, next) => {
   const confirmationToken = newUser.createEmailConfirmationToken();
   await newUser.save({ validateBeforeSave: false });
 
-  const confirmationUrl = `${req.protocol}://${req.get("host")}/api/v1/users/confirmEmail/${confirmationToken}`;
+  const confirmationUrl = `${req.protocol}://${req.get(
+    "host",
+  )}/api/v1/users/confirmEmail/${confirmationToken}`;
   await new Email(newUser, confirmationUrl).sendConfirmation();
 
   res.status(201).json({
@@ -106,56 +113,135 @@ exports.login = catchAsync(async (req, res, next) => {
     );
   }
 
-  // Generate and send 2FA code via email
-  const twoFACode = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
-  user.twoFACode = twoFACode;
-  user.twoFACodeExpires = Date.now() + 15 * 60 * 1000; // valid for 15 minutes
+  // Check if account is locked
+  if (user.twoFALockUntil && user.twoFALockUntil > Date.now()) {
+    return next(
+      new AppError("Account is temporarily locked. Try again later.", 429),
+    );
+  }
+
+  // Generate and hash 2FA code
+  const twoFACode = user.createTwoFACode();
   await user.save({ validateBeforeSave: false });
 
   // Send 2FA code to user's email
   await new Email(user).sendTwoFACode(twoFACode);
 
+  // Generate a temporary token for 2FA verification
+  const tempToken = jwt.sign(
+    { id: user._id, twoFAPending: true },
+    process.env.JWT_SECRET,
+    { expiresIn: "15m" }, // Token valid for 15 minutes
+  );
+
   res.status(200).json({
     status: "success",
     message: "2FA code sent to your email!",
+    tempToken, // Send temporary token to client
   });
 });
 
+// Verify 2FA code
 exports.verify2FA = catchAsync(async (req, res, next) => {
   const { code } = req.body;
+  const token = req.headers.authorization?.split(" ")[1];
 
-  // Find the user by 2FA code and check if it hasn't expired
-  const user = await User.findOne({
-    twoFACode: code,
-    twoFACodeExpires: { $gt: Date.now() },
-  });
-
-  if (!user) {
-    return next(new AppError("Invalid or expired 2FA code", 400));
+  if (!token) {
+    return next(new AppError("Authorization token missing", 401));
   }
 
-  // Check if user has exceeded max attempts
-  if (user.twoFAAttemptCount && user.twoFAAttemptCount >= MAX_2FA_ATTEMPTS) {
+  // Verify the temporary token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  if (!decoded.twoFAPending) {
+    return next(new AppError("Invalid token for 2FA verification", 401));
+  }
+
+  // Find the user by ID
+  const user = await User.findById(decoded.id);
+
+  if (!user) {
+    return next(new AppError("User not found", 404));
+  }
+
+  // Check if the 2FA code has expired
+  if (!user.twoFACode || user.twoFACodeExpires < Date.now()) {
+    return next(new AppError("2FA code has expired", 400));
+  }
+
+  // Check if account is locked
+  if (user.twoFALockUntil && user.twoFALockUntil > Date.now()) {
     return next(
-      new AppError("Too many attempts. Please try again later.", 429),
+      new AppError("Account is temporarily locked. Try again later.", 429),
     );
   }
 
-  // Verify the code
-  if (user.twoFACode !== code) {
+  // Hash the code provided by the user
+  const hashedCode = crypto.createHash("sha256").update(code).digest("hex");
+
+  // Use constant-time comparison to prevent timing attacks
+  const codeBuffer = Buffer.from(hashedCode, "utf-8");
+  const storedCodeBuffer = Buffer.from(user.twoFACode, "utf-8");
+
+  if (
+    codeBuffer.length !== storedCodeBuffer.length ||
+    !crypto.timingSafeEqual(codeBuffer, storedCodeBuffer)
+  ) {
     user.twoFAAttemptCount = (user.twoFAAttemptCount || 0) + 1;
+
+    // Lock account if max attempts reached
+    if (user.twoFAAttemptCount >= MAX_2FA_ATTEMPTS) {
+      user.twoFALockUntil = Date.now() + LOCK_TIME; // Lock for 15 minutes
+    }
+
     await user.save({ validateBeforeSave: false });
-    return next(new AppError("Invalid 2FA code", 400));
+    return next(new AppError("Invalid credentials or 2FA code.", 400));
   }
 
-  // Reset attempt count on successful validation and clear 2FA code
+  // Reset attempt count and clear 2FA code
   user.twoFAAttemptCount = 0;
   user.twoFACode = undefined;
   user.twoFACodeExpires = undefined;
+  user.twoFALockUntil = undefined;
   await user.save({ validateBeforeSave: false });
 
-  // Complete login and issue token
-  createSendToken(user, 200, res);
+  // Issue the final JWT token
+  createSendToken(user, 200, res, req);
+});
+
+// Resend 2FA code
+exports.resendTwoFACode = catchAsync(async (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return next(new AppError("Authorization token missing", 401));
+  }
+
+  // Verify the temporary token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  if (!decoded.twoFAPending) {
+    return next(new AppError("Invalid token for 2FA verification", 401));
+  }
+
+  // Find the user
+  const user = await User.findById(decoded.id);
+
+  if (!user) {
+    return next(new AppError("User not found", 404));
+  }
+
+  // Generate and hash a new 2FA code
+  const twoFACode = user.createTwoFACode();
+  await user.save({ validateBeforeSave: false });
+
+  // Send the new 2FA code via email
+  await new Email(user).sendTwoFACode(twoFACode);
+
+  res.status(200).json({
+    status: "success",
+    message: "A new 2FA code has been sent to your email.",
+  });
 });
 
 exports.logout = (req, res) => {
@@ -210,7 +296,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-// Check if user is logged in for rendering pages (photo, username, etc). No errors, we just call next() if not logged in
+// Check if user is logged in for rendering pages
 exports.isLoggedIn = async (req, res, next) => {
   try {
     if (req.cookies.jwt) {
@@ -231,7 +317,7 @@ exports.isLoggedIn = async (req, res, next) => {
         return next();
       }
 
-      // If we reach this point, there is a logged in user
+      // There is a logged-in user
       res.locals.user = currentUser;
 
       if (req.originalUrl === "/login") {
@@ -243,26 +329,26 @@ exports.isLoggedIn = async (req, res, next) => {
     // If no cookie, just move to the next middleware
     next();
   } catch (err) {
-    // Handle any errors (e.g., JWT verification failure)
-    return next(); // Continue without throwing an error as this middleware is only checking for logged-in status
+    // Handle any errors
+    return next();
   }
 };
 
-// Middleware to restrict access to certain roles (e.g., admin)
+// Middleware to restrict access to certain roles
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
     // Check if the user's role matches any of the allowed roles
     if (!roles.includes(req.user.role)) {
       return next(
-        new AppError("You do not have permission to perform this action", 403), // Forbidden
-      );
+        new AppError("You do not have permission to perform this action", 403),
+      ); // Forbidden
     }
 
     next(); // Continue to the next middleware or route handler
   };
 };
 
-// Forgot password functionality (generates a reset token and sends it via email)
+// Forgot password functionality
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   // Find user by email
   const user = await User.findOne({ email: req.body.email });
@@ -302,7 +388,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-// Reset password functionality (user provides new password via token)
+// Reset password functionality
 exports.resetPassword = catchAsync(async (req, res, next) => {
   // Hash the reset token
   const hashedToken = crypto
@@ -329,7 +415,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save(); // Save the updated password
 
   // Log the user in after password reset
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, res, req);
 });
 
 // Update the user's password when logged in
@@ -348,5 +434,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   await user.save(); // Save the updated password
 
   // Log the user in after updating the password
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, res, req);
 });

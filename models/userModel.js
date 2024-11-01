@@ -1,3 +1,4 @@
+// userModel.js
 const mongoose = require("mongoose");
 const validator = require("validator");
 const crypto = require("crypto");
@@ -11,9 +12,9 @@ const userSchema = new mongoose.Schema({
     trim: true, // Trim whitespace from the name
     validate: {
       validator: function (val) {
-        return /^[a-zA-Z\s]+$/.test(val); // Regular expression to allow only letters and spaces
+        return /^[a-zA-Z\s]+$/.test(val); // Allow only letters and spaces
       },
-      message: "Name must contain only letters and spaces", // Custom error message for invalid names
+      message: "Name must contain only letters and spaces", // Custom error message
     },
   },
   email: {
@@ -21,7 +22,7 @@ const userSchema = new mongoose.Schema({
     required: [true, "A user must have an email"], // Email is required
     unique: true, // Ensure email is unique
     lowercase: true, // Convert email to lowercase
-    validate: [validator.isEmail, "Please provide a valid email"], // Validate the email format
+    validate: [validator.isEmail, "Please provide a valid email"], // Validate email format
   },
   emailConfirmed: {
     type: Boolean,
@@ -30,13 +31,7 @@ const userSchema = new mongoose.Schema({
   emailConfirmationToken: String,
   photo: {
     type: String,
-    default: "default.jpg", // Set a default photo for the user
-  },
-  twoFACode: String,
-  twoFACodeExpires: Date,
-  twoFAAttemptCount: {
-    type: Number,
-    default: 0,
+    default: "default.jpg", // Default photo for the user
   },
   role: {
     type: String,
@@ -46,8 +41,8 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, "A user must have a password"], // Password is required
-    minlength: 8, // Password must be at least 8 characters
-    select: false, // Prevent the password from being returned in queries
+    minlength: 8, // Minimum length of 8 characters
+    select: false, // Exclude from query results by default
   },
   passwordConfirm: {
     type: String,
@@ -67,10 +62,17 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  twoFACode: String,
+  twoFACodeExpires: Date,
+  twoFAAttemptCount: {
+    type: Number,
+    default: 0,
+  },
+  twoFALockUntil: Date,
   active: {
     type: Boolean,
     default: true, // Users are active by default
-    select: false, // We don't want to return this field in queries
+    select: false, // Exclude from query results by default
   },
 });
 
@@ -84,76 +86,85 @@ userSchema.methods.createEmailConfirmationToken = function () {
   return confirmationToken;
 };
 
-userSchema.pre(/^find/, function (next) {
-  // `this` points to the current query
-  this.find({ active: { $ne: false } });
-  next();
-});
+// Generate and hash 2FA code
+userSchema.methods.createTwoFACode = function () {
+  const code = Math.floor(100000 + Math.random() * 900000).toString(); // Generate 6-digit code
+  this.twoFACode = crypto.createHash("sha256").update(code).digest("hex"); // Hash the code
+  this.twoFACodeExpires = Date.now() + 15 * 60 * 1000; // Expires in 15 minutes
+  return code; // Return plaintext code for sending via email
+};
 
-// Mongoose pre-save middleware to hash the password before saving
+// Pre-save middleware to hash passwords
 userSchema.pre("save", async function (next) {
-  // Only run this function if the password was actually modified
+  // Only run if password was modified
   if (!this.isModified("password")) return next();
 
-  // Hash the password with a cost of 12 (12 rounds of hashing)
+  // Hash the password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
 
-  // Delete passwordConfirm field, we don't need to store it in the database
+  // Remove passwordConfirm field
   this.passwordConfirm = undefined;
   next();
 });
 
-// Mongoose pre-save middleware to hash the password before saving
-userSchema.pre("save", async function (next) {
-  // Only run this function if the password was actually modified
+// Update passwordChangedAt property if password was changed
+userSchema.pre("save", function (next) {
+  // Only run if password was modified and not on new documents
   if (!this.isModified("password") || this.isNew) return next();
 
-  // Set passwordChangedAt to the current timestamp (before saving)
-  this.passwordChangedAt = Date.now() - 1000; // Subtracting 1 second ensures the token is created after password change
-
+  // Set passwordChangedAt to current time minus 1 second
+  this.passwordChangedAt = Date.now() - 1000;
   next();
 });
 
-// Instance method to check if the entered password matches the hashed password in the database
+// Query middleware to exclude inactive users
+userSchema.pre(/^find/, function (next) {
+  // 'this' points to the current query
+  this.find({ active: { $ne: false } });
+  next();
+});
+
+// Instance method to check if password is correct
 userSchema.methods.correctPassword = async function (
-  candidatePassword, // Password entered by the user during login
-  userPassword, // Hashed password stored in the database
+  candidatePassword,
+  userPassword,
 ) {
-  // Compare the entered password with the hashed password
+  // Compare entered password with hashed password
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
-// Method to check if the user changed their password after the JWT token was issued
+// Check if user changed password after the token was issued
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
-    // Convert the passwordChangedAt timestamp to seconds (JWT timestamp is in seconds)
+    // Convert to seconds
     const changedTimestamp = parseInt(
       this.passwordChangedAt.getTime() / 1000,
       10,
     );
 
-    // Return true if the password was changed after the token was issued
+    // Return true if password was changed after token issuance
     return JWTTimestamp < changedTimestamp;
   }
 
-  // Return false if the password has not been changed after the token was issued
+  // False means password was not changed
   return false;
 };
 
+// Generate password reset token
 userSchema.methods.createPasswordResetToken = function () {
-  // Generate a random token
+  // Generate random token
   const resetToken = crypto.randomBytes(32).toString("hex");
 
-  // Hash the token and store it in the database
+  // Hash the token and set it on the user schema
   this.passwordResetToken = crypto
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
 
-  // Set expiration time for the token (10 minutes)
+  // Set token expiration time (10 minutes)
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
-  return resetToken;
+  return resetToken; // Return plaintext token
 };
 
 const User = mongoose.model("User", userSchema);

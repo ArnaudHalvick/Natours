@@ -1,11 +1,19 @@
+// login.js
 import axios from "axios";
 import { showAlert } from "./alert";
 
 export const verify2FA = async code => {
   try {
+    // Retrieve the temporary token from localStorage
+    const tempToken = localStorage.getItem("tempToken");
+
+    // Make the API request with the temporary token in the Authorization header
     const res = await axios({
       method: "POST",
       url: "/api/v1/users/verify2FA",
+      headers: {
+        Authorization: `Bearer ${tempToken}`,
+      },
       data: {
         code,
       },
@@ -13,6 +21,7 @@ export const verify2FA = async code => {
 
     if (res.data.status === "success") {
       showAlert("success", "Login successful!");
+      localStorage.removeItem("tempToken"); // Remove the temporary token
 
       // Redirect to homepage after 1.5 seconds
       window.setTimeout(() => {
@@ -36,10 +45,14 @@ export const login = async (email, password) => {
     });
 
     if (res.data.status === "success") {
+      // Store the temporary token in localStorage
+      localStorage.setItem("tempToken", res.data.tempToken);
+
       showAlert("success", "2FA code sent to your email. Please check.");
 
+      // Redirect to 2FA verification page after 1 second
       window.setTimeout(() => {
-        location.assign("/verify-2fa"); // Redirect to 2FA verification page without query parameter
+        location.assign("/verify-2fa");
       }, 1000);
     }
   } catch (err) {
@@ -59,6 +72,6 @@ export const logout = async () => {
       location.assign("/");
     }
   } catch (err) {
-    showAlert("error", "Error loggin out.  Try again!");
+    showAlert("error", "Error logging out. Try again!");
   }
 };

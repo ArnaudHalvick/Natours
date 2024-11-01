@@ -28,6 +28,7 @@ const twoFALimiter = rateLimit({
 // Confirm the user’s email + 2FA route
 router.get("/confirmEmail/:token", authController.confirmEmail);
 router.post("/verify2FA", twoFALimiter, authController.verify2FA);
+router.post("/resend2FA", twoFALimiter, authController.resendTwoFACode);
 
 // Signup route
 router.post(
