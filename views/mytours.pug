@@ -7,7 +7,7 @@ block content
   .mytours-container
     h1.heading-secondary My Bookings
     if bookings.length > 0
-      each booking in bookings
+      each booking in bookings.sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
         .booking
           h2.booking__title= booking.tour.name
           .booking__info
@@ -26,5 +26,6 @@ block content
           .booking__buttons
             a.btn.btn--green.btn--small(href=`/tour/${booking.tour.slug}`) View Tour Details
             a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/checkout`) Purchase additional spots
+
     else
       p.booking__detail No bookings found.
