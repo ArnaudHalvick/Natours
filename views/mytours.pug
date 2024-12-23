@@ -12,20 +12,36 @@ block content
           h2.booking__title= booking.tour.name
           .booking__info
             .booking__detail
-              strong Purchase Date: 
+              strong Purchase Date:
               | #{new Date(booking.createdAt).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
             .booking__detail
-              strong Price: 
+              strong Price:
               | $#{booking.price}
             .booking__detail
-              strong Start Date: 
+              strong Start Date:
               | #{new Date(booking.startDate).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
             .booking__detail
-              strong Participants: 
+              strong Participants:
               | #{booking.numParticipants}
           .booking__buttons
             a.btn.btn--green.btn--small(href=`/tour/${booking.tour.slug}`) View Tour Details
-            a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/checkout`) Purchase additional spots
+
+            if new Date(booking.startDate) < new Date()
+              // Show a 'Write a Review' button if the tour is in the past
+              a.btn.btn--blue-review.btn--small(href=`/reviews/${booking.tour._id}`) Write a Review
+            else
+              // Let them purchase additional spots if the tour is in the future
+              a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/checkout`) Purchase additional spots
 
     else
       p.booking__detail No bookings found.
+  // If there's an alertMessage passed in, we show the alert on page load
+  if alertMessage
+    script.
+      (function() {
+        const type = '#{alertType}';   // 'success' or 'error'
+        const msg = '#{alertMessage}'; // e.g. 'Review posted successfully!'
+        window.onload = function() {
+          showAlert(type, msg, 5);     // 5 seconds is your default
+        };
+      })();    

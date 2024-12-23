@@ -2,6 +2,7 @@ const Tour = require("../models/tourModel");
 const Booking = require("../models/bookingModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
+const Review = require("../models/reviewModel");
 
 exports.alerts = (req, res, next) => {
   const { alert } = req.query;
@@ -58,12 +59,30 @@ exports.getAccount = (req, res) => {
   });
 };
 
+// viewsController.js
 exports.getMyTours = async (req, res) => {
   try {
     const bookings = await Booking.find({ user: req.user.id }).populate("tour");
+
+    // Decide whether we have an alert to show
+    let alertObj = null;
+
+    if (req.query.alert === "reviewSuccess") {
+      alertObj = { type: "success", message: "Review posted successfully!" };
+    } else if (req.query.alert === "alreadyReviewed") {
+      alertObj = {
+        type: "error",
+        message: "You have already posted a review for this tour!",
+      };
+    }
+
+    // If we have an alert object, convert it to JSON; otherwise null
+    const alertJSON = alertObj ? JSON.stringify(alertObj) : null;
+
     res.status(200).render("mytours", {
       title: "My Tours",
       bookings,
+      alert: alertJSON, // <-- we'll pass this directly into base.pug's body(data-alert=...)
     });
   } catch (err) {
     console.error(err);
@@ -113,3 +132,41 @@ exports.getVerify2FA = (req, res) => {
     email: req.query.email,
   });
 };
+
+exports.getReviewPage = catchAsync(async (req, res, next) => {
+  const { tourId } = req.params;
+  // Optionally, fetch the tour to display some info (like the tour's name).
+  // e.g., const tour = await Tour.findById(tourId);
+
+  // If you want to ensure the tour exists:
+  // if (!tour) {
+  //   return next(new AppError('No tour found with that ID.', 404));
+  // }
+
+  res.status(200).render("review", {
+    title: "Write a Review",
+    // tour, // pass if you fetched the tour
+    tourId, // pass the id for the form action
+  });
+});
+
+exports.createReviewAndRender = catchAsync(async (req, res, next) => {
+  const { tour, user } = req.body; // setTourUserIds put them in req.body
+
+  try {
+    // 1) Check for existing
+    const existingReview = await Review.findOne({ tour, user });
+    if (existingReview) {
+      // User already posted a review
+      return res.redirect("/my-tours?alert=alreadyReviewed");
+    }
+
+    // 2) Create if not found
+    await Review.create(req.body);
+
+    // 3) Redirect with success
+    return res.redirect("/my-tours?alert=reviewSuccess");
+  } catch (err) {
+    return next(err);
+  }
+});

@@ -61,18 +61,31 @@
   text-align: center;
 }
 
+.btn--small {
+  padding: 0.6rem 1.2rem;
+  font-size: 1.2rem;
+}
+
+/* Existing .btn--green */
 .btn--green {
   background-color: #55c57a;
 }
-
 .btn--green:hover {
   background-color: #28b487;
 }
 
+/* Existing .btn--blue for "Purchase additional spots" */
 .btn--blue {
   background-color: #3498db;
 }
-
 .btn--blue:hover {
   background-color: #2980b9;
+}
+
+/* NEW: .btn--blue-review for "Write a Review" */
+.btn--blue-review {
+  background-color: #9b59b6; /* Purple shade */
+}
+.btn--blue-review:hover {
+  background-color: #8e44ad; /* Slightly darker purple */
 }

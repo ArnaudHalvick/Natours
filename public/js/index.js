@@ -75,8 +75,16 @@ document.addEventListener("DOMContentLoaded", function () {
 // Event listener for logout button
 if (logoutBtn) logoutBtn.addEventListener("click", logout);
 
-const alertMessage = document.querySelector("body").dataset.alert;
-if (alertMessage) showAlert("success", alertMessage, 15);
+const alertData = document.querySelector("body").dataset.alert;
+if (alertData) {
+  try {
+    const alertObj = JSON.parse(alertData);
+    showAlert(alertObj.type, alertObj.message, 15);
+  } catch (err) {
+    // If alertData isn't valid JSON, just display it as success text
+    showAlert("success", alertData, 15);
+  }
+}
 
 // Event listener for booking form submission
 if (bookingForm) {
