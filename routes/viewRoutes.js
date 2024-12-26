@@ -29,12 +29,15 @@ router.get(
   viewsController.getReviewForm,
 );
 
-// route for “Edit Review” page
+// Route for “Edit Review” page
 router.get(
   "/tour/:slug/review/:reviewId/edit",
   authController.protect,
   viewsController.getEditReviewForm,
 );
+
+// Route to see your reviews
+router.get("/my-reviews", authController.protect, viewsController.getMyReviews);
 
 // Check email, confirmation success and 2FA
 router.get("/checkEmail", viewsController.getCheckEmail);

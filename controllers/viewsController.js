@@ -192,3 +192,15 @@ exports.getEditReviewForm = catchAsync(async (req, res, next) => {
     review,
   });
 });
+
+exports.getMyReviews = catchAsync(async (req, res, next) => {
+  // 1) Find all reviews by the logged-in user
+  const reviews = await Review.find({ user: req.user.id }).populate("tour");
+
+  // 2) Render the `my-reviews` template with the user's reviews
+  res.status(200).render("myreviews", {
+    title: "My Reviews",
+    reviews,
+    user: req.user, // Pass the current user to render the side menu
+  });
+});
