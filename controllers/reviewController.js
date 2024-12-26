@@ -1,6 +1,7 @@
 const Review = require("./../models/reviewModel");
 const Booking = require("./../models/bookingModel");
 const factory = require("./handlerFactory");
+const catchAsync = require("./../utils/catchAsync");
 
 // Middleware to set tour and user IDs when using the nested route
 exports.setTourUserIds = (req, res, next) => {
