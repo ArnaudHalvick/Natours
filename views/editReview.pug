@@ -24,4 +24,7 @@ block content
         label.form__label(for="review") Your Review
         textarea.form__input(name="review" id="review" rows="5" required)= review.review
 
-      button.btn.btn--green(type="submit") Update Review
+      // This container can help keep the buttons side by side
+      .form__buttons
+        button.btn.btn--green(type="submit") Update Review
+        button.btn.btn--red(type="button", id="deleteReviewBtn") Delete Review

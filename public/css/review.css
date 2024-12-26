@@ -25,6 +25,11 @@
   flex-direction: column;
 }
 
+.form__buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
 .form__label {
   font-size: 1.6rem;
   font-weight: 700;
@@ -47,9 +52,21 @@
 }
 
 .btn--green {
-  align-self: flex-start;
   padding: 1rem 2rem;
   font-size: 1.6rem;
   border-radius: 0.5rem;
   text-transform: uppercase;
+}
+
+.btn--red {
+  padding: 1rem 2rem;
+  font-size: 1.6rem;
+  border-radius: 0.5rem;
+  text-transform: uppercase;
+  color: white;
+  background-color: #e74c3c;
+}
+
+.btn--red:hover {
+  background-color: #c0392b;
 }

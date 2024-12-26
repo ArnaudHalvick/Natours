@@ -5,7 +5,7 @@ import { updateSettings } from "./updateSettings";
 import { signup } from "./signup";
 import { bookTour } from "./stripe";
 import { showAlert } from "./alert";
-import { updateReview, createReview } from "./review";
+import { deleteReview, updateReview, createReview } from "./review";
 
 // Element selectors for forms and buttons
 const loginForm = document.querySelector("#loginForm");
@@ -138,12 +138,20 @@ if (reviewForm) {
 }
 
 if (editReviewForm) {
+  // Update Review form submit
   editReviewForm.addEventListener("submit", e => {
     e.preventDefault();
     const rating = +document.getElementById("rating").value;
     const reviewText = document.getElementById("review").value;
     const reviewId = editReviewForm.dataset.reviewId;
-
     updateReview(reviewId, rating, reviewText);
+  });
+
+  // Delete Review button
+  const deleteReviewBtn = document.getElementById("deleteReviewBtn");
+  deleteReviewBtn.addEventListener("click", e => {
+    e.preventDefault();
+    const reviewId = editReviewForm.dataset.reviewId;
+    deleteReview(reviewId);
   });
 }

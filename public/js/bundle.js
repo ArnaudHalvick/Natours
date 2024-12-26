@@ -6478,7 +6478,7 @@ var bookTour = exports.bookTour = /*#__PURE__*/function () {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.updateReview = exports.createReview = void 0;
+exports.updateReview = exports.deleteReview = exports.createReview = void 0;
 var _axios = _interopRequireDefault(require("axios"));
 var _alert = require("./alert");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
@@ -6580,6 +6580,38 @@ var updateReview = exports.updateReview = /*#__PURE__*/function () {
   }));
   return function updateReview(_x4, _x5, _x6) {
     return _ref2.apply(this, arguments);
+  };
+}();
+var deleteReview = exports.deleteReview = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(reviewId) {
+    var _err$response3, errorMessage;
+    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+      while (1) switch (_context3.prev = _context3.next) {
+        case 0:
+          _context3.prev = 0;
+          _context3.next = 3;
+          return _axios.default.delete("/api/v1/reviews/".concat(reviewId));
+        case 3:
+          (0, _alert.showAlert)("success", "Review deleted successfully!");
+          // Redirect after a short delay
+          window.setTimeout(function () {
+            location.assign("/my-tours");
+          }, 1500);
+          _context3.next = 11;
+          break;
+        case 7:
+          _context3.prev = 7;
+          _context3.t0 = _context3["catch"](0);
+          errorMessage = ((_err$response3 = _context3.t0.response) === null || _err$response3 === void 0 || (_err$response3 = _err$response3.data) === null || _err$response3 === void 0 ? void 0 : _err$response3.message) || "Something went wrong deleting the review.";
+          (0, _alert.showAlert)("error", errorMessage);
+        case 11:
+        case "end":
+          return _context3.stop();
+      }
+    }, _callee3, null, [[0, 7]]);
+  }));
+  return function deleteReview(_x7) {
+    return _ref3.apply(this, arguments);
   };
 }();
 },{"axios":"../../node_modules/axios/index.js","./alert":"alert.js"}],"index.js":[function(require,module,exports) {
@@ -6769,12 +6801,21 @@ if (reviewForm) {
   });
 }
 if (editReviewForm) {
+  // Update Review form submit
   editReviewForm.addEventListener("submit", function (e) {
     e.preventDefault();
     var rating = +document.getElementById("rating").value;
     var reviewText = document.getElementById("review").value;
     var reviewId = editReviewForm.dataset.reviewId;
     (0, _review.updateReview)(reviewId, rating, reviewText);
+  });
+
+  // Delete Review button
+  var deleteReviewBtn = document.getElementById("deleteReviewBtn");
+  deleteReviewBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    var reviewId = editReviewForm.dataset.reviewId;
+    (0, _review.deleteReview)(reviewId);
   });
 }
 },{"./login":"login.js","./mapbox":"mapbox.js","./updateSettings":"updateSettings.js","./signup":"signup.js","./stripe":"stripe.js","./alert":"alert.js","./review":"review.js"}],"../../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {

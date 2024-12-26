@@ -63,3 +63,21 @@ export const updateReview = async (reviewId, rating, reviewText) => {
     showAlert("error", errorMessage);
   }
 };
+
+export const deleteReview = async reviewId => {
+  try {
+    // Send DELETE request to the API
+    await axios.delete(`/api/v1/reviews/${reviewId}`);
+
+    showAlert("success", "Review deleted successfully!");
+    // Redirect after a short delay
+    window.setTimeout(() => {
+      location.assign("/my-tours");
+    }, 1500);
+  } catch (err) {
+    const errorMessage =
+      err.response?.data?.message ||
+      "Something went wrong deleting the review.";
+    showAlert("error", errorMessage);
+  }
+};
