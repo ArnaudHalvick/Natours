@@ -1,42 +1,68 @@
 extends base
 
+mixin sideNavItem(icon, text, href, active=false)
+  li(class= active ? 'side-nav--active' : '')
+    a(href=href)
+      svg
+        use(xlink:href=`/img/icons.svg#icon-${icon}`)
+      | #{text}
+
 block append head
-  link(rel="stylesheet", href="/css/mytours.css")
+  link(rel="stylesheet" href="/css/mytours.css") 
 
 block content
-  .mytours-container
-    h1.heading-secondary My Bookings
-    if bookings.length > 0
-      each booking in bookings.sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
-        .booking
-          h2.booking__title= booking.tour.name
-          .booking__info
-            .booking__detail
-              strong Purchase Date: 
-              | #{new Date(booking.createdAt).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
-            .booking__detail
-              strong Price: 
-              | $#{booking.price}
-            .booking__detail
-              strong Start Date: 
-              | #{new Date(booking.startDate).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
-            .booking__detail
-              strong Participants: 
-              | #{booking.numParticipants}
-          .booking__buttons
-            a.btn.btn--green.btn--small(href=`/tour/${booking.tour.slug}`) View Tour Details
+  main.main
+    .user-view
+      nav.user-view__menu
+        ul.side-nav
+          +sideNavItem('settings', 'Settings', '/me')
+          +sideNavItem('briefcase', 'My bookings', '/my-tours', true)
+          +sideNavItem('star', 'My reviews', '#')
+          +sideNavItem('credit-card', 'Billing', '#')
 
-            - const hasStarted = new Date(booking.startDate) < new Date()
-            if hasStarted
-              if reviewsByTour && reviewsByTour[booking.tour._id]
-                // If user already has a review for this Tour
-                a.btn.btn--orange.btn--small(
-                  href=`/tour/${booking.tour.slug}/review/${reviewsByTour[booking.tour._id]._id}/edit`
-                ) Edit Review
-              else
-                // If user hasn't posted a review
-                a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/review`) Write a Review
+        //- Show the admin navigation if user is admin or lead-guide
+        if user.role === 'admin' || user.role === 'lead-guide'
+          .admin-nav
+            h5.admin-nav__heading Admin
+            ul.side-nav
+              +sideNavItem('map', 'Manage tours', '#')
+
+        //- Show only for admin
+        if user.role === 'admin'
+          ul.side-nav
+            +sideNavItem('users', 'Manage users', '#')
+            +sideNavItem('star', 'Manage reviews', '#')
+            +sideNavItem('briefcase', 'Manage bookings', '#')
+
+      .user-view__content
+        .user-view__form-container
+          h2.heading-secondary.ma-bt-md Your Bookings
+
+          .mytours-container
+            if bookings.length > 0
+              each booking in bookings.sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+                .booking
+                  h2.booking__title= booking.tour.name
+                  .booking__info
+                    .booking__detail
+                      strong Purchase Date: 
+                      | #{new Date(booking.createdAt).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
+                    .booking__detail
+                      strong Price: 
+                      | $#{booking.price}
+                    .booking__detail
+                      strong Start Date: 
+                      | #{new Date(booking.startDate).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
+                    .booking__detail
+                      strong Participants: 
+                      | #{booking.numParticipants}
+                  .booking__buttons
+                    a.btn.btn--green.btn--small(href=`/tour/${booking.tour.slug}`) View Tour Details
+
+                    - const hasStarted = new Date(booking.startDate) < new Date()
+                    if hasStarted
+                      a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/review`) Write a Review
+                    else
+                      a.btn.btn--purple.btn--small(href=`/tour/${booking.tour.slug}/checkout`) Add travelers
             else
-              a.btn.btn--purple.btn--small(href=`/tour/${booking.tour.slug}/checkout`) Purchase additional spots
-    else
-      p.booking__detail No bookings found.
+              p.booking__detail No bookings found.
