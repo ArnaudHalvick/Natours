@@ -2,6 +2,7 @@ const Tour = require("../models/tourModel");
 const Booking = require("../models/bookingModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
+const Review = require("../models/reviewModel");
 
 exports.alerts = (req, res, next) => {
   const { alert } = req.query;
@@ -26,7 +27,7 @@ exports.getTour = catchAsync(async (req, res, next) => {
   // 1) Get the data for the requested tour (including reviews and guides)
   const tour = await Tour.findOne({ slug: req.params.slug }).populate({
     path: "reviews",
-    select: "review rating user", // Corrected to `select`
+    select: "review rating user",
   });
 
   if (!tour) {
@@ -60,10 +61,26 @@ exports.getAccount = (req, res) => {
 
 exports.getMyTours = async (req, res) => {
   try {
+    // 1) Find all bookings for this user
     const bookings = await Booking.find({ user: req.user.id }).populate("tour");
+
+    // 2) Find all reviews for this user
+    const userReviews = await Review.find({ user: req.user.id });
+
+    // 3) Create a lookup object by tourId
+    //    Key:   <tourId as a string>
+    //    Value: the entire review doc (or at least the _id, rating, review)
+    const reviewsByTour = {};
+    userReviews.forEach(review => {
+      // Convert ObjectId to string
+      reviewsByTour[review.tour.toString()] = review;
+    });
+
+    // 4) Render 'mytours', passing both bookings & reviewsByTour
     res.status(200).render("mytours", {
       title: "My Tours",
       bookings,
+      reviewsByTour,
     });
   } catch (err) {
     console.error(err);
@@ -127,3 +144,31 @@ exports.getReviewForm = async (req, res, next) => {
     tour,
   });
 };
+
+exports.getEditReviewForm = catchAsync(async (req, res, next) => {
+  // 1) Find the tour
+  const tour = await Tour.findOne({ slug: req.params.slug });
+  if (!tour) {
+    return next(new AppError("No tour found with that slug.", 404));
+  }
+
+  // 2) Find the review by ID
+  const review = await Review.findById(req.params.reviewId);
+  if (!review) {
+    return next(new AppError("No review found with that ID.", 404));
+  }
+
+  // (Optional) Ensure the user owns this review, else 403
+  if (review.user._id.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(
+      new AppError("You do not have permission to edit this review.", 403),
+    );
+  }
+
+  // 3) Render the edit form
+  res.status(200).render("editReview", {
+    title: `Edit Review for ${tour.name}`,
+    tour,
+    review,
+  });
+});

@@ -5,7 +5,7 @@ import { updateSettings } from "./updateSettings";
 import { signup } from "./signup";
 import { bookTour } from "./stripe";
 import { showAlert } from "./alert";
-import { createReview } from "./review";
+import { updateReview, createReview } from "./review";
 
 // Element selectors for forms and buttons
 const loginForm = document.querySelector("#loginForm");
@@ -17,6 +17,7 @@ const bookingForm = document.querySelector("#bookingForm");
 const twoFAForm = document.querySelector("#twoFAForm");
 const resendButton = document.getElementById("resendCode");
 const reviewForm = document.querySelector("#reviewForm");
+const editReviewForm = document.querySelector("#editReviewForm");
 
 // Event listener for login form
 if (loginForm) {
@@ -133,5 +134,16 @@ if (reviewForm) {
 
     // Call our createReview function
     createReview(tourId, rating, reviewText);
+  });
+}
+
+if (editReviewForm) {
+  editReviewForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const rating = +document.getElementById("rating").value;
+    const reviewText = document.getElementById("review").value;
+    const reviewId = editReviewForm.dataset.reviewId;
+
+    updateReview(reviewId, rating, reviewText);
   });
 }

@@ -41,3 +41,25 @@ export const createReview = async (tourId, rating, reviewText) => {
     }, 2000);
   }
 };
+
+export const updateReview = async (reviewId, rating, reviewText) => {
+  try {
+    const res = await axios({
+      method: "PATCH",
+      url: `/api/v1/reviews/${reviewId}`,
+      data: { rating, review: reviewText },
+    });
+
+    if (res.data.status === "success") {
+      showAlert("success", "Review updated successfully!");
+      window.setTimeout(() => {
+        location.assign("/my-tours");
+      }, 2000);
+    }
+  } catch (err) {
+    const errorMessage =
+      err.response?.data?.message ||
+      "Something went wrong while updating the review.";
+    showAlert("error", errorMessage);
+  }
+};

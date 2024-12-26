@@ -29,6 +29,13 @@ router.get(
   viewsController.getReviewForm,
 );
 
+// route for “Edit Review” page
+router.get(
+  "/tour/:slug/review/:reviewId/edit",
+  authController.protect,
+  viewsController.getEditReviewForm,
+);
+
 // Check email, confirmation success and 2FA
 router.get("/checkEmail", viewsController.getCheckEmail);
 router.get("/confirmSuccess", viewsController.getConfirmSuccess);

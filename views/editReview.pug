@@ -1,0 +1,27 @@
+extends base
+
+block append head
+  link(rel="stylesheet", href="/css/review.css")
+
+block content
+  .review-container
+    h1.heading-secondary Edit Your Review for #{tour.name}
+
+    form#editReviewForm.form(
+      data-review-id=review._id
+      data-tour-id=tour._id
+    )
+      .form__group
+        label.form__label(for="rating") Rating
+        select.form__input(name="rating" id="rating" required)
+          each number in [1, 2, 3, 4, 5]
+            option(
+              value=number
+              selected=(review.rating === number ? true : false)
+            ) #{number}
+
+      .form__group
+        label.form__label(for="review") Your Review
+        textarea.form__input(name="review" id="review" rows="5" required)= review.review
+
+      button.btn.btn--green(type="submit") Update Review
