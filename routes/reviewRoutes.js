@@ -14,6 +14,7 @@ router.use(authController.protect);
 router.route("/").post(
   authController.restrictTo("user"), // Only users can post reviews
   reviewController.setTourUserIds,
+  reviewController.preventReviewBeforeStart,
   reviewController.createReview,
 );
 

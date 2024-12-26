@@ -1,4 +1,5 @@
 const Review = require("./../models/reviewModel");
+const Booking = require("./../models/bookingModel");
 const factory = require("./handlerFactory");
 
 // Middleware to set tour and user IDs when using the nested route
@@ -24,3 +25,27 @@ exports.createReview = factory.createOne(Review);
 
 // Delete a review by ID
 exports.deleteReview = factory.deleteOne(Review);
+
+exports.preventReviewBeforeStart = catchAsync(async (req, res, next) => {
+  // 1) Check if the user has a booking for this tour
+  const booking = await Booking.findOne({
+    user: req.user.id,
+    tour: req.params.tourId || req.body.tour,
+  });
+
+  if (!booking) {
+    return next(new AppError("You have not booked this tour.", 403));
+  }
+
+  // 2) Check if the start date is in the past
+  if (new Date(booking.startDate) > new Date()) {
+    return next(
+      new AppError(
+        "You cannot create a review before the tour has started.",
+        403,
+      ),
+    );
+  }
+
+  next();
+});

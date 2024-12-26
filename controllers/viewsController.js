@@ -138,7 +138,27 @@ exports.getReviewForm = async (req, res, next) => {
     return next(new AppError("No tour found with that slug.", 404));
   }
 
-  // 2) Render a new Pug template: review.pug
+  // 2) Confirm the user has a booking for this tour that has already started
+  const booking = await Booking.findOne({
+    user: req.user.id,
+    tour: tour._id,
+  });
+
+  if (!booking) {
+    return next(new AppError("You have not booked this tour.", 403));
+  }
+
+  const hasStarted = new Date(booking.startDate) < new Date();
+  if (!hasStarted) {
+    return next(
+      new AppError(
+        "You cannot write a review before the tour has started.",
+        403,
+      ),
+    );
+  }
+
+  // 3) Render the review form (if checks pass)
   res.status(200).render("review", {
     title: `Review ${tour.name}`,
     tour,
