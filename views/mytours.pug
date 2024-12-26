@@ -61,7 +61,14 @@ block content
 
                     - const hasStarted = new Date(booking.startDate) < new Date()
                     if hasStarted
-                      a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/review`) Write a Review
+                      if reviewsByTour && reviewsByTour[booking.tour._id]
+                        // If user already has a review for this Tour
+                        a.btn.btn--orange.btn--small(
+                          href=`/tour/${booking.tour.slug}/review/${reviewsByTour[booking.tour._id]._id}/edit`
+                        ) Edit Review
+                      else
+                        // If user hasn't posted a review
+                        a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/review`) Write a Review
                     else
                       a.btn.btn--purple.btn--small(href=`/tour/${booking.tour.slug}/checkout`) Add travelers
             else
