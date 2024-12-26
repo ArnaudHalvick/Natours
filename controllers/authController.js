@@ -29,11 +29,14 @@ const createSendToken = (user, statusCode, res, req) => {
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 86400000,
     ),
     httpOnly: true,
-    secure:
-      req.secure ||
-      req.headers["x-forwarded-proto"] === "https" ||
-      process.env.NODE_ENV === "production",
+    secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+    sameSite: process.env.NODE_ENV === "production" ? "Strict" : "Lax",
   };
+
+  // Only set domain in production
+  if (process.env.NODE_ENV === "production") {
+    cookieOptions.domain = process.env.COOKIE_DOMAIN;
+  }
 
   res.cookie("jwt", token, cookieOptions);
   user.password = undefined;
