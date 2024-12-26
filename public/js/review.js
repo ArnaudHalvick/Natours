@@ -19,7 +19,7 @@ export const createReview = async (tourId, rating, reviewText) => {
       showAlert("success", "Review submitted successfully!");
       window.setTimeout(() => {
         location.assign("/my-tours");
-      }, 4000);
+      }, 2000);
     }
   } catch (err) {
     // If there is an error, check if it’s a duplicate review
@@ -38,6 +38,6 @@ export const createReview = async (tourId, rating, reviewText) => {
     // In both cases, redirect after 4 seconds
     window.setTimeout(() => {
       location.assign("/my-tours");
-    }, 4000);
+    }, 2000);
   }
 };

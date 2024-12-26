@@ -6510,7 +6510,7 @@ var createReview = exports.createReview = /*#__PURE__*/function () {
             (0, _alert.showAlert)("success", "Review submitted successfully!");
             window.setTimeout(function () {
               location.assign("/my-tours");
-            }, 4000);
+            }, 2000);
           }
           _context.next = 12;
           break;
@@ -6530,7 +6530,7 @@ var createReview = exports.createReview = /*#__PURE__*/function () {
           // In both cases, redirect after 4 seconds
           window.setTimeout(function () {
             location.assign("/my-tours");
-          }, 4000);
+          }, 2000);
         case 12:
         case "end":
           return _context.stop();
