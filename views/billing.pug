@@ -1,0 +1,52 @@
+extends base
+
+mixin sideNavItem(icon, text, href, active=false)
+  li(class= active ? 'side-nav--active' : '')
+    a(href=href)
+      svg
+        use(xlink:href=`/img/icons.svg#icon-${icon}`)
+      | #{text}
+
+block append head
+  link(rel="stylesheet", href="/css/billing.css")
+
+block content
+  main.main
+    .user-view
+      nav.user-view__menu
+        ul.side-nav
+          +sideNavItem('settings', 'Settings', '/me')
+          +sideNavItem('briefcase', 'My bookings', '/my-tours')
+          +sideNavItem('star', 'My reviews', '/my-reviews')
+          +sideNavItem('credit-card', 'Billing', '/billing', true)
+
+        // Admin navigation (optional)
+        if user.role === 'admin'
+          .admin-nav
+            h5.admin-nav__heading Admin
+            ul.side-nav
+              +sideNavItem('map', 'Manage tours', '#')
+              +sideNavItem('users', 'Manage users', '#')
+              +sideNavItem('star', 'Manage reviews', '#')
+
+      .user-view__content
+        .user-view__form-container
+          h2.heading-secondary.ma-bt-md Billing
+
+          .billing-summary
+            h3 Summary
+            p Total Spent: $#{totalSpent.toFixed(2)}
+
+          .transaction-container
+            h3 Your Transactions
+            if transactions.length > 0
+              each transaction in transactions
+                .transaction
+                  h3.transaction__title= transaction.tour.name
+                  .transaction__info
+                    p Date: #{new Date(transaction.createdAt).toLocaleDateString()}
+                    p Amount: $#{transaction.price.toFixed(2)}
+                    p Status: Completed
+                  a.btn.btn--blue.btn--small(href=`/download-invoice/${transaction.id}`) Download Invoice
+            else
+              p No transactions found.

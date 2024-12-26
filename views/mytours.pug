@@ -18,7 +18,7 @@ block content
           +sideNavItem('settings', 'Settings', '/me')
           +sideNavItem('briefcase', 'My bookings', '/my-tours', true)
           +sideNavItem('star', 'My reviews', '/my-reviews')
-          +sideNavItem('credit-card', 'Billing', '#')
+          +sideNavItem('credit-card', 'Billing', '/billing')
 
         //- Show the admin navigation if user is admin or lead-guide
         if user.role === 'admin' || user.role === 'lead-guide'
