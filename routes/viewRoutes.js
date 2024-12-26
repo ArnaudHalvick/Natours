@@ -22,6 +22,13 @@ router.get(
   viewsController.getCheckout,
 );
 
+// Route for writing a review (only if user is logged in)
+router.get(
+  "/tour/:slug/review",
+  authController.protect,
+  viewsController.getReviewForm,
+);
+
 // Check email, confirmation success and 2FA
 router.get("/checkEmail", viewsController.getCheckEmail);
 router.get("/confirmSuccess", viewsController.getConfirmSuccess);

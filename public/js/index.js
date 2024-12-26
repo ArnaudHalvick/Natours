@@ -5,6 +5,7 @@ import { updateSettings } from "./updateSettings";
 import { signup } from "./signup";
 import { bookTour } from "./stripe";
 import { showAlert } from "./alert";
+import { createReview } from "./review";
 
 // Element selectors for forms and buttons
 const loginForm = document.querySelector("#loginForm");
@@ -15,6 +16,7 @@ const logoutBtn = document.querySelector(".nav__el--logout");
 const bookingForm = document.querySelector("#bookingForm");
 const twoFAForm = document.querySelector("#twoFAForm");
 const resendButton = document.getElementById("resendCode");
+const reviewForm = document.querySelector("#reviewForm");
 
 // Event listener for login form
 if (loginForm) {
@@ -115,5 +117,21 @@ if (resendButton) {
     } catch (err) {
       showAlert("error", "Failed to resend 2FA code.");
     }
+  });
+}
+
+// Event listener for Review form submission
+if (reviewForm) {
+  reviewForm.addEventListener("submit", e => {
+    e.preventDefault();
+    // Retrieve user input
+    const rating = +document.getElementById("rating").value; // convert to number
+    const reviewText = document.getElementById("review").value;
+    // You might store the Tour ID in a data attribute:
+    // <form id="reviewForm" data-tour-id="{{tour._id}}">
+    const tourId = reviewForm.dataset.tourId;
+
+    // Call our createReview function
+    createReview(tourId, rating, reviewText);
   });
 }

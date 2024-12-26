@@ -25,7 +25,13 @@ block content
               | #{booking.numParticipants}
           .booking__buttons
             a.btn.btn--green.btn--small(href=`/tour/${booking.tour.slug}`) View Tour Details
-            a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/checkout`) Purchase additional spots
+
+            - const hasStarted = new Date(booking.startDate) < new Date()
+            if hasStarted
+              a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/review`) Write a Review
+            else
+              a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/checkout`) Purchase additional spots
+
 
     else
       p.booking__detail No bookings found.

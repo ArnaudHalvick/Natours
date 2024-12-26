@@ -113,3 +113,17 @@ exports.getVerify2FA = (req, res) => {
     email: req.query.email,
   });
 };
+
+exports.getReviewForm = async (req, res, next) => {
+  // 1) Find the tour by slug
+  const tour = await Tour.findOne({ slug: req.params.slug });
+  if (!tour) {
+    return next(new AppError("No tour found with that slug.", 404));
+  }
+
+  // 2) Render a new Pug template: review.pug
+  res.status(200).render("review", {
+    title: `Review ${tour.name}`,
+    tour,
+  });
+};
