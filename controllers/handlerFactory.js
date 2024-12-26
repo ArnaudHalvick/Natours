@@ -109,28 +109,27 @@ exports.deleteOne = Model =>
 // Create a new document, ensuring no duplicate reviews for the same tour/user
 exports.createOne = Model =>
   catchAsync(async (req, res, next) => {
-    // If creating a review, ensure no duplicate reviews by the same user for the same tour
-    if (Model.modelName === "Review") {
-      const existingReview = await Model.findOne({
-        tour: req.body.tour,
-        user: req.body.user,
-      });
+    try {
+      // Create the document (for all models, including reviews)
+      const doc = await Model.create(req.body);
 
-      if (existingReview) {
+      // Send success response with the newly created document
+      return res.status(201).json({
+        status: "success",
+        data: {
+          data: doc,
+        },
+      });
+    } catch (err) {
+      // If MongoDB duplicate key error => err.code === 11000
+      if (err.code === 11000 && Model.modelName === "Review") {
+        // We interpret this as "user has already posted a review for this tour"
         return next(
           new AppError("You have already posted a review for this tour.", 400),
         );
       }
+
+      // Otherwise, pass any other errors to the global error handler
+      return next(err);
     }
-
-    // Create the document (for all models, including reviews)
-    const doc = await Model.create(req.body);
-
-    // Send success response with the newly created document
-    res.status(201).json({
-      status: "success",
-      data: {
-        data: doc,
-      },
-    });
   });

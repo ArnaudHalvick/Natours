@@ -1,12 +1,12 @@
+// review.js
 import axios from "axios";
 import { showAlert } from "./alert";
 
-// This function sends the POST request to create a new review
 export const createReview = async (tourId, rating, reviewText) => {
   try {
     const res = await axios({
       method: "POST",
-      url: "/api/v1/reviews", // Using your existing /api/v1/reviews route
+      url: "/api/v1/reviews",
       data: {
         tour: tourId,
         rating,
@@ -15,16 +15,29 @@ export const createReview = async (tourId, rating, reviewText) => {
     });
 
     if (res.data.status === "success") {
+      // If creation is successful
       showAlert("success", "Review submitted successfully!");
-      // Optionally redirect or reload page:
       window.setTimeout(() => {
-        location.reload(); // Or location.assign(`/tour/${tourSlug}`)
-      }, 1500);
+        location.assign("/my-tours");
+      }, 4000);
     }
   } catch (err) {
-    // Handle errors
-    // Either show a custom message or use the error message from server
-    const message = err.response?.data?.message || "Failed to post review.";
-    showAlert("error", message);
+    // If there is an error, check if it’s a duplicate review
+    // MongoDB duplicate key error => code "E11000"
+    const errorMessage =
+      err.response?.data?.message ||
+      "Something went wrong while posting review.";
+
+    if (errorMessage.toLowerCase().includes("duplicate")) {
+      // The user already has a review for this tour
+      showAlert("error", "You have already created a review for this tour.");
+    } else {
+      showAlert("error", errorMessage);
+    }
+
+    // In both cases, redirect after 4 seconds
+    window.setTimeout(() => {
+      location.assign("/my-tours");
+    }, 4000);
   }
 };
