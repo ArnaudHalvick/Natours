@@ -62,26 +62,24 @@ exports.getAccount = (req, res) => {
 
 exports.getMyTours = async (req, res) => {
   try {
-    // 1) Find all bookings for this user
+    // Fetch user bookings and associated tours
     const bookings = await Booking.find({ user: req.user.id }).populate("tour");
 
-    // 2) Find all reviews for this user
-    const userReviews = await Review.find({ user: req.user.id });
-
-    // 3) Create a lookup object by tourId
-    //    Key:   <tourId as a string>
-    //    Value: the entire review doc (or at least the _id, rating, review)
-    const reviewsByTour = {};
-    userReviews.forEach(review => {
-      // Convert ObjectId to string
-      reviewsByTour[review.tour.toString()] = review;
+    // Fetch user refunds and create a mapping of bookingId to refund status
+    const refunds = await Refund.find({ user: req.user.id });
+    const refundsByBooking = {};
+    refunds.forEach(refund => {
+      refundsByBooking[refund.booking.toString()] = refund.status;
     });
 
-    // 4) Render 'mytours', passing both bookings & reviewsByTour
+    // Log to debug (remove in production)
+    console.log(refundsByBooking);
+
+    // Pass bookings and refunds mapping to template
     res.status(200).render("mytours", {
       title: "My Tours",
       bookings,
-      reviewsByTour,
+      refundsByBooking,
     });
   } catch (err) {
     console.error(err);

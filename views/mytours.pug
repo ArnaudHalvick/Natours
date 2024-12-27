@@ -20,14 +20,12 @@ block content
           +sideNavItem('star', 'My reviews', '/my-reviews')
           +sideNavItem('credit-card', 'Billing', '/billing')
 
-        //- Show the admin navigation if user is admin or lead-guide
         if user.role === 'admin' || user.role === 'lead-guide'
           .admin-nav
             h5.admin-nav__heading Admin
             ul.side-nav
               +sideNavItem('map', 'Manage tours', '#')
 
-        //- Show only for admin
         if user.role === 'admin'
           ul.side-nav
             +sideNavItem('users', 'Manage users', '#')
@@ -62,7 +60,6 @@ block content
                       | #{booking.numParticipants}
 
                   .booking__buttons
-                    // Buttons aligned to the left
                     - const hasStarted = new Date(booking.startDate) < new Date()
                     if hasStarted
                       if reviewsByTour && reviewsByTour[booking.tour._id]
@@ -76,6 +73,16 @@ block content
 
                     // Refund button aligned to the right of buttons
                     if !hasStarted
-                      button.btn.btn--red.btn--small.btn--refund( type="button", data-booking-id=`${booking._id}` ) Request Refund
+                      - const refundStatus = refundsByBooking && refundsByBooking[booking._id.toString()];
+                      if refundStatus
+                        button.btn.btn--grey.btn--small(
+                          type="button", 
+                          disabled
+                        ) #{refundStatus === 'pending' ? 'Refund Pending' : refundStatus === 'processed' ? 'Refund Processed' : 'Refund Rejected'}
+                      else
+                        button.btn.btn--red.btn--small.btn--refund(
+                          type="button", 
+                          data-booking-id=`${booking._id}`
+                        ) Request Refund
             else
               p.booking__detail No bookings found.
