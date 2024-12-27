@@ -204,3 +204,30 @@ exports.getMyReviews = catchAsync(async (req, res, next) => {
     user: req.user, // Pass the current user to render the side menu
   });
 });
+
+exports.getBillingPage = async (req, res, next) => {
+  try {
+    // 1) Get all transactions (bookings) for the current user
+    const transactions = await Booking.find({ user: req.user.id }).populate(
+      "tour",
+    );
+
+    // 2) Calculate totalSpent
+    let totalSpent = 0;
+    transactions.forEach(transaction => {
+      totalSpent += transaction.price;
+    });
+
+    // 3) Render the billing template
+    res.status(200).render("billing", {
+      title: "Billing",
+      transactions,
+      totalSpent,
+    });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .send("An error occurred while fetching billing information.");
+  }
+};

@@ -39,6 +39,9 @@ router.get(
 // Route to see your reviews
 router.get("/my-reviews", authController.protect, viewsController.getMyReviews);
 
+// Billing route
+router.get("/billing", authController.protect, viewsController.getBillingPage);
+
 // Check email, confirmation success and 2FA
 router.get("/checkEmail", viewsController.getCheckEmail);
 router.get("/confirmSuccess", viewsController.getConfirmSuccess);

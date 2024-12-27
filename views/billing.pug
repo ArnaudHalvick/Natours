@@ -38,7 +38,7 @@ block content
             p Total Spent: $#{totalSpent.toFixed(2)}
 
           .transaction-container
-            h3 Your Transactions
+            h2.heading-secondary.ma-bt-md Your Transactions
             if transactions.length > 0
               each transaction in transactions
                 .transaction
@@ -47,6 +47,7 @@ block content
                     p Date: #{new Date(transaction.createdAt).toLocaleDateString()}
                     p Amount: $#{transaction.price.toFixed(2)}
                     p Status: Completed
+                  // "Download Invoice" (optional)
                   a.btn.btn--blue.btn--small(href=`/download-invoice/${transaction.id}`) Download Invoice
             else
               p No transactions found.
