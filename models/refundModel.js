@@ -24,7 +24,7 @@ const refundSchema = new mongoose.Schema({
   stripeRefundId: String, // Optional: Store Stripe refund ID
 });
 
-reviewSchema.index({ booking: 1, user: 1 }, { unique: true });
+refundSchema.index({ booking: 1, user: 1 }, { unique: true });
 
 const Refund = mongoose.model("Refund", refundSchema);
 module.exports = Refund;
