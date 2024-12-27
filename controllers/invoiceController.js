@@ -2,54 +2,101 @@ const PDFDocument = require("pdfkit");
 const Booking = require("../models/bookingModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
+const path = require("path");
 
-// This function will generate a PDF buffer for a given booking
 const generateInvoicePDF = async booking => {
-  // Create a new PDF Document
   const doc = new PDFDocument({ size: "A4", margin: 50 });
 
-  // We'll gather our PDF in a Buffer
   let buffers = [];
-  doc.on("data", chunk => {
-    buffers.push(chunk);
-  });
+  doc.on("data", chunk => buffers.push(chunk));
 
-  // Wrap PDF generation in a Promise so we can "await" it
   const pdfReadyPromise = new Promise((resolve, reject) => {
-    doc.on("end", () => {
-      const pdfData = Buffer.concat(buffers);
-      resolve(pdfData);
-    });
-    doc.on("error", err => {
-      reject(err);
-    });
+    doc.on("end", () => resolve(Buffer.concat(buffers)));
+    doc.on("error", reject);
   });
 
-  // 1) Add your PDF text and layout here:
-  doc.fontSize(20).text("Invoice", { align: "center" });
-  doc.moveDown();
+  // Company Logo and Header
+  const logoPath = path.join(__dirname, "../public/img/logo-green-round.png");
   doc
-    .fontSize(14)
-    .text(`Invoice for Booking ID: ${booking.id}`, { align: "left" });
-  doc.text(`Tour: ${booking.tour.name}`);
-  doc.text(`User: ${booking.user.name} <${booking.user.email}>`);
-  doc.text(`Date Booked: ${new Date(booking.createdAt).toLocaleDateString()}`);
-  doc.text(
-    `Tour Start Date: ${new Date(booking.startDate).toLocaleDateString()}`,
-  );
-  doc.text(`Participants: ${booking.numParticipants}`);
-  doc.text(`Price: $${booking.price.toFixed(2)}`);
-  doc.moveDown();
+    .image(logoPath, 50, 45, { width: 60 })
+    .fontSize(20)
+    .fillColor("#333")
+    .text("Natours Adventures Inc.", 120, 50)
+    .fontSize(10)
+    .fillColor("#555")
+    .text("123 Scenic Drive, Natureville, Earth 10101", 120, 75)
+    .text("Phone: +1-800-555-TOUR", 120, 90)
+    .text("Email: info@natours.com", 120, 105)
+    .text("Website: www.natours.com", 120, 120);
 
-  // 2) (Optional) Add any additional fields or styling
-  // e.g., doc.text(`Some extra info here...`);
+  // Separator Line
+  doc.moveTo(50, 140).lineTo(550, 140).lineWidth(1).stroke("#eaeaea");
 
-  // 3) Finalize the PDF
+  // Invoice Title and Info
+  doc
+    .fontSize(16)
+    .fillColor("#333")
+    .text("Invoice", 400, 150, { align: "right" })
+    .fontSize(10)
+    .text(`Invoice ID: ${booking.id}`, { align: "right" })
+    .text(`Date: ${new Date().toLocaleDateString()}`, { align: "right" });
+
+  // Customer Info
+  doc
+    .fontSize(12)
+    .fillColor("#333")
+    .text("Billed To:", 50, 160)
+    .moveDown(0.5)
+    .fontSize(10)
+    .fillColor("#555")
+    .text(`${booking.user.name}`)
+    .text(`${booking.user.email}`);
+
+  // Booking Details Section
+  doc
+    .moveDown(2)
+    .fontSize(12)
+    .fillColor("#333")
+    .text("Booking Details:", { underline: true });
+
+  const detailsTop = doc.y;
+
+  doc
+    .moveDown(0.5)
+    .fontSize(10)
+    .fillColor("#555")
+    .text(`Tour Name: ${booking.tour.name}`)
+    .text(`Start Date: ${new Date(booking.startDate).toLocaleDateString()}`)
+    .text(`Participants: ${booking.numParticipants}`)
+    .text(`Total Amount: $${booking.price.toFixed(2)}`);
+
+  const contentBottom = doc.y;
+
+  // Add background box after content
+  doc
+    .rect(48, detailsTop - 10, 500, contentBottom - detailsTop + 20)
+    .fillOpacity(0.1)
+    .fill("#f9f9f9")
+    .strokeOpacity(0)
+    .fillAndStroke();
+
+  // Footer text after the box
+  doc
+    .moveDown(4)
+    .fontSize(10)
+    .fillColor("#000")
+    .text(
+      [
+        "Thank you for booking with Natours Adventures!",
+        "We hope you have an amazing experience!",
+        "For questions, contact us at info@natours.com or call +1-800-555-TOUR.",
+      ].join("\n"),
+      { align: "center" },
+    );
+
   doc.end();
 
-  // 4) Wait for PDF to be fully created and return it
-  const pdfBuffer = await pdfReadyPromise;
-  return pdfBuffer;
+  return await pdfReadyPromise;
 };
 
 // Main controller to handle invoice download
