@@ -1,19 +1,21 @@
+// refundController.js
 const Booking = require("../models/bookingModel");
-const Refund = require("../models/refundModel"); // Create this schema
+const Refund = require("../models/refundModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY); // Stripe for refunds
 
-// User requests a refund
+// 1) User requests a refund
 exports.requestRefund = catchAsync(async (req, res, next) => {
   const booking = await Booking.findById(req.params.bookingId);
 
+  // Check if booking exists
   if (!booking) {
     return next(new AppError("No booking found with this ID.", 404));
   }
 
   // Ensure the logged-in user owns this booking
-  if (booking.user.toString() !== req.user.id) {
+  if (booking.user._id.toString() !== req.user.id) {
     return next(
       new AppError("You do not have permission to refund this booking.", 403),
     );
@@ -41,7 +43,7 @@ exports.requestRefund = catchAsync(async (req, res, next) => {
   });
 });
 
-// Admin processes a refund
+// 2) Admin processes a refund
 exports.processRefund = catchAsync(async (req, res, next) => {
   const refund = await Refund.findById(req.params.refundId).populate("booking");
 
@@ -55,11 +57,11 @@ exports.processRefund = catchAsync(async (req, res, next) => {
     );
   }
 
-  // Process refund through Stripe
-  const paymentIntentId = refund.booking.paymentIntentId; // Ensure you store this in your Booking model
+  // Process the refund through Stripe
+  const paymentIntentId = refund.booking.paymentIntentId; // Must be stored in booking
   const refundResponse = await stripe.refunds.create({
     payment_intent: paymentIntentId,
-    amount: refund.amount * 100, // Stripe expects the amount in cents
+    amount: refund.amount * 100, // Stripe expects amount in cents
   });
 
   // Update refund status

@@ -6,6 +6,7 @@ import { signup } from "./signup";
 import { bookTour } from "./stripe";
 import { showAlert } from "./alert";
 import { deleteReview, updateReview, createReview } from "./review";
+import { requestRefund } from "./refund";
 
 // Element selectors for forms and buttons
 const loginForm = document.querySelector("#loginForm");
@@ -18,6 +19,7 @@ const twoFAForm = document.querySelector("#twoFAForm");
 const resendButton = document.getElementById("resendCode");
 const reviewForm = document.querySelector("#reviewForm");
 const editReviewForm = document.querySelector("#editReviewForm");
+const refundButtons = document.querySelectorAll(".btn--refund");
 
 // Event listener for login form
 if (loginForm) {
@@ -153,5 +155,17 @@ if (editReviewForm) {
     e.preventDefault();
     const reviewId = editReviewForm.dataset.reviewId;
     deleteReview(reviewId);
+  });
+}
+
+// Refund buttons
+if (refundButtons) {
+  refundButtons.forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      // Suppose we store the booking ID in a data-attribute, e.g. data-booking-id
+      const { bookingId } = btn.dataset;
+      requestRefund(bookingId);
+    });
   });
 }

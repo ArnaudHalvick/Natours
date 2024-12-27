@@ -76,6 +76,6 @@ block content
 
                     // Refund button aligned to the right of buttons
                     if !hasStarted
-                      a.btn.btn--red.btn--small(href=`/api/v1/refunds/request/${booking._id}`) Request Refund
+                      button.btn.btn--red.btn--small.btn--refund( type="button", data-booking-id=`${booking._id}` ) Request Refund
             else
               p.booking__detail No bookings found.
