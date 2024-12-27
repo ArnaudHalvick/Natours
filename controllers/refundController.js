@@ -6,6 +6,7 @@ const AppError = require("../utils/appError");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY); // Stripe for refunds
 
 // 1) User requests a refund
+// 1) User requests a refund
 exports.requestRefund = catchAsync(async (req, res, next) => {
   const booking = await Booking.findById(req.params.bookingId);
 
@@ -29,18 +30,33 @@ exports.requestRefund = catchAsync(async (req, res, next) => {
     );
   }
 
-  // Create a refund request
-  const refund = await Refund.create({
-    booking: booking._id,
-    user: req.user.id,
-    status: "pending",
-    amount: booking.price,
-  });
+  try {
+    // Attempt to create a refund request
+    const refund = await Refund.create({
+      booking: booking._id,
+      user: req.user.id,
+      status: "pending",
+      amount: booking.price,
+    });
 
-  res.status(201).json({
-    status: "success",
-    data: refund,
-  });
+    res.status(201).json({
+      status: "success",
+      data: refund,
+    });
+  } catch (err) {
+    // Handle duplicate key error (E11000)
+    if (err.code === 11000) {
+      return next(
+        new AppError(
+          "A refund request has already been submitted for this booking.",
+          400,
+        ),
+      );
+    }
+
+    // For other errors, pass to the global error handler
+    return next(err);
+  }
 });
 
 // 2) Admin processes a refund
