@@ -48,6 +48,6 @@ block content
                     p Amount: $#{transaction.price.toFixed(2)}
                     p Status: Completed
                   // "Download Invoice" (optional)
-                  a.btn.btn--blue.btn--small(href=`/download-invoice/${transaction.id}`) Download Invoice
+                  a.btn.btn--blue.btn--small(href=`/api/v1/billing/download-invoice/${transaction.id}`) Download Invoice
             else
               p No transactions found.
