@@ -84,7 +84,8 @@ const generateInvoicePDF = async booking => {
   doc
     .moveDown(4)
     .fontSize(10)
-    .fillColor("#000")
+    .fillOpacity(1)
+    .fillColor("#333")
     .text(
       [
         "Thank you for booking with Natours Adventures!",
