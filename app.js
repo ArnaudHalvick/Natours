@@ -17,6 +17,7 @@ const reviewRouter = require("./routes/reviewRoutes");
 const bookingRouter = require("./routes/bookingRoutes");
 const viewRouter = require("./routes/viewRoutes");
 const billingRouter = require("./routes/billingRoutes");
+const refundRouter = require("./routes/refundRoutes");
 
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
@@ -142,6 +143,7 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/reviews", reviewRouter);
 app.use("/api/v1/bookings", bookingRouter);
 app.use("/api/v1/billing", billingRouter);
+app.use("/api/v1/refunds", refundRouter);
 
 // 4) Handling Undefined Routes
 app.all("*", (req, res, next) => {

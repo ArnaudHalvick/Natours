@@ -11,12 +11,14 @@ router.route("/").get(reviewController.getAllReviews);
 router.use(authController.protect);
 
 // Routes for authenticated users to post a review
-router.route("/").post(
-  authController.restrictTo("user"), // Only users can post reviews
-  reviewController.setTourUserIds,
-  reviewController.preventReviewBeforeStart,
-  reviewController.createReview,
-);
+router
+  .route("/")
+  .post(
+    authController.restrictTo("user", "admin"),
+    reviewController.setTourUserIds,
+    reviewController.preventReviewBeforeStart,
+    reviewController.createReview,
+  );
 
 // Routes for authenticated users with role-based restrictions (user or admin)
 router

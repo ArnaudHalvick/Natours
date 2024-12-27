@@ -3,6 +3,7 @@ const Booking = require("../models/bookingModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const Review = require("../models/reviewModel");
+const Refund = require("../models/refundModel");
 
 exports.alerts = (req, res, next) => {
   const { alert } = req.query;
@@ -231,3 +232,19 @@ exports.getBillingPage = async (req, res, next) => {
       .send("An error occurred while fetching billing information.");
   }
 };
+
+exports.getManageRefunds = catchAsync(async (req, res, next) => {
+  try {
+    // 1) Fetch all refund requests
+    const refunds = await Refund.find().populate("booking user");
+
+    // 2) Render the refund management template with the fetched data
+    res.status(200).render("manageRefunds", {
+      title: "Manage Refunds",
+      refunds,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("An error occurred while fetching refund requests.");
+  }
+});

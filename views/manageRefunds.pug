@@ -1,0 +1,58 @@
+extends base
+
+mixin sideNavItem(icon, text, href, active=false)
+  li(class= active ? 'side-nav--active' : '')
+    a(href=href)
+      svg
+        use(xlink:href=`/img/icons.svg#icon-${icon}`)
+      | #{text}
+
+block append head
+  link(rel="stylesheet" href="/css/manageRefunds.css") 
+
+block content
+  main.main
+    .user-view
+      nav.user-view__menu
+        ul.side-nav
+          +sideNavItem('settings', 'Settings', '/me')
+          +sideNavItem('briefcase', 'My bookings', '/my-tours')
+          +sideNavItem('star', 'My reviews', '/my-reviews')
+          +sideNavItem('credit-card', 'Billing', '/billing')
+
+        //- Admin navigation
+        .admin-nav
+          h5.admin-nav__heading Admin
+          ul.side-nav
+            +sideNavItem('map', 'Manage tours', '#')
+            +sideNavItem('users', 'Manage users', '#')
+            +sideNavItem('star', 'Manage reviews', '#')
+            +sideNavItem('briefcase', 'Manage bookings', '#')
+            +sideNavItem('credit-card', 'Manage refunds', '/manage-refunds', true)
+
+      .user-view__content
+        h2.heading-secondary.ma-bt-md Manage Refunds
+
+        table.table
+          thead
+            tr
+              th Booking ID
+              th User
+              th Amount
+              th Status
+              th Actions
+          tbody
+            if refunds.length > 0
+              each refund in refunds
+                tr
+                  td= refund.booking._id
+                  td= refund.user.name
+                  td $#{refund.amount.toFixed(2)}
+                  td= refund.status
+                  td
+                    if refund.status === 'pending'
+                      a.btn.btn--green.btn--small(href=`/api/v1/refunds/process/${refund._id}`) Process
+                      a.btn.btn--red.btn--small(href=`/api/v1/refunds/reject/${refund._id}`) Reject
+            else
+              tr
+                td(colspan="5") No refund requests found.

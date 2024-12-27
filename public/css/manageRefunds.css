@@ -1,0 +1,73 @@
+/* Table styles */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 16px; /* Increased font size for better readability */
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 12px; /* Increased padding for better spacing */
+  text-align: left;
+}
+
+.table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+  font-size: 18px; /* Slightly larger font size for headers */
+}
+
+.table td {
+  font-size: 16px; /* Consistent readable font size for table data */
+  color: #333; /* Ensure text is clearly visible */
+}
+
+/* Buttons in table actions */
+.btn {
+  margin-right: 8px; /* Increased spacing between buttons */
+  padding: 8px 12px; /* Adjusted padding for button size */
+  font-size: 14px; /* Ensure button text is easily readable */
+  border-radius: 5px; /* Slightly rounded corners */
+  text-decoration: none;
+}
+
+.btn--green {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.btn--green:hover {
+  background-color: #218838;
+}
+
+.btn--red {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.btn--red:hover {
+  background-color: #c82333;
+}
+
+/* Table row hover effect */
+.table tr:hover {
+  background-color: #f9f9f9; /* Subtle hover effect for better UX */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .table {
+    font-size: 14px; /* Adjust font size for smaller screens */
+  }
+
+  .btn {
+    font-size: 12px; /* Adjust button text size for smaller screens */
+    padding: 6px 10px;
+  }
+}
