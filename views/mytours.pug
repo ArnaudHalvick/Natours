@@ -8,7 +8,7 @@ mixin sideNavItem(icon, text, href, active=false)
       | #{text}
 
 block append head
-  link(rel="stylesheet" href="/css/mytours.css") 
+  link(rel="stylesheet" href="/css/mytours.css")
 
 block content
   main.main
@@ -33,7 +33,7 @@ block content
             +sideNavItem('users', 'Manage users', '#')
             +sideNavItem('star', 'Manage reviews', '#')
             +sideNavItem('briefcase', 'Manage bookings', '#')
-            +sideNavItem('credit-card', 'Manage refunds', '/manage-refunds') 
+            +sideNavItem('credit-card', 'Manage refunds', '/manage-refunds')
 
       .user-view__content
         .user-view__form-container
@@ -43,34 +43,39 @@ block content
             if bookings.length > 0
               each booking in bookings.sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
                 .booking
-                  h2.booking__title= booking.tour.name
+                  .booking__header
+                    h2.booking__title= booking.tour.name
+                    a.btn.btn--green.btn--small(href=`/tour/${booking.tour.slug}`) Tour Details
+
                   .booking__info
                     .booking__detail
-                      strong Purchase Date: 
+                      strong Purchase Date:
                       | #{new Date(booking.createdAt).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
                     .booking__detail
-                      strong Price: 
+                      strong Price:
                       | $#{booking.price}
                     .booking__detail
-                      strong Start Date: 
+                      strong Start Date:
                       | #{new Date(booking.startDate).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
                     .booking__detail
-                      strong Participants: 
+                      strong Participants:
                       | #{booking.numParticipants}
-                  .booking__buttons
-                    a.btn.btn--green.btn--small(href=`/tour/${booking.tour.slug}`) View Tour Details
 
+                  .booking__buttons
+                    // Buttons aligned to the left
                     - const hasStarted = new Date(booking.startDate) < new Date()
                     if hasStarted
                       if reviewsByTour && reviewsByTour[booking.tour._id]
-                        // If user already has a review for this Tour
                         a.btn.btn--orange.btn--small(
                           href=`/tour/${booking.tour.slug}/review/${reviewsByTour[booking.tour._id]._id}/edit`
                         ) Edit Review
                       else
-                        // If user hasn't posted a review
                         a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/review`) Write a Review
                     else
                       a.btn.btn--purple.btn--small(href=`/tour/${booking.tour.slug}/checkout`) Add travelers
+
+                    // Refund button aligned to the right of buttons
+                    if !hasStarted
+                      a.btn.btn--red.btn--small(href=`/api/v1/refunds/request/${booking._id}`) Request Refund
             else
               p.booking__detail No bookings found.
