@@ -204,45 +204,31 @@ exports.getMyReviews = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getBillingPage = async (req, res, next) => {
-  try {
-    // 1) Get all transactions (bookings) for the current user
-    const transactions = await Booking.find({ user: req.user.id }).populate(
-      "tour",
-    );
+exports.getBillingPage = catchAsync(async (req, res, next) => {
+  // 1) Get all transactions (bookings) for the current user
+  const transactions = await Booking.find({ user: req.user.id }).populate(
+    "tour",
+  );
 
-    // 2) Calculate totalSpent
-    let totalSpent = 0;
-    transactions.forEach(transaction => {
-      totalSpent += transaction.price;
-    });
+  // 2) Calculate totalSpent
+  let totalSpent = 0;
+  transactions.forEach(transaction => {
+    totalSpent += transaction.price;
+  });
 
-    // 3) Render the billing template
-    res.status(200).render("billing", {
-      title: "Billing",
-      transactions,
-      totalSpent,
-    });
-  } catch (err) {
-    console.error(err);
-    res
-      .status(500)
-      .send("An error occurred while fetching billing information.");
-  }
-};
+  // 3) Render the billing template
+  res.status(200).render("billing", {
+    title: "Billing",
+    transactions,
+    totalSpent,
+  });
+});
 
 exports.getManageRefunds = catchAsync(async (req, res, next) => {
-  try {
-    // 1) Fetch all refund requests
-    const refunds = await Refund.find().populate("booking user");
+  const refunds = await Refund.find().populate("booking user");
 
-    // 2) Render the refund management template with the fetched data
-    res.status(200).render("manageRefunds", {
-      title: "Manage Refunds",
-      refunds,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("An error occurred while fetching refund requests.");
-  }
+  res.status(200).render("manageRefunds", {
+    title: "Manage Refunds",
+    refunds,
+  });
 });

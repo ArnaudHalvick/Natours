@@ -8,7 +8,7 @@ mixin sideNavItem(icon, text, href, active=false)
       | #{text}
 
 block append head
-  link(rel="stylesheet" href="/css/manageRefunds.css") 
+  link(rel="stylesheet" href="/css/manageRefunds.css")
 
 block content
   main.main
@@ -51,8 +51,18 @@ block content
                   td= refund.status
                   td
                     if refund.status === 'pending'
-                      a.btn.btn--green.btn--small(href=`/api/v1/refunds/process/${refund._id}`) Process
-                      a.btn.btn--red.btn--small(href=`/api/v1/refunds/reject/${refund._id}`) Reject
+                      button.btn.btn--green.btn--small.btn--refund-action(
+                        data-refund-id=refund._id,
+                        data-action="process"
+                      ) Process
+                      button.btn.btn--red.btn--small.btn--refund-action(
+                        data-refund-id=refund._id,
+                        data-action="reject"
+                      ) Reject
+                    else if refund.status === 'processed'
+                      span.text-success Processed
+                    else if refund.status === 'rejected'
+                      span.text-danger Rejected
             else
               tr
                 td(colspan="5") No refund requests found.

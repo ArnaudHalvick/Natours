@@ -6,7 +6,7 @@ import { signup } from "./signup";
 import { bookTour } from "./stripe";
 import { showAlert } from "./alert";
 import { deleteReview, updateReview, createReview } from "./review";
-import { requestRefund } from "./refund";
+import { requestRefund, handleRefundAction } from "./refund";
 
 // Element selectors for forms and buttons
 const loginForm = document.querySelector("#loginForm");
@@ -20,6 +20,7 @@ const resendButton = document.getElementById("resendCode");
 const reviewForm = document.querySelector("#reviewForm");
 const editReviewForm = document.querySelector("#editReviewForm");
 const refundButtons = document.querySelectorAll(".btn--refund");
+const refundActionButtons = document.querySelectorAll(".btn--refund-action");
 
 // Event listener for login form
 if (loginForm) {
@@ -166,6 +167,18 @@ if (refundButtons) {
       // Suppose we store the booking ID in a data-attribute, e.g. data-booking-id
       const { bookingId } = btn.dataset;
       requestRefund(bookingId);
+    });
+  });
+}
+
+if (refundActionButtons) {
+  refundActionButtons.forEach(btn => {
+    btn.addEventListener("click", async e => {
+      e.preventDefault();
+      const { refundId, action } = btn.dataset;
+
+      // Call the handleRefundAction function from refund.js
+      handleRefundAction(refundId, action);
     });
   });
 }

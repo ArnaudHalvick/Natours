@@ -19,7 +19,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid number of participants.", 400));
   }
 
-  // Validate startDate as before
+  // Validate startDate
   let startDateISO = "";
   if (startDate) {
     const dateObj = new Date(startDate);
@@ -75,7 +75,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     mode: "payment",
     metadata: {
       startDate: startDateISO,
-      numParticipants: numParticipantsInt.toString(), // Store as string
+      numParticipants: numParticipantsInt.toString(),
     },
   });
 
@@ -126,10 +126,10 @@ const createBookingCheckout = async session => {
     // Inform Mongoose that 'startDates' has been modified
     tour.markModified("startDates");
 
-    // Save the tour without a session to isolate if the issue is session-related
+    // Save the tour
     await tour.save();
 
-    // Create booking with numParticipants
+    // Create booking with paymentIntentId
     await Booking.create(
       [
         {
@@ -138,6 +138,7 @@ const createBookingCheckout = async session => {
           price,
           startDate,
           numParticipants,
+          paymentIntentId: session.payment_intent, // Save the payment intent ID
         },
       ],
       {

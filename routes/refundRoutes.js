@@ -19,4 +19,12 @@ router.patch(
   refundController.processRefund,
 );
 
+// Route for admin to reject the refund
+router.patch(
+  "/reject/:refundId",
+  authController.protect,
+  authController.restrictTo("admin"),
+  refundController.rejectRefund, // This function will be added
+);
+
 module.exports = router;

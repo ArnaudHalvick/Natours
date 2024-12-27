@@ -32,6 +32,10 @@ const bookingSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  paymentIntentId: {
+    type: String,
+    required: [true, "Booking must have a Stripe Payment Intent ID"],
+  },
 });
 
 // Populate user and tour data on find queries
