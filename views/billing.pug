@@ -20,14 +20,16 @@ block content
           +sideNavItem('star', 'My reviews', '/my-reviews')
           +sideNavItem('credit-card', 'Billing', '/billing', true)
 
-        // Admin navigation (optional)
-        if user.role === 'admin'
+        // Admin navigation
+        if user.role === 'admin' || user.role === 'lead-guide'
           .admin-nav
             h5.admin-nav__heading Admin
             ul.side-nav
               +sideNavItem('map', 'Manage tours', '#')
               +sideNavItem('users', 'Manage users', '#')
               +sideNavItem('star', 'Manage reviews', '#')
+              +sideNavItem('briefcase', 'Manage bookings', '#')
+              +sideNavItem('credit-card', 'Manage refunds', '/manage-refunds')
 
       .user-view__content
         .user-view__form-container
@@ -47,7 +49,6 @@ block content
                     p Date: #{new Date(transaction.createdAt).toLocaleDateString()}
                     p Amount: $#{transaction.price.toFixed(2)}
                     p Status: Completed
-                  // "Download Invoice" (optional)
                   a.btn.btn--blue.btn--small(href=`/api/v1/billing/download-invoice/${transaction.id}`) Download Invoice
             else
               p No transactions found.

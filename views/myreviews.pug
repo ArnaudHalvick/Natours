@@ -20,19 +20,16 @@ block content
           +sideNavItem('star', 'My reviews', '/my-reviews', true)
           +sideNavItem('credit-card', 'Billing', '/billing')
 
-        //- Show the admin navigation if user is admin or lead-guide
+        // Admin navigation
         if user.role === 'admin' || user.role === 'lead-guide'
           .admin-nav
             h5.admin-nav__heading Admin
             ul.side-nav
               +sideNavItem('map', 'Manage tours', '#')
-
-        //- Show only for admin
-        if user.role === 'admin'
-          ul.side-nav
-            +sideNavItem('users', 'Manage users', '#')
-            +sideNavItem('star', 'Manage reviews', '#')
-            +sideNavItem('briefcase', 'Manage bookings', '#')
+              +sideNavItem('users', 'Manage users', '#')
+              +sideNavItem('star', 'Manage reviews', '#')
+              +sideNavItem('briefcase', 'Manage bookings', '#')
+              +sideNavItem('credit-card', 'Manage refunds', '/manage-refunds')
 
       .user-view__content
         .user-view__form-container
@@ -46,7 +43,7 @@ block content
                   .review__info
                     .review__rating
                       strong Rating:
-                      | #{" " +review.rating} / 5 
+                      | #{" " + review.rating} / 5 
                     .review__text
                       strong Review: 
                       | #{review.review}
@@ -56,3 +53,5 @@ block content
                       | #{new Date(review.createdAt).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
                   .review__buttons
                     a.btn.btn--blue.btn--small(href=`/tour/${review.tour.slug}/review/${review._id}/edit`) Edit
+            else
+              p No reviews found.
