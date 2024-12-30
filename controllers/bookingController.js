@@ -12,10 +12,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const tour = await Tour.findById(req.params.tourId);
 
   const { startDate, numParticipants } = req.query;
-
-  // Get the current JWT token
   const token = req.cookies.jwt;
-
   const successUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking&jwt=${token}`;
 
   // Validate and parse numParticipants
@@ -36,7 +33,23 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError("Start date is required.", 400));
   }
 
-  // Find the startDate object in the tour
+  // 1) Check if the user has already booked this tour on the same start date
+  const existingBooking = await Booking.findOne({
+    tour: req.params.tourId,
+    user: req.user._id,
+    startDate: startDateISO,
+  });
+
+  if (existingBooking) {
+    return next(
+      new AppError(
+        "You have already booked this tour on this date. Please check your bookings if you want to add more travelers.",
+        400,
+      ),
+    );
+  }
+
+  // 2) Find the startDate object in the tour
   const startDateObj = tour.startDates.find(
     sd => new Date(sd.date).getTime() === new Date(startDateISO).getTime(),
   );
@@ -44,7 +57,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError("Start date not found.", 400));
   }
 
-  // Check available spots
+  // 3) Check available spots
   const availableSpots = tour.maxGroupSize - startDateObj.participants;
   if (numParticipantsInt > availableSpots) {
     return next(
@@ -52,7 +65,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     );
   }
 
-  // Create Stripe checkout session
+  // 4) Create Stripe checkout session
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     success_url: successUrl,
@@ -68,9 +81,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
             name: `${tour.name} Tour`,
             description: tour.summary,
             images: [
-              `${req.protocol}://${req.get(
-                "host",
-              )}/img/tours/${tour.imageCover}`,
+              `${req.protocol}://${req.get("host")}/img/tours/${tour.imageCover}`,
             ],
           },
         },
