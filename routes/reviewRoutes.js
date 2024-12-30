@@ -24,9 +24,12 @@ router
 router
   .route("/:id")
   .get(reviewController.getReview)
-  .patch(authController.restrictTo("user"), reviewController.updateReview)
+  .patch(
+    authController.restrictTo("user", "admin"),
+    reviewController.updateReview,
+  )
   .delete(
-    authController.restrictTo("user", "admin"), // Admins can't modify reviews but they can delete them if necessary (offensive reviews)
+    authController.restrictTo("user", "admin"),
     reviewController.deleteReview,
   );
 
