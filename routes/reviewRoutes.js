@@ -16,7 +16,7 @@ router
   .post(
     authController.restrictTo("user", "admin"),
     reviewController.setTourUserIds,
-    reviewController.preventReviewBeforeStart,
+    reviewController.validateReviewEligibility,
     reviewController.createReview,
   );
 
