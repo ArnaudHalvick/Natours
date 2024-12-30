@@ -72,9 +72,6 @@ exports.getMyTours = async (req, res) => {
       refundsByBooking[refund.booking.toString()] = refund.status;
     });
 
-    // Log to debug (remove in production)
-    console.log(refundsByBooking);
-
     // Pass bookings and refunds mapping to template
     res.status(200).render("mytours", {
       title: "My Tours",
