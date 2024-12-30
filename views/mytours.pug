@@ -61,15 +61,17 @@ block content
 
                   .booking__buttons
                     - const hasStarted = new Date(booking.startDate) < new Date()
+                    - const refundStatus = refundsByBooking && refundsByBooking[booking._id.toString()]
                     if hasStarted
                       if reviewsByTour && reviewsByTour[booking.tour._id]
                         a.btn.btn--orange.btn--small(href=`/tour/${booking.tour.slug}/review/${reviewsByTour[booking.tour._id]._id}/edit`) Edit Review
                       else
                         a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/review`) Write a Review
                     else
-                      a.btn.btn--purple.btn--small(href=`/tour/${booking.tour.slug}/checkout`) Add travelers
+                      if !refundStatus
+                        a.btn.btn--purple.btn--small(href=`/tour/${booking.tour.slug}/checkout`) Add travelers
 
-                      - const refundStatus = refundsByBooking && refundsByBooking[booking._id.toString()]
+
                       if refundStatus
                         button.refund-btn(
                           type="button",

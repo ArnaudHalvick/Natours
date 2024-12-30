@@ -20,7 +20,7 @@ const resendButton = document.getElementById("resendCode");
 const reviewForm = document.querySelector("#reviewForm");
 const editReviewForm = document.querySelector("#editReviewForm");
 const refundButtons = document.querySelectorAll(".refund-btn");
-const refundActionButtons = document.querySelectorAll(".refund-btn-action");
+const refundActionButtons = document.querySelectorAll(".btn--refund-action");
 
 // Event listener for login form
 if (loginForm) {
