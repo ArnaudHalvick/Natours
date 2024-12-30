@@ -30,10 +30,9 @@ const createSendToken = (user, statusCode, res, req) => {
     ),
     httpOnly: true,
     secure: req.secure || req.headers["x-forwarded-proto"] === "https",
-    sameSite: process.env.NODE_ENV === "production" ? "Strict" : "Lax",
+    sameSite: "lax",
   };
 
-  // Only set domain in production
   if (process.env.NODE_ENV === "production") {
     cookieOptions.domain = process.env.COOKIE_DOMAIN;
   }
@@ -46,6 +45,21 @@ const createSendToken = (user, statusCode, res, req) => {
     token,
     data: { user },
   });
+};
+
+exports.handleStripeRedirect = (req, res, next) => {
+  // Check if this is a redirect from Stripe
+  if (req.query.alert === "booking" && req.query.jwt) {
+    res.cookie("jwt", req.query.jwt, {
+      expires: new Date(
+        Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 86400000,
+      ),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    });
+  }
+  next();
 };
 
 // User Signup Controller
@@ -270,22 +284,20 @@ exports.logout = (req, res) => {
 // Middleware to protect routes (only logged-in users can access)
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
-  // Check if the Authorization header exists and starts with 'Bearer'
+
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
   ) {
-    // Extract the token
     token = req.headers.authorization.split(" ")[1];
   } else if (req.cookies.jwt) {
     token = req.cookies.jwt;
   }
 
   if (!token) {
-    // Return error if no token is found
     return next(
       new AppError("You are not logged in! Please log in to get access.", 401),
-    ); // Unauthorized
+    );
   }
 
   // Verify the token

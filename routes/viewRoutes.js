@@ -7,6 +7,9 @@ const router = express.Router();
 
 router.use(viewsController.alerts);
 
+// Add the handleStripeRedirect middleware here
+router.use(authController.handleStripeRedirect);
+
 // Check if the user is logged in for all routes
 router.use(authController.isLoggedIn);
 

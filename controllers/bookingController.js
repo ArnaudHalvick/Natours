@@ -13,6 +13,11 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 
   const { startDate, numParticipants } = req.query;
 
+  // Get the current JWT token
+  const token = req.cookies.jwt;
+
+  const successUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking&jwt=${token}`;
+
   // Validate and parse numParticipants
   const numParticipantsInt = parseInt(numParticipants, 10);
   if (isNaN(numParticipantsInt) || numParticipantsInt < 1) {
@@ -50,7 +55,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // Create Stripe checkout session
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
-    success_url: `${req.protocol}://${req.get("host")}/my-tours?alert=booking`,
+    success_url: successUrl,
     cancel_url: `${req.protocol}://${req.get("host")}/tour/${tour.slug}`,
     customer_email: req.user.email,
     client_reference_id: req.params.tourId,

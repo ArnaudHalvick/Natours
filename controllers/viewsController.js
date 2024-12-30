@@ -62,6 +62,18 @@ exports.getAccount = (req, res) => {
 
 // viewsController.js
 exports.getMyTours = async (req, res) => {
+  // If no JWT cookie, try to get it from query params
+  if (!req.cookies.jwt && req.query.jwt) {
+    res.cookie("jwt", req.query.jwt, {
+      expires: new Date(
+        Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 86400000,
+      ),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+  }
+
   try {
     // Fetch user bookings and associated tours
     const bookings = await Booking.find({ user: req.user.id }).populate("tour");
