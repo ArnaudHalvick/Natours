@@ -1,3 +1,5 @@
+/* mytours.css */
+
 .mytours-container {
   min-width: 60rem;
   max-width: 120rem;
@@ -66,10 +68,10 @@
   text-align: center;
 }
 
-/* Existing green and blue */
 .btn--green {
   background-color: #55c57a;
 }
+
 .btn--green:hover {
   background-color: #28b487;
 }
@@ -77,14 +79,15 @@
 .btn--blue {
   background-color: #3498db;
 }
+
 .btn--blue:hover {
   background-color: #2980b9;
 }
 
-/* New color classes */
 .btn--orange {
   background-color: #e67e22;
 }
+
 .btn--orange:hover {
   background-color: #cf6d17;
 }
@@ -92,6 +95,7 @@
 .btn--purple {
   background-color: #9b59b6;
 }
+
 .btn--purple:hover {
   background-color: #8e44ad;
 }
@@ -99,6 +103,42 @@
 .btn--red {
   background-color: #e74c3c;
 }
+
 .btn--red:hover {
   background-color: #c0392b;
+}
+
+.refund-btn {
+  font-size: 1.4rem;
+  padding: 1.4rem 3rem;
+  border-radius: 10rem;
+  text-transform: uppercase;
+  display: inline-block;
+  text-decoration: none;
+  position: relative;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.refund-btn--pending {
+  background-color: #f1c40f;
+}
+
+.refund-btn--processed {
+  background-color: #2ecc71;
+}
+
+.refund-btn--rejected {
+  background-color: #e79a3c;
+}
+
+.refund-btn--request {
+  background-color: #e74c3c;
+  cursor: pointer;
+}
+
+.refund-btn:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
 }

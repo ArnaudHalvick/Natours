@@ -6729,8 +6729,8 @@ var twoFAForm = document.querySelector("#twoFAForm");
 var resendButton = document.getElementById("resendCode");
 var reviewForm = document.querySelector("#reviewForm");
 var editReviewForm = document.querySelector("#editReviewForm");
-var refundButtons = document.querySelectorAll(".btn--refund");
-var refundActionButtons = document.querySelectorAll(".btn--refund-action");
+var refundButtons = document.querySelectorAll(".refund-btn");
+var refundActionButtons = document.querySelectorAll(".refund-btn-action");
 
 // Event listener for login form
 if (loginForm) {
@@ -6820,6 +6820,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Event listener for logout button
 if (logoutBtn) logoutBtn.addEventListener("click", _login.logout);
+
+// Display alert if present
 var alertMessage = document.querySelector("body").dataset.alert;
 if (alertMessage) (0, _alert.showAlert)("success", alertMessage, 15);
 
@@ -6881,14 +6883,9 @@ if (resendButton) {
 if (reviewForm) {
   reviewForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    // Retrieve user input
-    var rating = +document.getElementById("rating").value; // convert to number
+    var rating = +document.getElementById("rating").value;
     var reviewText = document.getElementById("review").value;
-    // You might store the Tour ID in a data attribute:
-    // <form id="reviewForm" data-tour-id="{{tour._id}}">
     var tourId = reviewForm.dataset.tourId;
-
-    // Call our createReview function
     (0, _review.createReview)(tourId, rating, reviewText);
   });
 }
@@ -6916,24 +6913,26 @@ if (refundButtons) {
   refundButtons.forEach(function (btn) {
     btn.addEventListener("click", function (e) {
       e.preventDefault();
-      // Suppose we store the booking ID in a data-attribute, e.g. data-booking-id
       var bookingId = btn.dataset.bookingId;
       (0, _refund.requestRefund)(bookingId);
     });
   });
 }
+
+// Refund Action Buttons
 if (refundActionButtons) {
   refundActionButtons.forEach(function (btn) {
     btn.addEventListener("click", /*#__PURE__*/function () {
       var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(e) {
-        var _btn$dataset, refundId, action;
+        var refundId, action;
         return _regeneratorRuntime().wrap(function _callee4$(_context4) {
           while (1) switch (_context4.prev = _context4.next) {
             case 0:
               e.preventDefault();
-              _btn$dataset = btn.dataset, refundId = _btn$dataset.refundId, action = _btn$dataset.action; // Call the handleRefundAction function from refund.js
+              refundId = btn.dataset.refundId;
+              action = btn.dataset.action;
               (0, _refund.handleRefundAction)(refundId, action);
-            case 3:
+            case 4:
             case "end":
               return _context4.stop();
           }
@@ -6970,7 +6969,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33745" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39925" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

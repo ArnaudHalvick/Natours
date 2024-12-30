@@ -63,25 +63,27 @@ block content
                     - const hasStarted = new Date(booking.startDate) < new Date()
                     if hasStarted
                       if reviewsByTour && reviewsByTour[booking.tour._id]
-                        a.btn.btn--orange.btn--small(
-                          href=`/tour/${booking.tour.slug}/review/${reviewsByTour[booking.tour._id]._id}/edit`
-                        ) Edit Review
+                        a.btn.btn--orange.btn--small(href=`/tour/${booking.tour.slug}/review/${reviewsByTour[booking.tour._id]._id}/edit`) Edit Review
                       else
                         a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/review`) Write a Review
                     else
                       a.btn.btn--purple.btn--small(href=`/tour/${booking.tour.slug}/checkout`) Add travelers
 
-                    // Refund button aligned to the right of buttons
-                    if !hasStarted
-                      - const refundStatus = refundsByBooking && refundsByBooking[booking._id.toString()];
+                      - const refundStatus = refundsByBooking && refundsByBooking[booking._id.toString()]
                       if refundStatus
-                        button.btn.btn--grey.btn--small(
-                          type="button", 
-                          disabled
-                        ) #{refundStatus === 'pending' ? 'Refund Pending' : refundStatus === 'processed' ? 'Refund Processed' : 'Refund Rejected'}
+                        button.refund-btn(
+                          type="button",
+                          disabled,
+                          class={
+                            'refund-btn--pending': refundStatus === 'pending',
+                            'refund-btn--processed': refundStatus === 'processed',
+                            'refund-btn--rejected': refundStatus === 'rejected'
+                          }
+                        )
+                          | #{refundStatus === 'pending' ? 'Refund Pending' : refundStatus === 'processed' ? 'Refund Processed' : 'Refund Rejected'}
                       else
-                        button.btn.btn--red.btn--small.btn--refund(
-                          type="button", 
+                        button.refund-btn.refund-btn--request(
+                          type="button",
                           data-booking-id=`${booking._id}`
                         ) Request Refund
             else

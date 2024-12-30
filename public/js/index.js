@@ -19,8 +19,8 @@ const twoFAForm = document.querySelector("#twoFAForm");
 const resendButton = document.getElementById("resendCode");
 const reviewForm = document.querySelector("#reviewForm");
 const editReviewForm = document.querySelector("#editReviewForm");
-const refundButtons = document.querySelectorAll(".btn--refund");
-const refundActionButtons = document.querySelectorAll(".btn--refund-action");
+const refundButtons = document.querySelectorAll(".refund-btn");
+const refundActionButtons = document.querySelectorAll(".refund-btn-action");
 
 // Event listener for login form
 if (loginForm) {
@@ -81,6 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // Event listener for logout button
 if (logoutBtn) logoutBtn.addEventListener("click", logout);
 
+// Display alert if present
 const alertMessage = document.querySelector("body").dataset.alert;
 if (alertMessage) showAlert("success", alertMessage, 15);
 
@@ -128,14 +129,9 @@ if (resendButton) {
 if (reviewForm) {
   reviewForm.addEventListener("submit", e => {
     e.preventDefault();
-    // Retrieve user input
-    const rating = +document.getElementById("rating").value; // convert to number
+    const rating = +document.getElementById("rating").value;
     const reviewText = document.getElementById("review").value;
-    // You might store the Tour ID in a data attribute:
-    // <form id="reviewForm" data-tour-id="{{tour._id}}">
     const tourId = reviewForm.dataset.tourId;
-
-    // Call our createReview function
     createReview(tourId, rating, reviewText);
   });
 }
@@ -164,20 +160,19 @@ if (refundButtons) {
   refundButtons.forEach(btn => {
     btn.addEventListener("click", e => {
       e.preventDefault();
-      // Suppose we store the booking ID in a data-attribute, e.g. data-booking-id
-      const { bookingId } = btn.dataset;
+      const bookingId = btn.dataset.bookingId;
       requestRefund(bookingId);
     });
   });
 }
 
+// Refund Action Buttons
 if (refundActionButtons) {
   refundActionButtons.forEach(btn => {
     btn.addEventListener("click", async e => {
       e.preventDefault();
-      const { refundId, action } = btn.dataset;
-
-      // Call the handleRefundAction function from refund.js
+      const refundId = btn.dataset.refundId;
+      const action = btn.dataset.action;
       handleRefundAction(refundId, action);
     });
   });
