@@ -39,7 +39,7 @@ block content
 
           .mytours-container
             if bookings.length > 0
-              each booking in bookings.sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+              each booking in bookings.sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
                 .booking
                   .booking__header
                     h2.booking__title= booking.tour.name
