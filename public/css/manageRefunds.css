@@ -1,3 +1,14 @@
+/* Status Text Styles */
+.text-success {
+  color: #28a745; /* Green for success */
+  font-weight: bold; /* Emphasize success */
+}
+
+.text-danger {
+  color: #dc3545; /* Red for danger/rejected */
+  font-weight: bold; /* Emphasize rejection */
+}
+
 /* Table styles */
 .table {
   width: 100%;
