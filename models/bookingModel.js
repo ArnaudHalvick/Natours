@@ -39,7 +39,7 @@ const bookingSchema = new mongoose.Schema({
 });
 
 // Create a unique index on startDate and user
-bookingSchema.index({ startDate: 1, user: 1 }, { unique: true });
+bookingSchema.index({ tour: 1, user: 1, startDate: 1 }, { unique: true });
 
 // Populate user and tour data on find queries
 bookingSchema.pre(/^find/, function (next) {
