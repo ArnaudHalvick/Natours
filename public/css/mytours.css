@@ -1,4 +1,7 @@
+/* mytours.css */
+
 .mytours-container {
+  min-width: 60rem;
   max-width: 120rem;
   margin: 0 auto;
   padding: 4rem;
@@ -15,17 +18,22 @@
   text-align: left;
 }
 
+.booking__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
 .booking__title {
   font-size: 2.2rem;
   font-weight: 700;
-  margin-bottom: 1rem;
   color: #333;
 }
 
 .booking__info {
-  display: flex;
-  flex-direction: column;
   gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 @media (min-width: 768px) {
@@ -47,14 +55,13 @@
 
 .booking__buttons {
   display: flex;
-  justify-content: space-between; /* Separate buttons to left and right */
-  margin-top: 1.5rem;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .btn {
   padding: 1rem 2rem;
   font-size: 1.4rem;
-  border-radius: 0.5rem;
   text-decoration: none;
   color: #fff;
   cursor: pointer;
@@ -82,10 +89,61 @@
   background-color: #2980b9;
 }
 
-/* NEW: .btn--blue-review for "Write a Review" */
-.btn--blue-review {
-  background-color: #9b59b6; /* Purple shade */
+.btn--orange {
+  background-color: #e67e22;
 }
-.btn--blue-review:hover {
-  background-color: #8e44ad; /* Slightly darker purple */
+
+.btn--orange:hover {
+  background-color: #cf6d17;
+}
+
+.btn--purple {
+  background-color: #9b59b6;
+}
+
+.btn--purple:hover {
+  background-color: #8e44ad;
+}
+
+.btn--red {
+  background-color: #e74c3c;
+}
+
+.btn--red:hover {
+  background-color: #c0392b;
+}
+
+.refund-btn {
+  font-size: 1.4rem;
+  padding: 1.4rem 3rem;
+  border-radius: 10rem;
+  text-transform: uppercase;
+  display: inline-block;
+  text-decoration: none;
+  position: relative;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.refund-btn--pending {
+  background-color: #f1c40f;
+}
+
+.refund-btn--processed {
+  background-color: #2ecc71;
+}
+
+.refund-btn--rejected {
+  background-color: #e79a3c;
+}
+
+.refund-btn--request {
+  background-color: #e74c3c;
+  cursor: pointer;
+}
+
+.refund-btn:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
 }

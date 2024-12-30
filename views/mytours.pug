@@ -1,47 +1,92 @@
 extends base
 
+mixin sideNavItem(icon, text, href, active=false)
+  li(class= active ? 'side-nav--active' : '')
+    a(href=href)
+      svg
+        use(xlink:href=`/img/icons.svg#icon-${icon}`)
+      | #{text}
+
 block append head
   link(rel="stylesheet" href="/css/mytours.css")
 
 block content
-  .mytours-container
-    h1.heading-secondary My Bookings
-    if bookings.length > 0
-      each booking in bookings.sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
-        .booking
-          h2.booking__title= booking.tour.name
-          .booking__info
-            .booking__detail
-              strong Purchase Date:
-              | #{new Date(booking.createdAt).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
-            .booking__detail
-              strong Price:
-              | $#{booking.price}
-            .booking__detail
-              strong Start Date:
-              | #{new Date(booking.startDate).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
-            .booking__detail
-              strong Participants:
-              | #{booking.numParticipants}
-          .booking__buttons
-            a.btn.btn--green.btn--small(href=`/tour/${booking.tour.slug}`) View Tour Details
+  main.main
+    .user-view
+      nav.user-view__menu
+        ul.side-nav
+          +sideNavItem('settings', 'Settings', '/me')
+          +sideNavItem('briefcase', 'My bookings', '/my-tours', true)
+          +sideNavItem('star', 'My reviews', '/my-reviews')
+          +sideNavItem('credit-card', 'Billing', '/billing')
 
-            if new Date(booking.startDate) < new Date()
-              // Show a 'Write a Review' button if the tour is in the past
-              a.btn.btn--blue-review.btn--small(href=`/reviews/${booking.tour._id}`) Write a Review
+        if user.role === 'admin' || user.role === 'lead-guide'
+          .admin-nav
+            h5.admin-nav__heading Admin
+            ul.side-nav
+              +sideNavItem('map', 'Manage tours', '#')
+
+        if user.role === 'admin'
+          ul.side-nav
+            +sideNavItem('users', 'Manage users', '#')
+            +sideNavItem('star', 'Manage reviews', '#')
+            +sideNavItem('briefcase', 'Manage bookings', '#')
+            +sideNavItem('credit-card', 'Manage refunds', '/manage-refunds')
+
+      .user-view__content
+        .user-view__form-container
+          h2.heading-secondary.ma-bt-md Your Bookings
+
+          .mytours-container
+            if bookings.length > 0
+              each booking in bookings.sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
+                .booking
+                  .booking__header
+                    h2.booking__title= booking.tour.name
+                    a.btn.btn--green.btn--small(href=`/tour/${booking.tour.slug}`) Tour Details
+
+                  .booking__info
+                    .booking__detail
+                      strong Purchase Date:
+                      | #{new Date(booking.createdAt).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
+                    .booking__detail
+                      strong Price:
+                      | $#{booking.price}
+                    .booking__detail
+                      strong Start Date:
+                      | #{new Date(booking.startDate).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
+                    .booking__detail
+                      strong Participants:
+                      | #{booking.numParticipants}
+
+                  .booking__buttons
+                    - const hasStarted = new Date(booking.startDate) < new Date()
+                    - const refundStatus = refundsByBooking && refundsByBooking[booking._id.toString()]
+                    if hasStarted
+                      if reviewsByTour && reviewsByTour[booking.tour._id]
+                        a.btn.btn--orange.btn--small(href=`/tour/${booking.tour.slug}/review/${reviewsByTour[booking.tour._id]._id}/edit`) Edit Review
+                      else
+                        a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/review`) Write a Review
+                    else
+                      if !refundStatus || refundStatus === 'rejected'
+                        a.btn.btn--purple.btn--small(href=`/tour/${booking.tour.slug}/checkout`) Add travelers
+
+
+                      if refundStatus
+                        button.refund-btn(
+                          type="button",
+                          disabled,
+                          class={
+                            'refund-btn--pending': refundStatus === 'pending',
+                            'refund-btn--processed': refundStatus === 'processed',
+                            'refund-btn--rejected': refundStatus === 'rejected'
+                          }
+                        )
+                          | #{refundStatus === 'pending' ? 'Refund Pending' : refundStatus === 'processed' ? 'Refund Processed' : 'Refund Rejected'}
+                      else
+                        button.refund-btn.refund-btn--request(
+                          type="button",
+                          data-booking-id=`${booking._id}`
+                        ) Request Refund
             else
-              // Let them purchase additional spots if the tour is in the future
-              a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/checkout`) Purchase additional spots
-
-    else
-      p.booking__detail No bookings found.
-  // If there's an alertMessage passed in, we show the alert on page load
-  if alertMessage
-    script.
-      (function() {
-        const type = '#{alertType}';   // 'success' or 'error'
-        const msg = '#{alertMessage}'; // e.g. 'Review posted successfully!'
-        window.onload = function() {
-          showAlert(type, msg, 5);     // 5 seconds is your default
-        };
-      })();    
+              p.booking__detail No bookings found.

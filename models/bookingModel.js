@@ -32,7 +32,14 @@ const bookingSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  paymentIntentId: {
+    type: String,
+    required: [true, "Booking must have a Stripe Payment Intent ID"],
+  },
 });
+
+// Create a unique index on startDate and user
+bookingSchema.index({ startDate: 1, user: 1 }, { unique: true });
 
 // Populate user and tour data on find queries
 bookingSchema.pre(/^find/, function (next) {

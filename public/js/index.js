@@ -5,6 +5,8 @@ import { updateSettings } from "./updateSettings";
 import { signup } from "./signup";
 import { bookTour } from "./stripe";
 import { showAlert } from "./alert";
+import { deleteReview, updateReview, createReview } from "./review";
+import { requestRefund, handleRefundAction } from "./refund";
 
 // Element selectors for forms and buttons
 const loginForm = document.querySelector("#loginForm");
@@ -15,6 +17,10 @@ const logoutBtn = document.querySelector(".nav__el--logout");
 const bookingForm = document.querySelector("#bookingForm");
 const twoFAForm = document.querySelector("#twoFAForm");
 const resendButton = document.getElementById("resendCode");
+const reviewForm = document.querySelector("#reviewForm");
+const editReviewForm = document.querySelector("#editReviewForm");
+const refundButtons = document.querySelectorAll(".refund-btn");
+const refundActionButtons = document.querySelectorAll(".btn--refund-action");
 
 // Event listener for login form
 if (loginForm) {
@@ -75,16 +81,9 @@ document.addEventListener("DOMContentLoaded", function () {
 // Event listener for logout button
 if (logoutBtn) logoutBtn.addEventListener("click", logout);
 
-const alertData = document.querySelector("body").dataset.alert;
-if (alertData) {
-  try {
-    const alertObj = JSON.parse(alertData);
-    showAlert(alertObj.type, alertObj.message, 15);
-  } catch (err) {
-    // If alertData isn't valid JSON, just display it as success text
-    showAlert("success", alertData, 15);
-  }
-}
+// Display alert if present
+const alertMessage = document.querySelector("body").dataset.alert;
+if (alertMessage) showAlert("success", alertMessage, 15);
 
 // Event listener for booking form submission
 if (bookingForm) {
@@ -123,5 +122,58 @@ if (resendButton) {
     } catch (err) {
       showAlert("error", "Failed to resend 2FA code.");
     }
+  });
+}
+
+// Event listener for Review form submission
+if (reviewForm) {
+  reviewForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const rating = +document.getElementById("rating").value;
+    const reviewText = document.getElementById("review").value;
+    const tourId = reviewForm.dataset.tourId;
+    createReview(tourId, rating, reviewText);
+  });
+}
+
+if (editReviewForm) {
+  // Update Review form submit
+  editReviewForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const rating = +document.getElementById("rating").value;
+    const reviewText = document.getElementById("review").value;
+    const reviewId = editReviewForm.dataset.reviewId;
+    updateReview(reviewId, rating, reviewText);
+  });
+
+  // Delete Review button
+  const deleteReviewBtn = document.getElementById("deleteReviewBtn");
+  deleteReviewBtn.addEventListener("click", e => {
+    e.preventDefault();
+    const reviewId = editReviewForm.dataset.reviewId;
+    deleteReview(reviewId);
+  });
+}
+
+// Refund buttons
+if (refundButtons) {
+  refundButtons.forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      const bookingId = btn.dataset.bookingId;
+      requestRefund(bookingId);
+    });
+  });
+}
+
+// Refund Action Buttons
+if (refundActionButtons) {
+  refundActionButtons.forEach(btn => {
+    btn.addEventListener("click", async e => {
+      e.preventDefault();
+      const refundId = btn.dataset.refundId;
+      const action = btn.dataset.action;
+      handleRefundAction(refundId, action);
+    });
   });
 }

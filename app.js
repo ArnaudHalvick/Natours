@@ -8,14 +8,16 @@ const xss = require("xss-clean");
 const hpp = require("hpp");
 const cookieParser = require("cookie-parser");
 const compression = require("compression");
-const cors = require("cors"); // Added this line
-const bookingController = require("./controllers/bookingController"); // Added this line
+const cors = require("cors");
+const bookingController = require("./controllers/bookingController");
 
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
 const reviewRouter = require("./routes/reviewRoutes");
 const bookingRouter = require("./routes/bookingRoutes");
 const viewRouter = require("./routes/viewRoutes");
+const billingRouter = require("./routes/billingRoutes");
+const refundRouter = require("./routes/refundRoutes");
 
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
@@ -140,6 +142,8 @@ app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/reviews", reviewRouter);
 app.use("/api/v1/bookings", bookingRouter);
+app.use("/api/v1/billing", billingRouter);
+app.use("/api/v1/refunds", refundRouter);
 
 // 4) Handling Undefined Routes
 app.all("*", (req, res, next) => {

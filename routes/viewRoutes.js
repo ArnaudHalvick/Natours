@@ -23,6 +23,34 @@ router.get(
   viewsController.getCheckout,
 );
 
+// Route for writing a review (only if user is logged in)
+router.get(
+  "/tour/:slug/review",
+  authController.protect,
+  viewsController.getReviewForm,
+);
+
+// Route for “Edit Review” page
+router.get(
+  "/tour/:slug/review/:reviewId/edit",
+  authController.protect,
+  viewsController.getEditReviewForm,
+);
+
+// Route to see your reviews
+router.get("/my-reviews", authController.protect, viewsController.getMyReviews);
+
+// Billing route
+router.get("/billing", authController.protect, viewsController.getBillingPage);
+
+// Refunds route
+router.get(
+  "/manage-refunds",
+  authController.protect,
+  authController.restrictTo("admin"),
+  viewsController.getManageRefunds,
+);
+
 // Check email, confirmation success and 2FA
 router.get("/checkEmail", viewsController.getCheckEmail);
 router.get("/confirmSuccess", viewsController.getConfirmSuccess);

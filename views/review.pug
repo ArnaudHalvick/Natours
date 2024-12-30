@@ -1,25 +1,25 @@
 extends base
 
 block append head
-  link(rel="stylesheet" href="/css/review.css")
+  link(rel="stylesheet", href="/css/review.css")
 
 block content
   .review-container
-    h1 Write a Review
+    h1.heading-secondary Write a Review for #{tour.name}
 
-    form(method="POST" action=`/reviews/${tourId}`)
-      .form-group
-        label(for="rating") Rating:
-        select#rating(name="rating" required)
-          option(value="") Select your rating
+    form#reviewForm.form(data-tour-id=`${tour._id}`)
+      .form__group
+        label.form__label(for="rating") Rating
+        select.form__input(name="rating" id="rating" required)
+          option(value="" disabled selected) Select a rating
           option(value="1") 1
           option(value="2") 2
           option(value="3") 3
           option(value="4") 4
           option(value="5") 5
 
-      .form-group
-        label(for="review") Your Review:
-        textarea#review(name="review", rows="5", minlength="10", maxlength="300", required)
+      .form__group
+        label.form__label(for="review") Your Review
+        textarea.form__input(name="review" id="review" rows="5" required)
 
       button.btn.btn--green(type="submit") Submit Review

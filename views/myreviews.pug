@@ -1,0 +1,57 @@
+extends base
+
+mixin sideNavItem(icon, text, href, active=false)
+  li(class= active ? 'side-nav--active' : '')
+    a(href=href)
+      svg
+        use(xlink:href=`/img/icons.svg#icon-${icon}`)
+      | #{text}
+
+block append head
+  link(rel="stylesheet" href="/css/myreviews.css")
+
+block content
+  main.main
+    .user-view
+      nav.user-view__menu
+        ul.side-nav
+          +sideNavItem('settings', 'Settings', '/me')
+          +sideNavItem('briefcase', 'My bookings', '/my-tours')
+          +sideNavItem('star', 'My reviews', '/my-reviews', true)
+          +sideNavItem('credit-card', 'Billing', '/billing')
+
+        // Admin navigation
+        if user.role === 'admin' || user.role === 'lead-guide'
+          .admin-nav
+            h5.admin-nav__heading Admin
+            ul.side-nav
+              +sideNavItem('map', 'Manage tours', '#')
+              +sideNavItem('users', 'Manage users', '#')
+              +sideNavItem('star', 'Manage reviews', '#')
+              +sideNavItem('briefcase', 'Manage bookings', '#')
+              +sideNavItem('credit-card', 'Manage refunds', '/manage-refunds')
+
+      .user-view__content
+        .user-view__form-container
+          h2.heading-secondary.ma-bt-md Your Reviews
+
+          .myreviews-container
+            if reviews.length > 0
+              each review in reviews
+                .review
+                  h2.review__title= review.tour.name
+                  .review__info
+                    .review__rating
+                      strong Rating:
+                      | #{" " + review.rating} / 5 
+                    .review__text
+                      strong Review: 
+                      | #{review.review}
+                  .review__meta
+                    p.review__date
+                      strong Review Date: 
+                      | #{new Date(review.createdAt).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
+                  .review__buttons
+                    a.btn.btn--blue.btn--small(href=`/tour/${review.tour.slug}/review/${review._id}/edit`) Edit
+            else
+              p No reviews found.

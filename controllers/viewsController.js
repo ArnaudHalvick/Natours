@@ -3,6 +3,7 @@ const Booking = require("../models/bookingModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const Review = require("../models/reviewModel");
+const Refund = require("../models/refundModel");
 
 exports.alerts = (req, res, next) => {
   const { alert } = req.query;
@@ -27,7 +28,7 @@ exports.getTour = catchAsync(async (req, res, next) => {
   // 1) Get the data for the requested tour (including reviews and guides)
   const tour = await Tour.findOne({ slug: req.params.slug }).populate({
     path: "reviews",
-    select: "review rating user", // Corrected to `select`
+    select: "review rating user",
   });
 
   if (!tour) {
@@ -62,27 +63,21 @@ exports.getAccount = (req, res) => {
 // viewsController.js
 exports.getMyTours = async (req, res) => {
   try {
+    // Fetch user bookings and associated tours
     const bookings = await Booking.find({ user: req.user.id }).populate("tour");
 
-    // Decide whether we have an alert to show
-    let alertObj = null;
+    // Fetch user refunds and create a mapping of bookingId to refund status
+    const refunds = await Refund.find({ user: req.user.id });
+    const refundsByBooking = {};
+    refunds.forEach(refund => {
+      refundsByBooking[refund.booking.toString()] = refund.status;
+    });
 
-    if (req.query.alert === "reviewSuccess") {
-      alertObj = { type: "success", message: "Review posted successfully!" };
-    } else if (req.query.alert === "alreadyReviewed") {
-      alertObj = {
-        type: "error",
-        message: "You have already posted a review for this tour!",
-      };
-    }
-
-    // If we have an alert object, convert it to JSON; otherwise null
-    const alertJSON = alertObj ? JSON.stringify(alertObj) : null;
-
+    // Pass bookings and refunds mapping to template
     res.status(200).render("mytours", {
       title: "My Tours",
       bookings,
-      alert: alertJSON, // <-- we'll pass this directly into base.pug's body(data-alert=...)
+      refundsByBooking,
     });
   } catch (err) {
     console.error(err);
@@ -133,40 +128,105 @@ exports.getVerify2FA = (req, res) => {
   });
 };
 
-exports.getReviewPage = catchAsync(async (req, res, next) => {
-  const { tourId } = req.params;
-  // Optionally, fetch the tour to display some info (like the tour's name).
-  // e.g., const tour = await Tour.findById(tourId);
+exports.getReviewForm = async (req, res, next) => {
+  // 1) Find the tour by slug
+  const tour = await Tour.findOne({ slug: req.params.slug });
+  if (!tour) {
+    return next(new AppError("No tour found with that slug.", 404));
+  }
 
-  // If you want to ensure the tour exists:
-  // if (!tour) {
-  //   return next(new AppError('No tour found with that ID.', 404));
-  // }
+  // 2) Confirm the user has a booking for this tour that has already started
+  const booking = await Booking.findOne({
+    user: req.user.id,
+    tour: tour._id,
+  });
 
+  if (!booking) {
+    return next(new AppError("You have not booked this tour.", 403));
+  }
+
+  const hasStarted = new Date(booking.startDate) < new Date();
+  if (!hasStarted) {
+    return next(
+      new AppError(
+        "You cannot write a review before the tour has started.",
+        403,
+      ),
+    );
+  }
+
+  // 3) Render the review form (if checks pass)
   res.status(200).render("review", {
-    title: "Write a Review",
-    // tour, // pass if you fetched the tour
-    tourId, // pass the id for the form action
+    title: `Review ${tour.name}`,
+    tour,
+  });
+};
+
+exports.getEditReviewForm = catchAsync(async (req, res, next) => {
+  // 1) Find the tour
+  const tour = await Tour.findOne({ slug: req.params.slug });
+  if (!tour) {
+    return next(new AppError("No tour found with that slug.", 404));
+  }
+
+  // 2) Find the review by ID
+  const review = await Review.findById(req.params.reviewId);
+  if (!review) {
+    return next(new AppError("No review found with that ID.", 404));
+  }
+
+  // (Optional) Ensure the user owns this review, else 403
+  if (review.user._id.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(
+      new AppError("You do not have permission to edit this review.", 403),
+    );
+  }
+
+  // 3) Render the edit form
+  res.status(200).render("editReview", {
+    title: `Edit Review for ${tour.name}`,
+    tour,
+    review,
   });
 });
 
-exports.createReviewAndRender = catchAsync(async (req, res, next) => {
-  const { tour, user } = req.body; // setTourUserIds put them in req.body
+exports.getMyReviews = catchAsync(async (req, res, next) => {
+  // 1) Find all reviews by the logged-in user
+  const reviews = await Review.find({ user: req.user.id }).populate("tour");
 
-  try {
-    // 1) Check for existing
-    const existingReview = await Review.findOne({ tour, user });
-    if (existingReview) {
-      // User already posted a review
-      return res.redirect("/my-tours?alert=alreadyReviewed");
-    }
+  // 2) Render the `my-reviews` template with the user's reviews
+  res.status(200).render("myreviews", {
+    title: "My Reviews",
+    reviews,
+    user: req.user, // Pass the current user to render the side menu
+  });
+});
 
-    // 2) Create if not found
-    await Review.create(req.body);
+exports.getBillingPage = catchAsync(async (req, res, next) => {
+  // 1) Get all transactions (bookings) for the current user
+  const transactions = await Booking.find({ user: req.user.id }).populate(
+    "tour",
+  );
 
-    // 3) Redirect with success
-    return res.redirect("/my-tours?alert=reviewSuccess");
-  } catch (err) {
-    return next(err);
-  }
+  // 2) Calculate totalSpent
+  let totalSpent = 0;
+  transactions.forEach(transaction => {
+    totalSpent += transaction.price;
+  });
+
+  // 3) Render the billing template
+  res.status(200).render("billing", {
+    title: "Billing",
+    transactions,
+    totalSpent,
+  });
+});
+
+exports.getManageRefunds = catchAsync(async (req, res, next) => {
+  const refunds = await Refund.find().populate("booking user");
+
+  res.status(200).render("manageRefunds", {
+    title: "Manage Refunds",
+    refunds,
+  });
 });

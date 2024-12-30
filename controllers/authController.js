@@ -29,11 +29,14 @@ const createSendToken = (user, statusCode, res, req) => {
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 86400000,
     ),
     httpOnly: true,
-    secure:
-      req.secure ||
-      req.headers["x-forwarded-proto"] === "https" ||
-      process.env.NODE_ENV === "production",
+    secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+    sameSite: process.env.NODE_ENV === "production" ? "Strict" : "Lax",
   };
+
+  // Only set domain in production
+  if (process.env.NODE_ENV === "production") {
+    cookieOptions.domain = process.env.COOKIE_DOMAIN;
+  }
 
   res.cookie("jwt", token, cookieOptions);
   user.password = undefined;
@@ -101,44 +104,56 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Please provide email and password!", 400));
   }
 
-  const user = await User.findOne({ email }).select("+password");
+  try {
+    const user = await User.findOne({ email }).select("+password");
 
-  if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(new AppError("Incorrect email or password", 401));
-  }
+    if (!user || !(await user.correctPassword(password, user.password))) {
+      return next(new AppError("Incorrect email or password", 401));
+    }
 
-  if (!user.emailConfirmed) {
-    return next(
-      new AppError("Please confirm your email before logging in.", 401),
+    if (!user.emailConfirmed) {
+      return next(
+        new AppError("Please confirm your email before logging in.", 401),
+      );
+    }
+
+    // Skip 2FA in development mode
+    if (
+      process.env.NODE_ENV === "development" &&
+      process.env.SKIP_2FA === "true"
+    ) {
+      return createSendToken(user, 200, res, req);
+    }
+
+    // Regular 2FA flow for production or when not skipped in development
+    if (user.twoFALockUntil && user.twoFALockUntil > Date.now()) {
+      return next(
+        new AppError("Account is temporarily locked. Try again later.", 429),
+      );
+    }
+
+    const twoFACode = user.createTwoFACode();
+    await user.save({ validateBeforeSave: false });
+
+    await new Email(user).sendTwoFACode(twoFACode);
+
+    const tempToken = jwt.sign(
+      { id: user._id, twoFAPending: true },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" },
     );
+
+    res.status(200).json({
+      status: "success",
+      message: "2FA code sent to your email!",
+      tempToken,
+    });
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("Login error:", error);
+    }
+    return next(new AppError("An error occurred during login", 500));
   }
-
-  // Check if account is locked
-  if (user.twoFALockUntil && user.twoFALockUntil > Date.now()) {
-    return next(
-      new AppError("Account is temporarily locked. Try again later.", 429),
-    );
-  }
-
-  // Generate and hash 2FA code
-  const twoFACode = user.createTwoFACode();
-  await user.save({ validateBeforeSave: false });
-
-  // Send 2FA code to user's email
-  await new Email(user).sendTwoFACode(twoFACode);
-
-  // Generate a temporary token for 2FA verification
-  const tempToken = jwt.sign(
-    { id: user._id, twoFAPending: true },
-    process.env.JWT_SECRET,
-    { expiresIn: "15m" }, // Token valid for 15 minutes
-  );
-
-  res.status(200).json({
-    status: "success",
-    message: "2FA code sent to your email!",
-    tempToken, // Send temporary token to client
-  });
 });
 
 // Verify 2FA code

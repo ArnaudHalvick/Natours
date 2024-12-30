@@ -14,8 +14,8 @@ block content
                 ul.side-nav
                     +sideNavItem('settings', 'Settings', '/me', true)
                     +sideNavItem('briefcase', 'My bookings', '/my-tours')
-                    +sideNavItem('star', 'My reviews', '#')
-                    +sideNavItem('credit-card', 'Billing', '#')
+                    +sideNavItem('star', 'My reviews', '/my-reviews')
+                    +sideNavItem('credit-card', 'Billing', '/billing')
 
                 //- Show the admin navigation if user is admin or lead-guide
                 if user.role === 'admin' || user.role === 'lead-guide'
@@ -30,6 +30,7 @@ block content
                         +sideNavItem('users', 'Manage users', '#')
                         +sideNavItem('star', 'Manage reviews', '#')
                         +sideNavItem('briefcase', 'Manage bookings', '#')
+                        +sideNavItem('credit-card', 'Manage refunds', '/manage-refunds') 
 
             .user-view__content
                 .user-view__form-container
