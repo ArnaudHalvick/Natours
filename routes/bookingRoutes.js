@@ -11,6 +11,13 @@ router.get(
   bookingController.getCheckoutSession,
 );
 
+// Route for adding travelers to a booking
+router.post(
+  "/:bookingId/add-travelers",
+  authController.protect,
+  bookingController.addTravelersToBooking,
+);
+
 // Protect and restrict the following routes to admins only
 router.use(authController.protect, authController.restrictTo("admin"));
 

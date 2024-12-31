@@ -1,0 +1,47 @@
+extends base
+
+block append head
+  script(src="https://js.stripe.com/v3/")
+
+block content
+  main.main
+    .add-travelers
+      .add-travelers__content
+        h2.heading-secondary.ma-bt-lg Add Travelers to Your Booking
+
+        form.form.add-travelers__form
+          .form__group.ma-bt-md
+            label.form__label(for='booking') Booking Reference
+            input#booking.form__input(type='text', value=`${booking._id}`, readonly)
+
+          .form__group.ma-bt-md
+            label.form__label(for='tour') Tour
+            input#tour.form__input(type='text', value=`${tour.name}`, readonly)
+
+          .form__group.ma-bt-md
+            label.form__label(for='startDate') Start Date
+            input#startDate.form__input(type='text', value=`${booking.startDate.toLocaleDateString('en-us', { year: 'numeric', month: 'long', day: 'numeric' })}`, readonly)
+
+          .form__group.ma-bt-md
+            label.form__label(for='currentParticipants') Current Participants
+            input#currentParticipants.form__input(type='number', value=`${booking.numParticipants}`, readonly)
+
+          .form__group.ma-bt-md
+            label.form__label(for='availableSpots') Available Spots
+            input#availableSpots.form__input(type='number', value=`${tour.maxGroupSize - booking.numParticipants}`, readonly)
+
+          .form__group.ma-bt-md
+            label.form__label(for='numParticipants') Number of Additional Participants
+            input#numParticipants.form__input(
+              type='number',
+              min='1',
+              max=`${tour.maxGroupSize - booking.numParticipants}`,
+              required
+            )
+
+          .form__group
+            button.btn.btn--green.add-travelers-submit(
+              type='submit',
+              data-booking-id=`${booking._id}`,
+              data-tour-id=`${tour._id}`
+            ) Add Travelers

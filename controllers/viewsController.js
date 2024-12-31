@@ -242,3 +242,37 @@ exports.getManageRefunds = catchAsync(async (req, res, next) => {
     refunds,
   });
 });
+
+exports.getAddTravelers = catchAsync(async (req, res, next) => {
+  const { bookingId } = req.params;
+
+  // First, find the booking without populate
+  const booking = await Booking.findById(bookingId);
+
+  if (!booking) {
+    return next(new AppError("Booking not found", 404));
+  }
+
+  // Then, explicitly find and populate the tour, including _id field
+  const tour = await Tour.findById(booking.tour)
+    .select("_id name maxGroupSize startDates slug") // Added _id and slug
+    .lean(); // Use lean() to get a plain JavaScript object
+
+  if (!tour) {
+    return next(new AppError("Tour not found", 404));
+  }
+
+  // Log to verify we have all needed fields
+  console.log("Tour data:", {
+    id: tour._id,
+    name: tour.name,
+    maxGroupSize: tour.maxGroupSize,
+    slug: tour.slug,
+  });
+
+  res.status(200).render("addTravelers", {
+    title: "Add Travelers",
+    booking,
+    tour,
+  });
+});

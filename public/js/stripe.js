@@ -46,3 +46,44 @@ export const bookTour = async (tourId, startDate, numParticipants) => {
     }
   }
 };
+
+export const addTravelersToBooking = async (bookingId, numParticipants) => {
+  try {
+    // Check if Stripe library is loaded
+    if (typeof Stripe === "undefined") {
+      showAlert(
+        "error",
+        "Unable to load payment. Please refresh the page or try again.",
+      );
+      return;
+    }
+
+    const stripe = Stripe(
+      "pk_test_51QE9Pr01SQ3XzN0XdG38jyXT83vljVXop3ZXsPSSvKBz9nk98c3gcTyoIHvO3vAXocBSuUwWDSnAflmrstAcIqHM00hseI1ZMn",
+    );
+
+    // Get the tour ID from the submit button
+    const tourId = document.querySelector(".add-travelers-submit").dataset
+      .tourId;
+
+    // Make a POST request to the "Add Travelers" API endpoint
+    const response = await axios.post(
+      `/api/v1/bookings/${bookingId}/add-travelers`,
+      {
+        tourId, // Add tourId to the request body
+        numParticipants,
+      },
+    );
+
+    // Get the Stripe Checkout Session from the response
+    const session = response.data.session;
+
+    // Redirect to Stripe's checkout page
+    await stripe.redirectToCheckout({
+      sessionId: session.id,
+    });
+  } catch (error) {
+    console.error("Error:", error.response?.data || error);
+    showAlert("error", error.response?.data?.message || "Something went wrong");
+  }
+};

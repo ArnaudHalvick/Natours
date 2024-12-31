@@ -3,24 +3,30 @@ import { login, logout, verify2FA } from "./login";
 import { displayMap } from "./mapbox";
 import { updateSettings } from "./updateSettings";
 import { signup } from "./signup";
-import { bookTour } from "./stripe";
+import { bookTour, addTravelersToBooking } from "./stripe";
 import { showAlert } from "./alert";
 import { deleteReview, updateReview, createReview } from "./review";
 import { requestRefund, handleRefundAction } from "./refund";
 
-// Element selectors for forms and buttons
+// Element selectors for forms
 const loginForm = document.querySelector("#loginForm");
 const signupForm = document.querySelector("#signupForm");
 const userDataForm = document.querySelector("#updateForm");
 const passwordForm = document.querySelector("#passwordForm");
-const logoutBtn = document.querySelector(".nav__el--logout");
 const bookingForm = document.querySelector("#bookingForm");
 const twoFAForm = document.querySelector("#twoFAForm");
-const resendButton = document.getElementById("resendCode");
 const reviewForm = document.querySelector("#reviewForm");
 const editReviewForm = document.querySelector("#editReviewForm");
+const addTravelersForm = document.querySelector(".add-travelers__form");
+
+// Element selectors for buttons
+const logoutBtn = document.querySelector(".nav__el--logout");
+const resendButton = document.querySelector("#resendCode");
 const refundButtons = document.querySelectorAll(".refund-btn");
 const refundActionButtons = document.querySelectorAll(".btn--refund-action");
+
+// Other element selectors
+const myToursContainer = document.querySelector(".mytours-container");
 
 // Event listener for login form
 if (loginForm) {
@@ -175,5 +181,28 @@ if (refundActionButtons) {
       const action = btn.dataset.action;
       handleRefundAction(refundId, action);
     });
+  });
+}
+
+// Event delegation for "Add Travelers" button click
+if (myToursContainer) {
+  myToursContainer.addEventListener("click", e => {
+    const addTravelersBtn = e.target.closest(".add-travelers-btn");
+    if (addTravelersBtn) {
+      const bookingId = addTravelersBtn.dataset.bookingId;
+      window.location.href = `/booking/${bookingId}/add-travelers`;
+    }
+  });
+}
+
+// Event listener for "Add Travelers" form submission
+if (addTravelersForm) {
+  addTravelersForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const submitBtn = document.querySelector(".add-travelers-submit");
+    const bookingId = submitBtn.dataset.bookingId;
+    const numParticipants = document.getElementById("numParticipants").value;
+
+    addTravelersToBooking(bookingId, numParticipants);
   });
 }

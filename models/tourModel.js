@@ -182,22 +182,23 @@ tourSchema.pre("save", async function (next) {
   }
 });
 
-// QUERY MIDDLEWARE: Exclude secret tours in queries
-tourSchema.pre(/^find/, function (next) {
-  this.find({ secretTour: { $ne: true } });
-  this.start = Date.now();
-  next();
-});
+// // First middleware to exclude secret tours
+// tourSchema.pre(/^find/, function (next) {
+//   this.find({ secretTour: { $ne: true } });
+//   this.start = Date.now();
+//   next();
+// });
 
-// Populate guides array with all info instead of ID only
-tourSchema.pre(/^find/, function (next) {
-  this.find({ secretTour: { $ne: true } }).populate({
-    path: "guides",
-    select: "-__v",
-  });
-
-  next();
-});
+// // Second middleware for guides population (only if guides needs to be populated)
+// tourSchema.pre(/^find/, function (next) {
+//   if (this._mongooseOptions.populate && this._mongooseOptions.populate.guides) {
+//     this.populate({
+//       path: "guides",
+//       select: "-__v",
+//     });
+//   }
+//   next();
+// });
 
 // AGGREGATION MIDDLEWARE: Exclude secret tours in aggregation
 tourSchema.pre("aggregate", function (next) {
