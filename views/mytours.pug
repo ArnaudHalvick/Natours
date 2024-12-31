@@ -47,16 +47,16 @@ block content
 
                   .booking__info
                     .booking__detail
-                      strong Purchase Date:
+                      strong Purchase Date: 
                       | #{new Date(booking.createdAt).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
                     .booking__detail
-                      strong Price:
+                      strong Price: 
                       | $#{booking.price}
                     .booking__detail
-                      strong Start Date:
+                      strong Start Date: 
                       | #{new Date(booking.startDate).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
                     .booking__detail
-                      strong Participants:
+                      strong Participants: 
                       | #{booking.numParticipants}
 
                   .booking__buttons
