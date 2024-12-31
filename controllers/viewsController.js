@@ -262,14 +262,6 @@ exports.getAddTravelers = catchAsync(async (req, res, next) => {
     return next(new AppError("Tour not found", 404));
   }
 
-  // Log to verify we have all needed fields
-  console.log("Tour data:", {
-    id: tour._id,
-    name: tour.name,
-    maxGroupSize: tour.maxGroupSize,
-    slug: tour.slug,
-  });
-
   res.status(200).render("addTravelers", {
     title: "Add Travelers",
     booking,

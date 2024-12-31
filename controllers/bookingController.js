@@ -122,11 +122,6 @@ const createBookingCheckout = async session => {
 
   try {
     if (bookingId) {
-      console.log("Updating existing booking:", {
-        bookingId,
-        tourId: actualTourId,
-      });
-
       // If bookingId exists, update the existing booking
       const booking =
         await Booking.findById(bookingId).session(mongooseSession);
