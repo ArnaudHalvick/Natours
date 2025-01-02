@@ -1,19 +1,16 @@
-/* Checkout Page Styles
-   ========================================================================== */
-
+/* Booking Section */
 .booking {
   max-width: 120rem;
   margin: 0 auto;
   padding: 5rem;
 }
 
-/* Booking Header */
 .booking__title {
   font-size: 2.5rem;
   font-weight: 700;
   text-transform: uppercase;
   margin-bottom: 2rem;
-  color: #444;
+  color: #444; /* Choose a color that fits your design */
   text-align: center;
 }
 
@@ -22,7 +19,6 @@
   margin-bottom: 5rem;
 }
 
-/* Booking Images */
 .booking__image {
   width: 100%;
   max-width: 50rem;
@@ -30,7 +26,6 @@
   border-radius: 3px;
 }
 
-/* Booking Content */
 .booking__sub-heading {
   font-size: 2rem;
   text-transform: uppercase;
@@ -52,12 +47,28 @@
   margin-bottom: 1.5rem;
 }
 
+.booking__icon {
+  height: 2rem;
+  width: 2rem;
+  fill: #55c57a;
+  margin-right: 1rem;
+}
+
 .booking__price {
   font-size: 1.6rem;
   margin-bottom: 4rem;
 }
 
-/* Checkout Form */
+.card__footer-value {
+  font-weight: 700;
+  font-size: 2rem;
+}
+
+.card__footer-text {
+  color: #999;
+}
+
+/* Form Styles */
 .form__group {
   margin-bottom: 2.5rem;
   text-align: left;
@@ -71,14 +82,28 @@
 }
 
 .form__input {
+  display: block;
+  font-family: inherit;
   font-size: 1.5rem;
-  padding: 1rem;
+  color: inherit;
+  padding: 1.25rem 1.75rem;
+  border: none;
   width: 100%;
-  border: 1px solid #ddd;
+  background-color: #fff;
+  background-color: #f2f2f2;
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
   border-radius: 4px;
 }
-
 .form__input:focus {
   outline: none;
-  border-color: #55c57a;
+  border-bottom: 3px solid #55c57a;
+}
+.form__input:focus:invalid {
+  border-bottom: 3px solid #ff7730;
+}
+.form__input::-webkit-input-placeholder {
+  color: #bbb;
 }
