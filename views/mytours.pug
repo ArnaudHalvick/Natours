@@ -52,7 +52,7 @@ block content
                       else
                         a.btn.btn--blue.btn--small(href=`/tour/${booking.tour.slug}/review`) Write a Review
                     else
-                      if !refundStatus || refundStatus === 'rejected'
+                      if !refundStatus
                         button.btn.btn--purple.btn--small.add-travelers-btn(data-booking-id=booking._id)
                           | Add Travelers
 
