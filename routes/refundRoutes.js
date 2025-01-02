@@ -4,6 +4,14 @@ const refundController = require("../controllers/refundController");
 
 const router = express.Router();
 
+// Route to get all refunds
+router.get(
+  "/all-refunds",
+  authController.protect,
+  authController.restrictTo("admin"),
+  refundController.getAllRefunds,
+);
+
 // Route for user to request a refund
 router.post(
   "/request/:bookingId",

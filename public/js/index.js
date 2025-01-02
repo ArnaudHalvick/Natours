@@ -6,7 +6,12 @@ import { signup } from "./signup";
 import { bookTour, addTravelersToBooking } from "./stripe";
 import { showAlert } from "./alert";
 import { deleteReview, updateReview, createReview } from "./review";
-import { requestRefund, handleRefundAction } from "./refund";
+import {
+  requestRefund,
+  handleRefundAction,
+  handleFilterChange,
+  handlePagination,
+} from "./refund";
 
 // Element selectors for forms
 const loginForm = document.querySelector("#loginForm");
@@ -18,6 +23,7 @@ const twoFAForm = document.querySelector("#twoFAForm");
 const reviewForm = document.querySelector("#reviewForm");
 const editReviewForm = document.querySelector("#editReviewForm");
 const addTravelersForm = document.querySelector(".add-travelers__form");
+const filterForm = document.querySelector("#filterForm");
 
 // Element selectors for buttons
 const logoutBtn = document.querySelector(".nav__el--logout");
@@ -27,6 +33,7 @@ const refundActionButtons = document.querySelectorAll(".btn--refund-action");
 
 // Other element selectors
 const myToursContainer = document.querySelector(".mytours-container");
+const pagination = document.querySelector(".pagination");
 
 // Event listener for login form
 if (loginForm) {
@@ -202,7 +209,25 @@ if (addTravelersForm) {
     const submitBtn = document.querySelector(".add-travelers-submit");
     const bookingId = submitBtn.dataset.bookingId;
     const numParticipants = document.getElementById("numParticipants").value;
-
     addTravelersToBooking(bookingId, numParticipants);
+  });
+}
+
+// Event listeners for refund filters and pagination
+if (filterForm) {
+  const statusSelect = document.getElementById("status");
+  const sortSelect = document.getElementById("sort");
+
+  statusSelect.addEventListener("change", handleFilterChange);
+  sortSelect.addEventListener("change", handleFilterChange);
+}
+
+if (pagination) {
+  pagination.addEventListener("click", e => {
+    const btn = e.target.closest("[data-page]");
+    if (btn) {
+      e.preventDefault();
+      handlePagination(btn.dataset.page);
+    }
   });
 }

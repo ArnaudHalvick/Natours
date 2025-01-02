@@ -268,3 +268,34 @@ exports.getAddTravelers = catchAsync(async (req, res, next) => {
     tour,
   });
 });
+
+exports.getManageRefunds = catchAsync(async (req, res, next) => {
+  const page = req.query.page * 1 || 1;
+  const limit = req.query.limit * 1 || 10;
+  const skip = (page - 1) * limit;
+
+  let query = Refund.find().populate("booking").populate("user", "name email");
+
+  // Apply filters if present
+  if (req.query.status) {
+    query = query.find({ status: req.query.status });
+  }
+
+  // Apply sorting
+  const sortBy = req.query.sort || "-requestedAt";
+  query = query.sort(sortBy);
+
+  // Execute query with pagination
+  const refunds = await query.skip(skip).limit(limit);
+  const total = await Refund.countDocuments(query._conditions);
+
+  res.status(200).render("manageRefunds", {
+    title: "Manage Refunds",
+    refunds,
+    currentPage: page,
+    totalPages: Math.ceil(total / limit),
+    currentStatus: req.query.status,
+    currentSort: sortBy,
+    user: req.user,
+  });
+});

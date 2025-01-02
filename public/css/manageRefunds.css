@@ -1,54 +1,120 @@
-/* Status Text Styles */
+/* General Text Styles */
 .text-success {
-  color: #28a745; /* Green for success */
-  font-weight: bold; /* Emphasize success */
+  color: #28a745;
+  font-weight: bold;
 }
 
 .text-danger {
-  color: #dc3545; /* Red for danger/rejected */
-  font-weight: bold; /* Emphasize rejection */
+  color: #dc3545;
+  font-weight: bold;
 }
 
-/* Table styles */
+/* Table Styles */
 .table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  font-size: 16px; /* Increased font size for better readability */
+  font-size: 16px;
 }
 
 .table th,
 .table td {
   border: 1px solid #ddd;
-  padding: 12px; /* Increased padding for better spacing */
+  padding: 12px;
   text-align: left;
 }
 
 .table th {
   background-color: #f4f4f4;
   font-weight: bold;
-  font-size: 18px; /* Slightly larger font size for headers */
+  font-size: 18px;
 }
 
 .table td {
-  font-size: 16px; /* Consistent readable font size for table data */
-  color: #333; /* Ensure text is clearly visible */
+  font-size: 16px;
+  color: #333;
 }
 
-/* Buttons in table actions */
+.table tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Refund Title */
+.refund-title {
+  padding-left: 2rem;
+}
+
+/* Filters Section */
+.filters {
+  background-color: #f4f4f4;
+  padding: 2rem;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.filter-group {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.form--inline {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+}
+
+.form--inline .form__group {
+  flex: 1;
+}
+
+.form__label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.form__input {
+  width: 100%;
+  max-width: 300px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.pagination__numbers {
+  font-size: 16px;
+  color: #333;
+}
+
 .btn {
-  margin-right: 8px; /* Increased spacing between buttons */
-  padding: 8px 12px; /* Adjusted padding for button size */
-  font-size: 14px; /* Ensure button text is easily readable */
-  border-radius: 5px; /* Slightly rounded corners */
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 5px;
   text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
+}
+
+.btn--small {
+  padding: 6px 10px;
+  font-size: 12px;
 }
 
 .btn--green {
   background-color: #28a745;
   color: #fff;
-  border: none;
-  cursor: pointer;
 }
 
 .btn--green:hover {
@@ -58,27 +124,71 @@
 .btn--red {
   background-color: #dc3545;
   color: #fff;
-  border: none;
-  cursor: pointer;
 }
 
 .btn--red:hover {
   background-color: #c82333;
 }
 
-/* Table row hover effect */
-.table tr:hover {
-  background-color: #f9f9f9; /* Subtle hover effect for better UX */
+.btn--small:hover {
+  transform: scale(1.05);
+}
+
+/* Refund Buttons Container */
+.refund-btns-container {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 5px;
+}
+
+/* Adjustments for Refund Action Buttons */
+.refund-btns-container .btn--green,
+.refund-btns-container .btn--red {
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+/* Additional Styling */
+.ma-bt-md {
+  margin-bottom: 20px;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .table {
-    font-size: 14px; /* Adjust font size for smaller screens */
+    font-size: 14px;
+    display: block;
+    overflow-x: auto;
   }
 
   .btn {
-    font-size: 12px; /* Adjust button text size for smaller screens */
+    font-size: 12px;
     padding: 6px 10px;
+  }
+
+  .form--inline {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .form--inline .form__group {
+    width: 100%;
+  }
+
+  .filter-group {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .form__input {
+    max-width: 100%;
+  }
+
+  .refund-btns-container {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 8px;
   }
 }

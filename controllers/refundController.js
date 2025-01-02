@@ -1,10 +1,50 @@
 const Booking = require("../models/bookingModel");
 const Refund = require("../models/refundModel");
+
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY); // Stripe for refunds
+const APIFeatures = require("../utils/apiFeatures");
 
-// 1) User requests a refund
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
+// Method to get all refunds
+exports.getAllRefunds = catchAsync(async (req, res, next) => {
+  // Execute query with APIFeatures
+  const features = new APIFeatures(
+    Refund.find()
+      .populate({
+        path: "booking",
+        select: "_id",
+      })
+      .populate({
+        path: "user",
+        select: "name email",
+      }),
+    req.query,
+  )
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+
+  // Get total count for pagination
+  const totalCount = await Refund.countDocuments(features.query._conditions);
+
+  // Execute query
+  const refunds = await features.query;
+
+  // Send response
+  res.status(200).json({
+    status: "success",
+    results: refunds.length,
+    total: totalCount,
+    data: {
+      refunds,
+    },
+  });
+});
+
+// User requests a refund
 exports.requestRefund = catchAsync(async (req, res, next) => {
   const booking = await Booking.findById(req.params.bookingId);
 
@@ -31,6 +71,7 @@ exports.requestRefund = catchAsync(async (req, res, next) => {
       user: req.user.id,
       status: "pending",
       amount: booking.price,
+      requestedAt: new Date(),
     });
 
     res.status(201).json({
@@ -50,7 +91,7 @@ exports.requestRefund = catchAsync(async (req, res, next) => {
   }
 });
 
-// 2) Admin processes a refund
+// Admin processes a refund
 exports.processRefund = catchAsync(async (req, res, next) => {
   const refund = await Refund.findById(req.params.refundId).populate("booking");
 
@@ -81,7 +122,7 @@ exports.processRefund = catchAsync(async (req, res, next) => {
   });
 });
 
-// 3) Admin rejects a refund
+// Admin rejects a refund
 exports.rejectRefund = catchAsync(async (req, res, next) => {
   const refund = await Refund.findById(req.params.refundId);
 

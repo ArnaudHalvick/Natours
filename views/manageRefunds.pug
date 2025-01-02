@@ -17,28 +17,51 @@ block content
         ul.side-nav
           +sideNavItem('settings', 'Settings', '/me')
           +sideNavItem('briefcase', 'My bookings', '/my-tours')
-          +sideNavItem('star', 'My reviews', '/my-reviews')
+          +sideNavItem('star', 'My reviews', '/my-reviews', true)
           +sideNavItem('credit-card', 'Billing', '/billing')
 
-        //- Admin navigation
-        .admin-nav
-          h5.admin-nav__heading Admin
-          ul.side-nav
-            +sideNavItem('map', 'Manage tours', '#')
-            +sideNavItem('users', 'Manage users', '#')
-            +sideNavItem('star', 'Manage reviews', '#')
-            +sideNavItem('briefcase', 'Manage bookings', '#')
-            +sideNavItem('credit-card', 'Manage refunds', '/manage-refunds', true)
+        // Admin navigation
+        if user.role === 'admin' || user.role === 'lead-guide'
+          .admin-nav
+            h5.admin-nav__heading Admin
+            ul.side-nav
+              +sideNavItem('map', 'Manage tours', '#')
+              +sideNavItem('users', 'Manage users', '#')
+              +sideNavItem('star', 'Manage reviews', '#')
+              +sideNavItem('briefcase', 'Manage bookings', '#')
+              +sideNavItem('credit-card', 'Manage refunds', '/manage-refunds')
+
 
       .user-view__content
-        h2.heading-secondary.ma-bt-md Manage Refunds
+        h2.heading-secondary.ma-bt-md.refund-title Manage Refunds
 
-        table.table
+        .filters.ma-bt-md
+          form#filterForm.form.form--inline
+            .filter-group
+              .form__group
+                label.form__label(for='status') Status
+                select#status.form__input(name='status')
+                  option(value='' selected=!currentStatus) All
+                  option(value='pending' selected=currentStatus==='pending') Pending
+                  option(value='processed' selected=currentStatus==='processed') Processed
+                  option(value='rejected' selected=currentStatus==='rejected') Rejected
+
+              .form__group
+                label.form__label(for='sort') Sort by
+                select#sort.form__input(name='sort')
+                  option(value='-requestedAt' selected=currentSort==='-requestedAt' || !currentSort) Latest First
+                  option(value='requestedAt' selected=currentSort==='requestedAt') Oldest First
+                  option(value='-amount' selected=currentSort==='-amount') Amount (High to Low)
+                  option(value='amount' selected=currentSort==='amount') Amount (Low to High)
+
+        table.refunds-table.table
           thead
             tr
               th Booking ID
               th User
               th Amount
+              th Requested
+              th Processed
               th Status
               th Actions
           tbody
@@ -48,21 +71,32 @@ block content
                   td= refund.booking._id
                   td= refund.user.name
                   td $#{refund.amount.toFixed(2)}
+                  td= refund.requestedAt.toLocaleDateString()
+                  td= refund.processedAt ? refund.processedAt.toLocaleDateString() : '-'
                   td= refund.status.charAt(0).toUpperCase() + refund.status.slice(1)
                   td
                     if refund.status === 'pending'
-                      button.btn.btn--green.btn--small.btn--refund-action(
-                        data-refund-id=refund._id,
-                        data-action="process"
-                      ) Process
-                      button.btn.btn--red.btn--small.btn--refund-action(
-                        data-refund-id=refund._id,
-                        data-action="reject"
-                      ) Reject
+                      .refund-btns-container
+                        button.btn.btn--green.btn--small.btn--refund-action(
+                          data-refund-id=refund._id,
+                          data-action="process"
+                        ) Process
+                        button.btn.btn--red.btn--small.btn--refund-action(
+                          data-refund-id=refund._id,
+                          data-action="reject"
+                        ) Reject
                     else if refund.status === 'processed'
                       span.text-success Processed
                     else if refund.status === 'rejected'
                       span.text-danger Rejected
             else
               tr
-                td(colspan="5") No refund requests found.
+                td(colspan="7") No refund requests found.
+
+        if totalPages > 1
+          .pagination
+            if currentPage > 1
+              button.btn.btn--small(data-page=currentPage - 1) Previous
+            span.pagination__numbers Page #{currentPage} of #{totalPages}
+            if currentPage < totalPages
+              button.btn.btn--small(data-page=currentPage + 1) Next

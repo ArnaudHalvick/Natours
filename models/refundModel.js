@@ -20,11 +20,20 @@ const refundSchema = new mongoose.Schema({
     type: Number,
     required: [true, "Refund must have an amount."],
   },
+  requestedAt: {
+    type: Date,
+    default: Date.now,
+  },
   processedAt: Date,
-  stripeRefundId: String, // Optional: Store Stripe refund ID
+  stripeRefundId: String,
 });
 
+// Keep your existing index
 refundSchema.index({ booking: 1, user: 1 }, { unique: true });
+
+// Add new indexes for efficient querying
+refundSchema.index({ status: 1, requestedAt: -1 });
+refundSchema.index({ user: 1, requestedAt: -1 });
 
 const Refund = mongoose.model("Refund", refundSchema);
 module.exports = Refund;
