@@ -2,6 +2,23 @@
 import axios from "axios";
 import { showAlert } from "./alert";
 
+export const openModal = refundData => {
+  console.log("Opening modal with data:", refundData);
+  const modal = document.querySelector(".refund-modal");
+  document.getElementById("modalBookingId").textContent = refundData.bookingId;
+  document.getElementById("modalUser").textContent = refundData.user;
+  document.getElementById("modalAmount").textContent =
+    `$${refundData.amount.toFixed(2)}`;
+  document.getElementById("modalRequestDate").textContent =
+    refundData.requested;
+  modal.classList.remove("hidden");
+};
+
+export const closeModal = () => {
+  const modal = document.querySelector(".refund-modal");
+  modal.classList.add("hidden");
+};
+
 export const requestRefund = async bookingId => {
   try {
     const res = await axios({
@@ -29,6 +46,7 @@ export const handleRefundAction = async (refundId, action) => {
     });
 
     if (res.data.status === "success") {
+      closeModal();
       showAlert("success", `Refund ${action}ed successfully`);
       window.setTimeout(() => location.reload(), 1500);
     }
@@ -42,18 +60,13 @@ export const handleFilterChange = () => {
   const sortValue = document.getElementById("sort").value;
   const currentUrl = new URL(window.location.href);
 
-  // Always set the parameters regardless of value
   currentUrl.searchParams.set("status", statusValue);
   currentUrl.searchParams.set("sort", sortValue);
 
-  // Remove empty parameters
   if (!statusValue) currentUrl.searchParams.delete("status");
   if (!sortValue) currentUrl.searchParams.delete("sort");
 
-  // Reset to page 1 when filters change
   currentUrl.searchParams.delete("page");
-
-  // Always navigate, even if to remove parameters
   window.location.href = currentUrl.toString();
 };
 
