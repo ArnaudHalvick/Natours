@@ -1,12 +1,14 @@
 extends base
 
+block append head
+  link(rel="stylesheet", href="/css/pages/verify2fa.css")
+
 block content
   .main
     .container
       .heading-secondary Enter 2FA Code
       form.form#twoFAForm
         .form__group
-          label(for="code") 2FA Code
           input.form__input(type="text" name="code" id="code" required)
         .form__group
           button.btn.btn--green(type="submit") Submit
