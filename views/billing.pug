@@ -4,14 +4,6 @@ block append head
   link(rel="stylesheet", href="/css/pages/billing.css")
   link(rel="stylesheet", href="/css/layout/user-view.css")
 
-
-mixin sideNavItem(icon, text, href, active=false)
-  li(class= active ? 'side-nav--active' : '')
-    a(href=href)
-      svg
-        use(xlink:href=`/img/icons.svg#icon-${icon}`)
-      | #{text}
-
 block content
   main.main
     .user-view

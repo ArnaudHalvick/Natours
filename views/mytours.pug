@@ -1,12 +1,5 @@
 extends base
 
-mixin sideNavItem(icon, text, href, active=false)
-  li(class= active ? 'side-nav--active' : '')
-    a(href=href)
-      svg
-        use(xlink:href=`/img/icons.svg#icon-${icon}`)
-      | #{text}
-
 block append head
   link(rel="stylesheet" href="/css/components/buttons.css")
   link(rel="stylesheet" href="/css/components/cards.css")
@@ -23,7 +16,6 @@ block content
   main.main
     .user-view
       include _sidenav
-     
 
       .user-view__content
         .user-view__form-container
