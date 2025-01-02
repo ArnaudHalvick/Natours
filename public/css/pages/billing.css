@@ -1,3 +1,5 @@
+/* Billing Page Styles
+========================================================================== */
 .billing-summary {
   background-color: #fff;
   padding: 2rem;
@@ -5,43 +7,37 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   margin-bottom: 3rem;
 }
-
 .billing-summary h3 {
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 1rem;
 }
-
 .billing-summary p {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 1rem;
 }
-
-.transaction-container {
+/* Transaction Styles */
+.transactions {
   margin-top: 3rem;
 }
-
-.transaction {
+.transaction-item {
   background-color: #fff;
   padding: 2rem;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
 }
-
-.transaction__title {
+.transaction-item__title {
   font-size: 1.8rem;
   font-weight: bold;
   margin-bottom: 1rem;
 }
-
-.transaction__info p {
+.transaction-item__info p {
   font-size: 1.4rem;
   margin-bottom: 0.5rem;
 }
-
-.btn {
+.btn--blue {
   padding: 1rem 2rem;
   font-size: 1.4rem;
   text-decoration: none;
@@ -49,7 +45,6 @@
   color: white;
   background-color: #3498db;
 }
-
-.btn:hover {
+.btn--blue:hover {
   background-color: #2980b9;
 }

@@ -8,28 +8,14 @@ mixin sideNavItem(icon, text, href, active=false)
       | #{text}
 
 block append head
-  link(rel="stylesheet" href="/css/review.css")
+  link(rel="stylesheet" href="/css/components/forms.css")
+  link(rel="stylesheet" href="/css/layout/user-view.css")
+  link(rel="stylesheet" href="/css/pages/myreviews.css")
 
 block content
   main.main
     .user-view
-      nav.user-view__menu
-        ul.side-nav
-          +sideNavItem('settings', 'Settings', '/me')
-          +sideNavItem('briefcase', 'My bookings', '/my-tours')
-          +sideNavItem('star', 'My reviews', '/my-reviews', true)
-          +sideNavItem('credit-card', 'Billing', '/billing')
-
-        // Admin navigation
-        if user.role === 'admin' || user.role === 'lead-guide'
-          .admin-nav
-            h5.admin-nav__heading Admin
-            ul.side-nav
-              +sideNavItem('map', 'Manage tours', '#')
-              +sideNavItem('users', 'Manage users', '#')
-              +sideNavItem('star', 'Manage reviews', '#')
-              +sideNavItem('briefcase', 'Manage bookings', '#')
-              +sideNavItem('credit-card', 'Manage refunds', '/manage-refunds')
+      include _sidenav
 
       .user-view__content
         .user-view__form-container

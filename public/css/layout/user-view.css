@@ -1,0 +1,91 @@
+/* User View Layout
+   ========================================================================== */
+
+.user-view {
+  background-color: #fff;
+  max-width: 120rem;
+  margin: 0 auto;
+  min-height: 100vh;
+  border-radius: 3px;
+  overflow: hidden;
+  -webkit-box-shadow: 0 2.5rem 8rem 2rem rgba(0, 0, 0, 0.07);
+  box-shadow: 0 2.5rem 8rem 2rem rgba(0, 0, 0, 0.07);
+  display: flex;
+}
+
+/* Sidebar Menu */
+.user-view__menu {
+  flex: 0 0 32rem;
+  background-image: linear-gradient(to right bottom, #7dd56f, #28b487);
+  padding: 4rem 0;
+}
+
+.side-nav {
+  list-style: none;
+}
+
+.side-nav li {
+  margin: 1rem 0;
+  border-left: 0 solid #fff;
+  transition: all 0.3s;
+}
+
+.side-nav--active,
+.side-nav li:hover {
+  border-left: 4px solid #fff !important;
+}
+
+.side-nav--active a {
+  transform: translateX(-3px);
+}
+
+.side-nav a:link,
+.side-nav a:visited {
+  padding: 1rem 4rem;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  font-weight: 400;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.side-nav a:hover,
+.side-nav a:active {
+  transform: translateX(3px);
+}
+
+.side-nav svg {
+  height: 1.9rem;
+  width: 1.9rem;
+  fill: #f7f7f7;
+  margin-right: 2rem;
+}
+
+/* Admin Navigation */
+.admin-nav {
+  margin-top: 5.5rem;
+}
+
+.admin-nav__heading {
+  margin: 0 5rem 1.5rem 4rem;
+  padding-bottom: 3px;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  color: #f2f2f2;
+  border-bottom: 1px solid currentColor;
+}
+
+/* Content Area */
+.user-view__content {
+  flex: 1;
+  padding: 7rem 0;
+}
+
+.user-view__form-container {
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 0 8rem;
+}

@@ -1,0 +1,83 @@
+/* Tour Page Styles
+   ========================================================================== */
+
+/* Availability Banner */
+.section-availability {
+  background-color: #fffbec;
+  padding: 15px;
+  text-align: center;
+  z-index: 1001;
+}
+
+.banner {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px;
+  font-size: 1.6rem;
+  color: #000;
+}
+
+.banner a.btn {
+  padding: 8px 20px;
+}
+
+/* Tour Content */
+.description-box .description {
+  margin-right: 5rem;
+}
+
+.description-box .description__text {
+  font-size: 1.7rem;
+}
+
+.description-box .description__text:not(:last-child) {
+  margin-bottom: 2rem;
+}
+
+/* Overview Box */
+.overview-box {
+  background-color: #f7f7f7;
+  display: flex;
+  justify-content: center;
+}
+
+.overview-box__group:not(:last-child) {
+  margin-bottom: 7rem;
+}
+
+.overview-box__detail {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  font-weight: 400;
+}
+
+.overview-box__icon {
+  height: 2.25rem;
+  width: 2.25rem;
+  fill: #55c57a;
+}
+
+/* Floating Booking Button */
+.btn--floating {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  z-index: 1000;
+  background-color: #28a745;
+  color: #fff;
+  padding: 15px 30px;
+  font-size: 2rem;
+  text-align: center;
+  border-radius: 50px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateX(-50%);
+  transition: all 0.3s ease;
+}
+
+.btn--floating:hover {
+  background-color: #218838;
+  transform: translateX(-50%) translateY(-3px);
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15);
+}

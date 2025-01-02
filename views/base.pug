@@ -6,10 +6,23 @@ html(lang="en")
       meta(name="viewport", content="width=device-width, initial-scale=1.0")
 
       link(href="https://fonts.googleapis.com/css?family=Lato:300,300i,700" rel="stylesheet")
-      link(rel="stylesheet" href="/css/style.css")
-      link(rel="stylesheet" href="/css/footer.css") 
+      
+      //- Base styles
+      link(rel="stylesheet" href="/css/base/reset.css")
+      link(rel="stylesheet" href="/css/base/typography.css")
+      link(rel="stylesheet" href="/css/base/utilities.css")
+      
+      //- Components used everywhere
+      link(rel="stylesheet" href="/css/components/buttons.css")
+      link(rel="stylesheet" href="/css/components/alerts.css")
+      link(rel="stylesheet" href="/css/components/navigation.css")
+      
+      //- Layouts used in base template
+      link(rel="stylesheet" href="/css/layout/header.css")
+      link(rel="stylesheet" href="/css/layout/footer.css")
+      link(rel="stylesheet" href="/css/layout/grid.css")
+      
       link(rel="shortcut icon" type="image/png" href="/img/favicon.png")
-
       title Natours | #{title}
 
   body(data-alert=`${alert ? alert : ""}`)

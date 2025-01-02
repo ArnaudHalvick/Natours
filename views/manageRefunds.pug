@@ -1,36 +1,13 @@
 extends base
 
-mixin sideNavItem(icon, text, href, active=false)
-  li(class= active ? 'side-nav--active' : '')
-    a(href=href)
-      svg
-        use(xlink:href=`/img/icons.svg#icon-${icon}`)
-      | #{text}
-
 block append head
-  link(rel="stylesheet" href="/css/manageRefunds.css")
+  link(rel="stylesheet" href="/css/pages/manageRefunds.css")
+  link(rel="stylesheet", href="/css/layout/user-view.css")
 
 block content
   main.main
     .user-view
-      nav.user-view__menu
-        ul.side-nav
-          +sideNavItem('settings', 'Settings', '/me')
-          +sideNavItem('briefcase', 'My bookings', '/my-tours')
-          +sideNavItem('star', 'My reviews', '/my-reviews', true)
-          +sideNavItem('credit-card', 'Billing', '/billing')
-
-        // Admin navigation
-        if user.role === 'admin' || user.role === 'lead-guide'
-          .admin-nav
-            h5.admin-nav__heading Admin
-            ul.side-nav
-              +sideNavItem('map', 'Manage tours', '#')
-              +sideNavItem('users', 'Manage users', '#')
-              +sideNavItem('star', 'Manage reviews', '#')
-              +sideNavItem('briefcase', 'Manage bookings', '#')
-              +sideNavItem('credit-card', 'Manage refunds', '/manage-refunds')
-
+      include _sidenav
 
       .user-view__content
         h2.heading-secondary.ma-bt-md.refund-title Manage Refunds

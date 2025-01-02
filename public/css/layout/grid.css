@@ -1,0 +1,56 @@
+/* Grid Layout
+   ========================================================================== */
+
+.card-container {
+  max-width: 120rem;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 7rem;
+}
+
+/* Grid Layout Classes */
+.container {
+  max-width: 120rem;
+  margin: 0 auto;
+}
+
+/* Grid Utilities */
+.span-all-rows {
+  grid-row: 1 / -1;
+}
+
+/* Flex Layouts */
+.flex {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+/* User View Grid */
+.user-view {
+  background-color: #fff;
+  max-width: 120rem;
+  margin: 0 auto;
+  min-height: 100vh;
+  border-radius: 3px;
+  overflow: hidden;
+  -webkit-box-shadow: 0 2.5rem 8rem 2rem rgba(0, 0, 0, 0.07);
+  box-shadow: 0 2.5rem 8rem 2rem rgba(0, 0, 0, 0.07);
+  display: flex;
+}
+
+.user-view__menu {
+  -webkit-box-flex: 32rem;
+  -ms-flex: 32rem 0 0px;
+  flex: 32rem 0 0;
+  background-image: linear-gradient(to right bottom, #7dd56f, #28b487);
+  padding: 4rem 0;
+}
+
+.user-view__content {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  padding: 7rem 0;
+}

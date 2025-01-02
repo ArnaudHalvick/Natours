@@ -1,0 +1,56 @@
+/* Reset and Basic Styles
+   ========================================================================== */
+
+:root {
+  --section-rotate: 9vw;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  -webkit-box-sizing: inherit;
+  box-sizing: inherit;
+}
+
+::selection {
+  background-color: #55c57a;
+  color: #fff;
+}
+
+::-moz-selection {
+  background-color: #55c57a;
+  color: #fff;
+}
+
+html {
+  font-size: 62.5%;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  line-height: 1.6;
+  font-weight: 300;
+  font-family: "Lato", sans-serif;
+  color: #777;
+  padding: 3rem;
+  min-height: 100vh;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.main {
+  background-color: #f7f7f7;
+  padding: 8rem 6rem;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+}

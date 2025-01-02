@@ -1,14 +1,15 @@
-/* mytours.css */
+/* My Tours Page Styles
+   ========================================================================== */
 
 .mytours-container {
   min-width: 60rem;
   max-width: 120rem;
   margin: 0 auto;
-  padding: 4rem;
-  text-align: center;
+  padding: 0 4rem; /* Changed padding to horizontal only */
   flex: 1;
 }
 
+/* Booking Card */
 .booking {
   background-color: #fff;
   padding: 2.5rem 3rem;
@@ -22,7 +23,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem; /* Increased spacing */
 }
 
 .booking__title {
@@ -31,16 +32,9 @@
   color: #333;
 }
 
+/* Booking Information */
 .booking__info {
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-@media (min-width: 768px) {
-  .booking__info {
-    flex-direction: row;
-    justify-content: space-between;
-  }
+  margin-bottom: 2rem; /* Increased spacing */
 }
 
 .booking__detail {
@@ -51,79 +45,85 @@
 .booking__detail strong {
   font-weight: 700;
   color: #555;
+  margin-right: 0.8rem; /* Added spacing after labels */
 }
 
+/* Button Container */
 .booking__buttons {
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 1.5rem; /* Increased gap between buttons */
+  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
 }
 
+/* Button Styles */
 .btn {
-  padding: 1rem 2rem;
+  padding: 1.2rem 2.4rem; /* Increased padding */
   font-size: 1.4rem;
   text-decoration: none;
   color: #fff;
   cursor: pointer;
   text-align: center;
+  border-radius: 10rem; /* Added border radius */
+  transition: all 0.2s; /* Added transition */
 }
 
 .btn--small {
-  padding: 0.6rem 1.2rem;
-  font-size: 1.2rem;
+  padding: 1rem 2rem;
+  font-size: 1.3rem;
 }
 
-/* Existing .btn--green */
+/* Button Variants */
 .btn--green {
   background-color: #55c57a;
 }
 .btn--green:hover {
   background-color: #28b487;
+  transform: translateY(-2px); /* Added hover effect */
 }
 
-/* Existing .btn--blue for "Purchase additional spots" */
 .btn--blue {
   background-color: #3498db;
 }
 .btn--blue:hover {
   background-color: #2980b9;
+  transform: translateY(-2px);
 }
 
 .btn--orange {
   background-color: #e67e22;
 }
-
 .btn--orange:hover {
   background-color: #cf6d17;
+  transform: translateY(-2px);
 }
 
 .btn--purple {
   background-color: #9b59b6;
 }
-
 .btn--purple:hover {
   background-color: #8e44ad;
+  transform: translateY(-2px);
 }
 
 .btn--red {
   background-color: #e74c3c;
 }
-
 .btn--red:hover {
   background-color: #c0392b;
+  transform: translateY(-2px);
 }
 
+/* Refund Button Styles */
 .refund-btn {
   font-size: 1.4rem;
-  padding: 1.4rem 3rem;
+  padding: 1.2rem 2.4rem;
   border-radius: 10rem;
   text-transform: uppercase;
-  display: inline-block;
-  text-decoration: none;
-  position: relative;
   color: white;
   border: none;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
 .refund-btn--pending {
@@ -140,10 +140,30 @@
 
 .refund-btn--request {
   background-color: #e74c3c;
-  cursor: pointer;
+}
+
+.refund-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
 }
 
 .refund-btn:disabled {
   opacity: 0.8;
   cursor: not-allowed;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .mytours-container {
+    min-width: auto; /* Remove min-width on mobile */
+    padding: 0 2rem; /* Reduce padding on mobile */
+  }
+
+  .booking__buttons {
+    flex-direction: column; /* Stack buttons on mobile */
+  }
+
+  .btn,
+  .refund-btn {
+    width: 100%; /* Full width buttons on mobile */
+  }
 }
