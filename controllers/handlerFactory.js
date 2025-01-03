@@ -19,8 +19,15 @@ exports.getAll = Model =>
     // Execute the query to get the documents
     const docs = await features.query;
 
-    // Count total documents matching the filter (without pagination)
-    const total = await Model.countDocuments(filter);
+    // Count total documents matching the **final** query conditions (including all filters)
+    let total;
+    if (typeof features.query.getFilter === "function") {
+      // For Mongoose 6.3+
+      total = await Model.countDocuments(features.query.getFilter());
+    } else {
+      // For earlier Mongoose versions
+      total = await Model.countDocuments(features.query._conditions);
+    }
 
     // Calculate totalPages based on the limit
     const totalPages = Math.ceil(total / features.pagination.limit);
