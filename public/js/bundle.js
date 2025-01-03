@@ -6828,7 +6828,12 @@ var loadUsers = exports.loadUsers = /*#__PURE__*/function () {
           } else {
             users.forEach(function (user) {
               var row = document.createElement("tr");
-              row.innerHTML = "\n          <td><img src=\"/img/users/".concat(user.photo, "\" alt=\"").concat(user.name, "\"></td>\n          <td>").concat(user.name, "</td>\n          <td>").concat(user.email, "</td>\n          <td>").concat(user.role, "</td>\n          <td class=\"action-buttons\">\n            <button class=\"btn btn--small btn--edit\" data-id=\"").concat(user._id, "\">Edit</button>\n            <button class=\"btn btn--small btn--delete\" data-id=\"").concat(user._id, "\">Delete</button>\n          </td>\n        ");
+
+              // Add a CSS class based on the user's active status
+              if (!user.active) {
+                row.classList.add("user--inactive");
+              }
+              row.innerHTML = "\n          <td><img src=\"/img/users/".concat(user.photo, "\" alt=\"").concat(user.name, "\"></td>\n          <td>").concat(user.name, "</td>\n          <td>").concat(user.email, "</td>\n          <td>").concat(user.role, "</td>\n          <td class=\"action-buttons\">\n            <button class=\"btn btn--small btn--edit\" data-id=\"").concat(user._id, "\" data-active=\"").concat(user.active, "\">Edit</button>\n            <button class=\"btn btn--small btn--delete\" data-id=\"").concat(user._id, "\">Delete</button>\n          </td>\n        ");
               userTableBody.appendChild(row);
             });
           }
@@ -7091,6 +7096,8 @@ var initializeUserManagement = exports.initializeUserManagement = function initi
       var target = e.target;
       if (target.classList.contains("btn--edit")) {
         var userId = target.dataset.id;
+        var isActive = target.dataset.active === "true"; // Correctly retrieve active status
+
         // Set up edit mode
         userForm.dataset.editing = "true";
         userForm.dataset.userId = userId;
@@ -7098,13 +7105,12 @@ var initializeUserManagement = exports.initializeUserManagement = function initi
         // Find the user row and get current values
         var row = target.closest("tr");
         var name = row.children[1].textContent;
-        var email = row.children[2].textContent; // Assuming email is in the third column
+        var email = row.children[2].textContent;
         var role = row.children[3].textContent;
-        var isActive = row.children[4].textContent === "Active";
 
         // Populate the form
         document.getElementById("userName").value = name;
-        document.getElementById("userEmail").value = email; // Ensure email is available if needed
+        document.getElementById("userEmail").value = email;
         document.getElementById("userRole").value = role;
         document.getElementById("userActive").value = isActive.toString();
 
@@ -7466,7 +7472,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "36829" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "40907" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

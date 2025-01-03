@@ -260,6 +260,21 @@
   background-color: #4caf70; /* Darker green on hover */
 }
 
+/* Highlight inactive users */
+.user--inactive {
+  opacity: 0.6; /* Makes the row appear faded */
+}
+
+/* Optional: Change background color for inactive users */
+.user--inactive td {
+  background-color: #f9f9f9; /* Light gray background */
+}
+
+/* Optional: Use different text color for inactive users */
+.user--inactive td {
+  color: #999; /* Gray text */
+}
+
 /* Animation */
 @keyframes fadeIn {
   from {

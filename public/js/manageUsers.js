@@ -39,13 +39,19 @@ export const loadUsers = async () => {
     } else {
       users.forEach(user => {
         const row = document.createElement("tr");
+
+        // Add a CSS class based on the user's active status
+        if (!user.active) {
+          row.classList.add("user--inactive");
+        }
+
         row.innerHTML = `
           <td><img src="/img/users/${user.photo}" alt="${user.name}"></td>
           <td>${user.name}</td>
           <td>${user.email}</td>
           <td>${user.role}</td>
           <td class="action-buttons">
-            <button class="btn btn--small btn--edit" data-id="${user._id}">Edit</button>
+            <button class="btn btn--small btn--edit" data-id="${user._id}" data-active="${user.active}">Edit</button>
             <button class="btn btn--small btn--delete" data-id="${user._id}">Delete</button>
           </td>
         `;
@@ -277,6 +283,8 @@ export const initializeUserManagement = () => {
       const target = e.target;
       if (target.classList.contains("btn--edit")) {
         const userId = target.dataset.id;
+        const isActive = target.dataset.active === "true"; // Correctly retrieve active status
+
         // Set up edit mode
         userForm.dataset.editing = "true";
         userForm.dataset.userId = userId;
@@ -284,13 +292,12 @@ export const initializeUserManagement = () => {
         // Find the user row and get current values
         const row = target.closest("tr");
         const name = row.children[1].textContent;
-        const email = row.children[2].textContent; // Assuming email is in the third column
+        const email = row.children[2].textContent;
         const role = row.children[3].textContent;
-        const isActive = row.children[4].textContent === "Active";
 
         // Populate the form
         document.getElementById("userName").value = name;
-        document.getElementById("userEmail").value = email; // Ensure email is available if needed
+        document.getElementById("userEmail").value = email;
         document.getElementById("userRole").value = role;
         document.getElementById("userActive").value = isActive.toString();
 
