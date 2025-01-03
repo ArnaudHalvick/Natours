@@ -1,3 +1,4 @@
+// bookingController.js
 const mongoose = require("mongoose");
 const Tour = require("../models/tourModel");
 const User = require("../models/userModel");
@@ -104,104 +105,110 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 
 // Function to create a booking in the database
 const createBookingCheckout = async session => {
-  const userEmail = session.customer_email;
-  const price = session.amount_total / 100;
-  const { startDate, numParticipants, bookingId, tourId } = session.metadata;
-
-  // If no tourId in metadata, use client_reference_id (for new bookings)
-  const actualTourId = tourId || session.client_reference_id;
-
-  const user = await User.findOne({ email: userEmail });
-  if (!user) {
-    console.error(`No user found with email: ${userEmail}`);
-    return;
-  }
-
-  const mongooseSession = await mongoose.startSession();
-  mongooseSession.startTransaction();
-
   try {
-    if (bookingId) {
-      // If bookingId exists, update the existing booking
-      const booking =
-        await Booking.findById(bookingId).session(mongooseSession);
-      if (!booking) throw new Error("Booking not found.");
+    const userEmail = session.customer_email;
+    const price = session.amount_total / 100;
+    const { startDate, numParticipants, bookingId, tourId } = session.metadata;
 
-      // Parse numParticipants as integer
-      const additionalParticipants = parseInt(numParticipants, 10);
-      if (isNaN(additionalParticipants)) {
-        throw new Error("Invalid number of participants");
-      }
+    // If no tourId in metadata, use client_reference_id (for new bookings)
+    const actualTourId = tourId || session.client_reference_id;
 
-      // Find the tour using actualTourId
-      const tour = await Tour.findById(actualTourId).session(mongooseSession);
-      if (!tour) throw new Error("Tour not found.");
+    const user = await User.findOne({ email: userEmail });
+    if (!user) {
+      console.error(`No user found with email: ${userEmail}`);
+      return;
+    }
 
-      // Update the booking with additional participants
-      booking.numParticipants += additionalParticipants;
-      await booking.save();
+    const mongooseSession = await mongoose.startSession();
+    mongooseSession.startTransaction();
 
-      // Find startDate in tour's startDates
-      const startDateObj = tour.startDates.find(
-        sd => sd.date.toISOString() === startDate,
-      );
+    try {
+      if (bookingId) {
+        // If bookingId exists, update the existing booking
+        const booking =
+          await Booking.findById(bookingId).session(mongooseSession);
+        if (!booking) throw new Error("Booking not found.");
 
-      if (!startDateObj) throw new Error("Start date not found in tour.");
+        // Parse numParticipants as integer
+        const additionalParticipants = parseInt(numParticipants, 10);
+        if (isNaN(additionalParticipants)) {
+          throw new Error("Invalid number of participants");
+        }
 
-      startDateObj.participants += additionalParticipants;
-      tour.markModified("startDates");
-      await tour.save();
-    } else {
-      // Handle new booking creation
-      const tour = await Tour.findById(actualTourId).session(mongooseSession);
-      if (!tour) throw new Error("Tour not found.");
+        // Find the tour using actualTourId
+        const tour = await Tour.findById(actualTourId).session(mongooseSession);
+        if (!tour) throw new Error("Tour not found.");
 
-      const startDateObj = tour.startDates.find(
-        sd => sd.date.getTime() === new Date(startDate).getTime(),
-      );
+        // Update the booking with additional participants
+        booking.numParticipants += additionalParticipants;
+        await booking.save();
 
-      if (!startDateObj) throw new Error("Start date not found.");
+        // Find startDate in tour's startDates
+        const startDateObj = tour.startDates.find(
+          sd => sd.date.toISOString() === startDate,
+        );
 
-      const parsedParticipants = parseInt(numParticipants, 10);
-      const availableSpots = tour.maxGroupSize - startDateObj.participants;
+        if (!startDateObj) throw new Error("Start date not found in tour.");
 
-      if (parsedParticipants > availableSpots) {
-        throw new Error(
-          `Only ${availableSpots} spots left for this start date.`,
+        startDateObj.participants += additionalParticipants;
+        tour.markModified("startDates");
+        await tour.save();
+      } else {
+        // Handle new booking creation
+        const tour = await Tour.findById(actualTourId).session(mongooseSession);
+        if (!tour) throw new Error("Tour not found.");
+
+        const startDateObj = tour.startDates.find(
+          sd => sd.date.getTime() === new Date(startDate).getTime(),
+        );
+
+        if (!startDateObj) throw new Error("Start date not found.");
+
+        const parsedParticipants = parseInt(numParticipants, 10);
+        const availableSpots = tour.maxGroupSize - startDateObj.participants;
+
+        if (parsedParticipants > availableSpots) {
+          throw new Error(
+            `Only ${availableSpots} spots left for this start date.`,
+          );
+        }
+
+        startDateObj.participants += parsedParticipants;
+        tour.markModified("startDates");
+        await tour.save();
+
+        await Booking.create(
+          [
+            {
+              tour: actualTourId,
+              user: user._id,
+              price,
+              startDate,
+              numParticipants: parsedParticipants,
+              paymentIntentId: session.payment_intent,
+            },
+          ],
+          {
+            session: mongooseSession,
+          },
         );
       }
 
-      startDateObj.participants += parsedParticipants;
-      tour.markModified("startDates");
-      await tour.save();
-
-      await Booking.create(
-        [
-          {
-            tour: actualTourId,
-            user: user._id,
-            price,
-            startDate,
-            numParticipants: parsedParticipants,
-            paymentIntentId: session.payment_intent,
-          },
-        ],
-        {
-          session: mongooseSession,
-        },
-      );
+      await mongooseSession.commitTransaction();
+    } catch (error) {
+      console.error("Booking checkout error:", error);
+      await mongooseSession.abortTransaction();
+      throw error;
+    } finally {
+      mongooseSession.endSession();
     }
-
-    await mongooseSession.commitTransaction();
   } catch (error) {
-    console.error("Booking checkout error:", error);
-    await mongooseSession.abortTransaction();
-    throw error;
-  } finally {
-    mongooseSession.endSession();
+    // Since this is called from a webhook, log the error
+    console.error("Error in createBookingCheckout:", error);
   }
 };
 
+// Add Travelers to Existing Booking
 exports.addTravelersToBooking = catchAsync(async (req, res, next) => {
   const { bookingId } = req.params;
   const { tourId, numParticipants } = req.body;
