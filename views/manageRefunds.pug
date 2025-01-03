@@ -46,7 +46,7 @@ block content
              each refund in refunds
                tr
                  td= refund.booking._id
-                 td= refund.user.name
+                 td= refund.user ? refund.user.name : 'Unknown User'
                  td $#{refund.amount.toFixed(2)}
                  td= refund.requestedAt.toLocaleDateString()
                  td= refund.processedAt ? refund.processedAt.toLocaleDateString() : '-'
@@ -56,7 +56,7 @@ block content
                      button.btn.btn--small.btn--manage(
                        data-refund-id=refund._id,
                        data-booking-id=refund.booking._id,
-                       data-user=refund.user.name,
+                       data-user=refund.user ? refund.user.name : 'Unknown User'
                        data-amount=refund.amount,
                        data-requested=refund.requestedAt.toLocaleDateString()
                      ) Manage
