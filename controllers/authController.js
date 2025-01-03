@@ -114,22 +114,36 @@ exports.confirmEmail = catchAsync(async (req, res, next) => {
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
+  // 1. Check if email and password are provided
   if (!email || !password) {
     return next(new AppError("Please provide email and password!", 400));
   }
 
+  // 2. Find user by email; select +password because it's excluded by default
   const user = await User.findOne({ email }).select("+password");
 
-  if (!user || !(await user.correctPassword(password, user.password))) {
+  // 3. If no user is found, return a generic credential error
+  if (!user) {
     return next(new AppError("Incorrect email or password", 401));
   }
 
+  // 4. Check if the user has confirmed their email
   if (!user.emailConfirmed) {
+    // We can include some custom error message or data to prompt a resend
     return next(
-      new AppError("Please confirm your email before logging in.", 401),
+      new AppError(
+        "Your email is not confirmed. Please confirm your email or resend the verification email.",
+        401,
+      ),
     );
   }
 
+  // 5. Check if the password is correct
+  if (!(await user.correctPassword(password, user.password))) {
+    return next(new AppError("Incorrect email or password", 401));
+  }
+
+  // 6. Continue with 2FA logic or createSendToken, etc.
   // Skip 2FA in development mode
   if (
     process.env.NODE_ENV === "development" &&

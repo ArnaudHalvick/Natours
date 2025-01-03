@@ -56,7 +56,12 @@ export const login = async (email, password) => {
       }, 1000);
     }
   } catch (err) {
-    showAlert("error", "Incorrect email address or password");
+    if (err.response && err.response.data && err.response.data.message) {
+      showAlert("error", err.response.data.message);
+    } else {
+      // Fallback if something else goes wrong
+      showAlert("error", "Something went wrong, please try again.");
+    }
   }
 };
 

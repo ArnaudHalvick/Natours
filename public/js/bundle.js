@@ -6194,7 +6194,12 @@ var login = exports.login = /*#__PURE__*/function () {
         case 7:
           _context2.prev = 7;
           _context2.t0 = _context2["catch"](0);
-          (0, _alert.showAlert)("error", "Incorrect email address or password");
+          if (_context2.t0.response && _context2.t0.response.data && _context2.t0.response.data.message) {
+            (0, _alert.showAlert)("error", _context2.t0.response.data.message);
+          } else {
+            // Fallback if something else goes wrong
+            (0, _alert.showAlert)("error", "Something went wrong, please try again.");
+          }
         case 10:
         case "end":
           return _context2.stop();
@@ -7498,7 +7503,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "45817" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "35173" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
