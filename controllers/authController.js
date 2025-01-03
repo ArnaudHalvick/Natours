@@ -110,6 +110,40 @@ exports.confirmEmail = catchAsync(async (req, res, next) => {
   res.status(200).redirect("/confirmSuccess");
 });
 
+exports.resendConfirmation = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return next(new AppError("Please provide your email address.", 400));
+  }
+
+  // 1) Find the user by email
+  const user = await User.findOne({ email });
+  if (!user) {
+    return next(new AppError("There is no user with that email.", 404));
+  }
+
+  // 2) Check if already confirmed
+  if (user.emailConfirmed) {
+    return next(new AppError("Email is already confirmed.", 400));
+  }
+
+  // 3) Create new confirmation token
+  const confirmationToken = user.createEmailConfirmationToken();
+  await user.save({ validateBeforeSave: false });
+
+  // 4) Send the email
+  const confirmationUrl = `${req.protocol}://${req.get(
+    "host",
+  )}/api/v1/users/confirmEmail/${confirmationToken}`;
+  await new Email(user, confirmationUrl).sendConfirmation();
+
+  res.status(200).json({
+    status: "success",
+    message: "A new confirmation email has been sent to your inbox.",
+  });
+});
+
 // Login Controller with 2FA
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;

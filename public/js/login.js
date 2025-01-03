@@ -14,9 +14,7 @@ export const verify2FA = async code => {
       headers: {
         Authorization: `Bearer ${tempToken}`,
       },
-      data: {
-        code,
-      },
+      data: { code },
     });
 
     if (res.data.status === "success") {
@@ -38,10 +36,7 @@ export const login = async (email, password) => {
     const res = await axios({
       method: "POST",
       url: "/api/v1/users/login",
-      data: {
-        email,
-        password,
-      },
+      data: { email, password },
     });
 
     if (res.data.status === "success") {
@@ -57,9 +52,54 @@ export const login = async (email, password) => {
     }
   } catch (err) {
     if (err.response && err.response.data && err.response.data.message) {
-      showAlert("error", err.response.data.message);
+      const errorMsg = err.response.data.message;
+      showAlert("error", errorMsg);
+
+      // If server says "Your email is not confirmed..." we prompt "Resend"
+      if (errorMsg.includes("not confirmed")) {
+        const formElem = document.getElementById("loginForm");
+
+        // 1) Check if we already created a 'Resend' button
+        let existingBtn = document.getElementById("resendConfirmationBtn");
+        if (!existingBtn) {
+          // 2) Create the new button and make sure it's NOT a 'submit' type
+          const resendBtn = document.createElement("button");
+          resendBtn.id = "resendConfirmationBtn";
+          resendBtn.type = "button"; // <-- Prevents form submission!
+          resendBtn.textContent = "Resend Confirmation Email";
+          resendBtn.className = "btn btn--small btn--green";
+          resendBtn.style.marginTop = "1rem";
+
+          formElem.appendChild(resendBtn);
+
+          // 3) On click, call our resendConfirmation endpoint
+          resendBtn.addEventListener("click", async e => {
+            e.preventDefault(); // Optional extra safety
+            try {
+              await axios.post("/api/v1/users/resendConfirmation", { email });
+              showAlert(
+                "success",
+                "A new confirmation email has been sent to your inbox.",
+              );
+              resendBtn.remove(); // Remove or disable to prevent multiple resends
+            } catch (error) {
+              if (
+                error.response &&
+                error.response.data &&
+                error.response.data.message
+              ) {
+                showAlert("error", error.response.data.message);
+              } else {
+                showAlert(
+                  "error",
+                  "Could not resend confirmation, please try again later.",
+                );
+              }
+            }
+          });
+        }
+      }
     } else {
-      // Fallback if something else goes wrong
       showAlert("error", "Something went wrong, please try again.");
     }
   }
@@ -71,7 +111,6 @@ export const logout = async () => {
       method: "GET",
       url: "/api/v1/users/logout",
     });
-
     if (res.data.status === "success") {
       showAlert("success", "Logged out successfully!");
       location.assign("/");

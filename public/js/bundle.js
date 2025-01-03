@@ -6089,16 +6089,19 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.showAlert = exports.hideAlert = void 0;
+var alertTimeout; // Keep track of the current alert timeout
+
 var hideAlert = exports.hideAlert = function hideAlert() {
   var el = document.querySelector(".alert");
   if (el) el.parentElement.removeChild(el);
+  clearTimeout(alertTimeout); // Clear the timeout when hiding the alert
 };
 var showAlert = exports.showAlert = function showAlert(type, msg) {
   var time = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 5;
-  hideAlert();
+  hideAlert(); // Hide any existing alert before showing a new one
   var markup = "<div class=\"alert alert--".concat(type, "\">").concat(msg, "</div>");
   document.querySelector("body").insertAdjacentHTML("afterbegin", markup);
-  window.setTimeout(hideAlert, time * 1000);
+  alertTimeout = window.setTimeout(hideAlert, time * 1000); // Set a new timeout
 };
 },{}],"login.js":[function(require,module,exports) {
 "use strict";
@@ -6162,13 +6165,13 @@ var verify2FA = exports.verify2FA = /*#__PURE__*/function () {
   };
 }();
 var login = exports.login = /*#__PURE__*/function () {
-  var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(email, password) {
-    var res;
-    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-      while (1) switch (_context2.prev = _context2.next) {
+  var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(email, password) {
+    var res, errorMsg, formElem, existingBtn, resendBtn;
+    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+      while (1) switch (_context3.prev = _context3.next) {
         case 0:
-          _context2.prev = 0;
-          _context2.next = 3;
+          _context3.prev = 0;
+          _context3.next = 3;
           return (0, _axios.default)({
             method: "POST",
             url: "/api/v1/users/login",
@@ -6178,7 +6181,7 @@ var login = exports.login = /*#__PURE__*/function () {
             }
           });
         case 3:
-          res = _context2.sent;
+          res = _context3.sent;
           if (res.data.status === "success") {
             // Store the temporary token in localStorage
             localStorage.setItem("tempToken", res.data.tempToken);
@@ -6189,59 +6192,111 @@ var login = exports.login = /*#__PURE__*/function () {
               location.assign("/verify-2fa");
             }, 1000);
           }
-          _context2.next = 10;
-          break;
-        case 7:
-          _context2.prev = 7;
-          _context2.t0 = _context2["catch"](0);
-          if (_context2.t0.response && _context2.t0.response.data && _context2.t0.response.data.message) {
-            (0, _alert.showAlert)("error", _context2.t0.response.data.message);
-          } else {
-            // Fallback if something else goes wrong
-            (0, _alert.showAlert)("error", "Something went wrong, please try again.");
-          }
-        case 10:
-        case "end":
-          return _context2.stop();
-      }
-    }, _callee2, null, [[0, 7]]);
-  }));
-  return function login(_x2, _x3) {
-    return _ref2.apply(this, arguments);
-  };
-}();
-var logout = exports.logout = /*#__PURE__*/function () {
-  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-    var res;
-    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-      while (1) switch (_context3.prev = _context3.next) {
-        case 0:
-          _context3.prev = 0;
-          _context3.next = 3;
-          return (0, _axios.default)({
-            method: "GET",
-            url: "/api/v1/users/logout"
-          });
-        case 3:
-          res = _context3.sent;
-          if (res.data.status === "success") {
-            (0, _alert.showAlert)("success", "Logged out successfully!");
-            location.assign("/");
-          }
           _context3.next = 10;
           break;
         case 7:
           _context3.prev = 7;
           _context3.t0 = _context3["catch"](0);
-          (0, _alert.showAlert)("error", "Error logging out. Try again!");
+          if (_context3.t0.response && _context3.t0.response.data && _context3.t0.response.data.message) {
+            errorMsg = _context3.t0.response.data.message;
+            (0, _alert.showAlert)("error", errorMsg);
+
+            // If server says "Your email is not confirmed..." we prompt "Resend"
+            if (errorMsg.includes("not confirmed")) {
+              formElem = document.getElementById("loginForm"); // 1) Check if we already created a 'Resend' button
+              existingBtn = document.getElementById("resendConfirmationBtn");
+              if (!existingBtn) {
+                // 2) Create the new button and make sure it's NOT a 'submit' type
+                resendBtn = document.createElement("button");
+                resendBtn.id = "resendConfirmationBtn";
+                resendBtn.type = "button"; // <-- Prevents form submission!
+                resendBtn.textContent = "Resend Confirmation Email";
+                resendBtn.className = "btn btn--small btn--green";
+                resendBtn.style.marginTop = "1rem";
+                formElem.appendChild(resendBtn);
+
+                // 3) On click, call our resendConfirmation endpoint
+                resendBtn.addEventListener("click", /*#__PURE__*/function () {
+                  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
+                    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+                      while (1) switch (_context2.prev = _context2.next) {
+                        case 0:
+                          e.preventDefault(); // Optional extra safety
+                          _context2.prev = 1;
+                          _context2.next = 4;
+                          return _axios.default.post("/api/v1/users/resendConfirmation", {
+                            email: email
+                          });
+                        case 4:
+                          (0, _alert.showAlert)("success", "A new confirmation email has been sent to your inbox.");
+                          resendBtn.remove(); // Remove or disable to prevent multiple resends
+                          _context2.next = 11;
+                          break;
+                        case 8:
+                          _context2.prev = 8;
+                          _context2.t0 = _context2["catch"](1);
+                          if (_context2.t0.response && _context2.t0.response.data && _context2.t0.response.data.message) {
+                            (0, _alert.showAlert)("error", _context2.t0.response.data.message);
+                          } else {
+                            (0, _alert.showAlert)("error", "Could not resend confirmation, please try again later.");
+                          }
+                        case 11:
+                        case "end":
+                          return _context2.stop();
+                      }
+                    }, _callee2, null, [[1, 8]]);
+                  }));
+                  return function (_x4) {
+                    return _ref3.apply(this, arguments);
+                  };
+                }());
+              }
+            }
+          } else {
+            (0, _alert.showAlert)("error", "Something went wrong, please try again.");
+          }
         case 10:
         case "end":
           return _context3.stop();
       }
     }, _callee3, null, [[0, 7]]);
   }));
+  return function login(_x2, _x3) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var logout = exports.logout = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+    var res;
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
+        case 0:
+          _context4.prev = 0;
+          _context4.next = 3;
+          return (0, _axios.default)({
+            method: "GET",
+            url: "/api/v1/users/logout"
+          });
+        case 3:
+          res = _context4.sent;
+          if (res.data.status === "success") {
+            (0, _alert.showAlert)("success", "Logged out successfully!");
+            location.assign("/");
+          }
+          _context4.next = 10;
+          break;
+        case 7:
+          _context4.prev = 7;
+          _context4.t0 = _context4["catch"](0);
+          (0, _alert.showAlert)("error", "Error logging out. Try again!");
+        case 10:
+        case "end":
+          return _context4.stop();
+      }
+    }, _callee4, null, [[0, 7]]);
+  }));
   return function logout() {
-    return _ref3.apply(this, arguments);
+    return _ref4.apply(this, arguments);
   };
 }();
 },{"axios":"../../node_modules/axios/index.js","./alert":"alert.js"}],"mapbox.js":[function(require,module,exports) {
@@ -7503,7 +7558,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "35173" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42675" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

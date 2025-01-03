@@ -1,34 +1,62 @@
+// userRoutes.js
+const express = require("express");
+const { body, validationResult } = require("express-validator");
+const rateLimit = require("express-rate-limit");
+
 const userController = require("./../controllers/userController");
 const authController = require("./../controllers/authController");
-const express = require("express");
-const rateLimit = require("express-rate-limit");
-const router = express.Router();
-const { body, validationResult } = require("express-validator");
 
-// Specific rate limiter for authentication routes (login and reset password)
+const router = express.Router();
+
+/* ==========================================================================
+   1) Rate Limiters (adjust numbers/messages as needed)
+   ========================================================================== */
+
+// Limit login attempts to avoid brute force
 const authLimiter = rateLimit({
-  max: 5, // Max 5 attempts in 10 minutes
   windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 5,
   message: "Too many login attempts, please try again in 10 minutes",
 });
 
-// Specific rate limiter for the reset password route
+// Limit password reset requests
 const resetLimiter = rateLimit({
-  max: 5, // Max 5 attempts in 10 minutes
   windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 5,
   message: "Too many password reset attempts, please try again later.",
 });
 
+// Limit 2FA verification attempts
 const twoFALimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 5, // limit each IP to 5 requests per windowMs
+  max: 5,
   message: "Too many attempts, please try again later.",
 });
 
-// Confirm the user’s email + 2FA route
+// Limit resending confirmation (avoid spam)
+const resendConfirmationLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 5,
+  message: "Too many confirmation resends. Please try again later.",
+});
+
+/* ==========================================================================
+   2) Public Routes (No authentication needed)
+   ========================================================================== */
+
+// Route to confirm email via token
 router.get("/confirmEmail/:token", authController.confirmEmail);
+
+// 2FA-related routes (verify & resend code)
 router.post("/verify2FA", twoFALimiter, authController.verify2FA);
 router.post("/resend2FA", twoFALimiter, authController.resendTwoFACode);
+
+// Resend email confirmation if user is unconfirmed
+router.post(
+  "/resendConfirmation",
+  resendConfirmationLimiter,
+  authController.resendConfirmation,
+);
 
 // Signup route
 router.post(
@@ -57,23 +85,26 @@ router.post(
   authController.signup,
 );
 
-// Public routes (no authentication required)
-router.post("/login", authLimiter, authController.login); // Apply limiter to login
+// Login/Logout
+router.post("/login", authLimiter, authController.login);
 router.get("/logout", authController.logout);
-router.post("/forgotPassword", authLimiter, authController.forgotPassword); // Apply limiter to forgot password
+
+// Forgot/Reset password
+router.post("/forgotPassword", authLimiter, authController.forgotPassword);
 router.patch(
   "/resetPassword/:token",
   resetLimiter,
   authController.resetPassword,
-); // Apply limiter to reset password
+);
 
-// Protect all routes after this middleware (authenticated users only)
+/* ==========================================================================
+   3) Protected Routes (Require user to be logged in)
+   ========================================================================== */
+
 router.use(authController.protect);
 
-// Route for users to get their own information
+// Current user routes
 router.get("/me", userController.getMe, userController.getUser);
-
-// Routes for authenticated users (any logged-in user)
 router.patch("/updateMyPassword", authController.updatePassword);
 router.patch(
   "/updateMe",
@@ -83,10 +114,13 @@ router.patch(
 );
 router.delete("/deleteMe", userController.deleteMe);
 
-// Protect all routes after this middleware for admin users only
+/* ==========================================================================
+   4) Admin-Only Routes
+   ========================================================================== */
+
 router.use(authController.restrictTo("admin"));
 
-// Routes accessible only by admin users
+// Manage all users (admin only)
 router
   .route("/")
   .get(userController.getAllUsers)
