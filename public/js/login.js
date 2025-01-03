@@ -113,7 +113,11 @@ export const logout = async () => {
     });
     if (res.data.status === "success") {
       showAlert("success", "Logged out successfully!");
-      location.assign("/");
+
+      // Redirect after 1.5 seconds
+      window.setTimeout(() => {
+        location.assign("/");
+      }, 1000);
     }
   } catch (err) {
     showAlert("error", "Error logging out. Try again!");

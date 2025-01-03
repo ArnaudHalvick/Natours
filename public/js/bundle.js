@@ -6455,7 +6455,11 @@ var logout = exports.logout = /*#__PURE__*/function () {
           res = _context4.sent;
           if (res.data.status === "success") {
             (0, _alert.showAlert)("success", "Logged out successfully!");
-            location.assign("/");
+
+            // Redirect after 1.5 seconds
+            window.setTimeout(function () {
+              location.assign("/");
+            }, 1000);
           }
           _context4.next = 10;
           break;
@@ -7373,7 +7377,7 @@ var filterForm = document.querySelector("#filterForm");
 var resetPasswordForm = document.querySelector("#resetPasswordForm");
 
 // Button Elements
-var logoutBtn = document.querySelector(".nav__el--logout");
+var logoutButton = document.querySelector("#logoutBtn");
 var resendButton = document.querySelector("#resendCode");
 var refundButtons = document.querySelectorAll(".refund-btn");
 var manageButtons = document.querySelectorAll(".btn--manage");
@@ -7472,7 +7476,12 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Logout Handler
-if (logoutBtn) logoutBtn.addEventListener("click", _login.logout);
+if (logoutButton) {
+  logoutButton.addEventListener("click", function (e) {
+    e.preventDefault();
+    (0, _login.logout)();
+  });
+}
 
 // Alert Display
 var alertMessage = document.querySelector("body").dataset.alert;
@@ -7699,7 +7708,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42675" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39693" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

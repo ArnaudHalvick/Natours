@@ -369,37 +369,31 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 
 // Check if user is logged in for rendering pages
-exports.isLoggedIn = catchAsync(async (req, res, next) => {
-  if (req.cookies.jwt) {
-    // Verify the token
-    const decoded = await promisify(jwt.verify)(
-      req.cookies.jwt,
-      process.env.JWT_SECRET,
-    );
+exports.isLoggedIn = async (req, res, next) => {
+  try {
+    if (req.cookies.jwt) {
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET,
+      );
 
-    // Check if user still exists
-    const currentUser = await User.findById(decoded.id);
-    if (!currentUser) {
-      return next();
+      // Check if user still exists
+      const currentUser = await User.findById(decoded.id);
+      if (!currentUser) return next();
+
+      // If user changed password after the token was issued
+      if (currentUser.changedPasswordAfter(decoded.iat)) return next();
+
+      // If all checks pass, user is logged in
+      res.locals.user = currentUser;
     }
-
-    // Check if user changed password after the token was issued
-    if (currentUser.changedPasswordAfter(decoded.iat)) {
-      return next();
-    }
-
-    // There is a logged-in user
-    res.locals.user = currentUser;
-
-    if (req.originalUrl === "/login") {
-      return res.redirect("/");
-    }
-
+  } catch (err) {
+    // If there's an invalid token, do nothing; proceed as if not logged in
     return next();
   }
-  // If no cookie, just move to the next middleware
+
   next();
-});
+};
 
 // Middleware to restrict access to certain roles
 exports.restrictTo = (...roles) => {

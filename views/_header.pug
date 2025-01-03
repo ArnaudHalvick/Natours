@@ -14,7 +14,7 @@ header.header
             a.nav__el(href="/me")
                 img.nav__user-img(src=`/img/users/${user.photo}`, alt=`${user.name}`)
                 span= user.name
-            a.nav__el(href="/api/v1/users/logout").nav__el--logout Log out
+            a.nav__el.nav__el--logout#logoutBtn Log out
         else
             a.nav__el(href="/login") Log in
             a.nav__el(href="/signup").nav__el--cta Sign up

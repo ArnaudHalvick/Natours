@@ -35,7 +35,7 @@ const filterForm = document.querySelector("#filterForm");
 const resetPasswordForm = document.querySelector("#resetPasswordForm");
 
 // Button Elements
-const logoutBtn = document.querySelector(".nav__el--logout");
+const logoutButton = document.querySelector("#logoutBtn");
 const resendButton = document.querySelector("#resendCode");
 const refundButtons = document.querySelectorAll(".refund-btn");
 const manageButtons = document.querySelectorAll(".btn--manage");
@@ -106,7 +106,12 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Logout Handler
-if (logoutBtn) logoutBtn.addEventListener("click", logout);
+if (logoutButton) {
+  logoutButton.addEventListener("click", e => {
+    e.preventDefault();
+    logout();
+  });
+}
 
 // Alert Display
 const alertMessage = document.querySelector("body").dataset.alert;
