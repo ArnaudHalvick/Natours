@@ -52,6 +52,8 @@
   text-align: left;
   vertical-align: middle;
   border-bottom: 1px solid #f2f2f2;
+  height: 7rem;
+  line-height: 1.5;
 }
 
 .table th {

@@ -55,9 +55,9 @@ export const loadUsers = async () => {
         const isCurrentUser = user._id === currentUserId;
 
         // Conditionally render Edit/Delete buttons
-        let actionButtons = `
+        let actionButtons = `<div class="action-buttons">
           <button class="btn btn--small btn--edit" data-id="${user._id}" data-active="${user.active}">Edit</button>
-          <button class="btn btn--small btn--delete" data-id="${user._id}">Delete</button>
+          <button class="btn btn--small btn--delete" data-id="${user._id}">Delete</button></div>
         `;
 
         if (isCurrentUser) {
@@ -70,7 +70,7 @@ export const loadUsers = async () => {
           <td>${user.name}</td>
           <td>${user.email}</td>
           <td>${user.role}</td>
-          <td class="action-buttons">
+          <td>
             ${actionButtons}
           </td>
         `;

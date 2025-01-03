@@ -6842,12 +6842,12 @@ var loadUsers = exports.loadUsers = /*#__PURE__*/function () {
               var isCurrentUser = user._id === currentUserId;
 
               // Conditionally render Edit/Delete buttons
-              var actionButtons = "\n          <button class=\"btn btn--small btn--edit\" data-id=\"".concat(user._id, "\" data-active=\"").concat(user.active, "\">Edit</button>\n          <button class=\"btn btn--small btn--delete\" data-id=\"").concat(user._id, "\">Delete</button>\n        ");
+              var actionButtons = "<div class=\"action-buttons\">\n          <button class=\"btn btn--small btn--edit\" data-id=\"".concat(user._id, "\" data-active=\"").concat(user.active, "\">Edit</button>\n          <button class=\"btn btn--small btn--delete\" data-id=\"").concat(user._id, "\">Delete</button></div>\n        ");
               if (isCurrentUser) {
                 // Replace buttons with a label indicating it's the current user's account
                 actionButtons = "<span>Your Account</span>";
               }
-              row.innerHTML = "\n          <td><img src=\"/img/users/".concat(user.photo, "\" alt=\"").concat(user.name, "\"></td>\n          <td>").concat(user.name, "</td>\n          <td>").concat(user.email, "</td>\n          <td>").concat(user.role, "</td>\n          <td class=\"action-buttons\">\n            ").concat(actionButtons, "\n          </td>\n        ");
+              row.innerHTML = "\n          <td><img src=\"/img/users/".concat(user.photo, "\" alt=\"").concat(user.name, "\"></td>\n          <td>").concat(user.name, "</td>\n          <td>").concat(user.email, "</td>\n          <td>").concat(user.role, "</td>\n          <td>\n            ").concat(actionButtons, "\n          </td>\n        ");
               userTableBody.appendChild(row);
             });
           }
@@ -7498,7 +7498,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "45593" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39155" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
