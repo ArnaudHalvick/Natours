@@ -1,11 +1,17 @@
-// index.js
-import { login, logout, verify2FA } from "./login";
-import { displayMap } from "./mapbox";
-import { updateSettings } from "./updateSettings";
-import { signup } from "./signup";
 import { bookTour, addTravelersToBooking } from "./stripe";
+
+import { signup } from "./signup";
+import { login, logout, verify2FA } from "./login";
+import { forgotPassword } from "./forgotPassword";
+import { resetPassword } from "./resetPassword";
+
+import { displayMap } from "./mapbox";
 import { showAlert } from "./alert";
+
+import { updateSettings } from "./updateSettings";
 import { deleteReview, updateReview, createReview } from "./review";
+
+import { initializeUserManagement } from "./manageUsers";
 import {
   requestRefund,
   handleRefundAction,
@@ -14,7 +20,6 @@ import {
   openModal,
   closeModal,
 } from "./refund";
-import { initializeUserManagement } from "./manageUsers";
 
 // Form Elements
 const loginForm = document.querySelector("#loginForm");
@@ -27,12 +32,14 @@ const reviewForm = document.querySelector("#reviewForm");
 const editReviewForm = document.querySelector("#editReviewForm");
 const addTravelersForm = document.querySelector(".add-travelers__form");
 const filterForm = document.querySelector("#filterForm");
+const resetPasswordForm = document.querySelector("#resetPasswordForm");
 
 // Button Elements
 const logoutBtn = document.querySelector(".nav__el--logout");
 const resendButton = document.querySelector("#resendCode");
 const refundButtons = document.querySelectorAll(".refund-btn");
 const manageButtons = document.querySelectorAll(".btn--manage");
+const forgotPasswordBtn = document.querySelector("#forgotPasswordBtn");
 
 // Other Elements
 const myToursContainer = document.querySelector(".mytours-container");
@@ -142,6 +149,29 @@ if (resendButton) {
     } catch (err) {
       showAlert("error", "Failed to resend 2FA code.");
     }
+  });
+}
+
+// Event listener for "Forgot Password"
+if (forgotPasswordBtn) {
+  forgotPasswordBtn.addEventListener("click", e => {
+    e.preventDefault();
+    const email = document.getElementById("email").value;
+
+    // Use the forgotPassword function
+    forgotPassword(email);
+  });
+}
+
+// Event listener for "Reset Password"
+if (resetPasswordForm) {
+  resetPasswordForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const token = document.getElementById("resetToken").value;
+    const password = document.getElementById("password").value;
+    const passwordConfirm = document.getElementById("passwordConfirm").value;
+
+    resetPassword(token, password, passwordConfirm);
   });
 }
 

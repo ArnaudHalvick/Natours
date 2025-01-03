@@ -118,6 +118,15 @@ exports.getVerify2FA = (req, res) => {
   });
 };
 
+exports.getResetPasswordForm = (req, res, next) => {
+  const { token } = req.params;
+  // Render a page with a <form> that includes the hidden token
+  res.status(200).render("resetPassword", {
+    title: "Reset your password",
+    token,
+  });
+};
+
 exports.getReviewForm = async (req, res, next) => {
   // 1) Find the tour by slug
   const tour = await Tour.findOne({ slug: req.params.slug });
