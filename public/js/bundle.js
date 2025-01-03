@@ -6933,22 +6933,22 @@ var initializeUserManagement = exports.initializeUserManagement = function initi
   var nextPageBtn = document.getElementById("nextPage");
   var userTableBody = document.getElementById("userTableBody");
   var userModal = document.getElementById("userModal");
-  var creationOnlyFields = document.querySelectorAll(".creation-only");
-  var editOnlyFields = document.querySelectorAll(".edit-only");
   var toggleFormFields = function toggleFormFields(isCreating) {
+    var creationOnlyFields = document.querySelectorAll(".modal#userModal .creation-only");
+    var editOnlyFields = document.querySelectorAll(".modal#userModal .edit-only");
     creationOnlyFields.forEach(function (field) {
       if (isCreating) {
-        var _field$querySelector;
-        field.style.display = "block";
-        (_field$querySelector = field.querySelector("input")) === null || _field$querySelector === void 0 || _field$querySelector.setAttribute("required", "required");
+        field.classList.add("active");
       } else {
-        var _field$querySelector2;
-        field.style.display = "none";
-        (_field$querySelector2 = field.querySelector("input")) === null || _field$querySelector2 === void 0 || _field$querySelector2.removeAttribute("required");
+        field.classList.remove("active");
       }
     });
     editOnlyFields.forEach(function (field) {
-      field.style.display = isCreating ? "none" : "block";
+      if (!isCreating) {
+        field.classList.add("active");
+      } else {
+        field.classList.remove("active");
+      }
     });
   };
   if (createUserBtn) {
@@ -7390,7 +7390,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "44165" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "41225" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

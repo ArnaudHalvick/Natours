@@ -106,22 +106,29 @@ export const initializeUserManagement = () => {
   const nextPageBtn = document.getElementById("nextPage");
   const userTableBody = document.getElementById("userTableBody");
   const userModal = document.getElementById("userModal");
-  const creationOnlyFields = document.querySelectorAll(".creation-only");
-  const editOnlyFields = document.querySelectorAll(".edit-only");
 
   const toggleFormFields = isCreating => {
+    const creationOnlyFields = document.querySelectorAll(
+      ".modal#userModal .creation-only",
+    );
+    const editOnlyFields = document.querySelectorAll(
+      ".modal#userModal .edit-only",
+    );
+
     creationOnlyFields.forEach(field => {
       if (isCreating) {
-        field.style.display = "block";
-        field.querySelector("input")?.setAttribute("required", "required");
+        field.classList.add("active");
       } else {
-        field.style.display = "none";
-        field.querySelector("input")?.removeAttribute("required");
+        field.classList.remove("active");
       }
     });
 
     editOnlyFields.forEach(field => {
-      field.style.display = isCreating ? "none" : "block";
+      if (!isCreating) {
+        field.classList.add("active");
+      } else {
+        field.classList.remove("active");
+      }
     });
   };
 

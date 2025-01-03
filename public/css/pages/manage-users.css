@@ -37,7 +37,6 @@
   background-color: #fff;
   border-radius: 3px;
   overflow-x: auto;
-  -webkit-box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.06);
   box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.06);
   margin-bottom: 3rem;
 }
@@ -109,48 +108,6 @@
   color: #fff;
 }
 
-/* Modal Styles */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-}
-
-.modal-content {
-  position: relative;
-  background-color: #fff;
-  margin: 7rem auto;
-  padding: 4rem;
-  max-width: 60rem;
-  border-radius: 3px;
-  box-shadow: 0 2.5rem 8rem 2rem rgba(0, 0, 0, 0.15);
-}
-
-.close-modal {
-  position: absolute;
-  top: 1.5rem;
-  right: 2rem;
-  font-size: 3rem;
-  color: #777;
-  cursor: pointer;
-  line-height: 1;
-}
-
-.close-modal:hover {
-  color: #55c57a;
-}
-
-/* Utility Classes for Form Display */
-.creation-only,
-.edit-only {
-  display: none;
-}
-
 /* Pagination Styles */
 .pagination {
   display: flex;
@@ -165,8 +122,167 @@
   color: #777;
 }
 
-/* Responsive Adjustments */
+/* ==============================================
+   Create/Edit User Modal Styles
+   ============================================== */
+
+/* Modal Overlay */
+.modal#userModal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow: auto; /* Enable scrolling if content is taller than viewport */
+}
+
+/* Modal Content */
+.modal#userModal .modal-content {
+  position: relative;
+  background-color: #fff;
+  padding: 4rem;
+  max-width: 60rem;
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease-out;
+  overflow-y: auto;
+  max-height: 90vh; /* Prevent modal from exceeding viewport height */
+}
+
+/* Close Button */
+.modal#userModal .close-modal {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem;
+  font-size: 3rem;
+  color: #777;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.modal#userModal .close-modal:hover {
+  color: #55c57a; /* Change color on hover */
+}
+
+/* Modal Title */
+.modal#userModal h3#modalTitle {
+  font-size: 2.4rem;
+  margin-bottom: 2rem;
+  color: #333;
+  text-align: center;
+}
+
+/* Form Styles */
+.modal#userModal form#userForm {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Form Groups */
+.modal#userModal .form__group {
+  margin-bottom: 2.5rem;
+}
+
+/* Form Labels */
+.modal#userModal label.form__label {
+  font-size: 1.6rem;
+  margin-bottom: 0.75rem;
+  color: #333;
+  display: block;
+}
+
+/* Form Inputs */
+.modal#userModal input.form__input,
+.modal#userModal select.form__input {
+  padding: 1.25rem 1.75rem;
+  font-size: 1.5rem;
+  border: 1px solid #ccc;
+  width: 100%;
+  background-color: #f2f2f2;
+  border-radius: 4px;
+  transition:
+    border-color 0.3s,
+    background-color 0.3s;
+  box-sizing: border-box;
+}
+
+.modal#userModal input.form__input:focus,
+.modal#userModal select.form__input:focus {
+  outline: none;
+  border-color: #55c57a;
+  background-color: #fff;
+}
+
+.modal#userModal input.form__input:invalid,
+.modal#userModal select.form__input:invalid {
+  border-color: #ff7730;
+}
+
+/* Conditional Fields */
+.modal#userModal .creation-only,
+.modal#userModal .edit-only {
+  display: none;
+}
+
+.modal#userModal .creation-only.active,
+.modal#userModal .edit-only.active {
+  display: block;
+}
+
+/* Submit Button Container */
+.modal#userModal .form__group.right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Submit Button */
+.modal#userModal .btn--small.btn--green {
+  padding: 1rem 2.5rem;
+  font-size: 1.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.modal#userModal .btn--small.btn--green:hover {
+  background-color: #4caf70; /* Darker green on hover */
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Adjustments for Modal */
 @media only screen and (max-width: 768px) {
+  .modal#userModal .modal-content {
+    padding: 2rem;
+    max-width: 90%;
+  }
+
+  .modal#userModal h3#modalTitle {
+    font-size: 2rem;
+  }
+
+  .modal#userModal .btn--small.btn--green {
+    width: 100%;
+    padding: 1rem;
+  }
+
   .user-view__users-container {
     padding: 0 2rem;
   }
@@ -181,11 +297,6 @@
     width: 100%;
   }
 
-  .modal-content {
-    margin: 2rem;
-    padding: 2rem;
-  }
-
   .table {
     font-size: 1.4rem;
   }
@@ -195,18 +306,18 @@
   }
 }
 
-/* Animation for Modal */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-1rem);
+@media only screen and (max-width: 480px) {
+  .modal#userModal .modal-content {
+    padding: 1.5rem;
+    max-width: 95%;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
-.modal-content {
-  animation: fadeIn 0.3s ease-out;
+  .modal#userModal h3#modalTitle {
+    font-size: 1.8rem;
+  }
+
+  .modal#userModal .btn--small.btn--green {
+    padding: 0.8rem;
+    font-size: 1.4rem;
+  }
 }
