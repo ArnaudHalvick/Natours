@@ -282,5 +282,6 @@ exports.getManageUsersPage = (req, res) => {
   res.status(200).render("manage-users", {
     title: "Manage Users",
     pageName: "manage-users",
+    currentUser: req.user,
   });
 };

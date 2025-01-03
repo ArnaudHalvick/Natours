@@ -276,8 +276,8 @@ exports.logout = (req, res) => {
 
 // Middleware to protect routes (only logged-in users can access)
 exports.protect = catchAsync(async (req, res, next) => {
+  // 1. Get token and check if it exists
   let token;
-
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
@@ -293,26 +293,30 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
 
-  // Verify the token
+  // 2. Verify token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-  // Check if user still exists
+  // 3. Check if user still exists
   const currentUser = await User.findById(decoded.id);
   if (!currentUser) {
     return next(
-      new AppError("The user belonging to this token no longer exists.", 401),
+      new AppError(
+        "The user belonging to this token does no longer exist.",
+        401,
+      ),
     );
   }
 
-  // Check if user changed password after the token was issued
+  // 4. Check if user changed password after the token was issued
   if (currentUser.changedPasswordAfter(decoded.iat)) {
     return next(
       new AppError("User recently changed password! Please log in again.", 401),
     );
   }
 
-  // Grant access by attaching user info to the request object
-  req.user = currentUser;
+  // 5. Grant access to protected route
+  req.user = currentUser; // Attach user to request
+  res.locals.user = currentUser; // Make user available in templates
   next();
 });
 

@@ -9,13 +9,19 @@ let currentFilter = "";
 let currentSearch = "";
 const limit = 10; // Number of users per page
 
+// Obtain the current user's ID from a data attribute in the HTML
+const userContainer = document.querySelector(".user-view__users-container");
+const currentUserId = userContainer
+  ? userContainer.dataset.currentUserId
+  : null;
+
 // Function to load users
 export const loadUsers = async () => {
   try {
     // Construct query with limit
     let query = `?page=${currentPage}&limit=${limit}&sort=${currentSort}`;
     if (currentFilter) query += `&role=${currentFilter}`;
-    if (currentSearch) query += `&name=${currentSearch}`;
+    if (currentSearch) query += `&name=${encodeURIComponent(currentSearch)}`;
 
     console.log("Fetching users with query:", query);
     const res = await axios.get(`/api/v1/users${query}`);
@@ -45,14 +51,27 @@ export const loadUsers = async () => {
           row.classList.add("user--inactive");
         }
 
+        // Determine if the user is the current user
+        const isCurrentUser = user._id === currentUserId;
+
+        // Conditionally render Edit/Delete buttons
+        let actionButtons = `
+          <button class="btn btn--small btn--edit" data-id="${user._id}" data-active="${user.active}">Edit</button>
+          <button class="btn btn--small btn--delete" data-id="${user._id}">Delete</button>
+        `;
+
+        if (isCurrentUser) {
+          // Replace buttons with a label indicating it's the current user's account
+          actionButtons = `<span>Your Account</span>`;
+        }
+
         row.innerHTML = `
           <td><img src="/img/users/${user.photo}" alt="${user.name}"></td>
           <td>${user.name}</td>
           <td>${user.email}</td>
           <td>${user.role}</td>
           <td class="action-buttons">
-            <button class="btn btn--small btn--edit" data-id="${user._id}" data-active="${user.active}">Edit</button>
-            <button class="btn btn--small btn--delete" data-id="${user._id}">Delete</button>
+            ${actionButtons}
           </td>
         `;
         userTableBody.appendChild(row);
@@ -283,6 +302,13 @@ export const initializeUserManagement = () => {
       const target = e.target;
       if (target.classList.contains("btn--edit")) {
         const userId = target.dataset.id;
+
+        // Prevent editing self
+        if (userId === currentUserId) {
+          showAlert("error", "You cannot edit your own account.");
+          return;
+        }
+
         const isActive = target.dataset.active === "true"; // Correctly retrieve active status
 
         // Set up edit mode
@@ -308,8 +334,15 @@ export const initializeUserManagement = () => {
         document.getElementById("modalTitle").textContent = "Edit User";
         userModal.classList.add("active");
       } else if (target.classList.contains("btn--delete")) {
+        const userId = target.dataset.id;
+
+        // Prevent deleting self
+        if (userId === currentUserId) {
+          showAlert("error", "You cannot delete your own account.");
+          return;
+        }
+
         if (confirm("Are you sure you want to delete this user?")) {
-          const userId = target.dataset.id;
           deleteUser(userId);
         }
       }

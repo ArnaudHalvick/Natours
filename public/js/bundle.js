@@ -6800,6 +6800,10 @@ var currentFilter = "";
 var currentSearch = "";
 var limit = 10; // Number of users per page
 
+// Obtain the current user's ID from a data attribute in the HTML
+var userContainer = document.querySelector(".user-view__users-container");
+var currentUserId = userContainer ? userContainer.dataset.currentUserId : null;
+
 // Function to load users
 var loadUsers = exports.loadUsers = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -6811,7 +6815,7 @@ var loadUsers = exports.loadUsers = /*#__PURE__*/function () {
           // Construct query with limit
           query = "?page=".concat(currentPage, "&limit=").concat(limit, "&sort=").concat(currentSort);
           if (currentFilter) query += "&role=".concat(currentFilter);
-          if (currentSearch) query += "&name=".concat(currentSearch);
+          if (currentSearch) query += "&name=".concat(encodeURIComponent(currentSearch));
           console.log("Fetching users with query:", query);
           _context.next = 7;
           return _axios.default.get("/api/v1/users".concat(query));
@@ -6833,7 +6837,17 @@ var loadUsers = exports.loadUsers = /*#__PURE__*/function () {
               if (!user.active) {
                 row.classList.add("user--inactive");
               }
-              row.innerHTML = "\n          <td><img src=\"/img/users/".concat(user.photo, "\" alt=\"").concat(user.name, "\"></td>\n          <td>").concat(user.name, "</td>\n          <td>").concat(user.email, "</td>\n          <td>").concat(user.role, "</td>\n          <td class=\"action-buttons\">\n            <button class=\"btn btn--small btn--edit\" data-id=\"").concat(user._id, "\" data-active=\"").concat(user.active, "\">Edit</button>\n            <button class=\"btn btn--small btn--delete\" data-id=\"").concat(user._id, "\">Delete</button>\n          </td>\n        ");
+
+              // Determine if the user is the current user
+              var isCurrentUser = user._id === currentUserId;
+
+              // Conditionally render Edit/Delete buttons
+              var actionButtons = "\n          <button class=\"btn btn--small btn--edit\" data-id=\"".concat(user._id, "\" data-active=\"").concat(user.active, "\">Edit</button>\n          <button class=\"btn btn--small btn--delete\" data-id=\"").concat(user._id, "\">Delete</button>\n        ");
+              if (isCurrentUser) {
+                // Replace buttons with a label indicating it's the current user's account
+                actionButtons = "<span>Your Account</span>";
+              }
+              row.innerHTML = "\n          <td><img src=\"/img/users/".concat(user.photo, "\" alt=\"").concat(user.name, "\"></td>\n          <td>").concat(user.name, "</td>\n          <td>").concat(user.email, "</td>\n          <td>").concat(user.role, "</td>\n          <td class=\"action-buttons\">\n            ").concat(actionButtons, "\n          </td>\n        ");
               userTableBody.appendChild(row);
             });
           }
@@ -7096,6 +7110,12 @@ var initializeUserManagement = exports.initializeUserManagement = function initi
       var target = e.target;
       if (target.classList.contains("btn--edit")) {
         var userId = target.dataset.id;
+
+        // Prevent editing self
+        if (userId === currentUserId) {
+          (0, _alert.showAlert)("error", "You cannot edit your own account.");
+          return;
+        }
         var isActive = target.dataset.active === "true"; // Correctly retrieve active status
 
         // Set up edit mode
@@ -7121,8 +7141,14 @@ var initializeUserManagement = exports.initializeUserManagement = function initi
         document.getElementById("modalTitle").textContent = "Edit User";
         userModal.classList.add("active");
       } else if (target.classList.contains("btn--delete")) {
+        var _userId = target.dataset.id;
+
+        // Prevent deleting self
+        if (_userId === currentUserId) {
+          (0, _alert.showAlert)("error", "You cannot delete your own account.");
+          return;
+        }
         if (confirm("Are you sure you want to delete this user?")) {
-          var _userId = target.dataset.id;
           deleteUser(_userId);
         }
       }
@@ -7472,7 +7498,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "40907" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "45593" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

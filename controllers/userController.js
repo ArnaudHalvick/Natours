@@ -63,10 +63,34 @@ exports.getUser = factory.getOne(User);
 exports.createUser = factory.createOne(User);
 
 // Update user by ID (admin only)
-exports.updateUser = factory.updateOne(User);
+// This method prevents admins from editing their own accounts
+exports.updateUser = (req, res, next) => {
+  const userIdToUpdate = req.params.id;
+  const currentUserId = req.user.id; // Assuming req.user is set by auth middleware
+
+  // Prevent admin from updating their own account
+  if (userIdToUpdate === currentUserId) {
+    return next(new AppError("You cannot edit your own account.", 403));
+  }
+
+  // Proceed with update using factory method
+  factory.updateOne(User)(req, res, next);
+};
 
 // Delete user by ID (admin only)
-exports.deleteUser = factory.deleteOne(User);
+// This method prevents admins from deleting their own accounts
+exports.deleteUser = (req, res, next) => {
+  const userIdToDelete = req.params.id;
+  const currentUserId = req.user.id; // Assuming req.user is set by auth middleware
+
+  // Prevent admin from deleting their own account
+  if (userIdToDelete === currentUserId) {
+    return next(new AppError("You cannot delete your own account.", 403));
+  }
+
+  // Proceed with deletion using factory method
+  factory.deleteOne(User)(req, res, next);
+};
 
 // Set the user's ID from req.user to req.params.id
 exports.getMe = (req, res, next) => {

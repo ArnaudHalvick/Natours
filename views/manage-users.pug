@@ -10,7 +10,7 @@ block content
       include _sidenav
       
       .user-view__content
-        .user-view__users-container
+        .user-view__users-container(data-current-user-id= currentUser._id)
           h2.heading-secondary.ma-bt-md Manage Users
           
           // Search and Filter Section
@@ -26,7 +26,7 @@ block content
                 option(value='admin') Admin
             .action-box
               button.btn.btn--small.btn--green#createUserBtn Create New User
-
+  
           // Users Table
           .user-table
             table.table
@@ -42,13 +42,13 @@ block content
                   th Actions
               tbody#userTableBody
                 // Users will be populated here via JavaScript
-
+  
           // Pagination
           .pagination
             button.btn.btn--small#prevPage Previous
             span#pageInfo Page 1 of 1
             button.btn.btn--small#nextPage Next
-
+  
           // Create/Edit User Modal
           .modal#userModal
             .modal-content
