@@ -1,6 +1,7 @@
 const express = require("express");
 const viewsController = require("../controllers/viewsController");
 const authController = require("../controllers/authController");
+const setJwtFromQuery = require("../utils/setJwtFromQuery");
 
 const router = express.Router();
 
@@ -18,7 +19,12 @@ router.get("/tour/:slug", viewsController.getTour);
 router.get("/login", viewsController.getLogin);
 router.get("/signup", viewsController.getSignup);
 router.get("/me", authController.protect, viewsController.getAccount);
-router.get("/my-tours", authController.protect, viewsController.getMyTours);
+router.get(
+  "/my-tours",
+  setJwtFromQuery,
+  authController.protect,
+  viewsController.getMyTours,
+);
 router.get(
   "/tour/:slug/checkout",
   authController.protect,

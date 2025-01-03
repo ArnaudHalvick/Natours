@@ -60,42 +60,20 @@ exports.getAccount = (req, res) => {
   });
 };
 
-// viewsController.js
-exports.getMyTours = async (req, res) => {
-  // If no JWT cookie, try to get it from query params
-  if (!req.cookies.jwt && req.query.jwt) {
-    res.cookie("jwt", req.query.jwt, {
-      expires: new Date(
-        Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 86400000,
-      ),
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-    });
-  }
+exports.getMyTours = catchAsync(async (req, res, next) => {
+  const bookings = await Booking.find({ user: req.user.id }).populate("tour");
+  const refunds = await Refund.find({ user: req.user.id });
+  const refundsByBooking = refunds.reduce((acc, refund) => {
+    acc[refund.booking.toString()] = refund.status;
+    return acc;
+  }, {});
 
-  try {
-    // Fetch user bookings and associated tours
-    const bookings = await Booking.find({ user: req.user.id }).populate("tour");
-
-    // Fetch user refunds and create a mapping of bookingId to refund status
-    const refunds = await Refund.find({ user: req.user.id });
-    const refundsByBooking = {};
-    refunds.forEach(refund => {
-      refundsByBooking[refund.booking.toString()] = refund.status;
-    });
-
-    // Pass bookings and refunds mapping to template
-    res.status(200).render("mytours", {
-      title: "My Tours",
-      bookings,
-      refundsByBooking,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server Error");
-  }
-};
+  res.status(200).render("mytours", {
+    title: "My Tours",
+    bookings,
+    refundsByBooking,
+  });
+});
 
 exports.getCheckout = catchAsync(async (req, res, next) => {
   // 1. Get the tour data based on the slug
