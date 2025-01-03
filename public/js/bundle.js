@@ -6857,7 +6857,8 @@ var saveUser = exports.saveUser = /*#__PURE__*/function () {
           method = isEdit ? "PATCH" : "POST"; // Create different data objects for create and edit operations
           data = isEdit ? {
             name: userData.name,
-            role: userData.role
+            role: userData.role,
+            active: userData.active === "true"
           } : {
             name: userData.name,
             email: userData.email,
@@ -6933,7 +6934,8 @@ var initializeUserManagement = exports.initializeUserManagement = function initi
   var userTableBody = document.getElementById("userTableBody");
   var userModal = document.getElementById("userModal");
   var creationOnlyFields = document.querySelectorAll(".creation-only");
-  var toggleCreationFields = function toggleCreationFields(isCreating) {
+  var editOnlyFields = document.querySelectorAll(".edit-only");
+  var toggleFormFields = function toggleFormFields(isCreating) {
     creationOnlyFields.forEach(function (field) {
       if (isCreating) {
         var _field$querySelector;
@@ -6945,13 +6947,16 @@ var initializeUserManagement = exports.initializeUserManagement = function initi
         (_field$querySelector2 = field.querySelector("input")) === null || _field$querySelector2 === void 0 || _field$querySelector2.removeAttribute("required");
       }
     });
+    editOnlyFields.forEach(function (field) {
+      field.style.display = isCreating ? "none" : "block";
+    });
   };
   if (createUserBtn) {
     createUserBtn.addEventListener("click", function () {
       userForm.reset();
       document.getElementById("modalTitle").textContent = "Create New User";
       userForm.dataset.editing = "false";
-      toggleCreationFields(true);
+      toggleFormFields(true);
       userModal.style.display = "block";
     });
   }
@@ -6962,11 +6967,13 @@ var initializeUserManagement = exports.initializeUserManagement = function initi
   }
   if (userForm) {
     userForm.addEventListener("submit", function (e) {
+      var _document$getElementB;
       e.preventDefault();
       var isEdit = userForm.dataset.editing === "true";
       var userData = {
         name: document.getElementById("userName").value,
-        role: document.getElementById("userRole").value
+        role: document.getElementById("userRole").value,
+        active: ((_document$getElementB = document.getElementById("userActive")) === null || _document$getElementB === void 0 ? void 0 : _document$getElementB.value) || "true"
       };
       if (!isEdit) {
         // Add creation-only fields
@@ -7025,13 +7032,15 @@ var initializeUserManagement = exports.initializeUserManagement = function initi
         var row = target.closest("tr");
         var name = row.children[1].textContent;
         var role = row.children[3].textContent;
+        var isActive = row.children[4].textContent === "Active";
 
         // Populate the form
         document.getElementById("userName").value = name;
         document.getElementById("userRole").value = role;
+        document.getElementById("userActive").value = isActive.toString();
 
-        // Hide creation-only fields
-        toggleCreationFields(false);
+        // Toggle appropriate fields
+        toggleFormFields(false);
 
         // Show the modal
         document.getElementById("modalTitle").textContent = "Edit User";
@@ -7381,7 +7390,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "45787" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "44165" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

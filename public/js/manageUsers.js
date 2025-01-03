@@ -24,13 +24,11 @@ export const loadUsers = async () => {
 
     users.forEach(user => {
       const row = document.createElement("tr");
-      const statusClass = user.active ? "status--active" : "status--inactive";
       row.innerHTML = `
         <td><img src="/img/users/${user.photo}" alt="${user.name}"></td>
         <td>${user.name}</td>
         <td>${user.email}</td>
         <td>${user.role}</td>
-        <td><span class="status-dot ${statusClass}"></span>${user.active ? "Active" : "Inactive"}</td>
         <td class="action-buttons">
           <button class="btn btn--small btn--edit" data-id="${user._id}">Edit</button>
           <button class="btn btn--small btn--delete" data-id="${user._id}">Delete</button>

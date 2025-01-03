@@ -10,9 +10,12 @@
 /* Controls Section */
 .user-controls {
   display: flex;
-  gap: 2rem;
-  margin-bottom: 3rem;
-  align-items: flex-start;
+  gap: 3rem;
+  margin-bottom: 4rem;
+  align-items: center;
+  background-color: #e6f8db;
+  padding: 2rem;
+  border-radius: 1rem;
 }
 
 .search-box {
@@ -82,23 +85,6 @@
   margin-left: 0.5rem;
   cursor: pointer;
   vertical-align: middle;
-}
-
-/* Status Indicators */
-.status-dot {
-  display: inline-block;
-  width: 0.8rem;
-  height: 0.8rem;
-  border-radius: 50%;
-  margin-right: 0.8rem;
-}
-
-.status--active {
-  background-color: #55c57a;
-}
-
-.status--inactive {
-  background-color: #ff7730;
 }
 
 /* Action Buttons */
