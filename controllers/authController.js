@@ -118,56 +118,49 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Please provide email and password!", 400));
   }
 
-  try {
-    const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne({ email }).select("+password");
 
-    if (!user || !(await user.correctPassword(password, user.password))) {
-      return next(new AppError("Incorrect email or password", 401));
-    }
-
-    if (!user.emailConfirmed) {
-      return next(
-        new AppError("Please confirm your email before logging in.", 401),
-      );
-    }
-
-    // Skip 2FA in development mode
-    if (
-      process.env.NODE_ENV === "development" &&
-      process.env.SKIP_2FA === "true"
-    ) {
-      return createSendToken(user, 200, res, req);
-    }
-
-    // Regular 2FA flow for production or when not skipped in development
-    if (user.twoFALockUntil && user.twoFALockUntil > Date.now()) {
-      return next(
-        new AppError("Account is temporarily locked. Try again later.", 429),
-      );
-    }
-
-    const twoFACode = user.createTwoFACode();
-    await user.save({ validateBeforeSave: false });
-
-    await new Email(user).sendTwoFACode(twoFACode);
-
-    const tempToken = jwt.sign(
-      { id: user._id, twoFAPending: true },
-      process.env.JWT_SECRET,
-      { expiresIn: "15m" },
-    );
-
-    res.status(200).json({
-      status: "success",
-      message: "2FA code sent to your email!",
-      tempToken,
-    });
-  } catch (error) {
-    if (process.env.NODE_ENV === "development") {
-      console.error("Login error:", error);
-    }
-    return next(new AppError("An error occurred during login", 500));
+  if (!user || !(await user.correctPassword(password, user.password))) {
+    return next(new AppError("Incorrect email or password", 401));
   }
+
+  if (!user.emailConfirmed) {
+    return next(
+      new AppError("Please confirm your email before logging in.", 401),
+    );
+  }
+
+  // Skip 2FA in development mode
+  if (
+    process.env.NODE_ENV === "development" &&
+    process.env.SKIP_2FA === "true"
+  ) {
+    return createSendToken(user, 200, res, req);
+  }
+
+  // Regular 2FA flow for production or when not skipped in development
+  if (user.twoFALockUntil && user.twoFALockUntil > Date.now()) {
+    return next(
+      new AppError("Account is temporarily locked. Try again later.", 429),
+    );
+  }
+
+  const twoFACode = user.createTwoFACode();
+  await user.save({ validateBeforeSave: false });
+
+  await new Email(user).sendTwoFACode(twoFACode);
+
+  const tempToken = jwt.sign(
+    { id: user._id, twoFAPending: true },
+    process.env.JWT_SECRET,
+    { expiresIn: "15m" },
+  );
+
+  res.status(200).json({
+    status: "success",
+    message: "2FA code sent to your email!",
+    tempToken,
+  });
 });
 
 // Verify 2FA code
@@ -324,42 +317,37 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 
 // Check if user is logged in for rendering pages
-exports.isLoggedIn = async (req, res, next) => {
-  try {
-    if (req.cookies.jwt) {
-      // Verify the token
-      const decoded = await promisify(jwt.verify)(
-        req.cookies.jwt,
-        process.env.JWT_SECRET,
-      );
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+  if (req.cookies.jwt) {
+    // Verify the token
+    const decoded = await promisify(jwt.verify)(
+      req.cookies.jwt,
+      process.env.JWT_SECRET,
+    );
 
-      // Check if user still exists
-      const currentUser = await User.findById(decoded.id);
-      if (!currentUser) {
-        return next();
-      }
-
-      // Check if user changed password after the token was issued
-      if (currentUser.changedPasswordAfter(decoded.iat)) {
-        return next();
-      }
-
-      // There is a logged-in user
-      res.locals.user = currentUser;
-
-      if (req.originalUrl === "/login") {
-        return res.redirect("/");
-      }
-
+    // Check if user still exists
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) {
       return next();
     }
-    // If no cookie, just move to the next middleware
-    next();
-  } catch (err) {
-    // Handle any errors
+
+    // Check if user changed password after the token was issued
+    if (currentUser.changedPasswordAfter(decoded.iat)) {
+      return next();
+    }
+
+    // There is a logged-in user
+    res.locals.user = currentUser;
+
+    if (req.originalUrl === "/login") {
+      return res.redirect("/");
+    }
+
     return next();
   }
-};
+  // If no cookie, just move to the next middleware
+  next();
+});
 
 // Middleware to restrict access to certain roles
 exports.restrictTo = (...roles) => {
@@ -387,32 +375,18 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const resetToken = user.createPasswordResetToken();
   await user.save({ validateBeforeSave: false }); // Save the user with the reset token
 
-  try {
-    // Send reset token via email
-    const resetURL = `${req.protocol}://${req.get(
-      "host",
-    )}/api/v1/users/resetPassword/${resetToken}`;
+  // Send reset token via email
+  const resetURL = `${req.protocol}://${req.get(
+    "host",
+  )}/api/v1/users/resetPassword/${resetToken}`;
 
-    await new Email(user, resetURL).sendPasswordReset();
+  await new Email(user, resetURL).sendPasswordReset();
 
-    // Response indicating the token was sent
-    res.status(200).json({
-      status: "success",
-      message: "Token sent to email!",
-    });
-  } catch (err) {
-    // Clear reset token and expiration if email fails
-    user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
-    await user.save({ validateBeforeSave: false });
-
-    return next(
-      new AppError(
-        "There was an error sending the email. Try again later!",
-        500,
-      ),
-    ); // Internal Server Error
-  }
+  // Response indicating the token was sent
+  res.status(200).json({
+    status: "success",
+    message: "Token sent to email!",
+  });
 });
 
 // Reset password functionality
