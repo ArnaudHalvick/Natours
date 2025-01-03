@@ -24,11 +24,13 @@ export const loadUsers = async () => {
 
     users.forEach(user => {
       const row = document.createElement("tr");
+      const statusClass = user.active ? "status--active" : "status--inactive";
       row.innerHTML = `
         <td><img src="/img/users/${user.photo}" alt="${user.name}"></td>
         <td>${user.name}</td>
         <td>${user.email}</td>
         <td>${user.role}</td>
+        <td><span class="status-dot ${statusClass}"></span>${user.active ? "Active" : "Inactive"}</td>
         <td class="action-buttons">
           <button class="btn btn--small btn--edit" data-id="${user._id}">Edit</button>
           <button class="btn btn--small btn--delete" data-id="${user._id}">Delete</button>
@@ -57,6 +59,7 @@ export const saveUser = async (userData, isEdit = false) => {
       ? {
           name: userData.name,
           role: userData.role,
+          active: userData.active === "true",
         }
       : {
           name: userData.name,
@@ -106,8 +109,9 @@ export const initializeUserManagement = () => {
   const userTableBody = document.getElementById("userTableBody");
   const userModal = document.getElementById("userModal");
   const creationOnlyFields = document.querySelectorAll(".creation-only");
+  const editOnlyFields = document.querySelectorAll(".edit-only");
 
-  const toggleCreationFields = isCreating => {
+  const toggleFormFields = isCreating => {
     creationOnlyFields.forEach(field => {
       if (isCreating) {
         field.style.display = "block";
@@ -117,6 +121,10 @@ export const initializeUserManagement = () => {
         field.querySelector("input")?.removeAttribute("required");
       }
     });
+
+    editOnlyFields.forEach(field => {
+      field.style.display = isCreating ? "none" : "block";
+    });
   };
 
   if (createUserBtn) {
@@ -124,7 +132,7 @@ export const initializeUserManagement = () => {
       userForm.reset();
       document.getElementById("modalTitle").textContent = "Create New User";
       userForm.dataset.editing = "false";
-      toggleCreationFields(true);
+      toggleFormFields(true);
       userModal.style.display = "block";
     });
   }
@@ -143,6 +151,7 @@ export const initializeUserManagement = () => {
       const userData = {
         name: document.getElementById("userName").value,
         role: document.getElementById("userRole").value,
+        active: document.getElementById("userActive")?.value || "true",
       };
 
       if (!isEdit) {
@@ -210,13 +219,15 @@ export const initializeUserManagement = () => {
         const row = target.closest("tr");
         const name = row.children[1].textContent;
         const role = row.children[3].textContent;
+        const isActive = row.children[4].textContent === "Active";
 
         // Populate the form
         document.getElementById("userName").value = name;
         document.getElementById("userRole").value = role;
+        document.getElementById("userActive").value = isActive.toString();
 
-        // Hide creation-only fields
-        toggleCreationFields(false);
+        // Toggle appropriate fields
+        toggleFormFields(false);
 
         // Show the modal
         document.getElementById("modalTitle").textContent = "Edit User";

@@ -71,6 +71,11 @@ block content
                     option(value='guide') Guide
                     option(value='lead-guide') Lead Guide
                     option(value='admin') Admin
+                .form__group.edit-only
+                  label.form__label(for='userActive') Account Status
+                  select#userActive.form__input
+                    option(value='true') Active
+                    option(value='false') Inactive    
                 .form__group.creation-only
                   label.form__label(for='userPassword') Password
                   input#userPassword.form__input(type='password', minlength='8')

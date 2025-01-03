@@ -1,7 +1,18 @@
+/* User Management Styles
+   ========================================================================== */
+
+.user-view__users-container {
+  max-width: 120rem;
+  margin: 0 auto;
+  padding: 0 8rem;
+}
+
+/* Controls Section */
 .user-controls {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  align-items: flex-start;
 }
 
 .search-box {
@@ -18,41 +29,101 @@
   justify-content: flex-end;
 }
 
+/* Table Styles */
 .user-table {
+  background-color: #fff;
+  border-radius: 3px;
   overflow-x: auto;
+  -webkit-box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.06);
+  margin-bottom: 3rem;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 2rem;
 }
 
 .table th,
 .table td {
-  padding: 1.2rem;
+  padding: 1.5rem 2rem;
   text-align: left;
-  border-bottom: 1px solid #f1f1f1;
+  vertical-align: middle;
+  border-bottom: 1px solid #f2f2f2;
 }
 
 .table th {
   background-color: #f7f7f7;
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 1.4rem;
+  color: #777;
 }
 
-.table td img {
-  width: 3.2rem;
-  height: 3.2rem;
+.table td {
+  font-size: 1.5rem;
+  color: #666;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table img {
+  height: 4rem;
+  width: 4rem;
   border-radius: 50%;
   object-fit: cover;
 }
 
+/* Sort Icons */
 .sort-icon {
   display: inline-block;
   margin-left: 0.5rem;
   cursor: pointer;
+  vertical-align: middle;
 }
 
+/* Status Indicators */
+.status-dot {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  margin-right: 0.8rem;
+}
+
+.status--active {
+  background-color: #55c57a;
+}
+
+.status--inactive {
+  background-color: #ff7730;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn--edit,
+.btn--delete {
+  padding: 0.8rem 1.5rem !important;
+  font-size: 1.2rem !important;
+}
+
+.btn--edit {
+  background-color: #55c57a;
+  color: #fff;
+}
+
+.btn--delete {
+  background-color: #ff7730;
+  color: #fff;
+}
+
+/* Modal Styles */
 .modal {
   display: none;
   position: fixed;
@@ -61,50 +132,95 @@
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
 }
 
 .modal-content {
   position: relative;
   background-color: #fff;
-  margin: 10% auto;
-  padding: 2rem;
-  width: 50%;
+  margin: 7rem auto;
+  padding: 4rem;
+  max-width: 60rem;
   border-radius: 3px;
+  box-shadow: 0 2.5rem 8rem 2rem rgba(0, 0, 0, 0.15);
 }
 
 .close-modal {
   position: absolute;
-  right: 1rem;
-  top: 1rem;
-  font-size: 2rem;
+  top: 1.5rem;
+  right: 2rem;
+  font-size: 3rem;
+  color: #777;
   cursor: pointer;
+  line-height: 1;
 }
 
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
+.close-modal:hover {
+  color: #55c57a;
 }
 
-.btn--edit,
-.btn--delete {
-  padding: 0.5rem 1rem;
-  border-radius: 3px;
-  cursor: pointer;
+/* Utility Classes for Form Display */
+.creation-only,
+.edit-only {
+  display: none;
 }
 
-.btn--edit {
-  background-color: #55c57a;
-  color: white;
-}
-
-.btn--delete {
-  background-color: #ff7730;
-  color: white;
-}
-
+/* Pagination Styles */
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+#pageInfo {
+  font-size: 1.6rem;
+  color: #777;
+}
+
+/* Responsive Adjustments */
+@media only screen and (max-width: 768px) {
+  .user-view__users-container {
+    padding: 0 2rem;
+  }
+
+  .user-controls {
+    flex-direction: column;
+  }
+
+  .search-box,
+  .filter-box,
+  .action-box {
+    width: 100%;
+  }
+
+  .modal-content {
+    margin: 2rem;
+    padding: 2rem;
+  }
+
+  .table {
+    font-size: 1.4rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+}
+
+/* Animation for Modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-content {
+  animation: fadeIn 0.3s ease-out;
 }
