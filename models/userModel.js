@@ -72,7 +72,6 @@ const userSchema = new mongoose.Schema({
   active: {
     type: Boolean,
     default: true, // Users are active by default
-    select: false, // Exclude from query results by default
   },
 });
 
@@ -114,13 +113,6 @@ userSchema.pre("save", function (next) {
 
   // Set passwordChangedAt to current time minus 1 second
   this.passwordChangedAt = Date.now() - 1000;
-  next();
-});
-
-// Query middleware to exclude inactive users
-userSchema.pre(/^find/, function (next) {
-  // 'this' points to the current query
-  this.find({ active: { $ne: false } });
   next();
 });
 
