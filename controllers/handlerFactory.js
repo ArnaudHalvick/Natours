@@ -9,22 +9,39 @@ exports.getAll = Model =>
     let filter = {};
     if (req.params.tourId) filter = { tour: req.params.tourId };
 
-    // Apply filtering, sorting, field limiting, and pagination based on query parameters
+    // Initialize APIFeatures with filtering, sorting, field limiting, and pagination
     const features = new APIFeatures(Model.find(filter), req.query)
       .filter()
       .sort()
       .limitFields()
       .paginate();
 
-    // Execute the query
+    // Execute the query to get the documents
     const docs = await features.query;
 
-    // Send success response with the retrieved documents
+    // Count total documents matching the filter (without pagination)
+    const total = await Model.countDocuments(filter);
+
+    // Calculate totalPages based on the limit
+    const totalPages = Math.ceil(total / features.pagination.limit);
+
+    // Handle edge case where requested page exceeds total pages
+    if (features.pagination.currentPage > totalPages && totalPages !== 0) {
+      return next(new AppError("This page does not exist.", 404));
+    }
+
+    // Send success response with documents and pagination metadata
     res.status(200).json({
       status: "success",
       results: docs.length,
       data: {
         data: docs,
+        pagination: {
+          total,
+          totalPages,
+          currentPage: features.pagination.currentPage,
+          limit: features.pagination.limit,
+        },
       },
     });
   });

@@ -1,17 +1,19 @@
-// manage-users.js
 import axios from "axios";
 import { showAlert } from "./alert";
 
 // State management
 let currentPage = 1;
+let totalPages = 1;
 let currentSort = "name";
 let currentFilter = "";
 let currentSearch = "";
+const limit = 10; // Number of users per page
 
 // Function to load users
 export const loadUsers = async () => {
   try {
-    let query = `?page=${currentPage}&sort=${currentSort}`;
+    // Construct query with limit
+    let query = `?page=${currentPage}&limit=${limit}&sort=${currentSort}`;
     if (currentFilter) query += `&role=${currentFilter}`;
     if (currentSearch) query += `&name=${currentSearch}`;
 
@@ -20,32 +22,73 @@ export const loadUsers = async () => {
     console.log("API Response:", res.data);
 
     const users = res.data.data.data;
+    const pagination = res.data.data.pagination;
+
+    // Update totalPages from the response
+    totalPages = pagination.totalPages;
 
     const userTableBody = document.getElementById("userTableBody");
     userTableBody.innerHTML = "";
 
-    users.forEach(user => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td><img src="/img/users/${user.photo}" alt="${user.name}"></td>
-        <td>${user.name}</td>
-        <td>${user.email}</td>
-        <td>${user.role}</td>
-        <td class="action-buttons">
-          <button class="btn btn--small btn--edit" data-id="${user._id}">Edit</button>
-          <button class="btn btn--small btn--delete" data-id="${user._id}">Delete</button>
-        </td>
+    if (users.length === 0) {
+      userTableBody.innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align: center;">No users found.</td>
+        </tr>
       `;
-      userTableBody.appendChild(row);
-    });
+    } else {
+      users.forEach(user => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><img src="/img/users/${user.photo}" alt="${user.name}"></td>
+          <td>${user.name}</td>
+          <td>${user.email}</td>
+          <td>${user.role}</td>
+          <td class="action-buttons">
+            <button class="btn btn--small btn--edit" data-id="${user._id}">Edit</button>
+            <button class="btn btn--small btn--delete" data-id="${user._id}">Delete</button>
+          </td>
+        `;
+        userTableBody.appendChild(row);
+      });
+    }
 
-    document.getElementById("pageInfo").textContent = `Page ${currentPage}`;
+    // Update page information
+    document.getElementById("pageInfo").textContent =
+      `Page ${currentPage} of ${totalPages}`;
+
+    // Update button states
+    updatePaginationButtons();
   } catch (err) {
     console.error("Error details:", err);
     showAlert(
       "error",
       err.response?.data?.message || err.message || "Error loading users",
     );
+  }
+};
+
+// Function to update the state of pagination buttons
+const updatePaginationButtons = () => {
+  const prevPageBtn = document.getElementById("prevPage");
+  const nextPageBtn = document.getElementById("nextPage");
+
+  // Disable Previous button if on the first page
+  if (currentPage <= 1) {
+    prevPageBtn.disabled = true;
+    prevPageBtn.classList.add("btn--disabled");
+  } else {
+    prevPageBtn.disabled = false;
+    prevPageBtn.classList.remove("btn--disabled");
+  }
+
+  // Disable Next button if on the last page
+  if (currentPage >= totalPages) {
+    nextPageBtn.disabled = true;
+    nextPageBtn.classList.add("btn--disabled");
+  } else {
+    nextPageBtn.disabled = false;
+    nextPageBtn.classList.remove("btn--disabled");
   }
 };
 
@@ -183,18 +226,30 @@ export const initializeUserManagement = () => {
     });
   }
 
+  // Debounce function
+  const debounce = (func, delay) => {
+    let timeout;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+  };
+
   if (searchInput) {
-    searchInput.addEventListener("input", e => {
-      currentSearch = e.target.value;
-      currentPage = 1;
-      loadUsers();
-    });
+    searchInput.addEventListener(
+      "input",
+      debounce(e => {
+        currentSearch = e.target.value;
+        currentPage = 1; // Reset to first page on new search
+        loadUsers();
+      }, 300),
+    ); // 300ms delay
   }
 
   if (roleFilter) {
     roleFilter.addEventListener("change", e => {
       currentFilter = e.target.value;
-      currentPage = 1;
+      currentPage = 1; // Reset to first page on new filter
       loadUsers();
     });
   }
@@ -210,8 +265,10 @@ export const initializeUserManagement = () => {
 
   if (nextPageBtn) {
     nextPageBtn.addEventListener("click", () => {
-      currentPage++;
-      loadUsers();
+      if (currentPage < totalPages) {
+        currentPage++;
+        loadUsers();
+      }
     });
   }
 

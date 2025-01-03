@@ -1,11 +1,10 @@
-// APIFeatures class to handle filtering, sorting, field limiting, and pagination
 class APIFeatures {
   constructor(query, queryString) {
     this.query = query; // Mongoose query object
     this.queryString = queryString; // Query string from the request (req.query)
   }
 
-  // Filtering: Remove non-filter fields and apply advanced filters (gte, gt, lte, lt)
+  // Filtering
   filter() {
     const queryObj = { ...this.queryString };
     const excludedFields = ["page", "sort", "limit", "fields"];
@@ -17,45 +16,46 @@ class APIFeatures {
 
     const queryParsed = JSON.parse(queryStr);
 
-    // Apply regular expressions for partial string matches (for the `name` field in this case)
+    // Partial string matches for 'name'
     if (queryParsed.name) {
-      queryParsed.name = { $regex: queryParsed.name, $options: "i" }; // Case-insensitive partial match
+      queryParsed.name = { $regex: queryParsed.name, $options: "i" };
     }
 
     this.query = this.query.find(queryParsed);
     return this;
   }
 
-  // Sorting: Apply sorting based on query parameter (e.g., 'sort=price,name')
+  // Sorting
   sort() {
     if (this.queryString.sort) {
-      const sortBy = this.queryString.sort.split(",").join(" "); // Convert comma-separated values to space-separated
-      this.query = this.query.sort(sortBy); // Apply sorting to the query
+      const sortBy = this.queryString.sort.split(",").join(" ");
+      this.query = this.query.sort(sortBy);
     } else {
-      this.query = this.query.sort("name"); // Default sorting by 'name' if no sorting is provided
+      this.query = this.query.sort("name");
     }
-    return this; // Return the instance for method chaining
+    return this;
   }
 
-  // Field limiting: Select specific fields to include or exclude
+  // Field Limiting
   limitFields() {
     if (this.queryString.fields) {
-      const fields = this.queryString.fields.split(",").join(" "); // Convert comma-separated fields to space-separated
-      this.query = this.query.select(fields); // Apply field selection
+      const fields = this.queryString.fields.split(",").join(" ");
+      this.query = this.query.select(fields);
     } else {
-      this.query = this.query.select("-__v"); // Exclude the '__v' field by default
+      this.query = this.query.select("-__v");
     }
-    return this; // Return the instance for method chaining
+    return this;
   }
 
-  // Pagination: Apply pagination based on 'page' and 'limit' query parameters
+  // Pagination
   paginate() {
-    const page = +this.queryString.page || 1; // Default to page 1
-    const limit = +this.queryString.limit || 100; // Default to 100 results per page
-    const skip = (page - 1) * limit; // Calculate how many documents to skip
+    const page = +this.queryString.page || 1;
+    const limit = +this.queryString.limit || 10; // Default to 10 per page
+    const skip = (page - 1) * limit;
 
-    this.query = this.query.skip(skip).limit(limit); // Apply skip and limit to the query
-    return this; // Return the instance for method chaining
+    this.query = this.query.skip(skip).limit(limit);
+    this.pagination = { currentPage: page, limit };
+    return this;
   }
 }
 

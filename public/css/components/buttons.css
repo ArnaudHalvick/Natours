@@ -105,3 +105,10 @@
   outline: 3px solid #55c57a;
   outline-offset: 3px;
 }
+
+/* Disabled Button Styles */
+.btn--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
