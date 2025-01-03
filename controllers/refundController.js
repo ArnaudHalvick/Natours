@@ -1,3 +1,4 @@
+// refundController.js
 const Booking = require("../models/bookingModel");
 const Refund = require("../models/refundModel");
 
@@ -105,21 +106,28 @@ exports.processRefund = catchAsync(async (req, res, next) => {
     );
   }
 
-  const paymentIntentId = refund.booking.paymentIntentId;
-  const refundResponse = await stripe.refunds.create({
-    payment_intent: paymentIntentId,
-    amount: refund.amount * 100,
-  });
+  try {
+    const paymentIntentId = refund.booking.paymentIntentId;
+    const refundResponse = await stripe.refunds.create({
+      payment_intent: paymentIntentId,
+      amount: refund.amount * 100,
+    });
 
-  refund.status = "processed";
-  refund.processedAt = new Date();
-  refund.stripeRefundId = refundResponse.id;
-  await refund.save();
+    refund.status = "processed";
+    refund.processedAt = new Date();
+    refund.stripeRefundId = refundResponse.id;
+    await refund.save();
 
-  res.status(200).json({
-    status: "success",
-    data: refund,
-  });
+    res.status(200).json({
+      status: "success",
+      data: refund,
+    });
+  } catch (error) {
+    console.error("Stripe refund error:", error);
+    return next(
+      new AppError("Failed to process the refund. Please try again.", 500),
+    );
+  }
 });
 
 // Admin rejects a refund
