@@ -142,6 +142,11 @@
   overflow: auto; /* Enable scrolling if content is taller than viewport */
 }
 
+/* Show Modal when active */
+.modal#userModal.active {
+  display: flex;
+}
+
 /* Modal Content */
 .modal#userModal .modal-content {
   position: relative;

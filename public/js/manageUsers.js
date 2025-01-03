@@ -1,3 +1,4 @@
+// manage-users.js
 import axios from "axios";
 import { showAlert } from "./alert";
 
@@ -7,6 +8,7 @@ let currentSort = "name";
 let currentFilter = "";
 let currentSearch = "";
 
+// Function to load users
 export const loadUsers = async () => {
   try {
     let query = `?page=${currentPage}&sort=${currentSort}`;
@@ -47,6 +49,7 @@ export const loadUsers = async () => {
   }
 };
 
+// Function to save user (create or edit)
 export const saveUser = async (userData, isEdit = false) => {
   try {
     const url = isEdit ? `/api/v1/users/${userData.id}` : "/api/v1/users";
@@ -79,13 +82,14 @@ export const saveUser = async (userData, isEdit = false) => {
         `User ${isEdit ? "updated" : "created"} successfully!`,
       );
       loadUsers();
-      document.getElementById("userModal").style.display = "none";
+      document.getElementById("userModal").classList.remove("active");
     }
   } catch (err) {
     showAlert("error", err.response?.data?.message || "Error saving user");
   }
 };
 
+// Function to delete user
 export const deleteUser = async userId => {
   try {
     await axios.delete(`/api/v1/users/${userId}`);
@@ -96,9 +100,10 @@ export const deleteUser = async userId => {
   }
 };
 
+// Initialize User Management
 export const initializeUserManagement = () => {
   const createUserBtn = document.getElementById("createUserBtn");
-  const closeModal = document.querySelector(".close-modal");
+  const closeModalBtn = document.querySelector(".close-modal");
   const userForm = document.getElementById("userForm");
   const searchInput = document.getElementById("searchUser");
   const roleFilter = document.getElementById("roleFilter");
@@ -106,28 +111,27 @@ export const initializeUserManagement = () => {
   const nextPageBtn = document.getElementById("nextPage");
   const userTableBody = document.getElementById("userTableBody");
   const userModal = document.getElementById("userModal");
+  const creationOnlyFields = document.querySelectorAll(".creation-only");
+  const editOnlyFields = document.querySelectorAll(".edit-only");
 
   const toggleFormFields = isCreating => {
-    const creationOnlyFields = document.querySelectorAll(
-      ".modal#userModal .creation-only",
-    );
-    const editOnlyFields = document.querySelectorAll(
-      ".modal#userModal .edit-only",
-    );
-
     creationOnlyFields.forEach(field => {
       if (isCreating) {
         field.classList.add("active");
+        const input = field.querySelector("input, select");
+        if (input) input.setAttribute("required", "required");
       } else {
         field.classList.remove("active");
+        const input = field.querySelector("input, select");
+        if (input) input.removeAttribute("required");
       }
     });
 
     editOnlyFields.forEach(field => {
-      if (!isCreating) {
-        field.classList.add("active");
-      } else {
+      if (isCreating) {
         field.classList.remove("active");
+      } else {
+        field.classList.add("active");
       }
     });
   };
@@ -138,13 +142,13 @@ export const initializeUserManagement = () => {
       document.getElementById("modalTitle").textContent = "Create New User";
       userForm.dataset.editing = "false";
       toggleFormFields(true);
-      userModal.style.display = "block";
+      userModal.classList.add("active");
     });
   }
 
-  if (closeModal) {
-    closeModal.addEventListener("click", () => {
-      userModal.style.display = "none";
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener("click", () => {
+      userModal.classList.remove("active");
     });
   }
 
@@ -223,11 +227,13 @@ export const initializeUserManagement = () => {
         // Find the user row and get current values
         const row = target.closest("tr");
         const name = row.children[1].textContent;
+        const email = row.children[2].textContent; // Assuming email is in the third column
         const role = row.children[3].textContent;
         const isActive = row.children[4].textContent === "Active";
 
         // Populate the form
         document.getElementById("userName").value = name;
+        document.getElementById("userEmail").value = email; // Ensure email is available if needed
         document.getElementById("userRole").value = role;
         document.getElementById("userActive").value = isActive.toString();
 
@@ -236,7 +242,7 @@ export const initializeUserManagement = () => {
 
         // Show the modal
         document.getElementById("modalTitle").textContent = "Edit User";
-        userModal.style.display = "block";
+        userModal.classList.add("active");
       } else if (target.classList.contains("btn--delete")) {
         if (confirm("Are you sure you want to delete this user?")) {
           const userId = target.dataset.id;
@@ -245,6 +251,13 @@ export const initializeUserManagement = () => {
       }
     });
   }
+
+  // Close modal when clicking outside the modal content
+  window.addEventListener("click", e => {
+    if (e.target === userModal) {
+      userModal.classList.remove("active");
+    }
+  });
 
   // Initial load
   loadUsers();
