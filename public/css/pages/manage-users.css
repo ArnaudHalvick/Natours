@@ -1,0 +1,110 @@
+.user-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.search-box {
+  flex: 2;
+}
+
+.filter-box {
+  flex: 1;
+}
+
+.action-box {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.user-table {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.table th,
+.table td {
+  padding: 1.2rem;
+  text-align: left;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.table th {
+  background-color: #f7f7f7;
+  font-weight: 600;
+}
+
+.table td img {
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sort-icon {
+  display: inline-block;
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  position: relative;
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 2rem;
+  width: 50%;
+  border-radius: 3px;
+}
+
+.close-modal {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn--edit,
+.btn--delete {
+  padding: 0.5rem 1rem;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.btn--edit {
+  background-color: #55c57a;
+  color: white;
+}
+
+.btn--delete {
+  background-color: #ff7730;
+  color: white;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}

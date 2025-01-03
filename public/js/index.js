@@ -14,6 +14,7 @@ import {
   openModal,
   closeModal,
 } from "./refund";
+import { initializeUserManagement } from "./manageUsers";
 
 // Form Elements
 const loginForm = document.querySelector("#loginForm");
@@ -37,6 +38,9 @@ const manageButtons = document.querySelectorAll(".btn--manage");
 const myToursContainer = document.querySelector(".mytours-container");
 const pagination = document.querySelector(".pagination");
 const modal = document.querySelector(".refund-modal");
+const manageUsersContainer = document.querySelector(
+  ".user-view__users-container",
+);
 
 // Login Form Handler
 if (loginForm) {
@@ -265,4 +269,9 @@ if (pagination) {
       handlePagination(btn.dataset.page);
     }
   });
+}
+
+// User Management Handler
+if (manageUsersContainer) {
+  initializeUserManagement();
 }

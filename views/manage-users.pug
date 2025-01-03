@@ -1,0 +1,81 @@
+extends base
+
+block append head
+  link(rel="stylesheet" href="/css/layout/user-view.css")
+  link(rel="stylesheet" href="/css/pages/manage-users.css")
+
+block content
+  main.main
+    .user-view
+      include _sidenav
+      
+      .user-view__content
+        .user-view__users-container
+          h2.heading-secondary.ma-bt-md Manage Users
+          
+          // Search and Filter Section
+          .user-controls
+            .search-box
+              input#searchUser.form__input(type='text', placeholder='Search users...')
+            .filter-box
+              select#roleFilter.form__input
+                option(value='') All Roles
+                option(value='user') User
+                option(value='guide') Guide
+                option(value='lead-guide') Lead Guide
+                option(value='admin') Admin
+            .action-box
+              button.btn.btn--small.btn--green#createUserBtn Create New User
+
+          // Users Table
+          .user-table
+            table.table
+              thead
+                tr
+                  th Photo
+                  th 
+                    span Name
+                    i.sort-icon
+                  th 
+                    span Email
+                    i.sort-icon
+                  th 
+                    span Role
+                    i.sort-icon
+                  th Actions
+              tbody#userTableBody
+                // Users will be populated here via JavaScript
+
+          // Pagination
+          .pagination
+            button.btn.btn--small#prevPage Previous
+            span#pageInfo Page 1
+            button.btn.btn--small#nextPage Next
+
+          // Create/Edit User Modal
+          .modal#userModal
+            .modal-content
+              span.close-modal &times;
+              h3#modalTitle Create New User
+              form#userForm.form
+                .form__group
+                  label.form__label(for='userName') Name
+                  input#userName.form__input(type='text', required)
+                .form__group.creation-only
+                  label.form__label(for='userEmail') Email
+                  input#userEmail.form__input(type='email', required)
+                .form__group
+                  label.form__label(for='userRole') Role
+                  select#userRole.form__input
+                    option(value='user') User
+                    option(value='guide') Guide
+                    option(value='lead-guide') Lead Guide
+                    option(value='admin') Admin
+                .form__group.creation-only
+                  label.form__label(for='userPassword') Password
+                  input#userPassword.form__input(type='password', minlength='8')
+                .form__group.creation-only
+                  label.form__label(for='userPasswordConfirm') Confirm Password
+                  input#userPasswordConfirm.form__input(type='password', minlength='8')
+                .form__group.right
+                  button.btn.btn--small.btn--green(type='submit') Save User

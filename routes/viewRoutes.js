@@ -66,6 +66,13 @@ router.get(
   viewsController.getManageRefunds,
 );
 
+router.get(
+  "/manage-users",
+  authController.protect,
+  authController.restrictTo("admin"),
+  viewsController.getManageUsersPage,
+);
+
 // Check email, confirmation success and 2FA
 router.get("/checkEmail", viewsController.getCheckEmail);
 router.get("/confirmSuccess", viewsController.getConfirmSuccess);
