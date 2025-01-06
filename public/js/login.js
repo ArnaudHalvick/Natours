@@ -40,15 +40,20 @@ export const login = async (email, password) => {
     });
 
     if (res.data.status === "success") {
-      // Store the temporary token in localStorage
-      localStorage.setItem("tempToken", res.data.tempToken);
-
-      showAlert("success", "2FA code sent to your email. Please check.");
-
-      // Redirect to 2FA verification page after 1 second
-      window.setTimeout(() => {
-        location.assign("/verify-2fa");
-      }, 1000);
+      // Check if 2FA is required (tempToken present)
+      if (res.data.tempToken) {
+        localStorage.setItem("tempToken", res.data.tempToken);
+        showAlert("success", "2FA code sent to your email. Please check.");
+        window.setTimeout(() => {
+          location.assign("/verify-2fa");
+        }, 1000);
+      } else {
+        // Direct login (2FA skipped due to verified device)
+        showAlert("success", "Logged in successfully!");
+        window.setTimeout(() => {
+          location.assign("/");
+        }, 1500);
+      }
     }
   } catch (err) {
     if (err.response && err.response.data && err.response.data.message) {

@@ -6357,14 +6357,20 @@ var login = exports.login = /*#__PURE__*/function () {
         case 3:
           res = _context3.sent;
           if (res.data.status === "success") {
-            // Store the temporary token in localStorage
-            localStorage.setItem("tempToken", res.data.tempToken);
-            (0, _alert.showAlert)("success", "2FA code sent to your email. Please check.");
-
-            // Redirect to 2FA verification page after 1 second
-            window.setTimeout(function () {
-              location.assign("/verify-2fa");
-            }, 1000);
+            // Check if 2FA is required (tempToken present)
+            if (res.data.tempToken) {
+              localStorage.setItem("tempToken", res.data.tempToken);
+              (0, _alert.showAlert)("success", "2FA code sent to your email. Please check.");
+              window.setTimeout(function () {
+                location.assign("/verify-2fa");
+              }, 1000);
+            } else {
+              // Direct login (2FA skipped due to verified device)
+              (0, _alert.showAlert)("success", "Logged in successfully!");
+              window.setTimeout(function () {
+                location.assign("/");
+              }, 1500);
+            }
           }
           _context3.next = 10;
           break;
