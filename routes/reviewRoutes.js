@@ -20,6 +20,8 @@ router
     reviewController.createReview,
   );
 
+router.route("/regex").get(reviewController.getAllReviewsRegex);
+
 // Routes for authenticated users with role-based restrictions (user or admin)
 router
   .route("/:id")

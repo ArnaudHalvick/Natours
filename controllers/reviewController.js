@@ -1,5 +1,6 @@
 const Review = require("./../models/reviewModel");
 const Booking = require("./../models/bookingModel");
+const User = require("./../models/userModel");
 const Refund = require("./../models/refundModel");
 const factory = require("./handlerFactory");
 const catchAsync = require("./../utils/catchAsync");
@@ -92,6 +93,67 @@ exports.deleteReview = catchAsync(async (req, res, next) => {
   res.status(204).json({
     status: "success",
     data: null,
+  });
+});
+
+// Regex search endpoint for reviews
+exports.getAllReviewsRegex = catchAsync(async (req, res, next) => {
+  const page = +req.query.page || 1;
+  const limit = +req.query.limit || 10;
+  const skip = (page - 1) * limit;
+
+  let query = Review.find();
+
+  // Join with Tour and User
+  query = query
+    .populate({
+      path: "tour",
+      select: "name",
+    })
+    .populate({
+      path: "user",
+      select: "name",
+    });
+
+  // Filter by tour if provided
+  if (req.query.tourId) {
+    query = query.find({ tour: req.query.tourId });
+  }
+
+  // Filter by rating if provided
+  if (req.query.rating) {
+    query = query.find({ rating: req.query.rating });
+  }
+
+  // Search in review text and user name
+  if (req.query.search) {
+    const searchRegex = new RegExp(req.query.search, "i");
+    const users = await User.find({ name: searchRegex }).select("_id");
+    const userIds = users.map(user => user._id);
+
+    query = query.find({
+      $or: [{ review: searchRegex }, { user: { $in: userIds } }],
+    });
+  }
+
+  // Execute query
+  const reviews = await query.exec();
+
+  // Apply pagination
+  const paginatedReviews = reviews.slice(skip, skip + limit);
+
+  res.status(200).json({
+    status: "success",
+    results: paginatedReviews.length,
+    data: {
+      data: paginatedReviews,
+      pagination: {
+        total: reviews.length,
+        totalPages: Math.ceil(reviews.length / limit),
+        currentPage: page,
+        limit,
+      },
+    },
   });
 });
 

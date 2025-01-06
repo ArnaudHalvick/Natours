@@ -4,27 +4,42 @@ block append head
   link(rel="stylesheet" href="/css/pages/manageReviews.css")
 
 block content
-    .container
-        h2.heading-secondary Manage Reviews
-        .reviews-container
-            if reviews.length === 0
-                p No reviews to manage.
-            else
-                table.table
-                    thead
-                        tr
-                            th Tour
-                            th User
-                            th Review
-                            th Rating
-                            th Actions
-                        tbody
-                            each review in reviews
-                                tr(id=`review-${review._id}`)
-                                td #{review.tour ? review.tour.name : 'Deleted Tour'}
-                                td #{review.user ? review.user.name : 'Deleted User'}
-                                td #{review.review}
-                                td #{review.rating}
-                                td
-                                    button.btn-hide(data-id=review._id) Hide
-                                    button.btn-delete(data-id=review._id) Delete
+  .container
+    h2.heading-secondary Manage Reviews
+    .review-controls
+      .search-box
+        input#searchReview.form__input(type='text', placeholder='Search reviews/users...')
+      .filter-box
+        select#tourFilter.form__input
+          option(value='') All Tours
+          each tour in tours
+            option(value=tour._id)= tour.name
+        select#ratingFilter.form__input
+          option(value='') All Ratings
+          option(value='1') 1 Star
+          option(value='2') 2 Stars
+          option(value='3') 3 Stars
+          option(value='4') 4 Stars
+          option(value='5') 5 Stars
+    .reviews-container
+      if reviews.length === 0
+        p No reviews to manage.
+      else
+        table.table
+          thead
+            tr
+              th Tour
+              th User
+              th Review
+              th Rating
+              th Actions
+            tbody
+              each review in reviews
+                tr(id=`review-${review._id}`)
+                  td #{review.tour ? review.tour.name : 'Deleted Tour'}
+                  td #{review.user ? review.user.name : 'Deleted User'}
+                  td #{review.review}
+                  td #{review.rating}
+                  td
+                    button.btn-hide(data-id=review._id) Hide
+                    button.btn-delete(data-id=review._id) Delete

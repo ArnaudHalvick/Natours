@@ -303,13 +303,16 @@ exports.getManageBookingsPage = (req, res) => {
 };
 
 exports.getManageReviewsPage = catchAsync(async (req, res, next) => {
-  const reviews = await Review.find()
-    .populate("tour", "name")
-    .populate("user", "name");
+  // Get both reviews and tours
+  const [reviews, tours] = await Promise.all([
+    Review.find().populate("tour", "name").populate("user", "name"),
+    Tour.find().select("name"),
+  ]);
 
   res.status(200).render("manageReviews", {
     title: "Manage Reviews",
     reviews,
+    tours, // Pass tours to template
     user: req.user,
   });
 });
