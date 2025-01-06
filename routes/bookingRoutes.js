@@ -24,10 +24,7 @@ router.use(authController.protect, authController.restrictTo("admin"));
 // Admin routes for managing bookings
 router.get("/regex", bookingController.getAllBookingsRegex);
 
-router
-  .route("/")
-  .get(bookingController.getAllBookings)
-  .post(bookingController.createBooking);
+router.route("/").post(bookingController.createBooking);
 
 router
   .route("/:id")

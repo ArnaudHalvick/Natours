@@ -447,33 +447,6 @@ exports.getAllBookingsRegex = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getAllBookings = (req, res, next) => {
-  let filter = {};
-
-  // Handle search
-  if (req.query.search) {
-    const searchRegex = new RegExp(req.query.search, "i");
-    filter.$or = [{ "user.email": searchRegex }];
-  }
-
-  // Handle date range (only if provided)
-  if (req.query.dateFrom || req.query.dateTo) {
-    filter.startDate = {};
-    if (req.query.dateFrom)
-      filter.startDate.$gte = new Date(req.query.dateFrom);
-    if (req.query.dateTo) filter.startDate.$lte = new Date(req.query.dateTo);
-  }
-
-  req.filter = filter;
-
-  return factory.getAll(Booking, {
-    populate: [
-      { path: "user", select: "email" },
-      { path: "tour", select: "name" },
-    ],
-  })(req, res, next);
-};
-
 // CRUD operations for bookings using the handler factory
 exports.createBooking = factory.createOne(Booking);
 exports.getBooking = factory.getOne(Booking);

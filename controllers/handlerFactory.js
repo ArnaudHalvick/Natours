@@ -7,32 +7,6 @@ exports.getAll = (Model, options = {}) =>
   catchAsync(async (req, res, next) => {
     let filter = { ...req.filter };
 
-    // Handle search across booking ID and user email
-    if (req.query.search) {
-      const searchStr = req.query.search;
-      const isObjectIdSearch = /^[a-fA-F0-9]{24}$/.test(searchStr);
-
-      filter.$or = [
-        { "user.email": { $regex: searchStr, $options: "i" } },
-        { "tour.name": { $regex: searchStr, $options: "i" } },
-      ];
-
-      if (isObjectIdSearch) {
-        filter.$or.push({ _id: searchStr });
-      }
-    }
-
-    // Handle date filtering
-    if (req.query.dateFrom || req.query.dateTo) {
-      filter.startDate = {};
-      if (req.query.dateFrom) {
-        filter.startDate.$gte = new Date(req.query.dateFrom);
-      }
-      if (req.query.dateTo) {
-        filter.startDate.$lte = new Date(req.query.dateTo);
-      }
-    }
-
     // Create query and apply population if specified
     let query = Model.find(filter);
     if (options.populate) {
