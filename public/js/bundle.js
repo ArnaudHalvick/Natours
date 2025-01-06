@@ -7492,10 +7492,6 @@ var initializeBookingManagement = exports.initializeBookingManagement = function
 },{"axios":"../../node_modules/axios/index.js","./alert":"alert.js"}],"manageReviews.js":[function(require,module,exports) {
 "use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.hideReview = exports.deleteReview = void 0;
 var _axios = _interopRequireDefault(require("axios"));
 var _alert = require("./alert");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
@@ -7507,8 +7503,9 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
 var reviewContainer = document.querySelector(".reviews-container");
 
 // Function to hide a review
-var hideReview = exports.hideReview = /*#__PURE__*/function () {
+var hideReview = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(reviewId) {
+    var reviewElement;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
@@ -7517,18 +7514,19 @@ var hideReview = exports.hideReview = /*#__PURE__*/function () {
           return _axios.default.patch("/api/v1/reviews/".concat(reviewId, "/hide"));
         case 3:
           (0, _alert.showAlert)("success", "Review hidden successfully!");
-          document.querySelector("#review-".concat(reviewId)).classList.add("hidden");
-          _context.next = 10;
+          reviewElement = document.querySelector("#review-".concat(reviewId));
+          if (reviewElement) reviewElement.classList.add("hidden");
+          _context.next = 11;
           break;
-        case 7:
-          _context.prev = 7;
+        case 8:
+          _context.prev = 8;
           _context.t0 = _context["catch"](0);
           (0, _alert.showAlert)("error", "Failed to hide the review.");
-        case 10:
+        case 11:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[0, 7]]);
+    }, _callee, null, [[0, 8]]);
   }));
   return function hideReview(_x) {
     return _ref.apply(this, arguments);
@@ -7536,8 +7534,9 @@ var hideReview = exports.hideReview = /*#__PURE__*/function () {
 }();
 
 // Function to delete a review
-var deleteReview = exports.deleteReview = /*#__PURE__*/function () {
+var deleteReview = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(reviewId) {
+    var reviewElement;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
@@ -7546,18 +7545,19 @@ var deleteReview = exports.deleteReview = /*#__PURE__*/function () {
           return _axios.default.delete("/api/v1/reviews/".concat(reviewId));
         case 3:
           (0, _alert.showAlert)("success", "Review deleted successfully!");
-          document.querySelector("#review-".concat(reviewId)).remove();
-          _context2.next = 10;
+          reviewElement = document.querySelector("#review-".concat(reviewId));
+          if (reviewElement) reviewElement.remove();
+          _context2.next = 11;
           break;
-        case 7:
-          _context2.prev = 7;
+        case 8:
+          _context2.prev = 8;
           _context2.t0 = _context2["catch"](0);
           (0, _alert.showAlert)("error", "Failed to delete the review.");
-        case 10:
+        case 11:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 7]]);
+    }, _callee2, null, [[0, 8]]);
   }));
   return function deleteReview(_x2) {
     return _ref2.apply(this, arguments);
@@ -8108,7 +8108,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "45929" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "44337" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

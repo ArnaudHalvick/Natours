@@ -5,22 +5,24 @@ import { showAlert } from "./alert";
 const reviewContainer = document.querySelector(".reviews-container");
 
 // Function to hide a review
-export const hideReview = async reviewId => {
+const hideReview = async reviewId => {
   try {
     await axios.patch(`/api/v1/reviews/${reviewId}/hide`);
     showAlert("success", "Review hidden successfully!");
-    document.querySelector(`#review-${reviewId}`).classList.add("hidden");
+    const reviewElement = document.querySelector(`#review-${reviewId}`);
+    if (reviewElement) reviewElement.classList.add("hidden");
   } catch (err) {
     showAlert("error", "Failed to hide the review.");
   }
 };
 
 // Function to delete a review
-export const deleteReview = async reviewId => {
+const deleteReview = async reviewId => {
   try {
     await axios.delete(`/api/v1/reviews/${reviewId}`);
     showAlert("success", "Review deleted successfully!");
-    document.querySelector(`#review-${reviewId}`).remove();
+    const reviewElement = document.querySelector(`#review-${reviewId}`);
+    if (reviewElement) reviewElement.remove();
   } catch (err) {
     showAlert("error", "Failed to delete the review.");
   }

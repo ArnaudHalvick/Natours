@@ -56,21 +56,42 @@ exports.validateReviewEligibility = catchAsync(async (req, res, next) => {
 });
 
 exports.hideReview = catchAsync(async (req, res, next) => {
-  const review = await Review.findByIdAndUpdate(
-    req.params.id,
-    { hidden: true },
-    { new: true, runValidators: true },
-  );
+  const review = await Review.findById(req.params.id);
 
   if (!review) {
     return next(new AppError("No review found with that ID", 404));
   }
+
+  // Check if the review's tour or user exists
+  if (!review.tour || !review.user) {
+    return next(
+      new AppError("This review is invalid (missing tour or user).", 400),
+    );
+  }
+
+  review.hidden = true;
+  await review.save();
 
   res.status(200).json({
     status: "success",
     data: {
       review,
     },
+  });
+});
+
+exports.deleteReview = catchAsync(async (req, res, next) => {
+  const review = await Review.findById(req.params.id);
+
+  if (!review) {
+    return next(new AppError("No review found with that ID", 404));
+  }
+
+  await Review.findByIdAndDelete(req.params.id);
+
+  res.status(204).json({
+    status: "success",
+    data: null,
   });
 });
 
@@ -85,6 +106,3 @@ exports.updateReview = factory.updateOne(Review);
 
 // Create a new review
 exports.createReview = factory.createOne(Review);
-
-// Delete a review by ID
-exports.deleteReview = factory.deleteOne(Review);
