@@ -1,8 +1,11 @@
 extends base
 
+block append head
+  link(rel="stylesheet" href="/css/pages/manageReviews.css")
+
 block content
     .container
-        h1 Manage Reviews
+        h2.heading-secondary Manage Reviews
         .reviews-container
             if reviews.length === 0
                 p No reviews to manage.
