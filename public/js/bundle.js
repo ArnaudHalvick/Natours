@@ -7389,6 +7389,53 @@ var pagination = document.querySelector(".pagination");
 var modal = document.querySelector(".refund-modal");
 var manageUsersContainer = document.querySelector(".user-view__users-container");
 
+// Interceptor to handle token refresh
+axios.interceptors.response.use(function (response) {
+  return response;
+}, /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(error) {
+    var originalRequest, res;
+    return _regeneratorRuntime().wrap(function _callee$(_context) {
+      while (1) switch (_context.prev = _context.next) {
+        case 0:
+          originalRequest = error.config;
+          if (!(error.response.status === 401 && !originalRequest._retry)) {
+            _context.next = 15;
+            break;
+          }
+          originalRequest._retry = true;
+          _context.prev = 3;
+          _context.next = 6;
+          return axios.post("/api/v1/users/refresh-token");
+        case 6:
+          res = _context.sent;
+          if (!(res.data.status === "success")) {
+            _context.next = 9;
+            break;
+          }
+          return _context.abrupt("return", axios(originalRequest));
+        case 9:
+          _context.next = 15;
+          break;
+        case 11:
+          _context.prev = 11;
+          _context.t0 = _context["catch"](3);
+          // If refresh fails, redirect to login
+          window.location.href = "/login";
+          return _context.abrupt("return", Promise.reject(_context.t0));
+        case 15:
+          return _context.abrupt("return", Promise.reject(error));
+        case 16:
+        case "end":
+          return _context.stop();
+      }
+    }, _callee, null, [[3, 11]]);
+  }));
+  return function (_x) {
+    return _ref.apply(this, arguments);
+  };
+}());
+
 // Login Form Handler
 if (loginForm) {
   loginForm.addEventListener("submit", function (e) {
@@ -7414,47 +7461,19 @@ if (signupForm) {
 // User Data Update Handler
 if (userDataForm) {
   userDataForm.addEventListener("submit", /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(e) {
+    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
       var form;
-      return _regeneratorRuntime().wrap(function _callee$(_context) {
-        while (1) switch (_context.prev = _context.next) {
+      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+        while (1) switch (_context2.prev = _context2.next) {
           case 0:
             e.preventDefault();
             form = new FormData();
             form.append("name", document.getElementById("name").value);
             form.append("email", document.getElementById("email").value);
             form.append("photo", document.getElementById("photo").files[0]);
-            _context.next = 7;
+            _context2.next = 7;
             return (0, _updateSettings.updateSettings)(form, "data");
           case 7:
-          case "end":
-            return _context.stop();
-        }
-      }, _callee);
-    }));
-    return function (_x) {
-      return _ref.apply(this, arguments);
-    };
-  }());
-}
-
-// Password Update Handler
-if (passwordForm) {
-  passwordForm.addEventListener("submit", /*#__PURE__*/function () {
-    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
-      var passwordData;
-      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-        while (1) switch (_context2.prev = _context2.next) {
-          case 0:
-            e.preventDefault();
-            passwordData = {
-              currentPassword: document.getElementById("password-current").value,
-              password: document.getElementById("password").value,
-              passwordConfirm: document.getElementById("password-confirm").value
-            };
-            _context2.next = 4;
-            return (0, _updateSettings.updateSettings)(passwordData, "password");
-          case 4:
           case "end":
             return _context2.stop();
         }
@@ -7462,6 +7481,34 @@ if (passwordForm) {
     }));
     return function (_x2) {
       return _ref2.apply(this, arguments);
+    };
+  }());
+}
+
+// Password Update Handler
+if (passwordForm) {
+  passwordForm.addEventListener("submit", /*#__PURE__*/function () {
+    var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
+      var passwordData;
+      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+        while (1) switch (_context3.prev = _context3.next) {
+          case 0:
+            e.preventDefault();
+            passwordData = {
+              currentPassword: document.getElementById("password-current").value,
+              password: document.getElementById("password").value,
+              passwordConfirm: document.getElementById("password-confirm").value
+            };
+            _context3.next = 4;
+            return (0, _updateSettings.updateSettings)(passwordData, "password");
+          case 4:
+          case "end":
+            return _context3.stop();
+        }
+      }, _callee3);
+    }));
+    return function (_x3) {
+      return _ref3.apply(this, arguments);
     };
   }());
 }
@@ -7510,14 +7557,14 @@ if (twoFAForm) {
 
 // Resend 2FA Code Handler
 if (resendButton) {
-  resendButton.addEventListener("click", /*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+  resendButton.addEventListener("click", /*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
     var tempToken;
-    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-      while (1) switch (_context3.prev = _context3.next) {
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
         case 0:
-          _context3.prev = 0;
+          _context4.prev = 0;
           tempToken = localStorage.getItem("tempToken");
-          _context3.next = 4;
+          _context4.next = 4;
           return axios({
             method: "POST",
             url: "/api/v1/users/resend2FA",
@@ -7527,17 +7574,17 @@ if (resendButton) {
           });
         case 4:
           (0, _alert.showAlert)("success", "A new 2FA code has been sent to your email.");
-          _context3.next = 10;
+          _context4.next = 10;
           break;
         case 7:
-          _context3.prev = 7;
-          _context3.t0 = _context3["catch"](0);
+          _context4.prev = 7;
+          _context4.t0 = _context4["catch"](0);
           (0, _alert.showAlert)("error", "Failed to resend 2FA code.");
         case 10:
         case "end":
-          return _context3.stop();
+          return _context4.stop();
       }
-    }, _callee3, null, [[0, 7]]);
+    }, _callee4, null, [[0, 7]]);
   })));
 }
 
@@ -7708,7 +7755,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39693" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "37217" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

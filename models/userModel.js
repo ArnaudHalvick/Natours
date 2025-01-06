@@ -73,6 +73,15 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true, // Users are active by default
   },
+  refreshToken: String,
+  refreshTokenExpires: Date,
+  lastTwoFAVerification: Date,
+  twoFAVerifiedDevices: [
+    {
+      deviceId: String,
+      lastVerified: Date,
+    },
+  ],
 });
 
 // Generate email confirmation token

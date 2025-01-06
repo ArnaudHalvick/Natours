@@ -88,6 +88,7 @@ router.post(
 // Login/Logout
 router.post("/login", authLimiter, authController.login);
 router.get("/logout", authController.logout);
+router.post("/refresh-token", authController.refreshAccessToken);
 
 // Forgot/Reset password
 router.post("/forgotPassword", authLimiter, authController.forgotPassword);

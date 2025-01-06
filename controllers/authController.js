@@ -10,6 +10,18 @@ const Email = require("../utils/email");
 const MAX_2FA_ATTEMPTS = 5; // Maximum 2FA attempts allowed
 const LOCK_TIME = 15 * 60 * 1000; // Lock account for 15 minutes after max attempts
 
+// Helper function to parse duration string (e.g., "90d" -> milliseconds)
+const parseDuration = durString => {
+  const unit = durString.slice(-1);
+  const value = parseInt(durString.slice(0, -1));
+  const multipliers = {
+    h: 60 * 60 * 1000,
+    d: 24 * 60 * 60 * 1000,
+    w: 7 * 24 * 60 * 60 * 1000,
+  };
+  return value * multipliers[unit];
+};
+
 // Function to sign the JWT token using the user ID
 const signToken = (id, options = {}) => {
   if (!process.env.JWT_SECRET || !process.env.JWT_EXPIRES_IN) {
@@ -186,6 +198,23 @@ exports.login = catchAsync(async (req, res, next) => {
     return createSendToken(user, 200, res, req);
   }
 
+  // Check if 2FA is needed
+  const deviceId = req.headers["user-agent"];
+  const twoFAExpiry = parseDuration(process.env.TWO_FA_DEVICE_EXPIRES_IN);
+  const expiryDate = new Date(Date.now() - twoFAExpiry);
+
+  const verifiedDevice = user.twoFAVerifiedDevices?.find(
+    d => d.deviceId === deviceId && new Date(d.lastVerified) > expiryDate,
+  );
+
+  if (verifiedDevice) {
+    // Skip 2FA, create tokens and login
+    await user.save({ validateBeforeSave: false });
+
+    createSendToken(user, 200, res, req);
+    return;
+  }
+
   // Regular 2FA flow for production or when not skipped in development
   if (user.twoFALockUntil && user.twoFALockUntil > Date.now()) {
     return next(
@@ -253,10 +282,16 @@ exports.verify2FA = catchAsync(async (req, res, next) => {
   const codeBuffer = Buffer.from(hashedCode, "utf-8");
   const storedCodeBuffer = Buffer.from(user.twoFACode, "utf-8");
 
-  if (
-    codeBuffer.length !== storedCodeBuffer.length ||
-    !crypto.timingSafeEqual(codeBuffer, storedCodeBuffer)
-  ) {
+  let isCodeValid = false;
+  try {
+    isCodeValid =
+      codeBuffer.length === storedCodeBuffer.length &&
+      crypto.timingSafeEqual(codeBuffer, storedCodeBuffer);
+  } catch (error) {
+    isCodeValid = false;
+  }
+
+  if (!isCodeValid) {
     user.twoFAAttemptCount = (user.twoFAAttemptCount || 0) + 1;
 
     // Lock account if max attempts reached
@@ -268,14 +303,30 @@ exports.verify2FA = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid credentials or 2FA code.", 400));
   }
 
-  // Reset attempt count and clear 2FA code
+  // Add device to verified devices
+  const deviceId = req.headers["user-agent"];
+
+  // Remove any existing entries for this device
+  user.twoFAVerifiedDevices = user.twoFAVerifiedDevices.filter(
+    d => d.deviceId !== deviceId,
+  );
+
+  // Add new device verification
+  user.twoFAVerifiedDevices.push({
+    deviceId,
+    lastVerified: new Date(),
+  });
+
+  // Reset 2FA status
   user.twoFAAttemptCount = 0;
   user.twoFACode = undefined;
   user.twoFACodeExpires = undefined;
   user.twoFALockUntil = undefined;
+  user.lastTwoFAVerification = new Date();
+
   await user.save({ validateBeforeSave: false });
 
-  // Issue the final JWT token
+  // Issue final JWT token and refresh token
   createSendToken(user, 200, res, req);
 });
 
@@ -316,6 +367,10 @@ exports.resendTwoFACode = catchAsync(async (req, res, next) => {
 
 exports.logout = (req, res) => {
   res.cookie("jwt", "loggedout", {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.cookie("refreshToken", "loggedout", {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
   });
@@ -482,4 +537,57 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   // Log the user in after updating the password
   createSendToken(user, 200, res, req);
+});
+
+const createRefreshToken = user => {
+  const refreshToken = crypto.randomBytes(32).toString("hex");
+  const refreshTokenExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+  user.refreshToken = refreshToken;
+  user.refreshTokenExpires = refreshTokenExpires;
+  return refreshToken;
+};
+
+exports.refreshAccessToken = catchAsync(async (req, res, next) => {
+  const { refreshToken } = req.cookies;
+
+  if (!refreshToken) {
+    return next(new AppError("No refresh token provided", 401));
+  }
+
+  const user = await User.findOne({
+    refreshToken,
+    refreshTokenExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return next(new AppError("Invalid or expired refresh token", 401));
+  }
+
+  // Create new access token
+  const accessToken = signToken(user._id);
+
+  // Create new refresh token
+  const newRefreshToken = createRefreshToken(user);
+  await user.save({ validateBeforeSave: false });
+
+  // Set cookies
+  res.cookie("jwt", accessToken, {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
+    ),
+    httpOnly: true,
+    secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+  });
+
+  res.cookie("refreshToken", newRefreshToken, {
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+    secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+  });
+
+  res.status(200).json({
+    status: "success",
+    accessToken,
+  });
 });
