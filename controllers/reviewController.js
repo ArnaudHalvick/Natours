@@ -13,21 +13,6 @@ exports.setTourUserIds = (req, res, next) => {
   next();
 };
 
-// Get all reviews with filtering, sorting, pagination, and field limiting
-exports.getAllReviews = factory.getAll(Review);
-
-// Get a specific review by ID
-exports.getReview = factory.getOne(Review);
-
-// Update a review by ID
-exports.updateReview = factory.updateOne(Review);
-
-// Create a new review
-exports.createReview = factory.createOne(Review);
-
-// Delete a review by ID
-exports.deleteReview = factory.deleteOne(Review);
-
 exports.validateReviewEligibility = catchAsync(async (req, res, next) => {
   // 1) Find the specific booking for this tour and user
   const booking = await Booking.findOne({
@@ -69,3 +54,37 @@ exports.validateReviewEligibility = catchAsync(async (req, res, next) => {
 
   next();
 });
+
+exports.hideReview = catchAsync(async (req, res, next) => {
+  const review = await Review.findByIdAndUpdate(
+    req.params.id,
+    { hidden: true },
+    { new: true, runValidators: true },
+  );
+
+  if (!review) {
+    return next(new AppError("No review found with that ID", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      review,
+    },
+  });
+});
+
+// Get all reviews with filtering, sorting, pagination, and field limiting
+exports.getAllReviews = factory.getAll(Review);
+
+// Get a specific review by ID
+exports.getReview = factory.getOne(Review);
+
+// Update a review by ID
+exports.updateReview = factory.updateOne(Review);
+
+// Create a new review
+exports.createReview = factory.createOne(Review);
+
+// Delete a review by ID
+exports.deleteReview = factory.deleteOne(Review);

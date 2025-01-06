@@ -301,3 +301,15 @@ exports.getManageBookingsPage = (req, res) => {
     user: req.user,
   });
 };
+
+exports.getManageReviewsPage = catchAsync(async (req, res, next) => {
+  const reviews = await Review.find()
+    .populate("tour", "name")
+    .populate("user", "name");
+
+  res.status(200).render("manageReviews", {
+    title: "Manage Reviews",
+    reviews,
+    user: req.user,
+  });
+});

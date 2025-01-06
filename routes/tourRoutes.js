@@ -1,6 +1,7 @@
 const express = require("express");
 const tourController = require("./../controllers/tourController");
 const authController = require("./../controllers/authController");
+const reviewController = require("./../controllers/reviewController");
 const reviewRouter = require("./reviewRoutes");
 
 const router = express.Router();
@@ -42,6 +43,14 @@ router.use(authController.restrictTo("admin", "lead-guide"));
 
 // 10) Routes for creating, updating, and deleting tours (restricted to "admin" and "lead-guide")
 router.route("/").post(tourController.createNewTour);
+
+router
+  .route("/:id/hide")
+  .patch(
+    authController.protect,
+    authController.restrictTo("admin"),
+    reviewController.hideReview,
+  );
 
 router
   .route("/:id")

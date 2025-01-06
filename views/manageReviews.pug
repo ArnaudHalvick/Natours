@@ -1,0 +1,27 @@
+extends base
+
+block content
+    .container
+        h1 Manage Reviews
+        .reviews-container
+            if reviews.length === 0
+                p No reviews to manage.
+            else
+                table.table
+                    thead
+                        tr
+                            th Tour
+                            th User
+                            th Review
+                            th Rating
+                            th Actions
+                        tbody
+                            each review in reviews
+                                tr(id=`review-${review._id}`)
+                                td #{review.tour ? review.tour.name : 'Deleted Tour'}
+                                td #{review.user ? review.user.name : 'Deleted User'}
+                                td #{review.review}
+                                td #{review.rating}
+                                td
+                                    button.btn-hide(data-id=review._id) Hide
+                                    button.btn-delete(data-id=review._id) Delete

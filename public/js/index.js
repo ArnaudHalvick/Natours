@@ -13,6 +13,7 @@ import { deleteReview, updateReview, createReview } from "./review";
 
 import { initializeUserManagement } from "./manageUsers";
 import { initializeBookingManagement } from "./manageBookings";
+import "./manageReviews";
 
 import {
   requestRefund,
