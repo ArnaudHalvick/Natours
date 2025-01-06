@@ -54,7 +54,9 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 // Get all users (admin only) with filtering, sorting, pagination, and field limiting
-exports.getAllUsers = factory.getAll(User);
+exports.getAllUsers = factory.getAll(User, {
+  searchFields: ["name", "email"],
+});
 
 // Get user by ID (admin only)
 exports.getUser = factory.getOne(User);

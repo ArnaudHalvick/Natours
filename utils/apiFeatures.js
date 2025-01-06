@@ -10,15 +10,19 @@ class APIFeatures {
     const excludedFields = ["page", "sort", "limit", "fields"];
     excludedFields.forEach(el => delete queryObj[el]);
 
-    // Advanced filtering
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
 
     const queryParsed = JSON.parse(queryStr);
 
-    // Partial string matches for 'name'
+    // Handle search across multiple fields
     if (queryParsed.name) {
-      queryParsed.name = { $regex: queryParsed.name, $options: "i" };
+      const searchTerm = queryParsed.name;
+      delete queryParsed.name;
+      queryParsed.$or = [
+        { name: { $regex: searchTerm, $options: "i" } },
+        { email: { $regex: searchTerm, $options: "i" } },
+      ];
     }
 
     this.query = this.query.find(queryParsed);
