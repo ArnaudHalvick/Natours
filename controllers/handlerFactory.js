@@ -3,41 +3,59 @@ const AppError = require("./../utils/appError");
 const APIFeatures = require("./../utils/apiFeatures");
 
 // Get all documents with optional query filters (pagination, sorting, etc.)
-exports.getAll = Model =>
+exports.getAll = (Model, options = {}) =>
   catchAsync(async (req, res, next) => {
-    // To allow for nested GET reviews on tour (e.g., /tour/:tourId/reviews)
-    let filter = {};
-    if (req.params.tourId) filter = { tour: req.params.tourId };
+    let filter = { ...req.filter };
 
-    // Initialize APIFeatures with filtering, sorting, field limiting, and pagination
-    const features = new APIFeatures(Model.find(filter), req.query)
-      .filter()
+    // Handle search across booking ID and user email
+    if (req.query.search) {
+      const searchStr = req.query.search;
+      const isObjectIdSearch = /^[a-fA-F0-9]{24}$/.test(searchStr);
+
+      filter.$or = [
+        { "user.email": { $regex: searchStr, $options: "i" } },
+        { "tour.name": { $regex: searchStr, $options: "i" } },
+      ];
+
+      if (isObjectIdSearch) {
+        filter.$or.push({ _id: searchStr });
+      }
+    }
+
+    // Handle date filtering
+    if (req.query.dateFrom || req.query.dateTo) {
+      filter.startDate = {};
+      if (req.query.dateFrom) {
+        filter.startDate.$gte = new Date(req.query.dateFrom);
+      }
+      if (req.query.dateTo) {
+        filter.startDate.$lte = new Date(req.query.dateTo);
+      }
+    }
+
+    // Create query and apply population if specified
+    let query = Model.find(filter);
+    if (options.populate) {
+      if (Array.isArray(options.populate)) {
+        options.populate.forEach(pop => {
+          query = query.populate(pop);
+        });
+      } else {
+        query = query.populate(options.populate);
+      }
+    }
+
+    // Apply other features (sorting, pagination, etc.)
+    const features = new APIFeatures(query, req.query)
       .sort()
       .limitFields()
       .paginate();
 
-    // Execute the query to get the documents
+    // Execute query
     const docs = await features.query;
+    const total = await Model.countDocuments(filter);
 
-    // Count total documents matching the **final** query conditions (including all filters)
-    let total;
-    if (typeof features.query.getFilter === "function") {
-      // For Mongoose 6.3+
-      total = await Model.countDocuments(features.query.getFilter());
-    } else {
-      // For earlier Mongoose versions
-      total = await Model.countDocuments(features.query._conditions);
-    }
-
-    // Calculate totalPages based on the limit
-    const totalPages = Math.ceil(total / features.pagination.limit);
-
-    // Handle edge case where requested page exceeds total pages
-    if (features.pagination.currentPage > totalPages && totalPages !== 0) {
-      return next(new AppError("This page does not exist.", 404));
-    }
-
-    // Send success response with documents and pagination metadata
+    // Send response
     res.status(200).json({
       status: "success",
       results: docs.length,
@@ -45,7 +63,7 @@ exports.getAll = Model =>
         data: docs,
         pagination: {
           total,
-          totalPages,
+          totalPages: Math.ceil(total / features.pagination.limit),
           currentPage: features.pagination.currentPage,
           limit: features.pagination.limit,
         },

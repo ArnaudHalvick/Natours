@@ -75,6 +75,13 @@ router.get(
   viewsController.getManageUsersPage,
 );
 
+router.get(
+  "/manage-bookings",
+  authController.protect,
+  authController.restrictTo("admin"),
+  viewsController.getManageBookingsPage,
+);
+
 // Check email, confirmation success and 2FA
 router.get("/checkEmail", viewsController.getCheckEmail);
 router.get("/confirmSuccess", viewsController.getConfirmSuccess);

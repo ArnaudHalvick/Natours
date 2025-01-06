@@ -12,6 +12,8 @@ import { updateSettings } from "./updateSettings";
 import { deleteReview, updateReview, createReview } from "./review";
 
 import { initializeUserManagement } from "./manageUsers";
+import { initializeBookingManagement } from "./manageBookings";
+
 import {
   requestRefund,
   handleRefundAction,
@@ -47,6 +49,9 @@ const pagination = document.querySelector(".pagination");
 const modal = document.querySelector(".refund-modal");
 const manageUsersContainer = document.querySelector(
   ".user-view__users-container",
+);
+const manageBookingsContainer = document.querySelector(
+  ".user-view__bookings-container",
 );
 
 // Interceptor to handle token refresh
@@ -336,4 +341,9 @@ if (pagination) {
 // User Management Handler
 if (manageUsersContainer) {
   initializeUserManagement();
+}
+
+// Booking Management Handler
+if (manageBookingsContainer) {
+  initializeBookingManagement();
 }

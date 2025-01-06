@@ -309,9 +309,173 @@ exports.webhookCheckout = (req, res, next) => {
   res.status(200).json({ received: true });
 };
 
+exports.getAllBookingsRegex = catchAsync(async (req, res, next) => {
+  // 1) Extract query parameters
+  const { search, dateFrom, dateTo, paid } = req.query;
+  const page = +req.query.page || 1;
+  const limit = +req.query.limit || 10;
+  const skip = (page - 1) * limit;
+
+  // 2) Build the pipeline
+  const pipeline = [];
+
+  // (A) Match the "paid" filter if provided
+  if (typeof paid !== "undefined" && paid !== "") {
+    pipeline.push({
+      $match: {
+        paid: paid === "true",
+      },
+    });
+  }
+
+  // (B) Look up user and tour data
+  pipeline.push(
+    {
+      $lookup: {
+        from: "users",
+        localField: "user",
+        foreignField: "_id",
+        as: "userInfo",
+      },
+    },
+    { $unwind: "$userInfo" },
+
+    {
+      $lookup: {
+        from: "tours",
+        localField: "tour",
+        foreignField: "_id",
+        as: "tourInfo",
+      },
+    },
+    { $unwind: "$tourInfo" },
+  );
+
+  // (C) If there's a search string, do partial matching on user email, tour name, or _id
+  if (search) {
+    pipeline.push({
+      $match: {
+        $or: [
+          // Partial match on email
+          {
+            $expr: {
+              $regexMatch: {
+                input: "$userInfo.email",
+                regex: search,
+                options: "i",
+              },
+            },
+          },
+          // Partial match on tour name
+          {
+            $expr: {
+              $regexMatch: {
+                input: "$tourInfo.name",
+                regex: search,
+                options: "i",
+              },
+            },
+          },
+          // Partial match on booking _id (converted to string)
+          {
+            $expr: {
+              $regexMatch: {
+                input: { $toString: "$_id" },
+                regex: search,
+                options: "i",
+              },
+            },
+          },
+        ],
+      },
+    });
+  }
+
+  // (D) Date range filtering
+  if (dateFrom || dateTo) {
+    const dateQuery = {};
+    if (dateFrom) dateQuery.$gte = new Date(dateFrom);
+    if (dateTo) dateQuery.$lte = new Date(dateTo);
+
+    pipeline.push({
+      $match: {
+        startDate: dateQuery,
+      },
+    });
+  }
+
+  // (E) Count total matched docs (using $facet)
+  pipeline.push({
+    $facet: {
+      data: [{ $skip: skip }, { $limit: limit }],
+      metadata: [{ $count: "total" }],
+    },
+  });
+
+  // 3) Run the pipeline
+  const [results] = await Booking.aggregate(pipeline);
+  const { data = [], metadata = [] } = results;
+  const total = metadata.length > 0 ? metadata[0].total : 0;
+  const totalPages = Math.ceil(total / limit);
+
+  // 4) Optionally project the shape to mimic .populate() output
+  // For example, reassign user: userInfo, tour: tourInfo
+  // so the front end sees booking.user.email or booking.tour.name.
+  // If you want to keep that shape:
+  const finalData = data.map(doc => ({
+    ...doc,
+    user: { email: doc.userInfo.email }, // or include more fields
+    tour: { name: doc.tourInfo.name },
+    // remove original userInfo/tourInfo
+    userInfo: undefined,
+    tourInfo: undefined,
+  }));
+
+  // 5) Send response
+  res.status(200).json({
+    status: "success",
+    results: data.length,
+    data: {
+      data: finalData,
+      pagination: {
+        total,
+        totalPages,
+        currentPage: page,
+        limit,
+      },
+    },
+  });
+});
+
+exports.getAllBookings = (req, res, next) => {
+  let filter = {};
+
+  // Handle search
+  if (req.query.search) {
+    const searchRegex = new RegExp(req.query.search, "i");
+    filter.$or = [{ "user.email": searchRegex }];
+  }
+
+  // Handle date range (only if provided)
+  if (req.query.dateFrom || req.query.dateTo) {
+    filter.startDate = {};
+    if (req.query.dateFrom)
+      filter.startDate.$gte = new Date(req.query.dateFrom);
+    if (req.query.dateTo) filter.startDate.$lte = new Date(req.query.dateTo);
+  }
+
+  req.filter = filter;
+
+  return factory.getAll(Booking, {
+    populate: [
+      { path: "user", select: "email" },
+      { path: "tour", select: "name" },
+    ],
+  })(req, res, next);
+};
+
 // CRUD operations for bookings using the handler factory
 exports.createBooking = factory.createOne(Booking);
 exports.getBooking = factory.getOne(Booking);
-exports.getAllBookings = factory.getAll(Booking);
 exports.updateBooking = factory.updateOne(Booking);
 exports.deleteBooking = factory.deleteOne(Booking);
