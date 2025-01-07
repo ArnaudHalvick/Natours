@@ -1,0 +1,187 @@
+.heading-secondary.ma-bt-md {
+  margin-left: 2rem;
+}
+
+.booking-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 0 2rem;
+  margin-bottom: 3rem;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 25rem;
+}
+
+.filter-box {
+  width: 12rem;
+}
+
+.date-filter {
+  flex: 1;
+  min-width: 30rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.date-filter span {
+  color: #666;
+  font-size: 1.4rem;
+}
+
+.date-filter input[type="date"] {
+  width: 12rem;
+  font-size: 1.2rem;
+}
+
+.search-box input,
+.filter-box select,
+.date-filter input {
+  width: 100%;
+  padding: 1.2rem 1.6rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  transition: all 0.3s;
+  background-color: #f8f8f8;
+}
+
+.search-box input:focus,
+.filter-box select:focus,
+.date-filter input:focus {
+  outline: none;
+  border-color: #55c57a;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(85, 197, 122, 0.1);
+}
+
+.booking-table {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin: 0 2rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background-color: #f7f7f7;
+}
+
+.table th {
+  padding: 1.2rem;
+  text-align: left;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 2px solid #ddd;
+  font-size: 1.3rem;
+}
+
+.table td {
+  padding: 1.2rem;
+  border-bottom: 1px solid #eee;
+  color: #666;
+  font-size: 1.3rem;
+}
+
+.table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal-content {
+  position: relative;
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 3rem;
+  width: 90%;
+  max-width: 60rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.close-modal {
+  position: absolute;
+  right: 2rem;
+  top: 2rem;
+  font-size: 2.4rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-modal:hover {
+  color: #333;
+}
+
+#modalTitle {
+  font-size: 2rem;
+  color: #444;
+  margin-bottom: 2rem;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin: 3rem 0;
+  padding: 0 2rem;
+}
+
+#pageInfo {
+  font-size: 1.4rem;
+  color: #666;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .booking-controls {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .search-box,
+  .filter-box,
+  .date-filter {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .date-filter {
+    flex-wrap: wrap;
+  }
+
+  .date-filter input[type="date"] {
+    width: 100%;
+  }
+
+  .modal-content {
+    width: 95%;
+    margin: 10% auto;
+    padding: 2rem;
+  }
+
+  .table {
+    display: block;
+    overflow-x: auto;
+  }
+}

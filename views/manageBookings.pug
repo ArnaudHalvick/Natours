@@ -2,7 +2,7 @@ extends base
 
 block append head
   link(rel="stylesheet" href="/css/layout/user-view.css")
-  link(rel="stylesheet" href="/css/pages/manage-bookings.css")
+  link(rel="stylesheet" href="/css/pages/manageBookings.css")
 
 block content
   main.main
@@ -23,7 +23,7 @@ block content
                 option(value='true') Paid
                 option(value='false') Unpaid
             .date-filter
-              label.form__label(for='startDate') Start Date Range:
+              label.form__label(for='startDate') Dates:
               input#startDateFrom.form__input(type='date')
               span to
               input#startDateTo.form__input(type='date')

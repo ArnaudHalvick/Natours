@@ -302,7 +302,7 @@ exports.getManageUsersPage = (req, res) => {
 };
 
 exports.getManageBookingsPage = (req, res) => {
-  res.status(200).render("manage-bookings", {
+  res.status(200).render("manageBookings", {
     title: "Manage Bookings",
     user: req.user,
   });
