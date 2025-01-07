@@ -1,3 +1,4 @@
+// utils/mapbox.js
 export const displayMap = locations => {
   mapboxgl.accessToken =
     "pk.eyJ1IjoiYXJuYXVkLWhhbHZpY2siLCJhIjoiY20yamRpeHV3MDQzZTJxb3Y4Y2w5c2Y4byJ9.twUyM4221bznoihxEh2PKA";
