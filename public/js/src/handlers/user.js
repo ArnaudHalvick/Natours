@@ -1,6 +1,12 @@
 // handlers/user.js
 import { elements } from "../utils/elements";
 import { updateSettings, saveUser, deleteUser, loadUsers } from "../api/user";
+import { updatePaginationInfo } from "../utils/pagination";
+
+const userContainer = document.querySelector(".user-view__users-container");
+const currentUserId = userContainer
+  ? userContainer.dataset.currentUserId
+  : null;
 
 let currentPage = 1;
 let totalPages = 1;
@@ -8,6 +14,47 @@ let currentSort = "name";
 let currentFilter = "";
 let currentSearch = "";
 const USERS_PER_PAGE = 10;
+
+const renderUsersTable = users => {
+  console.log("Rendering users:", users); // Debug log
+
+  const userTableBody = document.getElementById("userTableBody");
+  console.log("User table body element:", userTableBody);
+
+  userTableBody.innerHTML = "";
+
+  if (users.length === 0) {
+    userTableBody.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align: center;">No users found.</td>
+      </tr>
+    `;
+  } else {
+    users.forEach(user => {
+      const row = document.createElement("tr");
+      if (!user.active) row.classList.add("user--inactive");
+
+      const isCurrentUser = user._id === currentUserId;
+      let actionButtons = `
+        <div class="action-buttons">
+          <button class="btn btn--small btn--edit" data-id="${user._id}" data-active="${user.active}">Edit</button>
+          <button class="btn btn--small btn--delete" data-id="${user._id}">Delete</button>
+        </div>
+      `;
+
+      if (isCurrentUser) actionButtons = `<span>Your Account</span>`;
+
+      row.innerHTML = `
+        <td><img src="/img/users/${user.photo}" alt="${user.name}"></td>
+        <td>${user.name}</td>
+        <td>${user.email}</td>
+        <td>${user.role}</td>
+        <td>${actionButtons}</td>
+      `;
+      userTableBody.appendChild(row);
+    });
+  }
+};
 
 export const initUserHandlers = () => {
   const { updateForm, passwordForm, usersContainer } = elements.user;
@@ -37,6 +84,7 @@ export const initUserHandlers = () => {
 
   if (usersContainer()) {
     initializeUserManagement();
+    console.log("Initializing user management...");
   }
 };
 
@@ -79,6 +127,7 @@ const initializeUserManagement = () => {
 
 const loadUsersTable = async () => {
   try {
+    // Load users with current search, filter, and pagination applied
     const data = await loadUsers(
       currentPage,
       USERS_PER_PAGE,
@@ -86,11 +135,26 @@ const loadUsersTable = async () => {
       currentFilter,
       currentSearch,
     );
-    totalPages = data.pagination.totalPages;
-    renderUsersTable(data.data);
-    updatePaginationInfo();
+    console.log(
+      "DATA",
+      currentPage,
+      USERS_PER_PAGE,
+      currentSort,
+      currentFilter,
+      currentSearch,
+    );
+
+    console.log("Loaded users:", data.data); // Debug log
+
+    const users = data.data; // Extract users from response
+    totalPages = data.pagination.totalPages; // Update total pages
+
+    // Render the users table and update pagination
+    renderUsersTable(users);
+    updatePaginationInfo(currentPage, totalPages);
   } catch (err) {
     console.error("Failed to load users:", err);
+    showAlert("error", "Failed to load users");
   }
 };
 

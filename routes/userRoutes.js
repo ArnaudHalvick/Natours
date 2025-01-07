@@ -124,7 +124,7 @@ router.use(authController.restrictTo("admin"));
 // Manage all users (admin only)
 router
   .route("/")
-  .get(userController.getAllUsers)
+  .get(userController.getAllUsersRegex)
   .post(userController.createUser);
 
 router

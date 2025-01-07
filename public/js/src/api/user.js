@@ -77,6 +77,8 @@ export const loadUsers = async (page, limit, sort, filter, search) => {
     if (filter) query += `&role=${filter}`;
     if (search) query += `&name=${encodeURIComponent(search)}`;
 
+    console.log(`/api/v1/users${query}`);
+
     const res = await axios.get(`/api/v1/users${query}`);
     return res.data.data;
   } catch (err) {

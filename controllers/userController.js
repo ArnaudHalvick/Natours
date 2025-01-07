@@ -53,11 +53,6 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-// Get all users (admin only) with filtering, sorting, pagination, and field limiting
-exports.getAllUsers = factory.getAll(User, {
-  searchFields: ["name", "email"],
-});
-
 // Get user by ID (admin only)
 exports.getUser = factory.getOne(User);
 
@@ -140,5 +135,65 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   res.status(204).json({
     status: "success",
     data: null,
+  });
+});
+
+exports.getAllUsersRegex = catchAsync(async (req, res, next) => {
+  // 1) Extract query parameters
+  const { search, role } = req.query;
+  const page = +req.query.page || 1;
+  const limit = +req.query.limit || 10;
+  const skip = (page - 1) * limit;
+
+  // 2) Build the pipeline
+  const pipeline = [];
+
+  // (A) Match the "role" filter if provided
+  if (role) {
+    pipeline.push({
+      $match: { role },
+    });
+  }
+
+  // (B) Apply regex search on name or email if provided
+  if (search) {
+    const searchRegex = new RegExp(search, "i");
+    pipeline.push({
+      $match: {
+        $or: [
+          { name: { $regex: searchRegex } },
+          { email: { $regex: searchRegex } },
+        ],
+      },
+    });
+  }
+
+  // (C) Count total matched docs (for pagination metadata)
+  pipeline.push({
+    $facet: {
+      data: [{ $skip: skip }, { $limit: limit }],
+      metadata: [{ $count: "total" }],
+    },
+  });
+
+  // 3) Run the pipeline
+  const [results] = await User.aggregate(pipeline);
+  const { data = [], metadata = [] } = results;
+  const total = metadata.length > 0 ? metadata[0].total : 0;
+  const totalPages = Math.ceil(total / limit);
+
+  // 4) Send response
+  res.status(200).json({
+    status: "success",
+    results: data.length,
+    data: {
+      data,
+      pagination: {
+        total,
+        totalPages,
+        currentPage: page,
+        limit,
+      },
+    },
   });
 });
