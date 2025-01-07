@@ -16,11 +16,7 @@ let currentSearch = "";
 const USERS_PER_PAGE = 10;
 
 const renderUsersTable = users => {
-  console.log("Rendering users:", users); // Debug log
-
   const userTableBody = document.getElementById("userTableBody");
-  console.log("User table body element:", userTableBody);
-
   userTableBody.innerHTML = "";
 
   if (users.length === 0) {
@@ -84,7 +80,6 @@ export const initUserHandlers = () => {
 
   if (usersContainer()) {
     initializeUserManagement();
-    console.log("Initializing user management...");
   }
 };
 
@@ -135,16 +130,6 @@ const loadUsersTable = async () => {
       currentFilter,
       currentSearch,
     );
-    console.log(
-      "DATA",
-      currentPage,
-      USERS_PER_PAGE,
-      currentSort,
-      currentFilter,
-      currentSearch,
-    );
-
-    console.log("Loaded users:", data.data); // Debug log
 
     const users = data.data; // Extract users from response
     totalPages = data.pagination.totalPages; // Update total pages

@@ -7221,23 +7221,22 @@ var loadUsers = exports.loadUsers = /*#__PURE__*/function () {
           _context4.prev = 0;
           query = "?page=".concat(page, "&limit=").concat(limit, "&sort=").concat(sort);
           if (filter) query += "&role=".concat(filter);
-          if (search) query += "&name=".concat(encodeURIComponent(search));
-          console.log("/api/v1/users".concat(query));
-          _context4.next = 7;
+          if (search) query += "&search=".concat(encodeURIComponent(search));
+          _context4.next = 6;
           return _axios.default.get("/api/v1/users".concat(query));
-        case 7:
+        case 6:
           res = _context4.sent;
           return _context4.abrupt("return", res.data.data);
-        case 11:
-          _context4.prev = 11;
+        case 10:
+          _context4.prev = 10;
           _context4.t0 = _context4["catch"](0);
           (0, _alert.showAlert)("error", ((_err$response5 = _context4.t0.response) === null || _err$response5 === void 0 || (_err$response5 = _err$response5.data) === null || _err$response5 === void 0 ? void 0 : _err$response5.message) || "Error loading users");
           throw _context4.t0;
-        case 15:
+        case 14:
         case "end":
           return _context4.stop();
       }
-    }, _callee4, null, [[0, 11]]);
+    }, _callee4, null, [[0, 10]]);
   }));
   return function loadUsers(_x5, _x6, _x7, _x8, _x9) {
     return _ref4.apply(this, arguments);
@@ -7290,10 +7289,7 @@ var currentFilter = "";
 var currentSearch = "";
 var USERS_PER_PAGE = 10;
 var renderUsersTable = function renderUsersTable(users) {
-  console.log("Rendering users:", users); // Debug log
-
   var userTableBody = document.getElementById("userTableBody");
-  console.log("User table body element:", userTableBody);
   userTableBody.innerHTML = "";
   if (users.length === 0) {
     userTableBody.innerHTML = "\n      <tr>\n        <td colspan=\"5\" style=\"text-align: center;\">No users found.</td>\n      </tr>\n    ";
@@ -7367,7 +7363,6 @@ var initUserHandlers = exports.initUserHandlers = function initUserHandlers() {
   }
   if (usersContainer()) {
     initializeUserManagement();
-    console.log("Initializing user management...");
   }
 };
 var initializeUserManagement = function initializeUserManagement() {
@@ -7409,26 +7404,24 @@ var loadUsersTable = /*#__PURE__*/function () {
           return (0, _user.loadUsers)(currentPage, USERS_PER_PAGE, currentSort, currentFilter, currentSearch);
         case 3:
           data = _context3.sent;
-          console.log("DATA", currentPage, USERS_PER_PAGE, currentSort, currentFilter, currentSearch);
-          console.log("Loaded users:", data.data); // Debug log
           users = data.data; // Extract users from response
           totalPages = data.pagination.totalPages; // Update total pages
 
           // Render the users table and update pagination
           renderUsersTable(users);
           (0, _pagination.updatePaginationInfo)(currentPage, totalPages);
-          _context3.next = 16;
+          _context3.next = 14;
           break;
-        case 12:
-          _context3.prev = 12;
+        case 10:
+          _context3.prev = 10;
           _context3.t0 = _context3["catch"](0);
           console.error("Failed to load users:", _context3.t0);
           showAlert("error", "Failed to load users");
-        case 16:
+        case 14:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[0, 12]]);
+    }, _callee3, null, [[0, 10]]);
   }));
   return function loadUsersTable() {
     return _ref3.apply(this, arguments);
@@ -7681,7 +7674,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "43839" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38401" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

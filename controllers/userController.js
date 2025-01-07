@@ -157,7 +157,7 @@ exports.getAllUsersRegex = catchAsync(async (req, res, next) => {
 
   // (B) Apply regex search on name or email if provided
   if (search) {
-    const searchRegex = new RegExp(search, "i");
+    const searchRegex = new RegExp(search.trim(), "i"); // Trim whitespace and use case-insensitive regex
     pipeline.push({
       $match: {
         $or: [
