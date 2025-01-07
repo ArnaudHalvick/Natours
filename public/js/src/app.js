@@ -6,6 +6,7 @@ import { initReviewHandlers } from "./handlers/review";
 import { initRefundHandlers } from "./handlers/refund";
 import { initUserHandlers } from "./handlers/user";
 import { initReviewManagement } from "./handlers/reviewManagement";
+import { initializeBookingManagement } from "./handlers/bookingManagement";
 import { showAlert } from "./utils/alert";
 import { displayMap } from "./utils/mapbox";
 
@@ -33,6 +34,13 @@ export class App {
       { init: initUserHandlers, name: "User" },
       { init: initReviewManagement, name: "Review Management" },
     ];
+
+    if (document.querySelector(".user-view__bookings-container")) {
+      handlers.push({
+        init: initializeBookingManagement,
+        name: "Booking Management",
+      });
+    }
 
     handlers.forEach(({ init, name }) => {
       try {
