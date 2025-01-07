@@ -33,7 +33,7 @@ block content
           p
             span.card__footer-value= `$${tour.price} `
             span.card__footer-text per person
-        form#bookingForm(action=`/create-checkout-session/${tour.id}`, method="GET")
+        form#bookingForm
           .form__group
             label.form__label(for="startDate") Select a start date
             select.form__input(name="startDate", id="startDate", required)
