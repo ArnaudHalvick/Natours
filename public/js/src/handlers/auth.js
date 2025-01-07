@@ -1,3 +1,4 @@
+// handlers/auth.js
 import { elements } from "../utils/elements";
 import {
   login,
