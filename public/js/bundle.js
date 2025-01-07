@@ -7701,6 +7701,8 @@ var handleReviewLoad = /*#__PURE__*/function () {
   };
 }();
 var initReviewManagement = exports.initReviewManagement = function initReviewManagement() {
+  var reviewManagementElements = document.querySelector(".reviews-container");
+  if (!reviewManagementElements) return;
   var searchInput = document.getElementById("searchReview");
   var tourFilter = document.getElementById("tourFilter");
   var ratingFilter = document.getElementById("ratingFilter");
@@ -7957,7 +7959,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "46025" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42687" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

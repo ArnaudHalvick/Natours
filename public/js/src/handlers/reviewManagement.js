@@ -46,6 +46,9 @@ const handleReviewLoad = async (search = "", tourId = "", rating = "") => {
 };
 
 export const initReviewManagement = () => {
+  const reviewManagementElements = document.querySelector(".reviews-container");
+  if (!reviewManagementElements) return;
+
   const searchInput = document.getElementById("searchReview");
   const tourFilter = document.getElementById("tourFilter");
   const ratingFilter = document.getElementById("ratingFilter");
