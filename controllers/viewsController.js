@@ -294,9 +294,9 @@ exports.getManageRefunds = catchAsync(async (req, res, next) => {
 });
 
 exports.getManageUsersPage = (req, res) => {
-  res.status(200).render("manage-users", {
+  res.status(200).render("manageUsers", {
     title: "Manage Users",
-    pageName: "manage-users",
+    pageName: "manage Users",
     currentUser: req.user,
   });
 };
