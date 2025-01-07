@@ -128,17 +128,18 @@ exports.getCheckout = catchAsync(async (req, res, next) => {
 });
 
 exports.getReviewForm = catchAsync(async (req, res, next) => {
-  const [tour, booking] = await Promise.all([
-    Tour.findOne({ slug: req.params.slug }),
-    Booking.findOne({
-      user: req.user.id,
-      tour: tour._id,
-    }),
-  ]);
+  // First find the tour
+  const tour = await Tour.findOne({ slug: req.params.slug });
 
   if (!tour) {
     return next(new AppError("No tour found with that slug.", 404));
   }
+
+  // Then find the booking using the found tour's ID
+  const booking = await Booking.findOne({
+    user: req.user.id,
+    tour: tour._id, // Now tour is defined
+  });
 
   if (!booking) {
     return next(new AppError("You have not booked this tour.", 403));
