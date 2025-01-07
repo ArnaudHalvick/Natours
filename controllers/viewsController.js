@@ -67,11 +67,17 @@ exports.getMyTours = catchAsync(async (req, res, next) => {
     acc[refund.booking.toString()] = refund.status;
     return acc;
   }, {});
+  const reviews = await Review.find({ user: req.user.id });
+  const reviewsByTour = reviews.reduce((acc, review) => {
+    acc[review.tour.toString()] = review; // Use tour ID as key
+    return acc;
+  }, {});
 
   res.status(200).render("mytours", {
     title: "My Tours",
     bookings,
     refundsByBooking,
+    reviewsByTour,
   });
 });
 
