@@ -318,7 +318,7 @@ exports.getManageReviewsPage = catchAsync(async (req, res, next) => {
   res.status(200).render("manageReviews", {
     title: "Manage Reviews",
     reviews,
-    tours, // Pass tours to template
+    tours,
     user: req.user,
   });
 });
