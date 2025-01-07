@@ -7563,6 +7563,10 @@ var loadReviews = /*#__PURE__*/function () {
   };
 }();
 document.addEventListener("DOMContentLoaded", function () {
+  var reviewContainer = document.querySelector(".reviews-container");
+
+  // Check if we are on the manage reviews page
+  if (!reviewContainer) return;
   var searchInput = document.getElementById("searchReview");
   var tourFilter = document.getElementById("tourFilter");
   var ratingFilter = document.getElementById("ratingFilter");
@@ -7584,15 +7588,12 @@ document.addEventListener("DOMContentLoaded", function () {
       loadReviews();
     });
   }
-  var reviewContainer = document.querySelector(".reviews-container");
-  if (reviewContainer) {
-    reviewContainer.addEventListener("click", function (e) {
-      var hideBtn = e.target.closest(".btn-hide");
-      var deleteBtn = e.target.closest(".btn-delete");
-      if (hideBtn) hideReview(hideBtn.dataset.id);
-      if (deleteBtn) deleteReview(deleteBtn.dataset.id);
-    });
-  }
+  reviewContainer.addEventListener("click", function (e) {
+    var hideBtn = e.target.closest(".btn-hide");
+    var deleteBtn = e.target.closest(".btn-delete");
+    if (hideBtn) hideReview(hideBtn.dataset.id);
+    if (deleteBtn) deleteReview(deleteBtn.dataset.id);
+  });
   loadReviews();
 });
 var hideReview = /*#__PURE__*/function () {
@@ -8188,7 +8189,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "34835" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "34401" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

@@ -54,6 +54,11 @@ const loadReviews = async () => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+  const reviewContainer = document.querySelector(".reviews-container");
+
+  // Check if we are on the manage reviews page
+  if (!reviewContainer) return;
+
   const searchInput = document.getElementById("searchReview");
   const tourFilter = document.getElementById("tourFilter");
   const ratingFilter = document.getElementById("ratingFilter");
@@ -82,16 +87,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  const reviewContainer = document.querySelector(".reviews-container");
-  if (reviewContainer) {
-    reviewContainer.addEventListener("click", e => {
-      const hideBtn = e.target.closest(".btn-hide");
-      const deleteBtn = e.target.closest(".btn-delete");
+  reviewContainer.addEventListener("click", e => {
+    const hideBtn = e.target.closest(".btn-hide");
+    const deleteBtn = e.target.closest(".btn-delete");
 
-      if (hideBtn) hideReview(hideBtn.dataset.id);
-      if (deleteBtn) deleteReview(deleteBtn.dataset.id);
-    });
-  }
+    if (hideBtn) hideReview(hideBtn.dataset.id);
+    if (deleteBtn) deleteReview(deleteBtn.dataset.id);
+  });
 
   loadReviews();
 });
