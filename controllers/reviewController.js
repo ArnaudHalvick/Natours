@@ -2,8 +2,10 @@ const Review = require("./../models/reviewModel");
 const Booking = require("./../models/bookingModel");
 const User = require("./../models/userModel");
 const Refund = require("./../models/refundModel");
+
 const factory = require("./handlerFactory");
 const catchAsync = require("./../utils/catchAsync");
+const AppError = require("../utils/appError");
 
 // Middleware to set tour and user IDs when using the nested route
 exports.setTourUserIds = (req, res, next) => {
@@ -154,14 +156,33 @@ exports.getAllReviewsRegex = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.updateReview = catchAsync(async (req, res, next) => {
+  // 1) Get the review
+  const review = await Review.findById(req.params.id);
+  if (!review) {
+    return next(new AppError("Review not found", 404));
+  }
+
+  // 2) If review is hidden, block updates
+  if (review.hidden) {
+    return next(
+      new AppError(
+        "This review has been hidden by an admin and cannot be updated.",
+        403,
+      ),
+    );
+  }
+
+  // 3) If allowed, pass control to the factory function
+  //    This will do the actual update via findByIdAndUpdate
+  return factory.updateOne(Review)(req, res, next);
+});
+
 // Get all reviews with filtering, sorting, pagination, and field limiting
 exports.getAllReviews = factory.getAll(Review);
 
 // Get a specific review by ID
 exports.getReview = factory.getOne(Review);
-
-// Update a review by ID
-exports.updateReview = factory.updateOne(Review);
 
 // Create a new review
 exports.createReview = factory.createOne(Review);

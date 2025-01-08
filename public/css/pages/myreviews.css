@@ -2,7 +2,7 @@
    ========================================================================== */
 
 .myreviews-container {
-  padding: 0 8rem;
+  padding: 0 1rem;
 }
 
 /* Review Card */
@@ -14,6 +14,18 @@
   margin-bottom: 3rem;
   position: relative;
   transition: transform 0.3s ease;
+}
+
+/* Highlight or style hidden reviews differently */
+.review--hidden {
+  border-color: #e74c3c; /* For example, a red border */
+  opacity: 0.7;
+}
+
+.review .hidden-review--admin {
+  color: #e74c3c;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
 }
 
 .review__title {

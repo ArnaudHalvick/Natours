@@ -17,20 +17,30 @@ block content
           .myreviews-container
             if reviews.length > 0
               each review in reviews
-                .review
+                .review(class= review.hidden ? 'review--hidden' : '')
                   h2.review__title= review.tour.name
+
                   .review__info
                     .review__rating
                       strong Rating:
-                      | #{" " + review.rating} / 5 
+                      | #{' ' + review.rating} / 5
+
                     .review__text
-                      strong Review: 
+                      strong Review:
                       | #{review.review}
+
                   .review__meta
                     p.review__date
-                      strong Review Date: 
-                      | #{new Date(review.createdAt).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })}
+                      strong Review Date:
+                      | #{new Date(review.createdAt).toLocaleDateString('en-us', { year: 'numeric', month: 'long', day: 'numeric'})}
+
                   .review__buttons
-                    a.btn.btn--blue.btn--small(href=`/tour/${review.tour.slug}/review/${review._id}/edit`) Edit
+                    if review.hidden
+                      p.hidden-review--admin
+                        | Your review has been hidden by an admin.
+                    else
+                      a.btn.btn--blue.btn--small(
+                        href=`/tour/${review.tour.slug}/review/${review._id}/edit`
+                      ) Edit
             else
               p No reviews found.

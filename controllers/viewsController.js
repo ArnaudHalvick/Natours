@@ -1,9 +1,10 @@
 const Tour = require("../models/tourModel");
 const Booking = require("../models/bookingModel");
-const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/appError");
 const Review = require("../models/reviewModel");
 const Refund = require("../models/refundModel");
+
+const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/appError");
 
 exports.alerts = (req, res, next) => {
   const { alert } = req.query;
@@ -162,29 +163,35 @@ exports.getReviewForm = catchAsync(async (req, res, next) => {
 });
 
 exports.getEditReviewForm = catchAsync(async (req, res, next) => {
-  const [tour, review] = await Promise.all([
-    Tour.findOne({ slug: req.params.slug }),
-    Review.findById(req.params.reviewId),
-  ]);
+  const { slug, reviewId } = req.params;
 
+  // 1) Get the tour
+  const tour = await Tour.findOne({ slug });
   if (!tour) {
     return next(new AppError("No tour found with that slug.", 404));
   }
 
+  // 2) Get the review
+  const review = await Review.findById(reviewId).populate("tour");
   if (!review) {
     return next(new AppError("No review found with that ID.", 404));
   }
 
-  if (review.user._id.toString() !== req.user.id && req.user.role !== "admin") {
+  // 3) Check if the review is hidden
+  if (review.hidden) {
     return next(
-      new AppError("You do not have permission to edit this review.", 403),
+      new AppError(
+        "This review has been hidden by an admin and cannot be edited.",
+        403,
+      ),
     );
   }
 
+  // 4) Render edit page if allowed
   res.status(200).render("pages/review/editReview", {
-    title: `Edit Review for ${tour.name}`,
-    tour,
+    title: `Edit Your Review for ${tour.name}`,
     review,
+    tour,
   });
 });
 
