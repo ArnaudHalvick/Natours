@@ -105,6 +105,11 @@
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1000;
+  overflow-y: auto;
+}
+
+.modal.active {
+  display: block;
 }
 
 .modal-content {
@@ -125,6 +130,7 @@
   font-size: 2.4rem;
   cursor: pointer;
   color: #666;
+  transition: color 0.2s;
 }
 
 .close-modal:hover {
@@ -135,6 +141,56 @@
   font-size: 2rem;
   color: #444;
   margin-bottom: 2rem;
+}
+
+/* Modal Form Styles */
+.modal .form__group {
+  margin-bottom: 2.5rem;
+}
+
+.modal .form__label {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 0.8rem;
+}
+
+.modal .form__input {
+  display: block;
+  width: 100%;
+  padding: 1.2rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1.4rem;
+  color: #444;
+  transition: all 0.3s;
+  background-color: #f8f8f8;
+}
+
+.modal .form__input:focus {
+  outline: none;
+  border-color: #55c57a;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(85, 197, 122, 0.1);
+}
+
+.modal select.form__input {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%22%20stroke%3D%22%23555%22%20fill%3D%22none%22%20stroke-width%3D%222%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 3rem;
+}
+
+.modal .form__group.right {
+  text-align: right;
+}
+
+.modal .btn {
+  padding: 1.2rem 2.4rem;
+  font-size: 1.4rem;
 }
 
 /* Pagination */
@@ -176,12 +232,17 @@
 
   .modal-content {
     width: 95%;
-    margin: 10% auto;
+    margin: 5% auto;
     padding: 2rem;
   }
 
   .table {
     display: block;
     overflow-x: auto;
+  }
+
+  .modal .btn {
+    width: 100%;
+    margin-top: 1rem;
   }
 }

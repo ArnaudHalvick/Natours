@@ -7805,7 +7805,7 @@ var initReviewManagement = exports.initReviewManagement = function initReviewMan
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.updateBooking = exports.fetchBookings = exports.fetchBookingById = void 0;
+exports.fetchBookings = exports.fetchBookingById = void 0;
 var _axios = _interopRequireDefault(require("axios"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
@@ -7840,51 +7840,51 @@ var fetchBookings = exports.fetchBookings = /*#__PURE__*/function () {
 }();
 var fetchBookingById = exports.fetchBookingById = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(bookingId) {
-    var res;
+    var res, bookings, booking, _err$response;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
-          _context2.next = 2;
-          return _axios.default.get("/api/v1/bookings/".concat(bookingId));
-        case 2:
-          res = _context2.sent;
-          return _context2.abrupt("return", res.data.data.data);
+          _context2.prev = 0;
+          console.log("Searching for booking:", bookingId);
+          _context2.next = 4;
+          return _axios.default.get("/api/v1/bookings/regex?search=".concat(bookingId));
         case 4:
+          res = _context2.sent;
+          console.log("Response from regex endpoint:", res.data);
+          bookings = res.data.data.data;
+          console.log("Bookings array:", bookings);
+          booking = bookings.find(function (b) {
+            return b._id === bookingId;
+          });
+          console.log("Found booking:", booking);
+          if (booking) {
+            _context2.next = 12;
+            break;
+          }
+          throw new Error("Booking not found");
+        case 12:
+          return _context2.abrupt("return", booking);
+        case 15:
+          _context2.prev = 15;
+          _context2.t0 = _context2["catch"](0);
+          console.error("Error in fetchBookingById:", {
+            error: _context2.t0,
+            message: _context2.t0.message,
+            response: (_err$response = _context2.t0.response) === null || _err$response === void 0 ? void 0 : _err$response.data
+          });
+          throw _context2.t0;
+        case 19:
         case "end":
           return _context2.stop();
       }
-    }, _callee2);
+    }, _callee2, null, [[0, 15]]);
   }));
   return function fetchBookingById(_x7) {
     return _ref2.apply(this, arguments);
   };
 }();
-var updateBooking = exports.updateBooking = /*#__PURE__*/function () {
-  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(bookingId, data) {
-    var res;
-    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-      while (1) switch (_context3.prev = _context3.next) {
-        case 0:
-          _context3.next = 2;
-          return (0, _axios.default)({
-            method: "PATCH",
-            url: "/api/v1/bookings/".concat(bookingId),
-            data: data
-          });
-        case 2:
-          res = _context3.sent;
-          return _context3.abrupt("return", res.data);
-        case 4:
-        case "end":
-          return _context3.stop();
-      }
-    }, _callee3);
-  }));
-  return function updateBooking(_x8, _x9) {
-    return _ref3.apply(this, arguments);
-  };
-}();
 },{"axios":"../../../node_modules/axios/index.js"}],"handlers/bookingManagement.js":[function(require,module,exports) {
+var define;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7946,7 +7946,7 @@ var loadBookings = /*#__PURE__*/function () {
         case 10:
           bookingTableBody.innerHTML = data.length ? data.map(function (booking) {
             return "\n        <tr>\n          <td>".concat(booking._id, "</td>\n          <td>").concat(booking.user.email, "</td>\n          <td>").concat(booking.tour.name, "</td>\n          <td>").concat(new Date(booking.startDate).toLocaleDateString(), "</td>\n          <td>$").concat(booking.price.toFixed(2), "</td>\n          <td>").concat(booking.paid ? "Paid" : "Unpaid", "</td>\n          <td>\n            <button class=\"btn btn--small btn--edit\" data-id=\"").concat(booking._id, "\">Edit</button>\n          </td>\n        </tr>\n      ");
-          }).join("") : '<tr><td colspan="8" style="text-align: center;">No bookings found.</td></tr>';
+          }).join("") : '<tr><td colspan="7" style="text-align: center;">No bookings found.</td></tr>';
           pageInfo = document.getElementById("pageInfo");
           if (pageInfo) pageInfo.textContent = "Page ".concat(currentPage, " of ").concat(totalPages);
           updatePaginationButtons();
@@ -7967,134 +7967,171 @@ var loadBookings = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
-var saveBooking = /*#__PURE__*/function () {
-  var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(bookingId, data) {
-    var result, modal, _err$response2;
+var handleEditClick = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(bookingId) {
+    var form, modal, booking, startDateInput, priceInput, paidInput, missingInputs;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
-          _context2.prev = 0;
-          _context2.next = 3;
-          return (0, _bookingManagement.updateBooking)(bookingId, data);
-        case 3:
-          result = _context2.sent;
-          if (result.status === "success") {
-            (0, _alert.showAlert)("success", "Booking updated successfully!");
-            modal = document.getElementById("bookingModal");
-            if (modal) modal.classList.remove("active");
-            loadBookings();
+          console.log("Starting edit process for booking:", bookingId);
+          _context2.prev = 1;
+          form = document.getElementById("bookingForm");
+          modal = document.getElementById("bookingModal");
+          if (!(!form || !modal)) {
+            _context2.next = 6;
+            break;
           }
-          _context2.next = 10;
+          throw new Error("Modal or form elements not found in DOM");
+        case 6:
+          _context2.next = 8;
+          return (0, _bookingManagement.fetchBookingById)(bookingId);
+        case 8:
+          booking = _context2.sent;
+          console.log("Retrieved booking:", booking);
+          if (booking) {
+            _context2.next = 12;
+            break;
+          }
+          throw new Error("No booking data received");
+        case 12:
+          startDateInput = document.getElementById("startDate");
+          priceInput = document.getElementById("price");
+          paidInput = document.getElementById("paid");
+          if (!(!startDateInput || !priceInput || !paidInput)) {
+            _context2.next = 18;
+            break;
+          }
+          missingInputs = [!startDateInput && "startDate", !priceInput && "price", !paidInput && "paid"].filter(Boolean);
+          throw new Error("Missing form inputs: ".concat(missingInputs.join(", ")));
+        case 18:
+          startDateInput.value = new Date(booking.startDate).toISOString().split("T")[0];
+          priceInput.value = booking.price || "";
+          paidInput.value = booking.paid.toString();
+          form.dataset.bookingId = bookingId;
+          modal.classList.add("active");
+          console.log("Modal activated successfully");
+          _context2.next = 30;
           break;
-        case 7:
-          _context2.prev = 7;
-          _context2.t0 = _context2["catch"](0);
-          (0, _alert.showAlert)("error", ((_err$response2 = _context2.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || "Error updating booking");
-        case 10:
+        case 26:
+          _context2.prev = 26;
+          _context2.t0 = _context2["catch"](1);
+          console.error("Error in handleEditClick:", _context2.t0);
+          (0, _alert.showAlert)("error", "Error loading booking details: ".concat(_context2.t0.message));
+        case 30:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 7]]);
+    }, _callee2, null, [[1, 26]]);
   }));
-  return function saveBooking(_x, _x2) {
+  return function handleEditClick(_x) {
     return _ref2.apply(this, arguments);
   };
 }();
+var handleSaveBooking = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(bookingId, data) {
+    var result, modal, _err$response2;
+    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+      while (1) switch (_context3.prev = _context3.next) {
+        case 0:
+          _context3.prev = 0;
+          _context3.next = 3;
+          return (0, _bookingManagement.updateBooking)(bookingId, data);
+        case 3:
+          result = _context3.sent;
+          if (!(result.status === "success")) {
+            _context3.next = 10;
+            break;
+          }
+          (0, _alert.showAlert)("success", "Booking updated successfully!");
+          modal = document.getElementById("bookingModal");
+          modal === null || modal === void 0 || modal.classList.remove("active");
+          _context3.next = 10;
+          return loadBookings();
+        case 10:
+          _context3.next = 15;
+          break;
+        case 12:
+          _context3.prev = 12;
+          _context3.t0 = _context3["catch"](0);
+          (0, _alert.showAlert)("error", ((_err$response2 = _context3.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || "Error updating booking");
+        case 15:
+        case "end":
+          return _context3.stop();
+      }
+    }, _callee3, null, [[0, 12]]);
+  }));
+  return function handleSaveBooking(_x2, _x3) {
+    return _ref3.apply(this, arguments);
+  };
+}();
 var initializeBookingManagement = exports.initializeBookingManagement = function initializeBookingManagement() {
-  var searchInput = document.getElementById("searchBooking");
-  var statusFilter = document.getElementById("statusFilter");
-  var dateFromInput = document.getElementById("startDateFrom");
-  var dateToInput = document.getElementById("startDateTo");
-  var prevPageBtn = document.getElementById("prevPage");
-  var nextPageBtn = document.getElementById("nextPage");
-  var bookingTableBody = document.getElementById("bookingTableBody");
-  var bookingModal = document.getElementById("bookingModal");
-  var bookingForm = document.getElementById("bookingForm");
-  var closeModalBtn = document.querySelector(".close-modal");
-  searchInput === null || searchInput === void 0 || searchInput.addEventListener("input", debounce(function (e) {
+  var _elements$searchInput, _elements$statusFilte, _elements$dateFromInp, _elements$dateToInput, _elements$prevPageBtn, _elements$nextPageBtn, _elements$bookingTabl, _elements$bookingForm, _elements$closeModalB, _elements$bookingModa2;
+  var elements = {
+    searchInput: document.getElementById("searchBooking"),
+    statusFilter: document.getElementById("statusFilter"),
+    dateFromInput: document.getElementById("startDateFrom"),
+    dateToInput: document.getElementById("startDateTo"),
+    prevPageBtn: document.getElementById("prevPage"),
+    nextPageBtn: document.getElementById("nextPage"),
+    bookingTableBody: document.getElementById("bookingTableBody"),
+    bookingModal: document.getElementById("bookingModal"),
+    bookingForm: document.getElementById("bookingForm"),
+    closeModalBtn: document.querySelector(".close-modal")
+  };
+  (_elements$searchInput = elements.searchInput) === null || _elements$searchInput === void 0 || _elements$searchInput.addEventListener("input", debounce(function (e) {
     currentSearch = e.target.value;
     currentPage = 1;
     loadBookings();
   }, 300));
-  statusFilter === null || statusFilter === void 0 || statusFilter.addEventListener("change", function (e) {
+  (_elements$statusFilte = elements.statusFilter) === null || _elements$statusFilte === void 0 || _elements$statusFilte.addEventListener("change", function (e) {
     currentFilter = e.target.value;
     currentPage = 1;
     loadBookings();
   });
-  dateFromInput === null || dateFromInput === void 0 || dateFromInput.addEventListener("change", function (e) {
+  (_elements$dateFromInp = elements.dateFromInput) === null || _elements$dateFromInp === void 0 || _elements$dateFromInp.addEventListener("change", function (e) {
     dateFrom = e.target.value;
     loadBookings();
   });
-  dateToInput === null || dateToInput === void 0 || dateToInput.addEventListener("change", function (e) {
+  (_elements$dateToInput = elements.dateToInput) === null || _elements$dateToInput === void 0 || _elements$dateToInput.addEventListener("change", function (e) {
     dateTo = e.target.value;
     loadBookings();
   });
-  prevPageBtn === null || prevPageBtn === void 0 || prevPageBtn.addEventListener("click", function () {
+  (_elements$prevPageBtn = elements.prevPageBtn) === null || _elements$prevPageBtn === void 0 || _elements$prevPageBtn.addEventListener("click", function () {
     if (currentPage > 1) {
       currentPage--;
       loadBookings();
     }
   });
-  nextPageBtn === null || nextPageBtn === void 0 || nextPageBtn.addEventListener("click", function () {
+  (_elements$nextPageBtn = elements.nextPageBtn) === null || _elements$nextPageBtn === void 0 || _elements$nextPageBtn.addEventListener("click", function () {
     if (currentPage < totalPages) {
       currentPage++;
       loadBookings();
     }
   });
-  bookingTableBody === null || bookingTableBody === void 0 || bookingTableBody.addEventListener("click", /*#__PURE__*/function () {
-    var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
-      var editBtn, bookingId, booking;
-      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-        while (1) switch (_context3.prev = _context3.next) {
-          case 0:
-            editBtn = e.target.closest(".btn--edit");
-            if (editBtn) {
-              _context3.next = 3;
-              break;
-            }
-            return _context3.abrupt("return");
-          case 3:
-            bookingId = editBtn.dataset.id;
-            _context3.prev = 4;
-            _context3.next = 7;
-            return (0, _bookingManagement.fetchBookingById)(bookingId);
-          case 7:
-            booking = _context3.sent;
-            document.getElementById("startDate").value = booking.startDate.split("T")[0];
-            document.getElementById("numParticipants").value = booking.numParticipants;
-            document.getElementById("price").value = booking.price;
-            document.getElementById("paid").value = booking.paid;
-            bookingForm.dataset.bookingId = bookingId;
-            bookingModal.classList.add("active");
-            _context3.next = 19;
-            break;
-          case 16:
-            _context3.prev = 16;
-            _context3.t0 = _context3["catch"](4);
-            (0, _alert.showAlert)("error", "Error loading booking details");
-          case 19:
-          case "end":
-            return _context3.stop();
-        }
-      }, _callee3, null, [[4, 16]]);
-    }));
-    return function (_x3) {
-      return _ref3.apply(this, arguments);
-    };
-  }());
-  bookingForm === null || bookingForm === void 0 || bookingForm.addEventListener("submit", function (e) {
+  (_elements$bookingTabl = elements.bookingTableBody) === null || _elements$bookingTabl === void 0 || _elements$bookingTabl.addEventListener("click", function (e) {
+    var editBtn = e.target.closest(".btn--edit");
+    if (editBtn) {
+      handleEditClick(editBtn.dataset.id);
+    }
+  });
+  (_elements$bookingForm = elements.bookingForm) === null || _elements$bookingForm === void 0 || _elements$bookingForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    var bookingId = bookingForm.dataset.bookingId;
+    var bookingId = e.target.dataset.bookingId;
     var data = {
       startDate: document.getElementById("startDate").value,
-      numParticipants: document.getElementById("numParticipants").value,
-      price: document.getElementById("price").value,
+      price: parseFloat(document.getElementById("price").value),
       paid: document.getElementById("paid").value === "true"
     };
-    saveBooking(bookingId, data);
+    handleSaveBooking(bookingId, data);
   });
-  closeModalBtn === null || closeModalBtn === void 0 || closeModalBtn.addEventListener("click", function () {
-    bookingModal.classList.remove("active");
+  (_elements$closeModalB = elements.closeModalBtn) === null || _elements$closeModalB === void 0 || _elements$closeModalB.addEventListener("click", function () {
+    var _elements$bookingModa;
+    (_elements$bookingModa = elements.bookingModal) === null || _elements$bookingModa === void 0 || _elements$bookingModa.classList.remove("active");
+  });
+  (_elements$bookingModa2 = elements.bookingModal) === null || _elements$bookingModa2 === void 0 || _elements$bookingModa2.addEventListener("click", function (e) {
+    if (e.target === elements.bookingModal) {
+      elements.bookingModal.classList.remove("active");
+    }
   });
   loadBookings();
 };
@@ -8424,7 +8461,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38455" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42479" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

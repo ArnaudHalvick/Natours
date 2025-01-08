@@ -63,7 +63,7 @@ const loadBookings = async () => {
       `,
           )
           .join("")
-      : '<tr><td colspan="8" style="text-align: center;">No bookings found.</td></tr>';
+      : '<tr><td colspan="7" style="text-align: center;">No bookings found.</td></tr>';
 
     const pageInfo = document.getElementById("pageInfo");
     if (pageInfo) pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
@@ -75,14 +75,60 @@ const loadBookings = async () => {
   }
 };
 
-const saveBooking = async (bookingId, data) => {
+const handleEditClick = async bookingId => {
+  console.log("Starting edit process for booking:", bookingId);
+  try {
+    const form = document.getElementById("bookingForm");
+    const modal = document.getElementById("bookingModal");
+
+    if (!form || !modal) {
+      throw new Error("Modal or form elements not found in DOM");
+    }
+
+    const booking = await fetchBookingById(bookingId);
+    console.log("Retrieved booking:", booking);
+
+    if (!booking) {
+      throw new Error("No booking data received");
+    }
+
+    const startDateInput = document.getElementById("startDate");
+    const priceInput = document.getElementById("price");
+    const paidInput = document.getElementById("paid");
+
+    if (!startDateInput || !priceInput || !paidInput) {
+      const missingInputs = [
+        !startDateInput && "startDate",
+        !priceInput && "price",
+        !paidInput && "paid",
+      ].filter(Boolean);
+
+      throw new Error(`Missing form inputs: ${missingInputs.join(", ")}`);
+    }
+
+    startDateInput.value = new Date(booking.startDate)
+      .toISOString()
+      .split("T")[0];
+    priceInput.value = booking.price || "";
+    paidInput.value = booking.paid.toString();
+
+    form.dataset.bookingId = bookingId;
+    modal.classList.add("active");
+    console.log("Modal activated successfully");
+  } catch (err) {
+    console.error("Error in handleEditClick:", err);
+    showAlert("error", `Error loading booking details: ${err.message}`);
+  }
+};
+
+const handleSaveBooking = async (bookingId, data) => {
   try {
     const result = await updateBooking(bookingId, data);
     if (result.status === "success") {
       showAlert("success", "Booking updated successfully!");
       const modal = document.getElementById("bookingModal");
-      if (modal) modal.classList.remove("active");
-      loadBookings();
+      modal?.classList.remove("active");
+      await loadBookings();
     }
   } catch (err) {
     showAlert("error", err.response?.data?.message || "Error updating booking");
@@ -90,18 +136,20 @@ const saveBooking = async (bookingId, data) => {
 };
 
 export const initializeBookingManagement = () => {
-  const searchInput = document.getElementById("searchBooking");
-  const statusFilter = document.getElementById("statusFilter");
-  const dateFromInput = document.getElementById("startDateFrom");
-  const dateToInput = document.getElementById("startDateTo");
-  const prevPageBtn = document.getElementById("prevPage");
-  const nextPageBtn = document.getElementById("nextPage");
-  const bookingTableBody = document.getElementById("bookingTableBody");
-  const bookingModal = document.getElementById("bookingModal");
-  const bookingForm = document.getElementById("bookingForm");
-  const closeModalBtn = document.querySelector(".close-modal");
+  const elements = {
+    searchInput: document.getElementById("searchBooking"),
+    statusFilter: document.getElementById("statusFilter"),
+    dateFromInput: document.getElementById("startDateFrom"),
+    dateToInput: document.getElementById("startDateTo"),
+    prevPageBtn: document.getElementById("prevPage"),
+    nextPageBtn: document.getElementById("nextPage"),
+    bookingTableBody: document.getElementById("bookingTableBody"),
+    bookingModal: document.getElementById("bookingModal"),
+    bookingForm: document.getElementById("bookingForm"),
+    closeModalBtn: document.querySelector(".close-modal"),
+  };
 
-  searchInput?.addEventListener(
+  elements.searchInput?.addEventListener(
     "input",
     debounce(e => {
       currentSearch = e.target.value;
@@ -110,74 +158,64 @@ export const initializeBookingManagement = () => {
     }, 300),
   );
 
-  statusFilter?.addEventListener("change", e => {
+  elements.statusFilter?.addEventListener("change", e => {
     currentFilter = e.target.value;
     currentPage = 1;
     loadBookings();
   });
 
-  dateFromInput?.addEventListener("change", e => {
+  elements.dateFromInput?.addEventListener("change", e => {
     dateFrom = e.target.value;
     loadBookings();
   });
 
-  dateToInput?.addEventListener("change", e => {
+  elements.dateToInput?.addEventListener("change", e => {
     dateTo = e.target.value;
     loadBookings();
   });
 
-  prevPageBtn?.addEventListener("click", () => {
+  elements.prevPageBtn?.addEventListener("click", () => {
     if (currentPage > 1) {
       currentPage--;
       loadBookings();
     }
   });
 
-  nextPageBtn?.addEventListener("click", () => {
+  elements.nextPageBtn?.addEventListener("click", () => {
     if (currentPage < totalPages) {
       currentPage++;
       loadBookings();
     }
   });
 
-  bookingTableBody?.addEventListener("click", async e => {
+  elements.bookingTableBody?.addEventListener("click", e => {
     const editBtn = e.target.closest(".btn--edit");
-    if (!editBtn) return;
-
-    const bookingId = editBtn.dataset.id;
-    try {
-      const booking = await fetchBookingById(bookingId);
-
-      document.getElementById("startDate").value =
-        booking.startDate.split("T")[0];
-      document.getElementById("numParticipants").value =
-        booking.numParticipants;
-      document.getElementById("price").value = booking.price;
-      document.getElementById("paid").value = booking.paid;
-
-      bookingForm.dataset.bookingId = bookingId;
-      bookingModal.classList.add("active");
-    } catch (err) {
-      showAlert("error", "Error loading booking details");
+    if (editBtn) {
+      handleEditClick(editBtn.dataset.id);
     }
   });
 
-  bookingForm?.addEventListener("submit", e => {
+  elements.bookingForm?.addEventListener("submit", e => {
     e.preventDefault();
-    const bookingId = bookingForm.dataset.bookingId;
+    const bookingId = e.target.dataset.bookingId;
 
     const data = {
       startDate: document.getElementById("startDate").value,
-      numParticipants: document.getElementById("numParticipants").value,
-      price: document.getElementById("price").value,
+      price: parseFloat(document.getElementById("price").value),
       paid: document.getElementById("paid").value === "true",
     };
 
-    saveBooking(bookingId, data);
+    handleSaveBooking(bookingId, data);
   });
 
-  closeModalBtn?.addEventListener("click", () => {
-    bookingModal.classList.remove("active");
+  elements.closeModalBtn?.addEventListener("click", () => {
+    elements.bookingModal?.classList.remove("active");
+  });
+
+  elements.bookingModal?.addEventListener("click", e => {
+    if (e.target === elements.bookingModal) {
+      elements.bookingModal.classList.remove("active");
+    }
   });
 
   loadBookings();
