@@ -1,12 +1,16 @@
 // js/app.js
 import { elements } from "./utils/elements";
+
 import { initAuthHandlers } from "./handlers/auth";
 import { initBookingHandlers } from "./handlers/booking";
 import { initReviewHandlers } from "./handlers/review";
 import { initRefundHandlers } from "./handlers/refund";
 import { initUserHandlers } from "./handlers/user";
+
 import { initReviewManagement } from "./handlers/reviewManagement";
 import { initializeBookingManagement } from "./handlers/bookingManagement";
+import { initializeUserManagement } from "./handlers/userManagement";
+
 import { showAlert } from "./utils/alert";
 import { displayMap } from "./utils/mapbox";
 
@@ -33,6 +37,7 @@ export class App {
       { init: initRefundHandlers, name: "Refund" },
       { init: initUserHandlers, name: "User" },
       { init: initReviewManagement, name: "Review Management" },
+      { init: initializeUserManagement, name: "User Management" },
     ];
 
     if (document.querySelector(".user-view__bookings-container")) {
