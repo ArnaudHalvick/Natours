@@ -1,7 +1,9 @@
+// reviewModel.js
+
 const mongoose = require("mongoose");
 const Tour = require("./tourModel");
 
-// Create Review Schema
+// Review Schema
 const reviewSchema = new mongoose.Schema(
   {
     review: {
@@ -41,66 +43,61 @@ const reviewSchema = new mongoose.Schema(
   },
 );
 
+// Indexes
 reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 
-// Populate tour and user information when querying reviews, except when populating as part of a tour
-reviewSchema.pre(/^find/, function (next) {
+// Middleware to populate user information
+const autoPopulate = function (next) {
   this.populate({
     path: "user",
     select: "name photo",
   });
   next();
-});
+};
 
-// Static method to calculate average ratings for a tour
+reviewSchema.pre(/^find/, autoPopulate);
+
+// Static Method to Calculate Average Ratings
 reviewSchema.statics.calcAverageRatings = async function (tourId) {
   const stats = await this.aggregate([
-    {
-      $match: { tour: tourId }, // Match reviews for the specific tour
-    },
+    { $match: { tour: tourId } },
     {
       $group: {
-        _id: "$tour", // Group by tour ID
-        nRating: { $sum: 1 }, // Count the number of reviews
-        avgRating: { $avg: "$rating" }, // Calculate the average rating
+        _id: "$tour",
+        nRating: { $sum: 1 },
+        avgRating: { $avg: "$rating" },
       },
     },
   ]);
 
-  // If there are reviews, update the Tour's ratingsAverage and ratingsQuantity
   if (stats.length > 0) {
     await Tour.findByIdAndUpdate(tourId, {
       ratingsQuantity: stats[0].nRating,
       ratingsAverage: stats[0].avgRating,
     });
   } else {
-    // Set default values if no reviews
     await Tour.findByIdAndUpdate(tourId, {
       ratingsQuantity: 0,
-      ratingsAverage: null, // Default average rating
+      ratingsAverage: null,
     });
   }
 };
 
-// Run `calcAverageRatings` after saving a review
+// Hooks to Update Ratings After Save
 reviewSchema.post("save", function () {
   this.constructor.calcAverageRatings(this.tour);
 });
 
-// Pre hook for `findOneAndUpdate` and `findOneAndDelete` to get the document before the operation
 reviewSchema.pre(/^findOneAnd/, async function (next) {
-  // Get the document being updated or deleted
   this.r = await this.model.findById(this.getQuery()._id);
   next();
 });
 
-// Post hook for `findOneAndUpdate` and `findOneAndDelete`
 reviewSchema.post(/^findOneAnd/, async function () {
-  // Use the stored document's tour ID to recalculate ratings after update/delete
   await this.r.constructor.calcAverageRatings(this.r.tour);
 });
 
-// Create Review model
+// Model
 const Review = mongoose.model("Review", reviewSchema);
 
 module.exports = Review;

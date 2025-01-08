@@ -1,9 +1,12 @@
+// tourModel.js
+
 const mongoose = require("mongoose");
 const slugify = require("slugify");
 const validator = require("validator");
 const User = require("./userModel");
 const AppError = require("../utils/appError");
 
+// Start Date Subschema
 const startDateSchema = new mongoose.Schema({
   date: {
     type: Date,
@@ -15,6 +18,7 @@ const startDateSchema = new mongoose.Schema({
   },
 });
 
+// Tour Schema
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -52,7 +56,7 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       default: null,
       min: [1, "Rating must be at least 1.0"],
-      max: [5, "Rating must at most 5.0"],
+      max: [5, "Rating must be at most 5.0"],
     },
     ratingsQuantity: {
       type: Number,
@@ -87,12 +91,10 @@ const tourSchema = new mongoose.Schema(
       type: String,
       required: [true, "A tour must have a cover image"],
     },
-    images: {
-      type: [String],
-    },
+    images: [String],
     createdAt: {
       type: Date,
-      default: Date.now(),
+      default: Date.now,
       select: false,
     },
     startDates: [startDateSchema],
@@ -130,26 +132,27 @@ const tourSchema = new mongoose.Schema(
       },
     ],
   },
-
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   },
 );
 
-// Virtual populate for reviews
+// Virtual Populate for Reviews
 tourSchema.virtual("reviews", {
-  ref: "Review", // The model to use
-  foreignField: "tour", // The field in the Review model that references the tour
-  localField: "_id", // The field in the Tour model to match the foreignField in the Review model
+  ref: "Review",
+  foreignField: "tour",
+  localField: "_id",
 });
 
-// Add indexes for query performance
+// Indexes for Performance
 tourSchema.index({ price: 1, ratingsAverage: -1 });
 tourSchema.index({ slug: 1 });
 tourSchema.index({ startLocation: "2dsphere" });
 
-// DOCUMENT MIDDLEWARE: Runs before saving a new document
+// DOCUMENT MIDDLEWARE
+
+// Generate Slug Before Saving
 tourSchema.pre("save", function (next) {
   if (this.isModified("name")) {
     this.slug = slugify(this.name, { lower: true });
@@ -157,62 +160,126 @@ tourSchema.pre("save", function (next) {
   next();
 });
 
-// Async validation for guides
+// Validate Guides Before Saving
 tourSchema.pre("save", async function (next) {
   try {
-    // Filter out any undefined or invalid guide IDs
-    const validGuideIds = this.guides.filter(id => id);
+    if (!this.guides || this.guides.length === 0) return next();
 
-    // Perform the lookup for valid guide IDs only
-    const guides = await Promise.all(
-      validGuideIds.map(async id => {
-        const guide = await User.findById(id);
-        if (!guide) {
-          throw new AppError(`Guide with ID ${id} does not exist.`, 404);
-        }
-        return guide;
-      }),
+    const validGuideIds = this.guides.filter(id =>
+      mongoose.Types.ObjectId.isValid(id),
     );
+    const guides = await User.find({ _id: { $in: validGuideIds } });
 
-    // Assign the valid guides back to the document
-    this.guides = guides;
+    if (guides.length !== validGuideIds.length) {
+      const invalidIds = validGuideIds.filter(
+        id => !guides.some(guide => guide._id.equals(id)),
+      );
+      throw new AppError(
+        `Guide(s) with ID(s) ${invalidIds.join(", ")} do not exist.`,
+        404,
+      );
+    }
+
+    this.guides = guides.map(guide => guide._id);
     next();
   } catch (err) {
     next(err);
   }
 });
 
-// // First middleware to exclude secret tours
-// tourSchema.pre(/^find/, function (next) {
-//   this.find({ secretTour: { $ne: true } });
-//   this.start = Date.now();
-//   next();
-// });
+// QUERY MIDDLEWARE
 
-// // Second middleware for guides population (only if guides needs to be populated)
-// tourSchema.pre(/^find/, function (next) {
-//   if (this._mongooseOptions.populate && this._mongooseOptions.populate.guides) {
-//     this.populate({
-//       path: "guides",
-//       select: "-__v",
-//     });
-//   }
-//   next();
-// });
+// Exclude Secret Tours
+const excludeSecretTours = function (next) {
+  this.find({ secretTour: { $ne: true } });
+  next();
+};
 
-// AGGREGATION MIDDLEWARE: Exclude secret tours in aggregation
+// Populate Guides Information
+const populateGuides = function (next) {
+  this.populate({
+    path: "guides",
+    select: "-__v -passwordChangedAt",
+  });
+  next();
+};
+
+// Apply Query Middlewares
+tourSchema.pre(/^find/, excludeSecretTours);
+tourSchema.pre(/^find/, populateGuides);
+
+// AGGREGATION MIDDLEWARE
+
+// Exclude Secret Tours in Aggregations
 tourSchema.pre("aggregate", function (next) {
-  // Check if the first stage is $geoNear
-  if (this.pipeline().length > 0 && this.pipeline()[0].$geoNear) {
-    // If $geoNear is the first stage, insert $match after $geoNear
+  const pipeline = this.pipeline();
+  const firstStage = pipeline[0];
+
+  if (firstStage && firstStage.$geoNear) {
     this.pipeline().splice(1, 0, { $match: { secretTour: { $ne: true } } });
   } else {
-    // Otherwise, add $match as the first stage
     this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
   }
   next();
 });
 
+// MODEL METHODS
+
+// Calculate Average Ratings and Quantity
+tourSchema.statics.calcAverageRatings = async function (tourId) {
+  const stats = await this.aggregate([
+    { $match: { _id: tourId } },
+    {
+      $lookup: {
+        from: "reviews",
+        localField: "_id",
+        foreignField: "tour",
+        as: "reviews",
+      },
+    },
+    {
+      $unwind: "$reviews",
+    },
+    {
+      $group: {
+        _id: "$_id",
+        nRating: { $sum: 1 },
+        avgRating: { $avg: "$reviews.rating" },
+      },
+    },
+  ]);
+
+  if (stats.length > 0) {
+    await this.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].nRating,
+      ratingsAverage: stats[0].avgRating,
+    });
+  } else {
+    await this.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: null,
+    });
+  }
+};
+
+// POST SAVE Hook to Update Ratings
+tourSchema.post("save", function () {
+  this.constructor.calcAverageRatings(this._id);
+});
+
+// Hooks for findOneAnd operations to update ratings after update/delete
+tourSchema.pre(/^findOneAnd/, async function (next) {
+  this.r = await this.findOne();
+  next();
+});
+
+tourSchema.post(/^findOneAnd/, async function () {
+  if (this.r) {
+    await this.r.constructor.calcAverageRatings(this.r._id);
+  }
+});
+
+// EXPORT MODEL
 const Tour = mongoose.model("Tour", tourSchema);
 
 module.exports = Tour;
