@@ -85,7 +85,6 @@ const handleEditClick = async bookingId => {
     }
 
     const booking = await fetchBookingById(bookingId);
-    console.log("Retrieved booking:", booking);
 
     if (!booking) {
       throw new Error("No booking data received");
@@ -122,9 +121,7 @@ const handleEditClick = async bookingId => {
 
     form.dataset.bookingId = bookingId;
     modal.classList.add("active");
-    console.log("Modal activated successfully");
   } catch (err) {
-    console.error("Error in handleEditClick:", err);
     showAlert("error", `Error loading booking details: ${err.message}`);
   }
 };

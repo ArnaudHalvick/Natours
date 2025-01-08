@@ -21,15 +21,9 @@ export const fetchBookings = async (
 
 export const fetchBookingById = async bookingId => {
   try {
-    console.log("Searching for booking:", bookingId);
     const res = await axios.get(`/api/v1/bookings/regex?search=${bookingId}`);
-    console.log("Response from regex endpoint:", res.data);
-
     const bookings = res.data.data.data;
-    console.log("Bookings array:", bookings);
-
     const booking = bookings.find(b => b._id === bookingId);
-    console.log("Found booking:", booking);
 
     if (!booking) {
       throw new Error("Booking not found");
@@ -47,21 +41,14 @@ export const fetchBookingById = async bookingId => {
 };
 
 export const updateBooking = async (bookingId, data) => {
-
   try {
     const res = await axios({
       method: "PATCH",
       url: `/api/v1/bookings/${bookingId}`,
       data,
     });
-    console.log("Update response:", res.data);
     return res.data;
   } catch (err) {
-    console.error("Update error:", {
-      response: err.response?.data,
-      status: err.response?.status,
-      message: err.message,
-    });
     throw err;
   }
 };

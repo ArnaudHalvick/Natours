@@ -7845,27 +7845,23 @@ var fetchBookingById = exports.fetchBookingById = /*#__PURE__*/function () {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
           _context2.prev = 0;
-          console.log("Searching for booking:", bookingId);
-          _context2.next = 4;
+          _context2.next = 3;
           return _axios.default.get("/api/v1/bookings/regex?search=".concat(bookingId));
-        case 4:
+        case 3:
           res = _context2.sent;
-          console.log("Response from regex endpoint:", res.data);
           bookings = res.data.data.data;
-          console.log("Bookings array:", bookings);
           booking = bookings.find(function (b) {
             return b._id === bookingId;
           });
-          console.log("Found booking:", booking);
           if (booking) {
-            _context2.next = 12;
+            _context2.next = 8;
             break;
           }
           throw new Error("Booking not found");
-        case 12:
+        case 8:
           return _context2.abrupt("return", booking);
-        case 15:
-          _context2.prev = 15;
+        case 11:
+          _context2.prev = 11;
           _context2.t0 = _context2["catch"](0);
           console.error("Error in fetchBookingById:", {
             error: _context2.t0,
@@ -7873,11 +7869,11 @@ var fetchBookingById = exports.fetchBookingById = /*#__PURE__*/function () {
             response: (_err$response = _context2.t0.response) === null || _err$response === void 0 ? void 0 : _err$response.data
           });
           throw _context2.t0;
-        case 19:
+        case 15:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 15]]);
+    }, _callee2, null, [[0, 11]]);
   }));
   return function fetchBookingById(_x7) {
     return _ref2.apply(this, arguments);
@@ -7885,7 +7881,7 @@ var fetchBookingById = exports.fetchBookingById = /*#__PURE__*/function () {
 }();
 var updateBooking = exports.updateBooking = /*#__PURE__*/function () {
   var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(bookingId, data) {
-    var res, _err$response2, _err$response3;
+    var res;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
@@ -7898,22 +7894,16 @@ var updateBooking = exports.updateBooking = /*#__PURE__*/function () {
           });
         case 3:
           res = _context3.sent;
-          console.log("Update response:", res.data);
           return _context3.abrupt("return", res.data);
-        case 8:
-          _context3.prev = 8;
+        case 7:
+          _context3.prev = 7;
           _context3.t0 = _context3["catch"](0);
-          console.error("Update error:", {
-            response: (_err$response2 = _context3.t0.response) === null || _err$response2 === void 0 ? void 0 : _err$response2.data,
-            status: (_err$response3 = _context3.t0.response) === null || _err$response3 === void 0 ? void 0 : _err$response3.status,
-            message: _context3.t0.message
-          });
           throw _context3.t0;
-        case 12:
+        case 10:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[0, 8]]);
+    }, _callee3, null, [[0, 7]]);
   }));
   return function updateBooking(_x8, _x9) {
     return _ref3.apply(this, arguments);
@@ -8021,13 +8011,12 @@ var handleEditClick = /*#__PURE__*/function () {
           return (0, _bookingManagement.fetchBookingById)(bookingId);
         case 7:
           booking = _context2.sent;
-          console.log("Retrieved booking:", booking);
           if (booking) {
-            _context2.next = 11;
+            _context2.next = 10;
             break;
           }
           throw new Error("No booking data received");
-        case 11:
+        case 10:
           // Update non-editable booking info
           document.getElementById("bookingId").textContent = booking._id;
           document.getElementById("bookingUser").textContent = booking.user.email;
@@ -8039,31 +8028,29 @@ var handleEditClick = /*#__PURE__*/function () {
           priceInput = document.getElementById("price");
           paidInput = document.getElementById("paid");
           if (!(!startDateInput || !numParticipantsInput || !priceInput || !paidInput)) {
-            _context2.next = 21;
+            _context2.next = 20;
             break;
           }
           missingInputs = [!startDateInput && "startDate", !numParticipantsInput && "numParticipants", !priceInput && "price", !paidInput && "paid"].filter(Boolean);
           throw new Error("Missing form inputs: ".concat(missingInputs.join(", ")));
-        case 21:
+        case 20:
           startDateInput.value = new Date(booking.startDate).toISOString().split("T")[0];
           numParticipantsInput.value = booking.numParticipants || 1;
           priceInput.value = booking.price || "";
           paidInput.value = booking.paid.toString();
           form.dataset.bookingId = bookingId;
           modal.classList.add("active");
-          console.log("Modal activated successfully");
-          _context2.next = 34;
+          _context2.next = 31;
           break;
-        case 30:
-          _context2.prev = 30;
+        case 28:
+          _context2.prev = 28;
           _context2.t0 = _context2["catch"](0);
-          console.error("Error in handleEditClick:", _context2.t0);
           (0, _alert.showAlert)("error", "Error loading booking details: ".concat(_context2.t0.message));
-        case 34:
+        case 31:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 30]]);
+    }, _callee2, null, [[0, 28]]);
   }));
   return function handleEditClick(_x) {
     return _ref2.apply(this, arguments);
