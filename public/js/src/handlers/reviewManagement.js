@@ -12,20 +12,25 @@ const updateReviewsTable = reviews => {
   if (!reviewsContainer) return;
 
   reviewsContainer.innerHTML = reviews
-    .map(
-      review => `
-    <tr id="review-${review._id}">
-      <td>${review.tour ? review.tour.name : "Deleted Tour"}</td>
-      <td>${review.user ? review.user.name : "Deleted User"}</td>
-      <td>${review.review}</td>
-      <td>${review.rating}</td>
-      <td>
-        <button class="btn-hide" data-id="${review._id}">Hide</button>
-        <button class="btn-delete" data-id="${review._id}">Delete</button>
-      </td>
-    </tr>
-  `,
-    )
+    .map(review => {
+      const hiddenClass = review.hidden ? "review--hidden" : "";
+      const hideButtonText = review.hidden ? "Unhide" : "Hide";
+
+      return `
+        <tr id="review-${review._id}" class="${hiddenClass}">
+          <td>${review.tour ? review.tour.name : "Deleted Tour"}</td>
+          <td>${review.user ? review.user.name : "Deleted User"}</td>
+          <td>${review.review}</td>
+          <td>${review.rating}</td>
+          <td>
+            <button class="btn-hide" data-id="${review._id}" data-hidden="${review.hidden}">
+              ${hideButtonText}
+            </button>
+            <button class="btn-delete" data-id="${review._id}">Delete</button>
+          </td>
+        </tr>
+      `;
+    })
     .join("");
 };
 
@@ -92,8 +97,15 @@ export const initReviewManagement = () => {
 
       try {
         if (hideBtn) {
-          await hideReview(reviewId);
-          showAlert("success", "Review hidden successfully");
+          const currentlyHidden = hideBtn.dataset.hidden === "true";
+          const newHidden = !currentlyHidden;
+          await hideReview(reviewId, newHidden);
+          showAlert(
+            "success",
+            newHidden
+              ? "Review hidden successfully"
+              : "Review unhidden successfully",
+          );
         } else if (
           deleteBtn &&
           confirm("Are you sure you want to delete this review?")
@@ -101,6 +113,8 @@ export const initReviewManagement = () => {
           await deleteReview(reviewId);
           showAlert("success", "Review deleted successfully");
         }
+
+        // Re-fetch and update the reviews table after the action
         handleReviewLoad(
           searchInput.value,
           tourFilter.value,

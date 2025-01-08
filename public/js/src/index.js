@@ -1,4 +1,4 @@
-// index.js
+// js/index.js
 import { initializeAxiosInterceptors } from "./api/interceptors";
 import { App } from "./app";
 

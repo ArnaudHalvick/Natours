@@ -152,6 +152,12 @@
   padding: 2rem;
 }
 
+/* Grey out hidden reviews */
+.review--hidden td {
+  background-color: #e3e3e3;
+  color: #999;
+}
+
 /* Responsive design */
 @media screen and (max-width: 768px) {
   .container {

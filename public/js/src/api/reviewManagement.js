@@ -12,8 +12,9 @@ export const loadReviews = async (page, limit, search, tourId, rating) => {
   return res.data.data;
 };
 
-export const hideReview = async reviewId => {
-  return await axios.patch(`/api/v1/reviews/${reviewId}`, { hidden: true });
+// Toggle hidden state of a review
+export const hideReview = async (reviewId, hidden = true) => {
+  return await axios.patch(`/api/v1/reviews/${reviewId}`, { hidden });
 };
 
 export const deleteReview = async reviewId => {

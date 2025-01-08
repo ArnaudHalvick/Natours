@@ -1,4 +1,4 @@
-// app.js
+// js/app.js
 import { elements } from "./utils/elements";
 import { initAuthHandlers } from "./handlers/auth";
 import { initBookingHandlers } from "./handlers/booking";

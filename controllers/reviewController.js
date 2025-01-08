@@ -58,19 +58,16 @@ exports.validateReviewEligibility = catchAsync(async (req, res, next) => {
 
 exports.hideReview = catchAsync(async (req, res, next) => {
   const review = await Review.findById(req.params.id);
-
   if (!review) {
     return next(new AppError("No review found with that ID", 404));
   }
-
-  // Check if the review's tour or user exists
-  if (!review.tour || !review.user) {
-    return next(
-      new AppError("This review is invalid (missing tour or user).", 400),
-    );
+  // Allow toggling
+  if (req.body.hidden !== undefined) {
+    review.hidden = req.body.hidden;
+  } else {
+    // Fallback: default to true if no `hidden` value is passed
+    review.hidden = true;
   }
-
-  review.hidden = true;
   await review.save();
 
   res.status(200).json({

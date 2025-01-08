@@ -7595,18 +7595,23 @@ var loadReviews = exports.loadReviews = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
+
+// Toggle hidden state of a review
 var hideReview = exports.hideReview = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(reviewId) {
+    var hidden,
+      _args2 = arguments;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
-          _context2.next = 2;
+          hidden = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : true;
+          _context2.next = 3;
           return _axios.default.patch("/api/v1/reviews/".concat(reviewId), {
-            hidden: true
+            hidden: hidden
           });
-        case 2:
-          return _context2.abrupt("return", _context2.sent);
         case 3:
+          return _context2.abrupt("return", _context2.sent);
+        case 4:
         case "end":
           return _context2.stop();
       }
@@ -7656,7 +7661,9 @@ var updateReviewsTable = function updateReviewsTable(reviews) {
   var reviewsContainer = document.querySelector(".reviews-container tbody");
   if (!reviewsContainer) return;
   reviewsContainer.innerHTML = reviews.map(function (review) {
-    return "\n    <tr id=\"review-".concat(review._id, "\">\n      <td>").concat(review.tour ? review.tour.name : "Deleted Tour", "</td>\n      <td>").concat(review.user ? review.user.name : "Deleted User", "</td>\n      <td>").concat(review.review, "</td>\n      <td>").concat(review.rating, "</td>\n      <td>\n        <button class=\"btn-hide\" data-id=\"").concat(review._id, "\">Hide</button>\n        <button class=\"btn-delete\" data-id=\"").concat(review._id, "\">Delete</button>\n      </td>\n    </tr>\n  ");
+    var hiddenClass = review.hidden ? "review--hidden" : "";
+    var hideButtonText = review.hidden ? "Unhide" : "Hide";
+    return "\n        <tr id=\"review-".concat(review._id, "\" class=\"").concat(hiddenClass, "\">\n          <td>").concat(review.tour ? review.tour.name : "Deleted Tour", "</td>\n          <td>").concat(review.user ? review.user.name : "Deleted User", "</td>\n          <td>").concat(review.review, "</td>\n          <td>").concat(review.rating, "</td>\n          <td>\n            <button class=\"btn-hide\" data-id=\"").concat(review._id, "\" data-hidden=\"").concat(review.hidden, "\">\n              ").concat(hideButtonText, "\n            </button>\n            <button class=\"btn-delete\" data-id=\"").concat(review._id, "\">Delete</button>\n          </td>\n        </tr>\n      ");
   }).join("");
 };
 var handleReviewLoad = /*#__PURE__*/function () {
@@ -7728,7 +7735,7 @@ var initReviewManagement = exports.initReviewManagement = function initReviewMan
   if (reviewsContainer) {
     reviewsContainer.addEventListener("click", /*#__PURE__*/function () {
       var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
-        var hideBtn, deleteBtn, reviewId, _err$response2;
+        var hideBtn, deleteBtn, reviewId, currentlyHidden, newHidden, _err$response2;
         return _regeneratorRuntime().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
@@ -7743,37 +7750,40 @@ var initReviewManagement = exports.initReviewManagement = function initReviewMan
             case 5:
               _context2.prev = 5;
               if (!hideBtn) {
-                _context2.next = 12;
+                _context2.next = 14;
                 break;
               }
-              _context2.next = 9;
-              return (0, _reviewManagement.hideReview)(reviewId);
-            case 9:
-              (0, _alert.showAlert)("success", "Review hidden successfully");
-              _context2.next = 16;
+              currentlyHidden = hideBtn.dataset.hidden === "true";
+              newHidden = !currentlyHidden;
+              _context2.next = 11;
+              return (0, _reviewManagement.hideReview)(reviewId, newHidden);
+            case 11:
+              (0, _alert.showAlert)("success", newHidden ? "Review hidden successfully" : "Review unhidden successfully");
+              _context2.next = 18;
               break;
-            case 12:
+            case 14:
               if (!(deleteBtn && confirm("Are you sure you want to delete this review?"))) {
-                _context2.next = 16;
+                _context2.next = 18;
                 break;
               }
-              _context2.next = 15;
+              _context2.next = 17;
               return (0, _reviewManagement.deleteReview)(reviewId);
-            case 15:
+            case 17:
               (0, _alert.showAlert)("success", "Review deleted successfully");
-            case 16:
+            case 18:
+              // Re-fetch and update the reviews table after the action
               handleReviewLoad(searchInput.value, tourFilter.value, ratingFilter.value);
-              _context2.next = 22;
+              _context2.next = 24;
               break;
-            case 19:
-              _context2.prev = 19;
+            case 21:
+              _context2.prev = 21;
               _context2.t0 = _context2["catch"](5);
               (0, _alert.showAlert)("error", ((_err$response2 = _context2.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || "Error updating review");
-            case 22:
+            case 24:
             case "end":
               return _context2.stop();
           }
-        }, _callee2, null, [[5, 19]]);
+        }, _callee2, null, [[5, 21]]);
       }));
       return function (_x) {
         return _ref2.apply(this, arguments);
@@ -8154,7 +8164,7 @@ function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Can
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
-function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } // app.js
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } // js/app.js
 var App = exports.App = /*#__PURE__*/function () {
   function App() {
     _classCallCheck(this, App);
@@ -8234,7 +8244,7 @@ var App = exports.App = /*#__PURE__*/function () {
 
 var _interceptors = require("./api/interceptors");
 var _app = require("./app");
-// index.js
+// js/index.js
 
 document.addEventListener("DOMContentLoaded", function () {
   (0, _interceptors.initializeAxiosInterceptors)();
@@ -8265,7 +8275,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42167" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "44511" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
