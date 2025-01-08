@@ -7945,7 +7945,7 @@ var loadBookings = /*#__PURE__*/function () {
           return _context.abrupt("return");
         case 10:
           bookingTableBody.innerHTML = data.length ? data.map(function (booking) {
-            return "\n        <tr>\n          <td>".concat(booking._id, "</td>\n          <td>").concat(booking.user.email, "</td>\n          <td>").concat(booking.tour.name, "</td>\n          <td>").concat(new Date(booking.startDate).toLocaleDateString(), "</td>\n          <td>").concat(booking.numParticipants, "</td>\n          <td>$").concat(booking.price.toFixed(2), "</td>\n          <td>").concat(booking.paid ? "Paid" : "Unpaid", "</td>\n          <td>\n            <button class=\"btn btn--small btn--edit\" data-id=\"").concat(booking._id, "\">Edit</button>\n          </td>\n        </tr>\n      ");
+            return "\n        <tr>\n          <td>".concat(booking._id, "</td>\n          <td>").concat(booking.user.email, "</td>\n          <td>").concat(booking.tour.name, "</td>\n          <td>").concat(new Date(booking.startDate).toLocaleDateString(), "</td>\n          <td>$").concat(booking.price.toFixed(2), "</td>\n          <td>").concat(booking.paid ? "Paid" : "Unpaid", "</td>\n          <td>\n            <button class=\"btn btn--small btn--edit\" data-id=\"").concat(booking._id, "\">Edit</button>\n          </td>\n        </tr>\n      ");
           }).join("") : '<tr><td colspan="8" style="text-align: center;">No bookings found.</td></tr>';
           pageInfo = document.getElementById("pageInfo");
           if (pageInfo) pageInfo.textContent = "Page ".concat(currentPage, " of ").concat(totalPages);

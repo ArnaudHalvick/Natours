@@ -37,7 +37,6 @@ block content
                   th User
                   th Tour
                   th Start Date
-                  th Participants
                   th Total Price
                   th Status
                   th Actions
@@ -59,9 +58,6 @@ block content
                 .form__group
                   label.form__label(for='startDate') Start Date
                   input#startDate.form__input(type='date', required)
-                .form__group
-                  label.form__label(for='numParticipants') Number of Participants
-                  input#numParticipants.form__input(type='number', required, min='1')
                 .form__group
                   label.form__label(for='price') Price
                   input#price.form__input(type='number', required, step='0.01')

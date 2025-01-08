@@ -54,7 +54,6 @@ const loadBookings = async () => {
           <td>${booking.user.email}</td>
           <td>${booking.tour.name}</td>
           <td>${new Date(booking.startDate).toLocaleDateString()}</td>
-          <td>${booking.numParticipants}</td>
           <td>$${booking.price.toFixed(2)}</td>
           <td>${booking.paid ? "Paid" : "Unpaid"}</td>
           <td>
