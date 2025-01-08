@@ -1,3 +1,4 @@
+// Importing required models and utilities
 const Review = require("./../models/reviewModel");
 const Booking = require("./../models/bookingModel");
 const User = require("./../models/userModel");
@@ -9,25 +10,21 @@ const AppError = require("../utils/appError");
 
 // Middleware to set tour and user IDs when using the nested route
 exports.setTourUserIds = (req, res, next) => {
-  // If `tourId` is in the params, set it in the body (only if not already provided)
   if (!req.body.tour) req.body.tour = req.params.tourId;
-  // Set the currently logged-in user in the body
   if (!req.body.user) req.body.user = req.user.id;
   next();
 };
 
+// Middleware to validate if a user is eligible to leave a review
 exports.validateReviewEligibility = catchAsync(async (req, res, next) => {
-  // 1) Find the specific booking for this tour and user
   const booking = await Booking.findOne({
     user: req.user.id,
     tour: req.params.tourId || req.body.tour,
   });
 
-  if (!booking) {
+  if (!booking)
     return next(new AppError("You have not booked this tour.", 403));
-  }
 
-  // 2) Check if the start date of this specific booking is in the past
   if (new Date(booking.startDate) > new Date()) {
     return next(
       new AppError(
@@ -37,12 +34,10 @@ exports.validateReviewEligibility = catchAsync(async (req, res, next) => {
     );
   }
 
-  // 3) Check if there is a refund request for this specific booking
   const refund = await Refund.findOne({
-    booking: booking._id, // Ensure refund is tied to this specific booking
+    booking: booking._id,
     user: req.user.id,
   });
-
   if (
     refund &&
     (refund.status === "pending" || refund.status === "processed")
@@ -58,73 +53,43 @@ exports.validateReviewEligibility = catchAsync(async (req, res, next) => {
   next();
 });
 
+// Middleware to hide a review
 exports.hideReview = catchAsync(async (req, res, next) => {
   const review = await Review.findById(req.params.id);
-  if (!review) {
-    return next(new AppError("No review found with that ID", 404));
-  }
-  // Allow toggling
-  if (req.body.hidden !== undefined) {
-    review.hidden = req.body.hidden;
-  } else {
-    // Fallback: default to true if no `hidden` value is passed
-    review.hidden = true;
-  }
+  if (!review) return next(new AppError("No review found with that ID", 404));
+
+  review.hidden = req.body.hidden !== undefined ? req.body.hidden : true;
   await review.save();
 
   res.status(200).json({
     status: "success",
-    data: {
-      review,
-    },
+    data: { review },
   });
 });
 
+// Handler to delete a review by ID
 exports.deleteReview = catchAsync(async (req, res, next) => {
   const review = await Review.findById(req.params.id);
-
-  if (!review) {
-    return next(new AppError("No review found with that ID", 404));
-  }
+  if (!review) return next(new AppError("No review found with that ID", 404));
 
   await Review.findByIdAndDelete(req.params.id);
-
   res.status(204).json({
     status: "success",
     data: null,
   });
 });
 
-// Regex search endpoint for reviews
+// Handler to get all reviews using regex search and optional filters
 exports.getAllReviewsRegex = catchAsync(async (req, res, next) => {
   const page = +req.query.page || 1;
   const limit = +req.query.limit || 10;
   const skip = (page - 1) * limit;
 
-  let query = Review.find();
+  let query = Review.find().populate("tour", "name").populate("user", "name");
 
-  // Join with Tour and User
-  query = query
-    .populate({
-      path: "tour",
-      select: "name",
-    })
-    .populate({
-      path: "user",
-      select: "name",
-    });
+  if (req.query.tourId) query = query.find({ tour: req.query.tourId });
+  if (req.query.rating) query = query.find({ rating: req.query.rating });
 
-  // Filter by tour if provided
-  if (req.query.tourId) {
-    query = query.find({ tour: req.query.tourId });
-  }
-
-  // Filter by rating if provided
-  if (req.query.rating) {
-    query = query.find({ rating: req.query.rating });
-  }
-
-  // Search in review text and user name
   if (req.query.search) {
     const searchRegex = new RegExp(req.query.search, "i");
     const users = await User.find({ name: searchRegex }).select("_id");
@@ -135,10 +100,7 @@ exports.getAllReviewsRegex = catchAsync(async (req, res, next) => {
     });
   }
 
-  // Execute query
   const reviews = await query.exec();
-
-  // Apply pagination
   const paginatedReviews = reviews.slice(skip, skip + limit);
 
   res.status(200).json({
@@ -156,14 +118,11 @@ exports.getAllReviewsRegex = catchAsync(async (req, res, next) => {
   });
 });
 
+// Handler to update a review
 exports.updateReview = catchAsync(async (req, res, next) => {
-  // 1) Get the review
   const review = await Review.findById(req.params.id);
-  if (!review) {
-    return next(new AppError("Review not found", 404));
-  }
+  if (!review) return next(new AppError("Review not found", 404));
 
-  // 2) If the review is hidden and the user is not an admin, block the update
   if (review.hidden && req.user.role !== "admin") {
     return next(
       new AppError(
@@ -173,7 +132,6 @@ exports.updateReview = catchAsync(async (req, res, next) => {
     );
   }
 
-  // 3) Pass control to the factory function for the actual update
   return factory.updateOne(Review)(req, res, next);
 });
 
