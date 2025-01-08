@@ -45,3 +45,23 @@ export const fetchBookingById = async bookingId => {
     throw err;
   }
 };
+
+export const updateBooking = async (bookingId, data) => {
+
+  try {
+    const res = await axios({
+      method: "PATCH",
+      url: `/api/v1/bookings/${bookingId}`,
+      data,
+    });
+    console.log("Update response:", res.data);
+    return res.data;
+  } catch (err) {
+    console.error("Update error:", {
+      response: err.response?.data,
+      status: err.response?.status,
+      message: err.message,
+    });
+    throw err;
+  }
+};

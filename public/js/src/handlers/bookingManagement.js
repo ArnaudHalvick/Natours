@@ -76,7 +76,6 @@ const loadBookings = async () => {
 };
 
 const handleEditClick = async bookingId => {
-  console.log("Starting edit process for booking:", bookingId);
   try {
     const form = document.getElementById("bookingForm");
     const modal = document.getElementById("bookingModal");
@@ -92,13 +91,21 @@ const handleEditClick = async bookingId => {
       throw new Error("No booking data received");
     }
 
+    // Update non-editable booking info
+    document.getElementById("bookingId").textContent = booking._id;
+    document.getElementById("bookingUser").textContent = booking.user.email;
+    document.getElementById("bookingTour").textContent = booking.tour.name;
+
+    // Update editable form fields
     const startDateInput = document.getElementById("startDate");
+    const numParticipantsInput = document.getElementById("numParticipants");
     const priceInput = document.getElementById("price");
     const paidInput = document.getElementById("paid");
 
-    if (!startDateInput || !priceInput || !paidInput) {
+    if (!startDateInput || !numParticipantsInput || !priceInput || !paidInput) {
       const missingInputs = [
         !startDateInput && "startDate",
+        !numParticipantsInput && "numParticipants",
         !priceInput && "price",
         !paidInput && "paid",
       ].filter(Boolean);
@@ -109,6 +116,7 @@ const handleEditClick = async bookingId => {
     startDateInput.value = new Date(booking.startDate)
       .toISOString()
       .split("T")[0];
+    numParticipantsInput.value = booking.numParticipants || 1;
     priceInput.value = booking.price || "";
     paidInput.value = booking.paid.toString();
 
@@ -201,6 +209,10 @@ export const initializeBookingManagement = () => {
 
     const data = {
       startDate: document.getElementById("startDate").value,
+      numParticipants: parseInt(
+        document.getElementById("numParticipants").value,
+        10,
+      ),
       price: parseFloat(document.getElementById("price").value),
       paid: document.getElementById("paid").value === "true",
     };

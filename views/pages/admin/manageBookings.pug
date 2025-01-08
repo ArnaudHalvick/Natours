@@ -48,18 +48,35 @@ block content
             button.btn.btn--small#prevPage Previous
             span#pageInfo Page 1 of 1
             button.btn.btn--small#nextPage Next
-  
+
           // Edit Booking Modal
           .modal#bookingModal
             .modal-content
               span.close-modal &times;
               h3#modalTitle Edit Booking
+
+              // Booking Info (Non-editable)
+              .booking-info
+                .info-group
+                  label.info-label Booking ID
+                  p#bookingId.info-value
+                .info-group
+                  label.info-label User
+                  p#bookingUser.info-value
+                .info-group
+                  label.info-label Tour
+                  p#bookingTour.info-value
+
+              // Edit Form
               form#bookingForm.form
                 .form__group
-                  label.form__label(for='startDate') Start Date
+                  label.form__label(for='startDate') Tour Start Date
                   input#startDate.form__input(type='date', required)
                 .form__group
-                  label.form__label(for='price') Price
+                  label.form__label(for='numParticipants') Number of Participants
+                  input#numParticipants.form__input(type='number', required, min='1')
+                .form__group
+                  label.form__label(for='price') Total Price
                   input#price.form__input(type='number', required, step='0.01')
                 .form__group
                   label.form__label(for='paid') Payment Status
@@ -67,5 +84,5 @@ block content
                     option(value='true') Paid
                     option(value='false') Unpaid
                 .form__group.right
-                  button.btn.btn--small.btn--green(type='submit') Save Changes
-      
+                  button.btn.btn--small.btn--green(type='submit') Save Changes  
+  

@@ -7805,7 +7805,7 @@ var initReviewManagement = exports.initReviewManagement = function initReviewMan
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.fetchBookings = exports.fetchBookingById = void 0;
+exports.updateBooking = exports.fetchBookings = exports.fetchBookingById = void 0;
 var _axios = _interopRequireDefault(require("axios"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
@@ -7883,8 +7883,43 @@ var fetchBookingById = exports.fetchBookingById = /*#__PURE__*/function () {
     return _ref2.apply(this, arguments);
   };
 }();
+var updateBooking = exports.updateBooking = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(bookingId, data) {
+    var res, _err$response2, _err$response3;
+    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+      while (1) switch (_context3.prev = _context3.next) {
+        case 0:
+          _context3.prev = 0;
+          _context3.next = 3;
+          return (0, _axios.default)({
+            method: "PATCH",
+            url: "/api/v1/bookings/".concat(bookingId),
+            data: data
+          });
+        case 3:
+          res = _context3.sent;
+          console.log("Update response:", res.data);
+          return _context3.abrupt("return", res.data);
+        case 8:
+          _context3.prev = 8;
+          _context3.t0 = _context3["catch"](0);
+          console.error("Update error:", {
+            response: (_err$response2 = _context3.t0.response) === null || _err$response2 === void 0 ? void 0 : _err$response2.data,
+            status: (_err$response3 = _context3.t0.response) === null || _err$response3 === void 0 ? void 0 : _err$response3.status,
+            message: _context3.t0.message
+          });
+          throw _context3.t0;
+        case 12:
+        case "end":
+          return _context3.stop();
+      }
+    }, _callee3, null, [[0, 8]]);
+  }));
+  return function updateBooking(_x8, _x9) {
+    return _ref3.apply(this, arguments);
+  };
+}();
 },{"axios":"../../../node_modules/axios/index.js"}],"handlers/bookingManagement.js":[function(require,module,exports) {
-var define;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7969,59 +8004,66 @@ var loadBookings = /*#__PURE__*/function () {
 }();
 var handleEditClick = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(bookingId) {
-    var form, modal, booking, startDateInput, priceInput, paidInput, missingInputs;
+    var form, modal, booking, startDateInput, numParticipantsInput, priceInput, paidInput, missingInputs;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
-          console.log("Starting edit process for booking:", bookingId);
-          _context2.prev = 1;
+          _context2.prev = 0;
           form = document.getElementById("bookingForm");
           modal = document.getElementById("bookingModal");
           if (!(!form || !modal)) {
-            _context2.next = 6;
+            _context2.next = 5;
             break;
           }
           throw new Error("Modal or form elements not found in DOM");
-        case 6:
-          _context2.next = 8;
+        case 5:
+          _context2.next = 7;
           return (0, _bookingManagement.fetchBookingById)(bookingId);
-        case 8:
+        case 7:
           booking = _context2.sent;
           console.log("Retrieved booking:", booking);
           if (booking) {
-            _context2.next = 12;
+            _context2.next = 11;
             break;
           }
           throw new Error("No booking data received");
-        case 12:
+        case 11:
+          // Update non-editable booking info
+          document.getElementById("bookingId").textContent = booking._id;
+          document.getElementById("bookingUser").textContent = booking.user.email;
+          document.getElementById("bookingTour").textContent = booking.tour.name;
+
+          // Update editable form fields
           startDateInput = document.getElementById("startDate");
+          numParticipantsInput = document.getElementById("numParticipants");
           priceInput = document.getElementById("price");
           paidInput = document.getElementById("paid");
-          if (!(!startDateInput || !priceInput || !paidInput)) {
-            _context2.next = 18;
+          if (!(!startDateInput || !numParticipantsInput || !priceInput || !paidInput)) {
+            _context2.next = 21;
             break;
           }
-          missingInputs = [!startDateInput && "startDate", !priceInput && "price", !paidInput && "paid"].filter(Boolean);
+          missingInputs = [!startDateInput && "startDate", !numParticipantsInput && "numParticipants", !priceInput && "price", !paidInput && "paid"].filter(Boolean);
           throw new Error("Missing form inputs: ".concat(missingInputs.join(", ")));
-        case 18:
+        case 21:
           startDateInput.value = new Date(booking.startDate).toISOString().split("T")[0];
+          numParticipantsInput.value = booking.numParticipants || 1;
           priceInput.value = booking.price || "";
           paidInput.value = booking.paid.toString();
           form.dataset.bookingId = bookingId;
           modal.classList.add("active");
           console.log("Modal activated successfully");
-          _context2.next = 30;
+          _context2.next = 34;
           break;
-        case 26:
-          _context2.prev = 26;
-          _context2.t0 = _context2["catch"](1);
+        case 30:
+          _context2.prev = 30;
+          _context2.t0 = _context2["catch"](0);
           console.error("Error in handleEditClick:", _context2.t0);
           (0, _alert.showAlert)("error", "Error loading booking details: ".concat(_context2.t0.message));
-        case 30:
+        case 34:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[1, 26]]);
+    }, _callee2, null, [[0, 30]]);
   }));
   return function handleEditClick(_x) {
     return _ref2.apply(this, arguments);
@@ -8119,6 +8161,7 @@ var initializeBookingManagement = exports.initializeBookingManagement = function
     var bookingId = e.target.dataset.bookingId;
     var data = {
       startDate: document.getElementById("startDate").value,
+      numParticipants: parseInt(document.getElementById("numParticipants").value, 10),
       price: parseFloat(document.getElementById("price").value),
       paid: document.getElementById("paid").value === "true"
     };
@@ -8461,7 +8504,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42479" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "35777" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
