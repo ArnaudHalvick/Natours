@@ -1,9 +1,11 @@
+// Importing required modules and utilities
 const PDFDocument = require("pdfkit");
 const Booking = require("../models/bookingModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const path = require("path");
 
+// Helper function to generate a PDF invoice for a booking
 const generateInvoicePDF = async booking => {
   const doc = new PDFDocument({ size: "A4", margin: 50 });
 
@@ -111,7 +113,6 @@ exports.downloadInvoice = catchAsync(async (req, res, next) => {
   }
 
   // 2) Ensure the currently logged-in user is the owner (or an admin)
-  //    i.e., booking.user.id === req.user.id, or user.role === 'admin'
   if (booking.user.id.toString() !== req.user.id && req.user.role !== "admin") {
     return next(
       new AppError("You do not have permission to access this invoice.", 403),
@@ -127,10 +128,6 @@ exports.downloadInvoice = catchAsync(async (req, res, next) => {
     "Content-Disposition",
     `attachment; filename=invoice-${transactionId}.pdf`,
   );
-
-  // If you want to stream the file:
-  // return res.end(invoiceBuffer);
-  // or just res.send() also works
 
   return res.send(invoiceBuffer);
 });

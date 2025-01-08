@@ -1,4 +1,4 @@
-// refundController.js
+// Importing required models and utilities
 const Booking = require("../models/bookingModel");
 const Refund = require("../models/refundModel");
 
@@ -8,19 +8,12 @@ const APIFeatures = require("../utils/apiFeatures");
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-// Method to get all refunds
+// Get all refund requests with optional filtering, sorting, and pagination
 exports.getAllRefunds = catchAsync(async (req, res, next) => {
-  // Execute query with APIFeatures
   const features = new APIFeatures(
     Refund.find()
-      .populate({
-        path: "booking",
-        select: "_id",
-      })
-      .populate({
-        path: "user",
-        select: "name email",
-      }),
+      .populate({ path: "booking", select: "_id" })
+      .populate({ path: "user", select: "name email" }),
     req.query,
   )
     .filter()
@@ -28,30 +21,23 @@ exports.getAllRefunds = catchAsync(async (req, res, next) => {
     .limitFields()
     .paginate();
 
-  // Get total count for pagination
   const totalCount = await Refund.countDocuments(features.query._conditions);
-
-  // Execute query
   const refunds = await features.query;
 
-  // Send response
   res.status(200).json({
     status: "success",
     results: refunds.length,
     total: totalCount,
-    data: {
-      refunds,
-    },
+    data: { refunds },
   });
 });
 
-// User requests a refund
+// Handle refund request from user
 exports.requestRefund = catchAsync(async (req, res, next) => {
   const booking = await Booking.findById(req.params.bookingId);
 
-  if (!booking) {
+  if (!booking)
     return next(new AppError("No booking found with this ID.", 404));
-  }
 
   if (booking.user._id.toString() !== req.user.id) {
     return next(
@@ -59,8 +45,7 @@ exports.requestRefund = catchAsync(async (req, res, next) => {
     );
   }
 
-  const hasStarted = new Date(booking.startDate) < new Date();
-  if (hasStarted) {
+  if (new Date(booking.startDate) < new Date()) {
     return next(
       new AppError("Refunds are not allowed after the tour start date.", 400),
     );
@@ -92,13 +77,12 @@ exports.requestRefund = catchAsync(async (req, res, next) => {
   }
 });
 
-// Admin processes a refund
+// Admin processes a refund request
 exports.processRefund = catchAsync(async (req, res, next) => {
   const refund = await Refund.findById(req.params.refundId).populate("booking");
 
-  if (!refund) {
+  if (!refund)
     return next(new AppError("No refund request found with this ID.", 404));
-  }
 
   if (refund.status !== "pending") {
     return next(
@@ -130,13 +114,12 @@ exports.processRefund = catchAsync(async (req, res, next) => {
   }
 });
 
-// Admin rejects a refund
+// Admin rejects a refund request
 exports.rejectRefund = catchAsync(async (req, res, next) => {
   const refund = await Refund.findById(req.params.refundId);
 
-  if (!refund) {
+  if (!refund)
     return next(new AppError("No refund request found with this ID.", 404));
-  }
 
   if (refund.status !== "pending") {
     return next(
