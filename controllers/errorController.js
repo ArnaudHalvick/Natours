@@ -1,24 +1,25 @@
+// Importing custom AppError class for handling errors
 const AppError = require("../utils/appError");
 
 // Handle MongoDB CastError (invalid ObjectId)
 const handleCastErrorDB = err => {
-  const message = `Invalid ${err.path}: ${err.value}.`; // Custom error message for invalid ObjectId
-  return new AppError(message, 400); // Return AppError with a 400 (Bad Request) status
+  const message = `Invalid ${err.path}: ${err.value}.`;
+  return new AppError(message, 400); // Return AppError with 400 Bad Request status
 };
 
 // Handle MongoDB Duplicate Key Error (error code 11000)
 const handleDuplicateFieldsDB = err => {
   const field = Object.keys(err.keyValue)[0];
-  const value = err.keyValue[field]; // Extract the duplicate field value
+  const value = err.keyValue[field];
   const message = `Duplicate field value: "${value}". Please use another value!`;
-  return new AppError(message, 400); // Return AppError with a 400 (Bad Request) status
+  return new AppError(message, 400);
 };
 
 // Handle Mongoose Validation Error
 const handleValidationErrorDB = err => {
-  const errors = Object.values(err.errors).map(el => el.message); // Extract validation messages
+  const errors = Object.values(err.errors).map(el => el.message);
   const message = `Invalid input data: ${errors.join(". ")}`;
-  return new AppError(message, 400); // Return AppError with a 400 (Bad Request) status
+  return new AppError(message, 400);
 };
 
 // Handle JWT invalid token errors
@@ -31,7 +32,6 @@ const handleJWTExpiredError = () =>
 
 // Send detailed error information in development mode
 const sendErrorDev = (err, req, res) => {
-  // API errors
   if (req.originalUrl.startsWith("/api")) {
     res.status(err.statusCode).json({
       status: err.status,
@@ -40,7 +40,6 @@ const sendErrorDev = (err, req, res) => {
       stack: err.stack,
     });
   } else {
-    // Rendered website errors
     res.status(err.statusCode).render("error", {
       title: "Something went wrong",
       msg: err.message,
@@ -57,7 +56,6 @@ const sendErrorProduction = (err, req, res) => {
     });
   };
 
-  // API errors
   if (req.originalUrl.startsWith("/api")) {
     const message =
       err.statusCode === 404
@@ -69,13 +67,12 @@ const sendErrorProduction = (err, req, res) => {
       message: err.isOperational ? err.message : message,
     });
   } else {
-    // Rendered website errors
     const message = err.isOperational ? err.message : "Please try again later.";
 
     renderError(err.statusCode || 500, "Something went wrong", message);
 
     if (!err.isOperational) {
-      console.error(`ERROR 💥`, err); // Log programming or unknown errors
+      console.error(`ERROR 💥`, err);
     }
   }
 };

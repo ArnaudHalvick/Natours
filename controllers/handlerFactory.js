@@ -1,3 +1,4 @@
+// Importing required utilities
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 const APIFeatures = require("./../utils/apiFeatures");
@@ -19,17 +20,17 @@ exports.getAll = (Model, options = {}) =>
       }
     }
 
-    // Apply other features (sorting, pagination, etc.)
+    // Apply sorting, limiting fields, and pagination
     const features = new APIFeatures(query, req.query)
       .sort()
       .limitFields()
       .paginate();
 
-    // Execute query
+    // Execute query and count total documents for pagination
     const docs = await features.query;
     const total = await Model.countDocuments(filter);
 
-    // Send response
+    // Send success response with data and pagination info
     res.status(200).json({
       status: "success",
       results: docs.length,
@@ -45,23 +46,23 @@ exports.getAll = (Model, options = {}) =>
     });
   });
 
-// Get a document by ID, optionally populating related fields (e.g., reviews)
+// Get a document by ID, optionally populating related fields
 exports.getOne = (Model, populateOptions) =>
   catchAsync(async (req, res, next) => {
     let query = Model.findById(req.params.id);
 
-    // Optionally populate related fields like 'reviews' for tours
+    // Apply population if specified
     if (populateOptions) query = query.populate(populateOptions);
 
-    // Execute the query
+    // Execute query
     const doc = await query;
 
-    // If no document is found, return a 404 error
+    // If no document is found, return 404 error
     if (!doc) {
       return next(new AppError("No document found with that ID", 404));
     }
 
-    // Send success response with the found document
+    // Send success response with the document
     res.status(200).json({
       status: "success",
       data: {
@@ -75,10 +76,10 @@ exports.updateOne = Model =>
   catchAsync(async (req, res, next) => {
     const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
       new: true, // Return the updated document
-      runValidators: true, // Run validators defined in the model schema
+      runValidators: true, // Run model validators
     });
 
-    // If no document is found, return a 404 error
+    // If no document is found, return 404 error
     if (!doc) {
       return next(new AppError(`${Model.modelName} not found`, 404));
     }
@@ -93,14 +94,14 @@ exports.updateOne = Model =>
 // Delete a document by ID with permission check for reviews
 exports.deleteOne = Model =>
   catchAsync(async (req, res, next) => {
-    // Find the document to delete (for reviews, we check ownership)
+    // Find the document to delete
     const doc = await Model.findById(req.params.id);
 
     if (!doc) {
       return next(new AppError("No document found with that ID", 404));
     }
 
-    // Check if the user is the owner or an admin (for reviews only)
+    // Check ownership or admin role if deleting a review
     if (
       Model.modelName === "Review" &&
       doc.user._id.toString() !== req.user.id &&
@@ -111,16 +112,17 @@ exports.deleteOne = Model =>
       );
     }
 
-    // Proceed with deletion using findByIdAndDelete
+    // Delete the document
     await Model.findByIdAndDelete(req.params.id);
 
-    // Send success response after deletion
+    // Send success response
     res.status(204).json({
       status: "success",
       data: null,
     });
   });
 
+// Create a new document
 exports.createOne = Model =>
   catchAsync(async (req, res, next) => {
     try {
