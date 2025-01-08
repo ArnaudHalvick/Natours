@@ -65,14 +65,6 @@ exports.resizeTourImages = catchAsync(async (req, res, next) => {
   next();
 });
 
-// Middleware to pre-set query parameters for fetching top 5 cheapest tours
-exports.aliasTopTours = (req, res, next) => {
-  req.query.limit = "5"; // Limit results to 5 tours
-  req.query.sort = "-ratingsAverage,price"; // Sort by rating (descending) and price (ascending)
-  req.query.fields = "name,price,ratingsAverage,summary,difficulty"; // Select only these fields
-  next();
-};
-
 // Get all tours with filtering, sorting, pagination, and field limiting
 exports.getAllTours = factory.getAll(Tour);
 
@@ -173,67 +165,6 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     data: { stats }, // Aggregated statistics
-  });
-});
-
-// Get the busiest month for tours in a given year
-exports.getBusiestMonth = catchAsync(async (req, res, next) => {
-  const year = req.query.year ? +req.query.year : new Date().getFullYear(); // Use provided year or current year
-
-  const busiestMonth = await Tour.aggregate([
-    {
-      $unwind: "$startDates", // Decompose array of startDates into individual documents
-    },
-    {
-      $match: {
-        startDates: {
-          $gte: new Date(`${year}-01-01`), // Match start dates within the given year
-          $lt: new Date(`${year + 1}-01-01`), // Exclude next year's dates
-        },
-      },
-    },
-    {
-      $group: {
-        _id: { $month: "$startDates" }, // Group by month
-        numTours: { $sum: 1 }, // Count number of tours per month
-      },
-    },
-    {
-      $sort: { numTours: -1 }, // Sort by the number of tours in descending order
-    },
-    {
-      $limit: 1, // Limit to the busiest month
-    },
-    {
-      $addFields: {
-        monthName: {
-          $arrayElemAt: [
-            [
-              "",
-              "January",
-              "February",
-              "March",
-              "April",
-              "May",
-              "June",
-              "July",
-              "August",
-              "September",
-              "October",
-              "November",
-              "December",
-            ],
-            "$_id",
-          ],
-        },
-      },
-    },
-  ]);
-
-  // Send success response with the busiest month
-  res.status(200).json({
-    status: "success",
-    data: { busiestMonth }, // Busiest month data
   });
 });
 

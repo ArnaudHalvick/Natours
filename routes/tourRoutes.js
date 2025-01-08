@@ -20,14 +20,6 @@ router.route("/distances/:latlng/unit/:unit").get(tourController.getDistances);
 // Forward any route for reviews (e.g., /:tourId/reviews) to reviewRouter
 router.use("/:tourId/reviews", reviewRouter);
 
-// 4) Route to get the busiest month for tours based on start dates
-router.route("/busiest-month").get(tourController.getBusiestMonth);
-
-// 5) Route to get the top 5 cheapest tours (uses aliasTopTours middleware to pre-set query params)
-router
-  .route("/top-5-cheap")
-  .get(tourController.aliasTopTours, tourController.getAllTours);
-
 // 6) Route to get aggregated tour statistics (e.g., average price, ratings, etc.)
 router.route("/tour-stats").get(tourController.getTourStats);
 
