@@ -121,14 +121,10 @@ exports.deleteOne = Model =>
     });
   });
 
-// Create a new document, ensuring no duplicate reviews for the same tour/user
 exports.createOne = Model =>
   catchAsync(async (req, res, next) => {
     try {
-      // Create the document (for all models, including reviews)
       const doc = await Model.create(req.body);
-
-      // Send success response with the newly created document
       return res.status(201).json({
         status: "success",
         data: {
@@ -136,15 +132,12 @@ exports.createOne = Model =>
         },
       });
     } catch (err) {
-      // If MongoDB duplicate key error => err.code === 11000
-      if (err.code === 11000 && Model.modelName === "Review") {
-        // We interpret this as "user has already posted a review for this tour"
+      if (err.code === 11000) {
+        const field = Object.keys(err.keyValue)[0];
         return next(
-          new AppError("You have already posted a review for this tour.", 400),
+          new AppError(`A ${field} with this value already exists.`, 400),
         );
       }
-
-      // Otherwise, pass any other errors to the global error handler
       return next(err);
     }
   });

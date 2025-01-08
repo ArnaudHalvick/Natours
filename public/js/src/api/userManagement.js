@@ -10,12 +10,16 @@ export const initUserManagement = () => {
   const closeModalBtn = document.querySelector(".close-modal");
   const modalTitle = document.getElementById("modalTitle");
 
+  // Remove any existing event listeners
+  const newUserForm = userForm.cloneNode(true);
+  userForm.parentNode.replaceChild(newUserForm, userForm);
+
   if (createUserBtn) {
     createUserBtn.addEventListener("click", () => {
       modalTitle.textContent = "Create New User";
-      userForm.dataset.editing = "false";
-      userForm.reset();
-      toggleFormFields(userForm, true);
+      newUserForm.dataset.editing = "false";
+      newUserForm.reset();
+      toggleFormFields(newUserForm, true);
       toggleModal("userModal", true);
     });
   }
@@ -42,16 +46,16 @@ export const initUserManagement = () => {
     document.getElementById("userRole").value = role;
     document.getElementById("userActive").value = active;
 
-    userForm.dataset.editing = "true";
-    userForm.dataset.userId = userId;
+    newUserForm.dataset.editing = "true";
+    newUserForm.dataset.userId = userId;
 
-    toggleFormFields(userForm, false);
+    toggleFormFields(newUserForm, false);
     toggleModal("userModal", true);
   });
 
-  // Handle form submission
-  if (userForm) {
-    userForm.addEventListener("submit", async e => {
+  // Single form submission handler
+  if (newUserForm) {
+    newUserForm.addEventListener("submit", async e => {
       e.preventDefault();
       const isEdit = e.target.dataset.editing === "true";
 
@@ -76,9 +80,9 @@ export const initUserManagement = () => {
 
         await saveUser(formData, isEdit);
         toggleModal("userModal", false);
-        window.setTimeout(() => location.reload(), 1500);
+        location.reload();
       } catch (err) {
-        showAlert("error", err.message || "Error saving user");
+        console.error(err);
       }
     });
   }

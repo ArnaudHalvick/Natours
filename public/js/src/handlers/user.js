@@ -175,9 +175,14 @@ export const initUserHandlers = () => {
   const container = document.querySelector(".user-view__users-container");
 
   if (container) {
-    initializeUserManagement(container);
+    // Only initialize user management if not already initialized
+    if (!window.userManagementInitialized) {
+      initializeUserManagement(container);
+      window.userManagementInitialized = true;
+    }
   }
 
+  // Keep the existing password and update form handlers
   updateForm()?.addEventListener("submit", async e => {
     e.preventDefault();
     const form = new FormData();

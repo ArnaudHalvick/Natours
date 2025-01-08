@@ -7160,25 +7160,24 @@ var saveUser = exports.saveUser = /*#__PURE__*/function () {
           });
         case 7:
           res = _context2.sent;
-          if (!(res.data.status === "success")) {
-            _context2.next = 11;
-            break;
-          }
           (0, _alert.showAlert)("success", "User ".concat(isEdit ? "updated" : "created", " successfully!"));
-          return _context2.abrupt("return", res.data.data);
+          _context2.next = 11;
+          return new Promise(function (resolve) {
+            return setTimeout(resolve, 1500);
+          });
         case 11:
-          _context2.next = 17;
-          break;
-        case 13:
-          _context2.prev = 13;
+          window.location.reload();
+          return _context2.abrupt("return", res.data);
+        case 15:
+          _context2.prev = 15;
           _context2.t0 = _context2["catch"](1);
           (0, _alert.showAlert)("error", ((_err$response3 = _context2.t0.response) === null || _err$response3 === void 0 || (_err$response3 = _err$response3.data) === null || _err$response3 === void 0 ? void 0 : _err$response3.message) || "Error saving user");
           throw _context2.t0;
-        case 17:
+        case 19:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[1, 13]]);
+    }, _callee2, null, [[1, 15]]);
   }));
   return function saveUser(_x3) {
     return _ref2.apply(this, arguments);
@@ -7468,8 +7467,14 @@ var initUserHandlers = exports.initUserHandlers = function initUserHandlers() {
     passwordForm = _elements$user.passwordForm;
   var container = document.querySelector(".user-view__users-container");
   if (container) {
-    initializeUserManagement(container);
+    // Only initialize user management if not already initialized
+    if (!window.userManagementInitialized) {
+      initializeUserManagement(container);
+      window.userManagementInitialized = true;
+    }
   }
+
+  // Keep the existing password and update form handlers
   (_updateForm = updateForm()) === null || _updateForm === void 0 || _updateForm.addEventListener("submit", /*#__PURE__*/function () {
     var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(e) {
       var form;
@@ -8113,12 +8118,16 @@ var initUserManagement = exports.initUserManagement = function initUserManagemen
   var createUserBtn = document.getElementById("createUserBtn");
   var closeModalBtn = document.querySelector(".close-modal");
   var modalTitle = document.getElementById("modalTitle");
+
+  // Remove any existing event listeners
+  var newUserForm = userForm.cloneNode(true);
+  userForm.parentNode.replaceChild(newUserForm, userForm);
   if (createUserBtn) {
     createUserBtn.addEventListener("click", function () {
       modalTitle.textContent = "Create New User";
-      userForm.dataset.editing = "false";
-      userForm.reset();
-      (0, _dom.toggleFormFields)(userForm, true);
+      newUserForm.dataset.editing = "false";
+      newUserForm.reset();
+      (0, _dom.toggleFormFields)(newUserForm, true);
       (0, _dom.toggleModal)("userModal", true);
     });
   }
@@ -8151,9 +8160,9 @@ var initUserManagement = exports.initUserManagement = function initUserManagemen
             document.getElementById("userName").value = name;
             document.getElementById("userRole").value = role;
             document.getElementById("userActive").value = active;
-            userForm.dataset.editing = "true";
-            userForm.dataset.userId = userId;
-            (0, _dom.toggleFormFields)(userForm, false);
+            newUserForm.dataset.editing = "true";
+            newUserForm.dataset.userId = userId;
+            (0, _dom.toggleFormFields)(newUserForm, false);
             (0, _dom.toggleModal)("userModal", true);
           case 16:
           case "end":
@@ -8166,9 +8175,9 @@ var initUserManagement = exports.initUserManagement = function initUserManagemen
     };
   }());
 
-  // Handle form submission
-  if (userForm) {
-    userForm.addEventListener("submit", /*#__PURE__*/function () {
+  // Single form submission handler
+  if (newUserForm) {
+    newUserForm.addEventListener("submit", /*#__PURE__*/function () {
       var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
         var isEdit, _document$getElementB, formData;
         return _regeneratorRuntime().wrap(function _callee2$(_context2) {
@@ -8194,15 +8203,13 @@ var initUserManagement = exports.initUserManagement = function initUserManagemen
               return (0, _user.saveUser)(formData, isEdit);
             case 8:
               (0, _dom.toggleModal)("userModal", false);
-              window.setTimeout(function () {
-                return location.reload();
-              }, 1500);
+              location.reload();
               _context2.next = 15;
               break;
             case 12:
               _context2.prev = 12;
               _context2.t0 = _context2["catch"](2);
-              (0, _alert.showAlert)("error", _context2.t0.message || "Error saving user");
+              console.error(_context2.t0);
             case 15:
             case "end":
               return _context2.stop();
@@ -8417,7 +8424,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "40991" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38455" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

@@ -48,13 +48,13 @@ export const saveUser = async (userData, isEdit = false) => {
 
     const res = await axios({ method, url, data });
 
-    if (res.data.status === "success") {
-      showAlert(
-        "success",
-        `User ${isEdit ? "updated" : "created"} successfully!`,
-      );
-      return res.data.data;
-    }
+    showAlert(
+      "success",
+      `User ${isEdit ? "updated" : "created"} successfully!`,
+    );
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    window.location.reload();
+    return res.data;
   } catch (err) {
     showAlert("error", err.response?.data?.message || "Error saving user");
     throw err;
