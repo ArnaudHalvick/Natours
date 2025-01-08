@@ -163,8 +163,8 @@ exports.updateReview = catchAsync(async (req, res, next) => {
     return next(new AppError("Review not found", 404));
   }
 
-  // 2) If review is hidden, block updates
-  if (review.hidden) {
+  // 2) If the review is hidden and the user is not an admin, block the update
+  if (review.hidden && req.user.role !== "admin") {
     return next(
       new AppError(
         "This review has been hidden by an admin and cannot be updated.",
@@ -173,8 +173,7 @@ exports.updateReview = catchAsync(async (req, res, next) => {
     );
   }
 
-  // 3) If allowed, pass control to the factory function
-  //    This will do the actual update via findByIdAndUpdate
+  // 3) Pass control to the factory function for the actual update
   return factory.updateOne(Review)(req, res, next);
 });
 
