@@ -294,3 +294,10 @@ exports.getManageReviewsPage = catchAsync(async (req, res) => {
     user: req.user,
   });
 });
+
+// Render admin page to manage tours
+exports.getManageToursPage = catchAsync(async (req, res) => {
+  res.status(200).render("pages/admin/manageTours", {
+    title: "Manage Tours",
+  });
+});

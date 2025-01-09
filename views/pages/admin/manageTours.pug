@@ -1,0 +1,123 @@
+extends ../../base
+
+block append head
+  link(rel="stylesheet", href="/css/layout/user-view.css")
+  link(rel="stylesheet" href="/css/pages/manageTours.css")
+
+block content
+  main.main
+    .user-view
+      include ../../_sidenav
+      
+      .user-view__content
+        h2.heading-secondary.ma-bt-md Manage Tours
+        
+        .tour-controls.ma-bt-md
+          .search-box
+            input#searchTour.form__input(type='text', placeholder='Search tours...')
+          .filter-box
+            select#difficultyFilter.form__input
+              option(value='') All Difficulties
+              option(value='easy') Easy
+              option(value='medium') Medium
+              option(value='hard') Hard
+          .action-box
+            button#createTourBtn.btn.btn--small.btn--green Create New Tour
+
+        .user-view__table-container
+          table.table
+            thead
+              tr
+                th Tour ID
+                th Name
+                th Price
+                th Duration
+                th Rating
+                th Status
+                th Actions
+            tbody#tourTableBody
+              // Tours populated by JS
+
+          .pagination
+            button.btn.btn--small#prevPage Previous
+            span#pageInfo Page 1 of 1
+            button.btn.btn--small#nextPage Next
+
+        .modal#tourModal
+          .modal-content
+            span.close-modal &times;
+            h3.heading-tertiary#modalTitle Edit Tour
+            form#tourForm.form.form--inline
+              .form__group
+                label.form__label(for='name') Name
+                input#name.form__input(type='text', required, minlength="10", maxlength="40")
+              
+              .form__group
+                label.form__label(for='duration') Duration (days)
+                input#duration.form__input(type='number', required, min="1")
+              
+              .form__group
+                label.form__label(for='maxGroupSize') Group Size
+                input#maxGroupSize.form__input(type='number', required, min="1")
+              
+              .form__group
+                label.form__label(for='difficulty') Difficulty
+                select#difficulty.form__input(required)
+                  option(value='easy') Easy
+                  option(value='medium') Medium
+                  option(value='hard') Hard
+              
+              .form__group
+                label.form__label(for='price') Price ($)
+                input#price.form__input(type='number', required, min="0", step="0.01")
+              
+              .form__group
+                label.form__label(for='priceDiscount') Discount ($)
+                input#priceDiscount.form__input(type='number', min="0", step="0.01")
+              
+              .form__group.ma-bt-md
+                label.form__label(for='summary') Summary
+                textarea#summary.form__input(required, rows="3")
+              
+              .form__group.ma-bt-md
+                label.form__label(for='description') Description
+                textarea#description.form__input(required, rows="5")
+              
+              .form__group.location-group
+                label.form__label Start Location
+                .start-location-inputs
+                  input#startLocationAddress.form__input(type='text', placeholder='Address', required)
+                  input#startLocationDesc.form__input(type='text', placeholder='Description', required)
+                  input#startLocationCoords.form__input(type='text', placeholder='Coordinates (lng,lat)', required)
+              
+              .form__group
+                label.form__label Tour Locations
+                #locationsContainer.locations-container
+                  // Locations populated by JS
+                button.btn.btn--small.btn--blue#addLocationBtn(type='button') Add Location
+              
+              .form__group
+                label.form__label Tour Dates
+                #startDatesContainer.dates-container
+                  // Dates populated by JS
+                button.btn.btn--small.btn--blue#addStartDateBtn(type='button') Add Date
+              
+              .form__group
+                label.form__label Cover Image
+                input#imageCover.form__input.form__upload(type='file', accept='image/*')
+                img#currentCoverImage.preview-image(alt='')
+              
+              .form__group
+                label.form__label Tour Images
+                input#tourImages.form__input.form__upload(type='file', accept='image/*', multiple)
+                #tourImagesContainer.image-container
+                  // Images populated by JS
+              
+              .form__group
+                label.form__label(for='hidden') Status
+                select#hidden.form__input
+                  option(value='false') Visible
+                  option(value='true') Hidden
+              
+              .form__group.right
+                button.btn.btn--small.btn--green(type='submit') Save Tour

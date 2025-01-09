@@ -102,6 +102,10 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    hidden: {
+      type: Boolean,
+      default: false,
+    },
     startLocation: {
       type: {
         type: String,

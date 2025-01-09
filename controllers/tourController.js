@@ -206,3 +206,43 @@ exports.getDistances = catchAsync(async (req, res, next) => {
     data: { distances, unit },
   });
 });
+
+// Get all users with optional search and pagination
+exports.getAllToursRegex = catchAsync(async (req, res, next) => {
+  const { search } = req.query;
+  const page = +req.query.page || 1;
+  const limit = +req.query.limit || 10;
+  const skip = (page - 1) * limit;
+
+  const query = {};
+
+  if (search) {
+    const searchRegex = new RegExp(search.trim(), "i");
+    query.$or = [
+      { name: { $regex: searchRegex } },
+      { _id: mongoose.Types.ObjectId.isValid(search) ? search : null },
+    ];
+  }
+
+  const tours = await Tour.find(query)
+    .skip(skip)
+    .limit(limit)
+    .select("name price duration hidden");
+
+  const total = await Tour.countDocuments(query);
+  const totalPages = Math.ceil(total / limit);
+
+  res.status(200).json({
+    status: "success",
+    results: tours.length,
+    data: {
+      data: tours,
+      pagination: {
+        total,
+        totalPages,
+        currentPage: page,
+        limit,
+      },
+    },
+  });
+});

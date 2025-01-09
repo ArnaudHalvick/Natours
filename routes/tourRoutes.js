@@ -25,6 +25,7 @@ router.route("/tour-stats").get(tourController.getTourStats);
 
 // 7) Route to get all tours or a specific tour by ID
 router.route("/").get(tourController.getAllTours);
+router.route("/regex").get(tourController.getAllToursRegex);
 router.route("/:id").get(tourController.getTourById);
 
 // 8) Protect all routes after this middleware (authentication required)
