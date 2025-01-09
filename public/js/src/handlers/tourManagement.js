@@ -33,51 +33,41 @@ const updatePaginationInfo = () => {
   }
 };
 
-const loadTours = async () => {
+const handleTourLoad = async () => {
   try {
-    const params = new URLSearchParams({
-      page: currentPage,
-      limit,
-    });
-
-    if (currentSearch) params.append("search", currentSearch);
-    if (currentDifficulty) params.append("difficulty", currentDifficulty);
-
-    const response = await fetchTours(
+    const { data, pagination } = await fetchTours(
       currentPage,
       limit,
       currentSearch,
       currentDifficulty,
     );
-    const { data, pagination } = response;
-
     totalPages = pagination.totalPages;
-    const tourTableBody = document.getElementById("tourTableBody");
 
+    const tourTableBody = document.getElementById("tourTableBody");
     if (!tourTableBody) return;
 
     tourTableBody.innerHTML = data.length
       ? data
           .map(
             tour => `
-              <tr>
-                <td>${tour._id}</td>
-                <td>${tour.name}</td>
-                <td>$${tour.price}</td>
-                <td>${tour.duration} days</td>
-                <td>${tour.ratingsAverage || "N/A"}</td>
-                <td>${tour.hidden ? "Hidden" : "Visible"}</td>
-                <td>
-                  <button class="btn btn--small btn--edit" data-id="${tour._id}">Edit</button>
-                  <button class="btn btn--small btn--visibility ${tour.hidden ? "btn--green" : "btn--yellow"}" 
-                    data-id="${tour._id}" 
-                    data-hidden="${tour.hidden}">
-                    ${tour.hidden ? "Show" : "Hide"}
-                  </button>
-                  <button class="btn btn--small btn--red btn--delete" data-id="${tour._id}">Delete</button>
-                </td>
-              </tr>
-            `,
+     <tr>
+       <td>${tour?._id ?? "N/A"}</td>
+       <td>${tour?.name ?? "N/A"}</td>
+       <td>$${tour?.price ?? "N/A"}</td>
+       <td>${tour?.duration ? `${tour.duration} days` : "N/A"}</td>
+       <td>${tour.ratingsAverage ? tour.ratingsAverage.toFixed(1) : "N/A"}</td>
+       <td>${tour.hidden ? "Hidden" : "Visible"}</td>
+       <td>
+         <button class="btn btn--small btn--edit" data-id="${tour._id}">Edit</button>
+         <button class="btn btn--small btn--visibility ${tour.hidden ? "btn--green" : "btn--yellow"}" 
+           data-id="${tour._id}" 
+           data-hidden="${tour.hidden}">
+           ${tour.hidden ? "Show" : "Hide"}
+         </button>
+         <button class="btn btn--small btn--red btn--delete" data-id="${tour._id}">Delete</button>
+       </td>
+     </tr>
+   `,
           )
           .join("")
       : '<tr><td colspan="7" class="text-center">No tours found</td></tr>';
@@ -88,56 +78,61 @@ const loadTours = async () => {
   }
 };
 
+const handleVisibilityToggle = async (tourId, currentlyHidden) => {
+  try {
+    await toggleTourVisibility(tourId, !currentlyHidden);
+    showAlert(
+      "success",
+      `Tour ${!currentlyHidden ? "hidden" : "shown"} successfully`,
+    );
+    await handleTourLoad();
+  } catch (err) {
+    showAlert("error", "Failed to update tour visibility");
+  }
+};
+
 // Debounced search function
 const debouncedSearch = debounce(value => {
   currentSearch = value;
   currentPage = 1;
-  loadTours();
+  handleTourLoad();
 }, 300);
 
 const initializeEventListeners = () => {
-  // Search input
   const searchInput = document.getElementById("searchTour");
-
   if (searchInput) {
-    searchInput.addEventListener("input", e => {
-      debouncedSearch(e.target.value);
-    });
+    searchInput.addEventListener("input", e => debouncedSearch(e.target.value));
   }
 
-  // Difficulty filter
   const difficultyFilter = document.getElementById("difficultyFilter");
   if (difficultyFilter) {
     difficultyFilter.addEventListener("change", e => {
       currentDifficulty = e.target.value;
       currentPage = 1;
-      loadTours();
+      handleTourLoad();
     });
   }
 
-  // Pagination
   const prevPageBtn = document.getElementById("prevPage");
-  const nextPageBtn = document.getElementById("nextPage");
-
   if (prevPageBtn) {
     prevPageBtn.addEventListener("click", () => {
       if (currentPage > 1) {
         currentPage--;
-        loadTours();
+        handleTourLoad();
       }
     });
   }
 
+  const nextPageBtn = document.getElementById("nextPage");
   if (nextPageBtn) {
     nextPageBtn.addEventListener("click", () => {
       if (currentPage < totalPages) {
         currentPage++;
-        loadTours();
+        handleTourLoad();
       }
     });
   }
 
-  // Tour table actions
   const tourTableBody = document.getElementById("tourTableBody");
   if (tourTableBody) {
     tourTableBody.addEventListener("click", async e => {
@@ -148,37 +143,27 @@ const initializeEventListeners = () => {
       if (!tourId) return;
 
       try {
-        if (target.classList.contains("btn--edit")) {
-          await handleEditClick(tourId);
+        if (target.classList.contains("btn--visibility")) {
+          const currentlyHidden = target.dataset.hidden === "true";
+          await handleVisibilityToggle(tourId, currentlyHidden);
         } else if (target.classList.contains("btn--delete")) {
           if (confirm("Are you sure you want to delete this tour?")) {
             await deleteTour(tourId);
-            showAlert("success", "Tour deleted successfully!");
-            loadTours();
+            showAlert("success", "Tour deleted successfully");
+            await handleTourLoad();
           }
-        } else if (target.classList.contains("btn--visibility")) {
-          const hidden = target.dataset.hidden === "false";
-          try {
-            await toggleTourVisibility(tourId, hidden);
-            showAlert(
-              "success",
-              `Tour ${hidden ? "hidden" : "shown"} successfully!`,
-            );
-            await loadTours(); // Ensure this is awaited
-          } catch (err) {
-            showAlert("error", "Failed to update tour visibility");
-          }
+        } else if (target.classList.contains("btn--edit")) {
+          await handleEditClick(tourId);
         }
       } catch (err) {
         showAlert(
           "error",
-          err.response?.data?.message || "Error processing request",
+          err.response?.data?.message || "Error updating tour",
         );
       }
     });
   }
 
-  // Create tour button
   const createTourBtn = document.getElementById("createTourBtn");
   if (createTourBtn) {
     createTourBtn.addEventListener("click", () => {
@@ -193,25 +178,19 @@ const initializeEventListeners = () => {
     });
   }
 
-  // Modal close button
   const closeModal = document.querySelector(".close-modal");
   if (closeModal) {
     closeModal.addEventListener("click", () => {
       const modal = document.getElementById("tourModal");
-      if (modal) {
-        modal.classList.remove("active");
-      }
+      if (modal) modal.classList.remove("active");
     });
   }
 };
 
-// Initialize the tour management functionality
 export const initializeTourManagement = () => {
-  // Check if we're on the tour management page
-  const tourContainer = document.querySelector(".user-view__content"); // Changed selector
-
+  const tourContainer = document.querySelector(".user-view__content");
   if (!tourContainer) return;
 
   initializeEventListeners();
-  loadTours();
+  handleTourLoad();
 };

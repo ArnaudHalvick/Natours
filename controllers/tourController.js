@@ -262,8 +262,9 @@ exports.getAllToursRegex = catchAsync(async (req, res, next) => {
             price: 1,
             duration: 1,
             hidden: 1,
-            // If you want to return difficulty in the data, project it too
             difficulty: 1,
+            ratingsAverage: 1,
+            ratingsQuantity: 1,
           },
         },
       ],
