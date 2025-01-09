@@ -8,14 +8,8 @@ const AppError = require("../utils/appError");
 
 // Start Date Subschema
 const startDateSchema = new mongoose.Schema({
-  date: {
-    type: Date,
-    required: [true, "A tour must have a start date"],
-  },
-  participants: {
-    type: Number,
-    default: 0,
-  },
+  date: { type: Date, required: [true, "A tour must have a start date"] },
+  participants: { type: Number, default: 0 },
 });
 
 // Tour Schema
@@ -61,12 +55,12 @@ const tourSchema = new mongoose.Schema(
     ratingsQuantity: {
       type: Number,
       default: 0,
-      min: [0, "Ratings quantity must be 0 or more"],
+      min: [0, "Must be 0 or more"],
     },
     price: {
       type: Number,
       required: [true, "A tour must have a price"],
-      min: [0, "Price must be above 0"],
+      min: 0,
     },
     priceDiscount: {
       type: Number,
@@ -92,49 +86,25 @@ const tourSchema = new mongoose.Schema(
       required: [true, "A tour must have a cover image"],
     },
     images: [String],
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      select: false,
-    },
+    createdAt: { type: Date, default: Date.now, select: false },
     startDates: [startDateSchema],
-    secretTour: {
-      type: Boolean,
-      default: false,
-    },
-    hidden: {
-      type: Boolean,
-      default: false,
-    },
+    hidden: { type: Boolean, default: false },
     startLocation: {
-      type: {
-        type: String,
-        default: "Point",
-        enum: ["Point"],
-      },
+      type: { type: String, default: "Point", enum: ["Point"] },
       coordinates: [Number],
       description: String,
       address: String,
     },
     locations: [
       {
-        type: {
-          type: String,
-          default: "Point",
-          enum: ["Point"],
-        },
+        type: { type: String, default: "Point", enum: ["Point"] },
         coordinates: [Number],
         description: String,
         address: String,
         day: Number,
       },
     ],
-    guides: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: "User",
-      },
-    ],
+    guides: [{ type: mongoose.Schema.ObjectId, ref: "User" }],
   },
   {
     toJSON: { virtuals: true },
@@ -156,7 +126,7 @@ tourSchema.index({ startLocation: "2dsphere" });
 
 // DOCUMENT MIDDLEWARE
 
-// Generate Slug Before Saving
+// Generate slug before saving
 tourSchema.pre("save", function (next) {
   if (this.isModified("name")) {
     this.slug = slugify(this.name, { lower: true });
@@ -164,72 +134,40 @@ tourSchema.pre("save", function (next) {
   next();
 });
 
-// Validate Guides Before Saving
+// Validate guides before saving
 tourSchema.pre("save", async function (next) {
-  try {
-    if (!this.guides || this.guides.length === 0) return next();
+  if (!this.guides || this.guides.length === 0) return next();
 
-    const validGuideIds = this.guides.filter(id =>
-      mongoose.Types.ObjectId.isValid(id),
+  const validGuideIds = this.guides.filter(id =>
+    mongoose.Types.ObjectId.isValid(id),
+  );
+  const guides = await User.find({ _id: { $in: validGuideIds } });
+
+  if (guides.length !== validGuideIds.length) {
+    const invalidIds = validGuideIds.filter(
+      id => !guides.some(guide => guide._id.equals(id)),
     );
-    const guides = await User.find({ _id: { $in: validGuideIds } });
-
-    if (guides.length !== validGuideIds.length) {
-      const invalidIds = validGuideIds.filter(
-        id => !guides.some(guide => guide._id.equals(id)),
-      );
-      throw new AppError(
-        `Guide(s) with ID(s) ${invalidIds.join(", ")} do not exist.`,
-        404,
-      );
-    }
-
-    this.guides = guides.map(guide => guide._id);
-    next();
-  } catch (err) {
-    next(err);
+    throw new AppError(
+      `Guide(s) with ID(s) ${invalidIds.join(", ")} do not exist.`,
+      404,
+    );
   }
+
+  this.guides = guides.map(guide => guide._id);
+  next();
 });
 
 // QUERY MIDDLEWARE
 
-// Exclude Secret Tours
-const excludeSecretTours = function (next) {
-  this.find({ secretTour: { $ne: true } });
-  next();
-};
-
-// Populate Guides Information
-const populateGuides = function (next) {
-  this.populate({
-    path: "guides",
-    select: "-__v -passwordChangedAt",
-  });
-  next();
-};
-
-// Apply Query Middlewares
-tourSchema.pre(/^find/, excludeSecretTours);
-tourSchema.pre(/^find/, populateGuides);
-
-// AGGREGATION MIDDLEWARE
-
-// Exclude Secret Tours in Aggregations
-tourSchema.pre("aggregate", function (next) {
-  const pipeline = this.pipeline();
-  const firstStage = pipeline[0];
-
-  if (firstStage && firstStage.$geoNear) {
-    this.pipeline().splice(1, 0, { $match: { secretTour: { $ne: true } } });
-  } else {
-    this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-  }
+// Populate guides information
+tourSchema.pre(/^find/, function (next) {
+  this.populate({ path: "guides", select: "-__v -passwordChangedAt" });
   next();
 });
 
 // MODEL METHODS
 
-// Calculate Average Ratings and Quantity
+// Calculate average ratings and quantity
 tourSchema.statics.calcAverageRatings = async function (tourId) {
   const stats = await this.aggregate([
     { $match: { _id: tourId } },
@@ -241,9 +179,7 @@ tourSchema.statics.calcAverageRatings = async function (tourId) {
         as: "reviews",
       },
     },
-    {
-      $unwind: "$reviews",
-    },
+    { $unwind: "$reviews" },
     {
       $group: {
         _id: "$_id",
@@ -266,7 +202,7 @@ tourSchema.statics.calcAverageRatings = async function (tourId) {
   }
 };
 
-// POST SAVE Hook to Update Ratings
+// Post-save hook to update ratings
 tourSchema.post("save", function () {
   this.constructor.calcAverageRatings(this._id);
 });
@@ -285,5 +221,4 @@ tourSchema.post(/^findOneAnd/, async function () {
 
 // EXPORT MODEL
 const Tour = mongoose.model("Tour", tourSchema);
-
 module.exports = Tour;
