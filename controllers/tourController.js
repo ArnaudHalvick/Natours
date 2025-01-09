@@ -209,45 +209,50 @@ exports.getDistances = catchAsync(async (req, res, next) => {
 
 // Get all users with optional search and pagination
 exports.getAllToursRegex = catchAsync(async (req, res, next) => {
-  const { search } = req.query;
+  const { search, difficulty } = req.query;
   const page = +req.query.page || 1;
   const limit = +req.query.limit || 10;
   const skip = (page - 1) * limit;
 
-  // Start building the aggregation pipeline
-  const pipeline = [];
+  // We’ll build a single `$match` object
+  const match = {};
 
-  // 1) If `search` is provided, build a $match stage that uses $regex on name
-  //    and $regexMatch on { $toString: '$_id' }.
+  // If `search` is provided, add an $or condition for name and _id
   if (search && search.trim() !== "") {
     const trimmedSearch = search.trim();
 
-    pipeline.push({
-      $match: {
-        $or: [
-          {
-            // Match tour name by regex
-            name: { $regex: trimmedSearch, $options: "i" },
-          },
-          {
-            // Match the stringified _id by regex
-            $expr: {
-              $regexMatch: {
-                input: { $toString: "$_id" },
-                regex: trimmedSearch,
-                options: "i",
-              },
-            },
-          },
-        ],
+    match.$or = [
+      {
+        name: { $regex: trimmedSearch, $options: "i" },
       },
-    });
+      {
+        $expr: {
+          $regexMatch: {
+            input: { $toString: "$_id" },
+            regex: trimmedSearch,
+            options: "i",
+          },
+        },
+      },
+    ];
   }
 
-  // 2) Add a $facet stage to handle pagination and collecting metadata
+  // If difficulty is provided, match by difficulty as well
+  if (difficulty) {
+    // If `$or` exists, we want to nest it properly.
+    // For a simple approach, just add it as another field:
+    match.difficulty = difficulty;
+  }
+
+  // Now build your pipeline. Only push $match if it's not empty
+  const pipeline = [];
+  if (Object.keys(match).length > 0) {
+    pipeline.push({ $match: match });
+  }
+
+  // Then do your pagination in a $facet
   pipeline.push({
     $facet: {
-      // "data" pipeline for actual documents
       data: [
         { $skip: skip },
         { $limit: limit },
@@ -257,23 +262,22 @@ exports.getAllToursRegex = catchAsync(async (req, res, next) => {
             price: 1,
             duration: 1,
             hidden: 1,
+            // If you want to return difficulty in the data, project it too
+            difficulty: 1,
           },
         },
       ],
-      // "metadata" pipeline to count total documents
       metadata: [{ $count: "total" }],
     },
   });
 
-  // 3) Execute the pipeline
+  // Execute and format response
   const [results] = await Tour.aggregate(pipeline);
   const { data = [], metadata = [] } = results;
 
-  // 4) Derive total and totalPages
   const total = metadata.length > 0 ? metadata[0].total : 0;
   const totalPages = Math.ceil(total / limit);
 
-  // 5) Send the response
   res.status(200).json({
     status: "success",
     results: data.length,

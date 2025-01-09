@@ -43,7 +43,12 @@ const loadTours = async () => {
     if (currentSearch) params.append("search", currentSearch);
     if (currentDifficulty) params.append("difficulty", currentDifficulty);
 
-    const response = await fetchTours(currentPage, limit, currentSearch);
+    const response = await fetchTours(
+      currentPage,
+      limit,
+      currentSearch,
+      currentDifficulty,
+    );
     const { data, pagination } = response;
 
     totalPages = pagination.totalPages;

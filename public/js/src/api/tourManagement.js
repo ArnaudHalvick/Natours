@@ -1,7 +1,12 @@
 // api/tourManagement.js
 import axios from "axios";
 
-export const fetchTours = async (page = 1, limit = 10, search = "") => {
+export const fetchTours = async (
+  page = 1,
+  limit = 10,
+  search = "",
+  difficulty = "",
+) => {
   try {
     const params = new URLSearchParams({
       page,
@@ -9,6 +14,7 @@ export const fetchTours = async (page = 1, limit = 10, search = "") => {
     });
 
     if (search) params.append("search", search);
+    if (difficulty) params.append("difficulty", difficulty);
 
     const res = await axios.get(`/api/v1/tours/regex?${params.toString()}`);
     return res.data.data;

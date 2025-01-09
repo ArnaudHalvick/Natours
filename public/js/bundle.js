@@ -8354,6 +8354,7 @@ var fetchTours = exports.fetchTours = /*#__PURE__*/function () {
     var page,
       limit,
       search,
+      difficulty,
       params,
       res,
       _args = arguments;
@@ -8363,26 +8364,28 @@ var fetchTours = exports.fetchTours = /*#__PURE__*/function () {
           page = _args.length > 0 && _args[0] !== undefined ? _args[0] : 1;
           limit = _args.length > 1 && _args[1] !== undefined ? _args[1] : 10;
           search = _args.length > 2 && _args[2] !== undefined ? _args[2] : "";
-          _context.prev = 3;
+          difficulty = _args.length > 3 && _args[3] !== undefined ? _args[3] : "";
+          _context.prev = 4;
           params = new URLSearchParams({
             page: page,
             limit: limit
           });
           if (search) params.append("search", search);
-          _context.next = 8;
+          if (difficulty) params.append("difficulty", difficulty);
+          _context.next = 10;
           return _axios.default.get("/api/v1/tours/regex?".concat(params.toString()));
-        case 8:
+        case 10:
           res = _context.sent;
           return _context.abrupt("return", res.data.data);
-        case 12:
-          _context.prev = 12;
-          _context.t0 = _context["catch"](3);
+        case 14:
+          _context.prev = 14;
+          _context.t0 = _context["catch"](4);
           throw _context.t0;
-        case 15:
+        case 17:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[3, 12]]);
+    }, _callee, null, [[4, 14]]);
   }));
   return function fetchTours() {
     return _ref.apply(this, arguments);
@@ -8612,7 +8615,7 @@ var loadTours = /*#__PURE__*/function () {
           if (currentSearch) params.append("search", currentSearch);
           if (currentDifficulty) params.append("difficulty", currentDifficulty);
           _context.next = 6;
-          return (0, _tourManagement.fetchTours)(currentPage, limit, currentSearch);
+          return (0, _tourManagement.fetchTours)(currentPage, limit, currentSearch, currentDifficulty);
         case 6:
           response = _context.sent;
           data = response.data, pagination = response.pagination;
