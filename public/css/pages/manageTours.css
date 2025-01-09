@@ -84,6 +84,46 @@
   cursor: pointer;
 }
 
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal.active {
+  display: block;
+}
+
+.modal-content {
+  position: relative;
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 2rem;
+  width: 80%;
+  max-width: 800px;
+  border-radius: 8px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.close-modal {
+  position: absolute;
+  right: 2rem;
+  top: 2rem;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.close-modal:hover {
+  color: #666;
+}
+
 /* Modal Specifics */
 .modal .form--inline {
   display: grid;

@@ -6,10 +6,10 @@ import { initBookingHandlers } from "./handlers/booking";
 import { initReviewHandlers } from "./handlers/review";
 import { initRefundHandlers } from "./handlers/refund";
 import { initUserHandlers } from "./handlers/user";
-
 import { initReviewManagement } from "./handlers/reviewManagement";
 import { initializeBookingManagement } from "./handlers/bookingManagement";
 import { initializeUserManagement } from "./handlers/userManagement";
+import { initializeTourManagement } from "./handlers/tourManagement";
 
 import { showAlert } from "./utils/alert";
 import { displayMap } from "./utils/mapbox";
@@ -24,7 +24,6 @@ export class App {
       this.initializeHandlers();
       this.initializeGlobalFeatures();
     } catch (error) {
-      console.error("Initialization error:", error);
       showAlert("error", "Application initialization failed");
     }
   }
@@ -40,6 +39,7 @@ export class App {
       { init: initializeUserManagement, name: "User Management" },
     ];
 
+    // Add booking management if on booking page
     if (document.querySelector(".user-view__bookings-container")) {
       handlers.push({
         init: initializeBookingManagement,
@@ -47,6 +47,15 @@ export class App {
       });
     }
 
+    // Add tour management if on tour management page
+    if (window.location.pathname === "/manage-tours") {
+      handlers.push({
+        init: initializeTourManagement,
+        name: "Tour Management",
+      });
+    }
+
+    // Initialize all handlers
     handlers.forEach(({ init, name }) => {
       try {
         init();
@@ -57,11 +66,13 @@ export class App {
   }
 
   initializeGlobalFeatures() {
+    // Handle alerts from body data attribute
     const alertMessage = document.querySelector("body").dataset.alert;
     if (alertMessage) {
       showAlert("success", alertMessage, 15);
     }
 
+    // Initialize map if present
     const mapElement = elements.map();
     if (mapElement) {
       try {

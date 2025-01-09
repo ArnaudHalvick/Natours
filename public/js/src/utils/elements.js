@@ -34,5 +34,18 @@ export const elements = {
     form: () => document.querySelector("#filterForm"),
     pagination: () => document.querySelector(".pagination"),
   },
+  tour: {
+    container: () => document.querySelector(".user-view__tours-container"),
+    searchInput: () => document.querySelector("#searchTour"),
+    difficultyFilter: () => document.querySelector("#difficultyFilter"),
+    table: () => document.querySelector("#tourTableBody"),
+    modal: () => document.querySelector("#tourModal"),
+    form: () => document.querySelector("#tourForm"),
+    pagination: {
+      prev: () => document.querySelector("#prevPage"),
+      next: () => document.querySelector("#nextPage"),
+      info: () => document.querySelector("#pageInfo"),
+    },
+  },
   map: () => document.getElementById("map"),
 };

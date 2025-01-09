@@ -214,29 +214,71 @@ exports.getAllToursRegex = catchAsync(async (req, res, next) => {
   const limit = +req.query.limit || 10;
   const skip = (page - 1) * limit;
 
-  const query = {};
+  // Start building the aggregation pipeline
+  const pipeline = [];
 
-  if (search) {
-    const searchRegex = new RegExp(search.trim(), "i");
-    query.$or = [
-      { name: { $regex: searchRegex } },
-      { _id: mongoose.Types.ObjectId.isValid(search) ? search : null },
-    ];
+  // 1) If `search` is provided, build a $match stage that uses $regex on name
+  //    and $regexMatch on { $toString: '$_id' }.
+  if (search && search.trim() !== "") {
+    const trimmedSearch = search.trim();
+
+    pipeline.push({
+      $match: {
+        $or: [
+          {
+            // Match tour name by regex
+            name: { $regex: trimmedSearch, $options: "i" },
+          },
+          {
+            // Match the stringified _id by regex
+            $expr: {
+              $regexMatch: {
+                input: { $toString: "$_id" },
+                regex: trimmedSearch,
+                options: "i",
+              },
+            },
+          },
+        ],
+      },
+    });
   }
 
-  const tours = await Tour.find(query)
-    .skip(skip)
-    .limit(limit)
-    .select("name price duration hidden");
+  // 2) Add a $facet stage to handle pagination and collecting metadata
+  pipeline.push({
+    $facet: {
+      // "data" pipeline for actual documents
+      data: [
+        { $skip: skip },
+        { $limit: limit },
+        {
+          $project: {
+            name: 1,
+            price: 1,
+            duration: 1,
+            hidden: 1,
+          },
+        },
+      ],
+      // "metadata" pipeline to count total documents
+      metadata: [{ $count: "total" }],
+    },
+  });
 
-  const total = await Tour.countDocuments(query);
+  // 3) Execute the pipeline
+  const [results] = await Tour.aggregate(pipeline);
+  const { data = [], metadata = [] } = results;
+
+  // 4) Derive total and totalPages
+  const total = metadata.length > 0 ? metadata[0].total : 0;
   const totalPages = Math.ceil(total / limit);
 
+  // 5) Send the response
   res.status(200).json({
     status: "success",
-    results: tours.length,
+    results: data.length,
     data: {
-      data: tours,
+      data,
       pagination: {
         total,
         totalPages,

@@ -1,11 +1,14 @@
 // Importing required modules and models
 const mongoose = require("mongoose");
+
 const Tour = require("../models/tourModel");
 const User = require("../models/userModel");
 const Booking = require("../models/bookingModel");
+
 const catchAsync = require("../utils/catchAsync");
 const factory = require("./handlerFactory");
 const AppError = require("../utils/appError");
+
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // Get Stripe checkout session for booking a tour

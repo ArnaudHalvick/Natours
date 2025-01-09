@@ -1,82 +1,113 @@
 // api/tourManagement.js
 import axios from "axios";
 
-export const fetchTours = async (page, limit, search) => {
-  let query = `?page=${page}&limit=${limit}`;
-  if (search) query += `&search=${encodeURIComponent(search)}`;
+export const fetchTours = async (page = 1, limit = 10, search = "") => {
+  try {
+    const params = new URLSearchParams({
+      page,
+      limit,
+    });
 
-  const res = await axios.get(`/api/v1/tours/regex${query}`);
-  return res.data.data;
+    if (search) params.append("search", search);
+
+    console.log("Fetching tours with params:", params.toString());
+    const res = await axios.get(`/api/v1/tours/regex?${params.toString()}`);
+    console.log("Tour response:", res.data);
+    return res.data.data;
+  } catch (error) {
+    console.error("Error fetching tours:", error);
+    throw error;
+  }
 };
 
 export const fetchTourById = async tourId => {
-  const res = await axios.get(`/api/v1/tours/${tourId}`);
-  return res.data.data;
+  try {
+    const res = await axios.get(`/api/v1/tours/${tourId}`);
+    return res.data.data.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
-export const updateTour = async (tourId, data) => {
-  const formData = new FormData();
+export const createTour = async tourData => {
+  try {
+    const formData = new FormData();
 
-  // Append all text fields
-  Object.keys(data).forEach(key => {
-    if (key !== "images" && key !== "imageCover") {
-      formData.append(
-        key,
-        typeof data[key] === "object" ? JSON.stringify(data[key]) : data[key],
-      );
+    // Handle regular fields
+    Object.keys(tourData).forEach(key => {
+      if (key !== "images" && key !== "imageCover") {
+        if (typeof tourData[key] === "object") {
+          formData.append(key, JSON.stringify(tourData[key]));
+        } else {
+          formData.append(key, tourData[key]);
+        }
+      }
+    });
+
+    // Handle file uploads
+    if (tourData.imageCover) {
+      formData.append("imageCover", tourData.imageCover);
     }
-  });
+    if (tourData.images) {
+      tourData.images.forEach(image => {
+        formData.append("images", image);
+      });
+    }
 
-  // Append files if they exist
-  if (data.imageCover) formData.append("imageCover", data.imageCover);
-  if (data.images) {
-    data.images.forEach(image => formData.append("images", image));
+    const res = await axios.post("/api/v1/tours", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data.data;
+  } catch (error) {
+    throw error;
   }
-
-  const res = await axios({
-    method: "PATCH",
-    url: `/api/v1/tours/${tourId}`,
-    data: formData,
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-  return res.data;
 };
 
-export const createTour = async data => {
-  const formData = new FormData();
+export const updateTour = async (tourId, tourData) => {
+  try {
+    const formData = new FormData();
 
-  Object.keys(data).forEach(key => {
-    if (key !== "images" && key !== "imageCover") {
-      formData.append(
-        key,
-        typeof data[key] === "object" ? JSON.stringify(data[key]) : data[key],
-      );
+    Object.keys(tourData).forEach(key => {
+      if (key !== "images" && key !== "imageCover") {
+        if (typeof tourData[key] === "object") {
+          formData.append(key, JSON.stringify(tourData[key]));
+        } else {
+          formData.append(key, tourData[key]);
+        }
+      }
+    });
+
+    if (tourData.imageCover) {
+      formData.append("imageCover", tourData.imageCover);
     }
-  });
+    if (tourData.images) {
+      tourData.images.forEach(image => {
+        formData.append("images", image);
+      });
+    }
 
-  if (data.imageCover) formData.append("imageCover", data.imageCover);
-  if (data.images) {
-    data.images.forEach(image => formData.append("images", image));
+    const res = await axios.patch(`/api/v1/tours/${tourId}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data.data;
+  } catch (error) {
+    throw error;
   }
-
-  const res = await axios({
-    method: "POST",
-    url: "/api/v1/tours",
-    data: formData,
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-  return res.data;
 };
 
 export const deleteTour = async tourId => {
-  await axios.delete(`/api/v1/tours/${tourId}`);
+  try {
+    await axios.delete(`/api/v1/tours/${tourId}`);
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const toggleTourVisibility = async (tourId, hidden) => {
-  const res = await axios({
-    method: "PATCH",
-    url: `/api/v1/tours/${tourId}`,
-    data: { hidden },
-  });
-  return res.data;
+  try {
+    const res = await axios.patch(`/api/v1/tours/${tourId}`, { hidden });
+    return res.data.data;
+  } catch (error) {
+    throw error;
+  }
 };
