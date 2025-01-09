@@ -209,13 +209,14 @@ tourSchema.post("save", function () {
 
 // Hooks for findOneAnd operations to update ratings after update/delete
 tourSchema.pre(/^findOneAnd/, async function (next) {
-  this.r = await this.findOne();
+  this.r = this.clone(); // Store query clone instead of executing
   next();
 });
 
 tourSchema.post(/^findOneAnd/, async function () {
-  if (this.r) {
-    await this.r.constructor.calcAverageRatings(this.r._id);
+  const doc = await this.r; // Execute query here
+  if (doc) {
+    await doc.constructor.calcAverageRatings(doc._id);
   }
 });
 
