@@ -8587,6 +8587,144 @@ var totalPages = 1;
 var currentSearch = "";
 var currentDifficulty = "";
 var limit = 10;
+var handleTourLoad = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+    var response, tourTableBody;
+    return _regeneratorRuntime().wrap(function _callee$(_context) {
+      while (1) switch (_context.prev = _context.next) {
+        case 0:
+          _context.prev = 0;
+          _context.next = 3;
+          return (0, _tourManagement.fetchTours)(currentPage, limit, currentSearch, currentDifficulty);
+        case 3:
+          response = _context.sent;
+          totalPages = response.pagination.totalPages;
+          tourTableBody = document.getElementById("tourTableBody");
+          if (tourTableBody) {
+            _context.next = 8;
+            break;
+          }
+          return _context.abrupt("return");
+        case 8:
+          tourTableBody.innerHTML = response.data.length ? response.data.map(function (tour) {
+            var _tour$_id, _tour$name, _tour$price;
+            return "\n     <tr>\n       <td>".concat((_tour$_id = tour === null || tour === void 0 ? void 0 : tour._id) !== null && _tour$_id !== void 0 ? _tour$_id : "N/A", "</td>\n       <td>").concat((_tour$name = tour === null || tour === void 0 ? void 0 : tour.name) !== null && _tour$name !== void 0 ? _tour$name : "N/A", "</td>\n       <td>$").concat((_tour$price = tour === null || tour === void 0 ? void 0 : tour.price) !== null && _tour$price !== void 0 ? _tour$price : "N/A", "</td>\n       <td>").concat(tour !== null && tour !== void 0 && tour.duration ? "".concat(tour.duration, " days") : "N/A", "</td>\n       <td>").concat(tour.ratingsAverage ? tour.ratingsAverage.toFixed(1) : "N/A", "</td>\n       <td>").concat(tour.hidden ? "Hidden" : "Visible", "</td>\n       <td>\n         <button class=\"btn btn--small btn--edit\" data-id=\"").concat(tour._id, "\">Edit</button>\n       </td>\n     </tr>\n   ");
+          }).join("") : '<tr><td colspan="7" class="text-center">No tours found</td></tr>';
+          updatePaginationInfo();
+          _context.next = 15;
+          break;
+        case 12:
+          _context.prev = 12;
+          _context.t0 = _context["catch"](0);
+          console.error("Load error:", _context.t0);
+        case 15:
+        case "end":
+          return _context.stop();
+      }
+    }, _callee, null, [[0, 12]]);
+  }));
+  return function handleTourLoad() {
+    return _ref.apply(this, arguments);
+  };
+}();
+var handleEditClick = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(tourId) {
+    var tour, modal, form, modalTitle;
+    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+      while (1) switch (_context2.prev = _context2.next) {
+        case 0:
+          _context2.prev = 0;
+          _context2.next = 3;
+          return (0, _tourManagement.fetchTourById)(tourId);
+        case 3:
+          tour = _context2.sent;
+          modal = document.getElementById("tourModal");
+          form = document.getElementById("tourForm");
+          modalTitle = document.getElementById("modalTitle");
+          if (!(!modal || !form)) {
+            _context2.next = 9;
+            break;
+          }
+          return _context2.abrupt("return");
+        case 9:
+          // Populate form fields
+          form.elements.name.value = tour.name;
+          form.elements.duration.value = tour.duration;
+          form.elements.maxGroupSize.value = tour.maxGroupSize;
+          form.elements.difficulty.value = tour.difficulty;
+          form.elements.price.value = tour.price;
+          form.elements.priceDiscount.value = tour.priceDiscount || "";
+          form.elements.summary.value = tour.summary;
+          form.elements.description.value = tour.description;
+          form.elements.hidden.value = tour.hidden.toString();
+
+          // Set data attributes for form submission
+          form.dataset.tourId = tourId;
+          modalTitle.textContent = "Edit Tour";
+          modal.classList.add("active");
+          _context2.next = 26;
+          break;
+        case 23:
+          _context2.prev = 23;
+          _context2.t0 = _context2["catch"](0);
+          (0, _alert.showAlert)("error", "Failed to load tour details");
+        case 26:
+        case "end":
+          return _context2.stop();
+      }
+    }, _callee2, null, [[0, 23]]);
+  }));
+  return function handleEditClick(_x) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var handleFormSubmit = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
+    var form, tourId, formData, _err$response;
+    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+      while (1) switch (_context3.prev = _context3.next) {
+        case 0:
+          e.preventDefault();
+          form = e.target;
+          tourId = form.dataset.tourId;
+          formData = new FormData(form);
+          _context3.prev = 4;
+          if (!tourId) {
+            _context3.next = 11;
+            break;
+          }
+          _context3.next = 8;
+          return (0, _tourManagement.updateTour)(tourId, Object.fromEntries(formData));
+        case 8:
+          (0, _alert.showAlert)("success", "Tour updated successfully");
+          _context3.next = 14;
+          break;
+        case 11:
+          _context3.next = 13;
+          return (0, _tourManagement.createTour)(Object.fromEntries(formData));
+        case 13:
+          (0, _alert.showAlert)("success", "Tour created successfully");
+        case 14:
+          document.getElementById("tourModal").classList.remove("active");
+          _context3.next = 17;
+          return handleTourLoad();
+        case 17:
+          _context3.next = 22;
+          break;
+        case 19:
+          _context3.prev = 19;
+          _context3.t0 = _context3["catch"](4);
+          (0, _alert.showAlert)("error", ((_err$response = _context3.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || "Error saving tour");
+        case 22:
+        case "end":
+          return _context3.stop();
+      }
+    }, _callee3, null, [[4, 19]]);
+  }));
+  return function handleFormSubmit(_x2) {
+    return _ref3.apply(this, arguments);
+  };
+}();
 var updatePaginationInfo = function updatePaginationInfo() {
   var pageInfo = document.getElementById("pageInfo");
   if (pageInfo) pageInfo.textContent = "Page ".concat(currentPage, " of ").concat(totalPages);
@@ -8601,217 +8739,69 @@ var updatePaginationInfo = function updatePaginationInfo() {
     nextPageBtn.classList.toggle("btn--disabled", currentPage >= totalPages);
   }
 };
-var handleTourLoad = /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-    var _yield$fetchTours, data, pagination, tourTableBody, _err$response;
-    return _regeneratorRuntime().wrap(function _callee$(_context) {
-      while (1) switch (_context.prev = _context.next) {
-        case 0:
-          _context.prev = 0;
-          _context.next = 3;
-          return (0, _tourManagement.fetchTours)(currentPage, limit, currentSearch, currentDifficulty);
-        case 3:
-          _yield$fetchTours = _context.sent;
-          data = _yield$fetchTours.data;
-          pagination = _yield$fetchTours.pagination;
-          totalPages = pagination.totalPages;
-          tourTableBody = document.getElementById("tourTableBody");
-          if (tourTableBody) {
-            _context.next = 10;
-            break;
-          }
-          return _context.abrupt("return");
-        case 10:
-          tourTableBody.innerHTML = data.length ? data.map(function (tour) {
-            var _tour$_id, _tour$name, _tour$price;
-            return "\n     <tr>\n       <td>".concat((_tour$_id = tour === null || tour === void 0 ? void 0 : tour._id) !== null && _tour$_id !== void 0 ? _tour$_id : "N/A", "</td>\n       <td>").concat((_tour$name = tour === null || tour === void 0 ? void 0 : tour.name) !== null && _tour$name !== void 0 ? _tour$name : "N/A", "</td>\n       <td>$").concat((_tour$price = tour === null || tour === void 0 ? void 0 : tour.price) !== null && _tour$price !== void 0 ? _tour$price : "N/A", "</td>\n       <td>").concat(tour !== null && tour !== void 0 && tour.duration ? "".concat(tour.duration, " days") : "N/A", "</td>\n       <td>").concat(tour.ratingsAverage ? tour.ratingsAverage.toFixed(1) : "N/A", "</td>\n       <td>").concat(tour.hidden ? "Hidden" : "Visible", "</td>\n       <td>\n         <button class=\"btn btn--small btn--edit\" data-id=\"").concat(tour._id, "\">Edit</button>\n         <button class=\"btn btn--small btn--visibility ").concat(tour.hidden ? "btn--green" : "btn--yellow", "\" \n           data-id=\"").concat(tour._id, "\" \n           data-hidden=\"").concat(tour.hidden, "\">\n           ").concat(tour.hidden ? "Show" : "Hide", "\n         </button>\n         <button class=\"btn btn--small btn--red btn--delete\" data-id=\"").concat(tour._id, "\">Delete</button>\n       </td>\n     </tr>\n   ");
-          }).join("") : '<tr><td colspan="7" class="text-center">No tours found</td></tr>';
-          updatePaginationInfo();
-          _context.next = 17;
-          break;
-        case 14:
-          _context.prev = 14;
-          _context.t0 = _context["catch"](0);
-          (0, _alert.showAlert)("error", ((_err$response = _context.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || "Error loading tours");
-        case 17:
-        case "end":
-          return _context.stop();
-      }
-    }, _callee, null, [[0, 14]]);
-  }));
-  return function handleTourLoad() {
-    return _ref.apply(this, arguments);
-  };
-}();
-var handleVisibilityToggle = /*#__PURE__*/function () {
-  var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(tourId, currentlyHidden) {
-    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-      while (1) switch (_context2.prev = _context2.next) {
-        case 0:
-          _context2.prev = 0;
-          _context2.next = 3;
-          return (0, _tourManagement.toggleTourVisibility)(tourId, !currentlyHidden);
-        case 3:
-          (0, _alert.showAlert)("success", "Tour ".concat(!currentlyHidden ? "hidden" : "shown", " successfully"));
-          _context2.next = 6;
-          return handleTourLoad();
-        case 6:
-          _context2.next = 11;
-          break;
-        case 8:
-          _context2.prev = 8;
-          _context2.t0 = _context2["catch"](0);
-          (0, _alert.showAlert)("error", "Failed to update tour visibility");
-        case 11:
-        case "end":
-          return _context2.stop();
-      }
-    }, _callee2, null, [[0, 8]]);
-  }));
-  return function handleVisibilityToggle(_x, _x2) {
-    return _ref2.apply(this, arguments);
-  };
-}();
-
-// Debounced search function
-var debouncedSearch = (0, _dom.debounce)(function (value) {
-  currentSearch = value;
-  currentPage = 1;
-  handleTourLoad();
-}, 300);
 var initializeEventListeners = function initializeEventListeners() {
+  var _document$getElementB, _document$getElementB2;
   var searchInput = document.getElementById("searchTour");
-  if (searchInput) {
-    searchInput.addEventListener("input", function (e) {
-      return debouncedSearch(e.target.value);
-    });
-  }
   var difficultyFilter = document.getElementById("difficultyFilter");
-  if (difficultyFilter) {
-    difficultyFilter.addEventListener("change", function (e) {
-      currentDifficulty = e.target.value;
-      currentPage = 1;
-      handleTourLoad();
-    });
-  }
-  var prevPageBtn = document.getElementById("prevPage");
-  if (prevPageBtn) {
-    prevPageBtn.addEventListener("click", function () {
-      if (currentPage > 1) {
-        currentPage--;
-        handleTourLoad();
-      }
-    });
-  }
-  var nextPageBtn = document.getElementById("nextPage");
-  if (nextPageBtn) {
-    nextPageBtn.addEventListener("click", function () {
-      if (currentPage < totalPages) {
-        currentPage++;
-        handleTourLoad();
-      }
-    });
-  }
   var tourTableBody = document.getElementById("tourTableBody");
-  if (tourTableBody) {
-    tourTableBody.addEventListener("click", /*#__PURE__*/function () {
-      var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
-        var target, tourId, currentlyHidden, _err$response2;
-        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-          while (1) switch (_context3.prev = _context3.next) {
-            case 0:
-              target = e.target;
-              if (target.classList.contains("btn")) {
-                _context3.next = 3;
-                break;
-              }
-              return _context3.abrupt("return");
-            case 3:
-              tourId = target.dataset.id;
-              if (tourId) {
-                _context3.next = 6;
-                break;
-              }
-              return _context3.abrupt("return");
-            case 6:
-              _context3.prev = 6;
-              if (!target.classList.contains("btn--visibility")) {
-                _context3.next = 13;
-                break;
-              }
-              currentlyHidden = target.dataset.hidden === "true";
-              _context3.next = 11;
-              return handleVisibilityToggle(tourId, currentlyHidden);
-            case 11:
-              _context3.next = 25;
-              break;
-            case 13:
-              if (!target.classList.contains("btn--delete")) {
-                _context3.next = 22;
-                break;
-              }
-              if (!confirm("Are you sure you want to delete this tour?")) {
-                _context3.next = 20;
-                break;
-              }
-              _context3.next = 17;
-              return (0, _tourManagement.deleteTour)(tourId);
-            case 17:
-              (0, _alert.showAlert)("success", "Tour deleted successfully");
-              _context3.next = 20;
-              return handleTourLoad();
-            case 20:
-              _context3.next = 25;
-              break;
-            case 22:
-              if (!target.classList.contains("btn--edit")) {
-                _context3.next = 25;
-                break;
-              }
-              _context3.next = 25;
-              return handleEditClick(tourId);
-            case 25:
-              _context3.next = 30;
-              break;
-            case 27:
-              _context3.prev = 27;
-              _context3.t0 = _context3["catch"](6);
-              (0, _alert.showAlert)("error", ((_err$response2 = _context3.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || "Error updating tour");
-            case 30:
-            case "end":
-              return _context3.stop();
-          }
-        }, _callee3, null, [[6, 27]]);
-      }));
-      return function (_x3) {
-        return _ref3.apply(this, arguments);
-      };
-    }());
-  }
   var createTourBtn = document.getElementById("createTourBtn");
-  if (createTourBtn) {
-    createTourBtn.addEventListener("click", function () {
-      var modal = document.getElementById("tourModal");
-      var form = document.getElementById("tourForm");
-      if (modal && form) {
-        form.reset();
-        form.removeAttribute("data-tour-id");
-        document.getElementById("modalTitle").textContent = "Create New Tour";
-        modal.classList.add("active");
-      }
-    });
-  }
-  var closeModal = document.querySelector(".close-modal");
-  if (closeModal) {
-    closeModal.addEventListener("click", function () {
-      var modal = document.getElementById("tourModal");
-      if (modal) modal.classList.remove("active");
-    });
-  }
+  var tourForm = document.getElementById("tourForm");
+  var closeModalBtn = document.querySelector(".close-modal");
+  searchInput === null || searchInput === void 0 || searchInput.addEventListener("input", (0, _dom.debounce)(function (e) {
+    currentSearch = e.target.value;
+    currentPage = 1;
+    handleTourLoad();
+  }, 300));
+  difficultyFilter === null || difficultyFilter === void 0 || difficultyFilter.addEventListener("change", function (e) {
+    currentDifficulty = e.target.value;
+    currentPage = 1;
+    handleTourLoad();
+  });
+
+  // Pagination handlers
+  (_document$getElementB = document.getElementById("prevPage")) === null || _document$getElementB === void 0 || _document$getElementB.addEventListener("click", function () {
+    if (currentPage > 1) {
+      currentPage--;
+      handleTourLoad();
+    }
+  });
+  (_document$getElementB2 = document.getElementById("nextPage")) === null || _document$getElementB2 === void 0 || _document$getElementB2.addEventListener("click", function () {
+    if (currentPage < totalPages) {
+      currentPage++;
+      handleTourLoad();
+    }
+  });
+
+  // Tour edit handler
+  tourTableBody === null || tourTableBody === void 0 || tourTableBody.addEventListener("click", function (e) {
+    var editBtn = e.target.closest(".btn--edit");
+    if (editBtn) {
+      handleEditClick(editBtn.dataset.id);
+    }
+  });
+
+  // Create tour handler
+  createTourBtn === null || createTourBtn === void 0 || createTourBtn.addEventListener("click", function () {
+    var modal = document.getElementById("tourModal");
+    if (modal && tourForm) {
+      tourForm.reset();
+      tourForm.removeAttribute("data-tour-id");
+      document.getElementById("modalTitle").textContent = "Create New Tour";
+      modal.classList.add("active");
+    }
+  });
+
+  // Form submission
+  tourForm === null || tourForm === void 0 || tourForm.addEventListener("submit", handleFormSubmit);
+
+  // Modal close handler
+  closeModalBtn === null || closeModalBtn === void 0 || closeModalBtn.addEventListener("click", function () {
+    var _document$getElementB3;
+    (_document$getElementB3 = document.getElementById("tourModal")) === null || _document$getElementB3 === void 0 || _document$getElementB3.classList.remove("active");
+  });
 };
 var initializeTourManagement = exports.initializeTourManagement = function initializeTourManagement() {
-  var tourContainer = document.querySelector(".user-view__content");
-  if (!tourContainer) return;
+  if (!document.querySelector(".user-view__content")) return;
   initializeEventListeners();
   handleTourLoad();
 };
@@ -9016,7 +9006,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "35045" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39149" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
