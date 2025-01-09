@@ -10,12 +10,9 @@ export const fetchTours = async (page = 1, limit = 10, search = "") => {
 
     if (search) params.append("search", search);
 
-    console.log("Fetching tours with params:", params.toString());
     const res = await axios.get(`/api/v1/tours/regex?${params.toString()}`);
-    console.log("Tour response:", res.data);
     return res.data.data;
   } catch (error) {
-    console.error("Error fetching tours:", error);
     throw error;
   }
 };

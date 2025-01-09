@@ -8369,23 +8369,20 @@ var fetchTours = exports.fetchTours = /*#__PURE__*/function () {
             limit: limit
           });
           if (search) params.append("search", search);
-          console.log("Fetching tours with params:", params.toString());
-          _context.next = 9;
+          _context.next = 8;
           return _axios.default.get("/api/v1/tours/regex?".concat(params.toString()));
-        case 9:
+        case 8:
           res = _context.sent;
-          console.log("Tour response:", res.data);
           return _context.abrupt("return", res.data.data);
-        case 14:
-          _context.prev = 14;
+        case 12:
+          _context.prev = 12;
           _context.t0 = _context["catch"](3);
-          console.error("Error fetching tours:", _context.t0);
           throw _context.t0;
-        case 18:
+        case 15:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[3, 14]]);
+    }, _callee, null, [[3, 12]]);
   }));
   return function fetchTours() {
     return _ref.apply(this, arguments);
@@ -8655,13 +8652,10 @@ var debouncedSearch = (0, _dom.debounce)(function (value) {
   loadTours();
 }, 300);
 var initializeEventListeners = function initializeEventListeners() {
-  console.log("Initializing event listeners");
   // Search input
   var searchInput = document.getElementById("searchTour");
-  console.log("Search input found:", !!searchInput);
   if (searchInput) {
     searchInput.addEventListener("input", function (e) {
-      console.log("Search input event:", e.target.value);
       debouncedSearch(e.target.value);
     });
   }
@@ -8805,13 +8799,10 @@ var initializeEventListeners = function initializeEventListeners() {
 
 // Initialize the tour management functionality
 var initializeTourManagement = exports.initializeTourManagement = function initializeTourManagement() {
-  console.log("initializeTourManagement called");
-
   // Check if we're on the tour management page
   var tourContainer = document.querySelector(".user-view__content"); // Changed selector
-  console.log("Found tour container:", !!tourContainer);
+
   if (!tourContainer) return;
-  console.log("Initializing tour management");
   initializeEventListeners();
   loadTours();
 };

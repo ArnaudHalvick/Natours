@@ -89,14 +89,11 @@ const debouncedSearch = debounce(value => {
 }, 300);
 
 const initializeEventListeners = () => {
-  console.log("Initializing event listeners");
   // Search input
   const searchInput = document.getElementById("searchTour");
-  console.log("Search input found:", !!searchInput);
 
   if (searchInput) {
     searchInput.addEventListener("input", e => {
-      console.log("Search input event:", e.target.value);
       debouncedSearch(e.target.value);
     });
   }
@@ -199,15 +196,11 @@ const initializeEventListeners = () => {
 
 // Initialize the tour management functionality
 export const initializeTourManagement = () => {
-  console.log("initializeTourManagement called");
-
   // Check if we're on the tour management page
   const tourContainer = document.querySelector(".user-view__content"); // Changed selector
-  console.log("Found tour container:", !!tourContainer);
 
   if (!tourContainer) return;
 
-  console.log("Initializing tour management");
   initializeEventListeners();
   loadTours();
 };
