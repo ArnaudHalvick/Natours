@@ -8628,7 +8628,7 @@ var loadTours = /*#__PURE__*/function () {
           return _context.abrupt("return");
         case 12:
           tourTableBody.innerHTML = data.length ? data.map(function (tour) {
-            return "\n              <tr>\n                <td>".concat(tour._id, "</td>\n                <td>").concat(tour.name, "</td>\n                <td>$").concat(tour.price, "</td>\n                <td>").concat(tour.duration, " days</td>\n                <td>").concat(tour.ratingsAverage || "N/A", "</td>\n                <td>").concat(tour.hidden ? "Hidden" : "Visible", "</td>\n                <td>\n                  <button class=\"btn btn--small btn--edit\" data-id=\"").concat(tour._id, "\">Edit</button>\n                  <button class=\"btn btn--small btn--visibility\" data-id=\"").concat(tour._id, "\" data-hidden=\"").concat(tour.hidden, "\">\n                    ").concat(tour.hidden ? "Show" : "Hide", "\n                  </button>\n                  <button class=\"btn btn--small btn--red btn--delete\" data-id=\"").concat(tour._id, "\">Delete</button>\n                </td>\n              </tr>\n            ");
+            return "\n              <tr>\n                <td>".concat(tour._id, "</td>\n                <td>").concat(tour.name, "</td>\n                <td>$").concat(tour.price, "</td>\n                <td>").concat(tour.duration, " days</td>\n                <td>").concat(tour.ratingsAverage || "N/A", "</td>\n                <td>").concat(tour.hidden ? "Hidden" : "Visible", "</td>\n                <td>\n                  <button class=\"btn btn--small btn--edit\" data-id=\"").concat(tour._id, "\">Edit</button>\n                  <button class=\"btn btn--small btn--visibility ").concat(tour.hidden ? "btn--green" : "btn--yellow", "\" \n                    data-id=\"").concat(tour._id, "\" \n                    data-hidden=\"").concat(tour.hidden, "\">\n                    ").concat(tour.hidden ? "Show" : "Hide", "\n                  </button>\n                  <button class=\"btn btn--small btn--red btn--delete\" data-id=\"").concat(tour._id, "\">Delete</button>\n                </td>\n              </tr>\n            ");
           }).join("") : '<tr><td colspan="7" class="text-center">No tours found</td></tr>';
           updatePaginationInfo();
           _context.next = 19;
@@ -8724,7 +8724,7 @@ var initializeEventListeners = function initializeEventListeners() {
               _context2.next = 10;
               return handleEditClick(tourId);
             case 10:
-              _context2.next = 26;
+              _context2.next = 33;
               break;
             case 12:
               if (!target.classList.contains("btn--delete")) {
@@ -8741,31 +8741,40 @@ var initializeEventListeners = function initializeEventListeners() {
               (0, _alert.showAlert)("success", "Tour deleted successfully!");
               loadTours();
             case 18:
-              _context2.next = 26;
+              _context2.next = 33;
               break;
             case 20:
               if (!target.classList.contains("btn--visibility")) {
-                _context2.next = 26;
+                _context2.next = 33;
                 break;
               }
               hidden = target.dataset.hidden === "false";
-              _context2.next = 24;
+              _context2.prev = 22;
+              _context2.next = 25;
               return (0, _tourManagement.toggleTourVisibility)(tourId, hidden);
-            case 24:
+            case 25:
               (0, _alert.showAlert)("success", "Tour ".concat(hidden ? "hidden" : "shown", " successfully!"));
-              loadTours();
-            case 26:
-              _context2.next = 31;
-              break;
+              _context2.next = 28;
+              return loadTours();
             case 28:
-              _context2.prev = 28;
-              _context2.t0 = _context2["catch"](6);
-              (0, _alert.showAlert)("error", ((_err$response2 = _context2.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || "Error processing request");
-            case 31:
+              _context2.next = 33;
+              break;
+            case 30:
+              _context2.prev = 30;
+              _context2.t0 = _context2["catch"](22);
+              (0, _alert.showAlert)("error", "Failed to update tour visibility");
+            case 33:
+              _context2.next = 38;
+              break;
+            case 35:
+              _context2.prev = 35;
+              _context2.t1 = _context2["catch"](6);
+              (0, _alert.showAlert)("error", ((_err$response2 = _context2.t1.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || "Error processing request");
+            case 38:
             case "end":
               return _context2.stop();
           }
-        }, _callee2, null, [[6, 28]]);
+        }, _callee2, null, [[6, 35], [22, 30]]);
       }));
       return function (_x) {
         return _ref2.apply(this, arguments);
@@ -9010,7 +9019,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "40345" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "40263" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

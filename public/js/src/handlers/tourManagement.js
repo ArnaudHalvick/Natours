@@ -69,7 +69,9 @@ const loadTours = async () => {
                 <td>${tour.hidden ? "Hidden" : "Visible"}</td>
                 <td>
                   <button class="btn btn--small btn--edit" data-id="${tour._id}">Edit</button>
-                  <button class="btn btn--small btn--visibility" data-id="${tour._id}" data-hidden="${tour.hidden}">
+                  <button class="btn btn--small btn--visibility ${tour.hidden ? "btn--green" : "btn--yellow"}" 
+                    data-id="${tour._id}" 
+                    data-hidden="${tour.hidden}">
                     ${tour.hidden ? "Show" : "Hide"}
                   </button>
                   <button class="btn btn--small btn--red btn--delete" data-id="${tour._id}">Delete</button>
@@ -156,12 +158,16 @@ const initializeEventListeners = () => {
           }
         } else if (target.classList.contains("btn--visibility")) {
           const hidden = target.dataset.hidden === "false";
-          await toggleTourVisibility(tourId, hidden);
-          showAlert(
-            "success",
-            `Tour ${hidden ? "hidden" : "shown"} successfully!`,
-          );
-          loadTours();
+          try {
+            await toggleTourVisibility(tourId, hidden);
+            showAlert(
+              "success",
+              `Tour ${hidden ? "hidden" : "shown"} successfully!`,
+            );
+            await loadTours(); // Ensure this is awaited
+          } catch (err) {
+            showAlert("error", "Failed to update tour visibility");
+          }
         }
       } catch (err) {
         showAlert(
