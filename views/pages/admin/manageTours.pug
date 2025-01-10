@@ -79,6 +79,13 @@ block content
               .form__group
                 label.form__label(for='priceDiscount') Discount ($)
                 input#priceDiscount.form__input(type='number', min="0", step="0.01")
+
+              // Status and Actions
+              .form__group
+                label.form__label(for='hidden') Status
+                select#hidden.form__input(required)
+                  option(value='false') Visible
+                  option(value='true') Hidden
               
               .form__group.ma-bt-md
                 label.form__label(for='summary') Summary
@@ -87,6 +94,17 @@ block content
               .form__group.ma-bt-md
                 label.form__label(for='description') Description
                 textarea#description.form__input(required, rows="5")
+
+              // Images
+              .form__group
+                label.form__label Cover Image
+                input#imageCover.form__input.form__upload(type='file', accept='image/*')
+                img#currentCoverImage.preview-image(alt='')
+              
+              .form__group
+                label.form__label Tour Images
+                input#tourImages.form__input.form__upload(type='file', accept='image/*', multiple)
+                #tourImagesContainer.image-container
 
               // Location Management
               .form__group.full-width.location-section
@@ -109,24 +127,12 @@ block content
                 label.form__label Tour Dates
                 #startDatesContainer.dates-container
                 button.btn.btn--small.btn--blue#addStartDateBtn(type='button') Add Date
+
               
-              // Images
-              .form__group
-                label.form__label Cover Image
-                input#imageCover.form__input.form__upload(type='file', accept='image/*')
-                img#currentCoverImage.preview-image(alt='')
+
               
-              .form__group
-                label.form__label Tour Images
-                input#tourImages.form__input.form__upload(type='file', accept='image/*', multiple)
-                #tourImagesContainer.image-container
               
-              // Status and Actions
-              .form__group
-                label.form__label(for='hidden') Status
-                select#hidden.form__input(required)
-                  option(value='false') Visible
-                  option(value='true') Hidden
+              
               
               .form__group.right
                 button.btn.btn--small.btn--red#deleteTourBtn(type='button', style='margin-right: 1rem') Delete Tour
