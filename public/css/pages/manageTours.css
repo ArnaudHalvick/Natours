@@ -1,3 +1,9 @@
+.user-view__users-container {
+  max-width: 120rem;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
 /* Tour Controls */
 .tour-controls {
   display: flex;
