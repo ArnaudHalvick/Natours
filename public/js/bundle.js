@@ -8578,7 +8578,14 @@ exports.initializeTourManagement = void 0;
 var _alert = require("../utils/alert");
 var _dom = require("../utils/dom");
 var _tourManagement = require("../api/tourManagement");
+var _pagination = require("../utils/pagination");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
+function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; } // handlers/tourManagement.js
@@ -8610,14 +8617,15 @@ var handleTourLoad = /*#__PURE__*/function () {
             var _tour$_id, _tour$name, _tour$price;
             return "\n     <tr>\n       <td>".concat((_tour$_id = tour === null || tour === void 0 ? void 0 : tour._id) !== null && _tour$_id !== void 0 ? _tour$_id : "N/A", "</td>\n       <td>").concat((_tour$name = tour === null || tour === void 0 ? void 0 : tour.name) !== null && _tour$name !== void 0 ? _tour$name : "N/A", "</td>\n       <td>$").concat((_tour$price = tour === null || tour === void 0 ? void 0 : tour.price) !== null && _tour$price !== void 0 ? _tour$price : "N/A", "</td>\n       <td>").concat(tour !== null && tour !== void 0 && tour.duration ? "".concat(tour.duration, " days") : "N/A", "</td>\n       <td>").concat(tour.ratingsAverage ? tour.ratingsAverage.toFixed(1) : "N/A", "</td>\n       <td>").concat(tour.hidden ? "Hidden" : "Visible", "</td>\n       <td>\n         <button class=\"btn btn--small btn--edit\" data-id=\"").concat(tour._id, "\">Edit</button>\n       </td>\n     </tr>\n   ");
           }).join("") : '<tr><td colspan="7" class="text-center">No tours found</td></tr>';
-          updatePaginationInfo();
-          _context.next = 15;
+          (0, _pagination.updatePaginationInfo)(currentPage, totalPages);
+          _context.next = 16;
           break;
         case 12:
           _context.prev = 12;
           _context.t0 = _context["catch"](0);
           console.error("Load error:", _context.t0);
-        case 15:
+          (0, _alert.showAlert)("error", "Failed to load tours");
+        case 16:
         case "end":
           return _context.stop();
       }
@@ -8627,9 +8635,29 @@ var handleTourLoad = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
+var populateLocationInputs = function populateLocationInputs() {
+  var locations = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  var container = document.getElementById("locationsContainer");
+  container.innerHTML = "";
+  locations.forEach(function (location, index) {
+    var _location$coordinates;
+    var locationHtml = "\n      <div class=\"location-inputs\" data-index=\"".concat(index, "\">\n        <input type=\"text\" class=\"form__input location-address\" placeholder=\"Address\" value=\"").concat(location.address || "", "\" required>\n        <input type=\"text\" class=\"form__input location-description\" placeholder=\"Description\" value=\"").concat(location.description || "", "\" required>\n        <input type=\"text\" class=\"form__input location-coordinates\" placeholder=\"Coordinates (lng,lat)\" value=\"").concat(((_location$coordinates = location.coordinates) === null || _location$coordinates === void 0 ? void 0 : _location$coordinates.join(",")) || "", "\" required>\n        <input type=\"number\" class=\"form__input location-day\" placeholder=\"Day\" value=\"").concat(location.day || "", "\" required>\n        <button type=\"button\" class=\"btn btn--small btn--red remove-location\">Remove</button>\n      </div>\n    ");
+    container.insertAdjacentHTML("beforeend", locationHtml);
+  });
+};
+var populateStartDates = function populateStartDates() {
+  var dates = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  var container = document.getElementById("startDatesContainer");
+  container.innerHTML = "";
+  dates.forEach(function (dateObj, index) {
+    var _dateObj$date;
+    var dateHtml = "\n      <div class=\"date-inputs\" data-index=\"".concat(index, "\">\n        <input type=\"date\" class=\"form__input start-date\" value=\"").concat(((_dateObj$date = dateObj.date) === null || _dateObj$date === void 0 ? void 0 : _dateObj$date.split("T")[0]) || "", "\" required>\n        <button type=\"button\" class=\"btn btn--small btn--red remove-date\">Remove</button>\n      </div>\n    ");
+    container.insertAdjacentHTML("beforeend", dateHtml);
+  });
+};
 var handleEditClick = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(tourId) {
-    var tour, modal, form, modalTitle;
+    var _tour$hidden, _tour$images, tour, modal, form, modalTitle, _tour$startLocation$c, currentCoverImage, tourImagesContainer;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
@@ -8647,32 +8675,61 @@ var handleEditClick = /*#__PURE__*/function () {
           }
           return _context2.abrupt("return");
         case 9:
-          // Populate form fields
-          form.elements.name.value = tour.name;
-          form.elements.duration.value = tour.duration;
-          form.elements.maxGroupSize.value = tour.maxGroupSize;
-          form.elements.difficulty.value = tour.difficulty;
-          form.elements.price.value = tour.price;
+          // Populate basic fields
+          form.elements.name.value = tour.name || "";
+          form.elements.duration.value = tour.duration || "";
+          form.elements.maxGroupSize.value = tour.maxGroupSize || "";
+          form.elements.difficulty.value = tour.difficulty || "easy";
+          form.elements.price.value = tour.price || "";
           form.elements.priceDiscount.value = tour.priceDiscount || "";
-          form.elements.summary.value = tour.summary;
-          form.elements.description.value = tour.description;
-          form.elements.hidden.value = tour.hidden.toString();
+          form.elements.summary.value = tour.summary || "";
+          form.elements.description.value = tour.description || "";
+          form.elements.hidden.value = ((_tour$hidden = tour.hidden) === null || _tour$hidden === void 0 ? void 0 : _tour$hidden.toString()) || "false";
 
-          // Set data attributes for form submission
+          // Populate start location
+          if (tour.startLocation) {
+            form.querySelector("#startLocationAddress").value = tour.startLocation.address || "";
+            form.querySelector("#startLocationDesc").value = tour.startLocation.description || "";
+            form.querySelector("#startLocationCoords").value = ((_tour$startLocation$c = tour.startLocation.coordinates) === null || _tour$startLocation$c === void 0 ? void 0 : _tour$startLocation$c.join(",")) || "";
+          }
+
+          // Show existing cover image if exists
+          currentCoverImage = document.getElementById("currentCoverImage");
+          if (tour.imageCover) {
+            currentCoverImage.src = "/img/tours/".concat(tour.imageCover);
+            currentCoverImage.style.display = "block";
+          } else {
+            currentCoverImage.style.display = "none";
+          }
+
+          // Show existing tour images
+          tourImagesContainer = document.getElementById("tourImagesContainer");
+          tourImagesContainer.innerHTML = "";
+          if ((_tour$images = tour.images) !== null && _tour$images !== void 0 && _tour$images.length) {
+            tour.images.forEach(function (img) {
+              tourImagesContainer.insertAdjacentHTML("beforeend", "\n          <img src=\"/img/tours/".concat(img, "\" alt=\"\" class=\"preview-image\">\n        "));
+            });
+          }
+
+          // Populate locations and dates
+          populateLocationInputs(tour.locations);
+          populateStartDates(tour.startDates);
+
+          // Set form data attributes
           form.dataset.tourId = tourId;
           modalTitle.textContent = "Edit Tour";
           modal.classList.add("active");
-          _context2.next = 26;
+          _context2.next = 34;
           break;
-        case 23:
-          _context2.prev = 23;
+        case 31:
+          _context2.prev = 31;
           _context2.t0 = _context2["catch"](0);
           (0, _alert.showAlert)("error", "Failed to load tour details");
-        case 26:
+        case 34:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 23]]);
+    }, _callee2, null, [[0, 31]]);
   }));
   return function handleEditClick(_x) {
     return _ref2.apply(this, arguments);
@@ -8680,65 +8737,118 @@ var handleEditClick = /*#__PURE__*/function () {
 }();
 var handleFormSubmit = /*#__PURE__*/function () {
   var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
-    var form, tourId, formData, _err$response;
+    var form, tourId, formData, startLocation, locations, startDates, _err$response;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
           e.preventDefault();
           form = e.target;
           tourId = form.dataset.tourId;
-          formData = new FormData(form);
-          _context3.prev = 4;
+          formData = new FormData(form); // Handle start location
+          startLocation = {
+            type: "Point",
+            address: form.querySelector("#startLocationAddress").value,
+            description: form.querySelector("#startLocationDesc").value,
+            coordinates: form.querySelector("#startLocationCoords").value.split(",").map(Number)
+          };
+          formData.delete("startLocationAddress");
+          formData.delete("startLocationDesc");
+          formData.delete("startLocationCoords");
+          formData.append("startLocation", JSON.stringify(startLocation));
+
+          // Handle locations
+          locations = Array.from(form.querySelectorAll(".location-inputs")).map(function (div) {
+            return {
+              type: "Point",
+              address: div.querySelector(".location-address").value,
+              description: div.querySelector(".location-description").value,
+              coordinates: div.querySelector(".location-coordinates").value.split(",").map(Number),
+              day: parseInt(div.querySelector(".location-day").value)
+            };
+          });
+          formData.append("locations", JSON.stringify(locations));
+
+          // Handle dates
+          startDates = Array.from(form.querySelectorAll(".date-inputs")).map(function (div) {
+            return {
+              date: div.querySelector(".start-date").value,
+              participants: 0
+            };
+          });
+          formData.append("startDates", JSON.stringify(startDates));
+          _context3.prev = 13;
           if (!tourId) {
-            _context3.next = 11;
+            _context3.next = 20;
             break;
           }
-          _context3.next = 8;
-          return (0, _tourManagement.updateTour)(tourId, Object.fromEntries(formData));
-        case 8:
-          (0, _alert.showAlert)("success", "Tour updated successfully");
-          _context3.next = 14;
-          break;
-        case 11:
-          _context3.next = 13;
-          return (0, _tourManagement.createTour)(Object.fromEntries(formData));
-        case 13:
-          (0, _alert.showAlert)("success", "Tour created successfully");
-        case 14:
-          document.getElementById("tourModal").classList.remove("active");
           _context3.next = 17;
-          return handleTourLoad();
+          return (0, _tourManagement.updateTour)(tourId, formData);
         case 17:
-          _context3.next = 22;
+          (0, _alert.showAlert)("success", "Tour updated successfully");
+          _context3.next = 23;
           break;
-        case 19:
-          _context3.prev = 19;
-          _context3.t0 = _context3["catch"](4);
-          (0, _alert.showAlert)("error", ((_err$response = _context3.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || "Error saving tour");
+        case 20:
+          _context3.next = 22;
+          return (0, _tourManagement.createTour)(formData);
         case 22:
+          (0, _alert.showAlert)("success", "Tour created successfully");
+        case 23:
+          document.getElementById("tourModal").classList.remove("active");
+          _context3.next = 26;
+          return handleTourLoad();
+        case 26:
+          _context3.next = 31;
+          break;
+        case 28:
+          _context3.prev = 28;
+          _context3.t0 = _context3["catch"](13);
+          (0, _alert.showAlert)("error", ((_err$response = _context3.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || "Error saving tour");
+        case 31:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[4, 19]]);
+    }, _callee3, null, [[13, 28]]);
   }));
   return function handleFormSubmit(_x2) {
     return _ref3.apply(this, arguments);
   };
 }();
-var updatePaginationInfo = function updatePaginationInfo() {
-  var pageInfo = document.getElementById("pageInfo");
-  if (pageInfo) pageInfo.textContent = "Page ".concat(currentPage, " of ").concat(totalPages);
-  var prevPageBtn = document.getElementById("prevPage");
-  var nextPageBtn = document.getElementById("nextPage");
-  if (prevPageBtn) {
-    prevPageBtn.disabled = currentPage <= 1;
-    prevPageBtn.classList.toggle("btn--disabled", currentPage <= 1);
-  }
-  if (nextPageBtn) {
-    nextPageBtn.disabled = currentPage >= totalPages;
-    nextPageBtn.classList.toggle("btn--disabled", currentPage >= totalPages);
-  }
-};
+var handleDeleteTour = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(tourId) {
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
+        case 0:
+          if (confirm("Are you sure you want to delete this tour?")) {
+            _context4.next = 2;
+            break;
+          }
+          return _context4.abrupt("return");
+        case 2:
+          _context4.prev = 2;
+          _context4.next = 5;
+          return (0, _tourManagement.deleteTour)(tourId);
+        case 5:
+          (0, _alert.showAlert)("success", "Tour deleted successfully");
+          document.getElementById("tourModal").classList.remove("active");
+          _context4.next = 9;
+          return handleTourLoad();
+        case 9:
+          _context4.next = 14;
+          break;
+        case 11:
+          _context4.prev = 11;
+          _context4.t0 = _context4["catch"](2);
+          (0, _alert.showAlert)("error", "Failed to delete tour");
+        case 14:
+        case "end":
+          return _context4.stop();
+      }
+    }, _callee4, null, [[2, 11]]);
+  }));
+  return function handleDeleteTour(_x3) {
+    return _ref4.apply(this, arguments);
+  };
+}();
 var initializeEventListeners = function initializeEventListeners() {
   var _document$getElementB, _document$getElementB2;
   var searchInput = document.getElementById("searchTour");
@@ -8747,6 +8857,9 @@ var initializeEventListeners = function initializeEventListeners() {
   var createTourBtn = document.getElementById("createTourBtn");
   var tourForm = document.getElementById("tourForm");
   var closeModalBtn = document.querySelector(".close-modal");
+  var deleteTourBtn = document.getElementById("deleteTourBtn");
+  var addLocationBtn = document.getElementById("addLocationBtn");
+  var addStartDateBtn = document.getElementById("addStartDateBtn");
   searchInput === null || searchInput === void 0 || searchInput.addEventListener("input", (0, _dom.debounce)(function (e) {
     currentSearch = e.target.value;
     currentPage = 1;
@@ -8757,8 +8870,6 @@ var initializeEventListeners = function initializeEventListeners() {
     currentPage = 1;
     handleTourLoad();
   });
-
-  // Pagination handlers
   (_document$getElementB = document.getElementById("prevPage")) === null || _document$getElementB === void 0 || _document$getElementB.addEventListener("click", function () {
     if (currentPage > 1) {
       currentPage--;
@@ -8771,33 +8882,61 @@ var initializeEventListeners = function initializeEventListeners() {
       handleTourLoad();
     }
   });
-
-  // Tour edit handler
   tourTableBody === null || tourTableBody === void 0 || tourTableBody.addEventListener("click", function (e) {
     var editBtn = e.target.closest(".btn--edit");
     if (editBtn) {
       handleEditClick(editBtn.dataset.id);
     }
   });
-
-  // Create tour handler
   createTourBtn === null || createTourBtn === void 0 || createTourBtn.addEventListener("click", function () {
     var modal = document.getElementById("tourModal");
     if (modal && tourForm) {
       tourForm.reset();
       tourForm.removeAttribute("data-tour-id");
       document.getElementById("modalTitle").textContent = "Create New Tour";
+      populateLocationInputs();
+      populateStartDates();
+      document.getElementById("currentCoverImage").style.display = "none";
+      document.getElementById("tourImagesContainer").innerHTML = "";
       modal.classList.add("active");
     }
   });
-
-  // Form submission
   tourForm === null || tourForm === void 0 || tourForm.addEventListener("submit", handleFormSubmit);
-
-  // Modal close handler
   closeModalBtn === null || closeModalBtn === void 0 || closeModalBtn.addEventListener("click", function () {
     var _document$getElementB3;
     (_document$getElementB3 = document.getElementById("tourModal")) === null || _document$getElementB3 === void 0 || _document$getElementB3.classList.remove("active");
+  });
+  deleteTourBtn === null || deleteTourBtn === void 0 || deleteTourBtn.addEventListener("click", function () {
+    var tourId = tourForm.dataset.tourId;
+    if (tourId) handleDeleteTour(tourId);
+  });
+  addLocationBtn === null || addLocationBtn === void 0 || addLocationBtn.addEventListener("click", function () {
+    var locations = document.querySelectorAll(".location-inputs");
+    populateLocationInputs([].concat(_toConsumableArray(Array.from(locations).map(function (div) {
+      return {
+        address: div.querySelector(".location-address").value,
+        description: div.querySelector(".location-description").value,
+        coordinates: div.querySelector(".location-coordinates").value.split(","),
+        day: div.querySelector(".location-day").value
+      };
+    })), [{}]));
+  });
+  addStartDateBtn === null || addStartDateBtn === void 0 || addStartDateBtn.addEventListener("click", function () {
+    var dates = document.querySelectorAll(".date-inputs");
+    populateStartDates([].concat(_toConsumableArray(Array.from(dates).map(function (div) {
+      return {
+        date: div.querySelector(".start-date").value
+      };
+    })), [{}]));
+  });
+
+  // Event delegation for removing locations and dates
+  document.addEventListener("click", function (e) {
+    if (e.target.matches(".remove-location")) {
+      e.target.closest(".location-inputs").remove();
+    } else if (e.target.matches(".remove-date")) {
+      e.target.closest(".date-inputs").remove();
+    }
   });
 };
 var initializeTourManagement = exports.initializeTourManagement = function initializeTourManagement() {
@@ -8805,7 +8944,7 @@ var initializeTourManagement = exports.initializeTourManagement = function initi
   initializeEventListeners();
   handleTourLoad();
 };
-},{"../utils/alert":"utils/alert.js","../utils/dom":"utils/dom.js","../api/tourManagement":"api/tourManagement.js"}],"utils/mapbox.js":[function(require,module,exports) {
+},{"../utils/alert":"utils/alert.js","../utils/dom":"utils/dom.js","../api/tourManagement":"api/tourManagement.js","../utils/pagination":"utils/pagination.js"}],"utils/mapbox.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9006,7 +9145,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39149" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33241" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

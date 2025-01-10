@@ -8,6 +8,7 @@ import {
   createTour,
   deleteTour,
 } from "../api/tourManagement";
+import { updatePaginationInfo } from "../utils/pagination";
 
 let currentPage = 1;
 let totalPages = 1;
@@ -48,10 +49,44 @@ const handleTourLoad = async () => {
           .join("")
       : '<tr><td colspan="7" class="text-center">No tours found</td></tr>';
 
-    updatePaginationInfo();
+    updatePaginationInfo(currentPage, totalPages);
   } catch (err) {
     console.error("Load error:", err);
+    showAlert("error", "Failed to load tours");
   }
+};
+
+const populateLocationInputs = (locations = []) => {
+  const container = document.getElementById("locationsContainer");
+  container.innerHTML = "";
+
+  locations.forEach((location, index) => {
+    const locationHtml = `
+      <div class="location-inputs" data-index="${index}">
+        <input type="text" class="form__input location-address" placeholder="Address" value="${location.address || ""}" required>
+        <input type="text" class="form__input location-description" placeholder="Description" value="${location.description || ""}" required>
+        <input type="text" class="form__input location-coordinates" placeholder="Coordinates (lng,lat)" value="${location.coordinates?.join(",") || ""}" required>
+        <input type="number" class="form__input location-day" placeholder="Day" value="${location.day || ""}" required>
+        <button type="button" class="btn btn--small btn--red remove-location">Remove</button>
+      </div>
+    `;
+    container.insertAdjacentHTML("beforeend", locationHtml);
+  });
+};
+
+const populateStartDates = (dates = []) => {
+  const container = document.getElementById("startDatesContainer");
+  container.innerHTML = "";
+
+  dates.forEach((dateObj, index) => {
+    const dateHtml = `
+      <div class="date-inputs" data-index="${index}">
+        <input type="date" class="form__input start-date" value="${dateObj.date?.split("T")[0] || ""}" required>
+        <button type="button" class="btn btn--small btn--red remove-date">Remove</button>
+      </div>
+    `;
+    container.insertAdjacentHTML("beforeend", dateHtml);
+  });
 };
 
 const handleEditClick = async tourId => {
@@ -63,18 +98,55 @@ const handleEditClick = async tourId => {
 
     if (!modal || !form) return;
 
-    // Populate form fields
-    form.elements.name.value = tour.name;
-    form.elements.duration.value = tour.duration;
-    form.elements.maxGroupSize.value = tour.maxGroupSize;
-    form.elements.difficulty.value = tour.difficulty;
-    form.elements.price.value = tour.price;
+    // Populate basic fields
+    form.elements.name.value = tour.name || "";
+    form.elements.duration.value = tour.duration || "";
+    form.elements.maxGroupSize.value = tour.maxGroupSize || "";
+    form.elements.difficulty.value = tour.difficulty || "easy";
+    form.elements.price.value = tour.price || "";
     form.elements.priceDiscount.value = tour.priceDiscount || "";
-    form.elements.summary.value = tour.summary;
-    form.elements.description.value = tour.description;
-    form.elements.hidden.value = tour.hidden.toString();
+    form.elements.summary.value = tour.summary || "";
+    form.elements.description.value = tour.description || "";
+    form.elements.hidden.value = tour.hidden?.toString() || "false";
 
-    // Set data attributes for form submission
+    // Populate start location
+    if (tour.startLocation) {
+      form.querySelector("#startLocationAddress").value =
+        tour.startLocation.address || "";
+      form.querySelector("#startLocationDesc").value =
+        tour.startLocation.description || "";
+      form.querySelector("#startLocationCoords").value =
+        tour.startLocation.coordinates?.join(",") || "";
+    }
+
+    // Show existing cover image if exists
+    const currentCoverImage = document.getElementById("currentCoverImage");
+    if (tour.imageCover) {
+      currentCoverImage.src = `/img/tours/${tour.imageCover}`;
+      currentCoverImage.style.display = "block";
+    } else {
+      currentCoverImage.style.display = "none";
+    }
+
+    // Show existing tour images
+    const tourImagesContainer = document.getElementById("tourImagesContainer");
+    tourImagesContainer.innerHTML = "";
+    if (tour.images?.length) {
+      tour.images.forEach(img => {
+        tourImagesContainer.insertAdjacentHTML(
+          "beforeend",
+          `
+          <img src="/img/tours/${img}" alt="" class="preview-image">
+        `,
+        );
+      });
+    }
+
+    // Populate locations and dates
+    populateLocationInputs(tour.locations);
+    populateStartDates(tour.startDates);
+
+    // Set form data attributes
     form.dataset.tourId = tourId;
     modalTitle.textContent = "Edit Tour";
     modal.classList.add("active");
@@ -89,12 +161,51 @@ const handleFormSubmit = async e => {
   const tourId = form.dataset.tourId;
   const formData = new FormData(form);
 
+  // Handle start location
+  const startLocation = {
+    type: "Point",
+    address: form.querySelector("#startLocationAddress").value,
+    description: form.querySelector("#startLocationDesc").value,
+    coordinates: form
+      .querySelector("#startLocationCoords")
+      .value.split(",")
+      .map(Number),
+  };
+  formData.delete("startLocationAddress");
+  formData.delete("startLocationDesc");
+  formData.delete("startLocationCoords");
+  formData.append("startLocation", JSON.stringify(startLocation));
+
+  // Handle locations
+  const locations = Array.from(form.querySelectorAll(".location-inputs")).map(
+    div => ({
+      type: "Point",
+      address: div.querySelector(".location-address").value,
+      description: div.querySelector(".location-description").value,
+      coordinates: div
+        .querySelector(".location-coordinates")
+        .value.split(",")
+        .map(Number),
+      day: parseInt(div.querySelector(".location-day").value),
+    }),
+  );
+  formData.append("locations", JSON.stringify(locations));
+
+  // Handle dates
+  const startDates = Array.from(form.querySelectorAll(".date-inputs")).map(
+    div => ({
+      date: div.querySelector(".start-date").value,
+      participants: 0,
+    }),
+  );
+  formData.append("startDates", JSON.stringify(startDates));
+
   try {
     if (tourId) {
-      await updateTour(tourId, Object.fromEntries(formData));
+      await updateTour(tourId, formData);
       showAlert("success", "Tour updated successfully");
     } else {
-      await createTour(Object.fromEntries(formData));
+      await createTour(formData);
       showAlert("success", "Tour created successfully");
     }
 
@@ -105,20 +216,16 @@ const handleFormSubmit = async e => {
   }
 };
 
-const updatePaginationInfo = () => {
-  const pageInfo = document.getElementById("pageInfo");
-  if (pageInfo) pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+const handleDeleteTour = async tourId => {
+  if (!confirm("Are you sure you want to delete this tour?")) return;
 
-  const prevPageBtn = document.getElementById("prevPage");
-  const nextPageBtn = document.getElementById("nextPage");
-
-  if (prevPageBtn) {
-    prevPageBtn.disabled = currentPage <= 1;
-    prevPageBtn.classList.toggle("btn--disabled", currentPage <= 1);
-  }
-  if (nextPageBtn) {
-    nextPageBtn.disabled = currentPage >= totalPages;
-    nextPageBtn.classList.toggle("btn--disabled", currentPage >= totalPages);
+  try {
+    await deleteTour(tourId);
+    showAlert("success", "Tour deleted successfully");
+    document.getElementById("tourModal").classList.remove("active");
+    await handleTourLoad();
+  } catch (err) {
+    showAlert("error", "Failed to delete tour");
   }
 };
 
@@ -129,6 +236,9 @@ const initializeEventListeners = () => {
   const createTourBtn = document.getElementById("createTourBtn");
   const tourForm = document.getElementById("tourForm");
   const closeModalBtn = document.querySelector(".close-modal");
+  const deleteTourBtn = document.getElementById("deleteTourBtn");
+  const addLocationBtn = document.getElementById("addLocationBtn");
+  const addStartDateBtn = document.getElementById("addStartDateBtn");
 
   searchInput?.addEventListener(
     "input",
@@ -145,7 +255,6 @@ const initializeEventListeners = () => {
     handleTourLoad();
   });
 
-  // Pagination handlers
   document.getElementById("prevPage")?.addEventListener("click", () => {
     if (currentPage > 1) {
       currentPage--;
@@ -160,7 +269,6 @@ const initializeEventListeners = () => {
     }
   });
 
-  // Tour edit handler
   tourTableBody?.addEventListener("click", e => {
     const editBtn = e.target.closest(".btn--edit");
     if (editBtn) {
@@ -168,23 +276,63 @@ const initializeEventListeners = () => {
     }
   });
 
-  // Create tour handler
   createTourBtn?.addEventListener("click", () => {
     const modal = document.getElementById("tourModal");
     if (modal && tourForm) {
       tourForm.reset();
       tourForm.removeAttribute("data-tour-id");
       document.getElementById("modalTitle").textContent = "Create New Tour";
+      populateLocationInputs();
+      populateStartDates();
+      document.getElementById("currentCoverImage").style.display = "none";
+      document.getElementById("tourImagesContainer").innerHTML = "";
       modal.classList.add("active");
     }
   });
 
-  // Form submission
   tourForm?.addEventListener("submit", handleFormSubmit);
 
-  // Modal close handler
   closeModalBtn?.addEventListener("click", () => {
     document.getElementById("tourModal")?.classList.remove("active");
+  });
+
+  deleteTourBtn?.addEventListener("click", () => {
+    const tourId = tourForm.dataset.tourId;
+    if (tourId) handleDeleteTour(tourId);
+  });
+
+  addLocationBtn?.addEventListener("click", () => {
+    const locations = document.querySelectorAll(".location-inputs");
+    populateLocationInputs([
+      ...Array.from(locations).map(div => ({
+        address: div.querySelector(".location-address").value,
+        description: div.querySelector(".location-description").value,
+        coordinates: div
+          .querySelector(".location-coordinates")
+          .value.split(","),
+        day: div.querySelector(".location-day").value,
+      })),
+      {},
+    ]);
+  });
+
+  addStartDateBtn?.addEventListener("click", () => {
+    const dates = document.querySelectorAll(".date-inputs");
+    populateStartDates([
+      ...Array.from(dates).map(div => ({
+        date: div.querySelector(".start-date").value,
+      })),
+      {},
+    ]);
+  });
+
+  // Event delegation for removing locations and dates
+  document.addEventListener("click", e => {
+    if (e.target.matches(".remove-location")) {
+      e.target.closest(".location-inputs").remove();
+    } else if (e.target.matches(".remove-date")) {
+      e.target.closest(".date-inputs").remove();
+    }
   });
 };
 

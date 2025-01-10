@@ -83,7 +83,7 @@ block content
                 label.form__label(for='description') Description
                 textarea#description.form__input(required, rows="5")
               
-              .form__group.location-group
+              .form__group
                 label.form__label Start Location
                 .start-location-inputs
                   input#startLocationAddress.form__input(type='text', placeholder='Address', required)
@@ -93,13 +93,11 @@ block content
               .form__group
                 label.form__label Tour Locations
                 #locationsContainer.locations-container
-                  // Locations populated by JS
                 button.btn.btn--small.btn--blue#addLocationBtn(type='button') Add Location
               
               .form__group
                 label.form__label Tour Dates
                 #startDatesContainer.dates-container
-                  // Dates populated by JS
                 button.btn.btn--small.btn--blue#addStartDateBtn(type='button') Add Date
               
               .form__group
@@ -111,11 +109,10 @@ block content
                 label.form__label Tour Images
                 input#tourImages.form__input.form__upload(type='file', accept='image/*', multiple)
                 #tourImagesContainer.image-container
-                  // Images populated by JS
               
               .form__group
                 label.form__label(for='hidden') Status
-                select#hidden.form__input
+                select#hidden.form__input(required)
                   option(value='false') Visible
                   option(value='true') Hidden
               

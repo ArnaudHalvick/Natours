@@ -285,46 +285,232 @@
   border-top: 2px solid #f0f0f0;
 }
 
-/* Location Inputs */
-.start-location-inputs {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+/* Base Styles - Keep your existing styles up to location inputs */
+
+/* Your existing CSS until location inputs remains the same */
+
+/* Enhanced Location and Date Management Styles */
+.locations-container,
+.dates-container {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 8px;
   margin-bottom: 2rem;
 }
 
-/* Responsive Design */
+.location-inputs,
+.date-inputs {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  position: relative;
+}
+
+.location-inputs {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.date-inputs {
+  grid-template-columns: 1fr auto;
+}
+
+.remove-location,
+.remove-date {
+  padding: 1.2rem;
+  height: 100%;
+}
+
+/* Image Upload Styles */
+.image-upload-container {
+  grid-column: 1 / -1;
+}
+
+.preview-image {
+  max-width: 20rem;
+  max-height: 20rem;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 1rem;
+  display: block;
+  border: 2px solid #e0e0e0;
+}
+
+.image-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.image-container img {
+  width: 100%;
+  height: 12rem;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+}
+
+/* File Upload Styling */
+.form__upload {
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.form__upload:hover {
+  border-color: #40c057;
+  background-color: #f1f8f2;
+}
+
+/* Action Button Styles */
+#addLocationBtn,
+#addStartDateBtn {
+  width: 100%;
+  margin-top: 1rem;
+  background-color: #228be6;
+  color: white;
+  padding: 1.2rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+#addLocationBtn:hover,
+#addStartDateBtn:hover {
+  background-color: #1c7ed6;
+  transform: translateY(-1px);
+}
+
+/* Enhanced Form Group Styles */
+.modal .form__group.full-width {
+  grid-column: 1 / -1;
+}
+
+.modal .form__group.location-group,
+.modal .form__group.dates-group {
+  grid-column: 1 / -1;
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+/* Responsive Adjustments */
 @media screen and (max-width: 768px) {
-  .table {
-    display: block;
-    overflow-x: auto;
-  }
-
-  .tour-controls {
-    flex-direction: column;
-  }
-
-  .search-box,
-  .filter-box {
-    width: 100%;
-  }
-
-  .btn {
-    padding: 0.6rem 1.2rem;
-    font-size: 1.2rem;
-  }
-
-  .modal-content {
-    margin: 1rem;
-    padding: 2rem;
-  }
-
-  .modal .form--inline {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  .start-location-inputs {
+  .location-inputs {
     grid-template-columns: 1fr;
   }
+
+  .date-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .remove-location,
+  .remove-date {
+    margin-top: 1rem;
+  }
+
+  .image-container {
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  }
+
+  .preview-image {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .modal .form__group.location-group,
+  .modal .form__group.dates-group {
+    padding: 1.5rem;
+  }
+}
+
+/* Status Badge Styling */
+.table td:nth-child(6) {
+  font-weight: 500;
+}
+
+.table td:nth-child(6):contains("Hidden") {
+  color: #fa5252;
+}
+
+.table td:nth-child(6):contains("Visible") {
+  color: #40c057;
+}
+
+/* Form Validation Styles */
+.form__input:invalid {
+  border-color: #fa5252;
+}
+
+.form__input:focus:invalid {
+  box-shadow: 0 0 0 3px rgba(250, 82, 82, 0.1);
+}
+
+.form__group.error .form__label {
+  color: #fa5252;
+}
+
+.form__group.error .form__input {
+  border-color: #fa5252;
+}
+
+/* Loading State Styles */
+.btn.loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.btn.loading::after {
+  content: "";
+  position: absolute;
+  width: 1.6rem;
+  height: 1.6rem;
+  top: 50%;
+  left: 50%;
+  margin: -0.8rem 0 0 -0.8rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Tooltips for Form Fields */
+.form__label[data-tooltip] {
+  position: relative;
+  cursor: help;
+}
+
+.form__label[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 1.2rem;
+  white-space: nowrap;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.form__label[data-tooltip]:hover::after {
+  visibility: visible;
+  opacity: 1;
 }
