@@ -99,17 +99,14 @@ export class LocationManager {
     container.innerHTML = this.locations
       .map(
         (location, index) => `
-        <div class="location-item p-4 bg-gray-100 rounded mb-2">
-          <div class="flex justify-between items-center">
+          <div class="location-item">  
             <div>
-              <strong>Day ${location.day}:</strong> ${location.description}
-              <div class="text-sm text-gray-600">${location.address}</div>
+              <strong>Day ${location.day}:</strong> ${location.description}. ${location.address}
             </div>
             <button class="btn btn--small btn--red remove-location" data-index="${index}">
               Remove
             </button>
-          </div>
-        </div>
+          </div>  
       `,
       )
       .join("");
@@ -128,14 +125,9 @@ export class LocationManager {
 
     if (this.startLocation) {
       container.innerHTML = `
-        <div class="p-4 bg-gray-100 rounded mb-2">
-          <div class="flex justify-between items-center">
             <div>
-              <strong>Start Location:</strong> ${this.startLocation.description}
-              <div class="text-sm text-gray-600">${this.startLocation.address}</div>
+              <strong>Start Location:</strong> ${this.startLocation.description}. ${this.startLocation.address}
             </div>
-          </div>
-        </div>
       `;
     } else {
       container.innerHTML = "<p>No start location set</p>";

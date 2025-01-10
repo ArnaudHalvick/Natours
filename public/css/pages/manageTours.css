@@ -275,16 +275,18 @@
   justify-content: flex-start;
 }
 
-.start-location-display,
-.locations-list {
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.start-location-display {
+  font-family: inherit;
+  font-size: 1.5rem;
+  border-bottom: 1px solid grey;
+  padding-bottom: 1rem;
 }
 
 .location-item {
-  padding: 1rem;
-  border-bottom: 1px solid #eee;
+  font-family: inherit;
+  font-size: 1.4rem;
+  border-bottom: 1px solid grey;
+  padding: 1rem 0;
   display: flex;
   justify-content: space-between;
   align-items: center;

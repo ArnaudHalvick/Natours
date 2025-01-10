@@ -8701,7 +8701,7 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
       var container = document.querySelector(".locations-list");
       if (!container) return;
       container.innerHTML = this.locations.map(function (location, index) {
-        return "\n        <div class=\"location-item p-4 bg-gray-100 rounded mb-2\">\n          <div class=\"flex justify-between items-center\">\n            <div>\n              <strong>Day ".concat(location.day, ":</strong> ").concat(location.description, "\n              <div class=\"text-sm text-gray-600\">").concat(location.address, "</div>\n            </div>\n            <button class=\"btn btn--small btn--red remove-location\" data-index=\"").concat(index, "\">\n              Remove\n            </button>\n          </div>\n        </div>\n      ");
+        return "\n          <div class=\"location-item\">  \n            <div>\n              <strong>Day ".concat(location.day, ":</strong> ").concat(location.description, ". ").concat(location.address, "\n            </div>\n            <button class=\"btn btn--small btn--red remove-location\" data-index=\"").concat(index, "\">\n              Remove\n            </button>\n          </div>  \n      ");
       }).join("");
       container.querySelectorAll(".remove-location").forEach(function (button) {
         button.addEventListener("click", function (e) {
@@ -8716,7 +8716,7 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
       var container = document.querySelector(".start-location-display");
       if (!container) return;
       if (this.startLocation) {
-        container.innerHTML = "\n        <div class=\"p-4 bg-gray-100 rounded mb-2\">\n          <div class=\"flex justify-between items-center\">\n            <div>\n              <strong>Start Location:</strong> ".concat(this.startLocation.description, "\n              <div class=\"text-sm text-gray-600\">").concat(this.startLocation.address, "</div>\n            </div>\n          </div>\n        </div>\n      ");
+        container.innerHTML = "\n            <div>\n              <strong>Start Location:</strong> ".concat(this.startLocation.description, ". ").concat(this.startLocation.address, "\n            </div>\n      ");
       } else {
         container.innerHTML = "<p>No start location set</p>";
       }
