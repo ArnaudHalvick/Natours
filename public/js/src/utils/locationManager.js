@@ -1,75 +1,53 @@
 // utils/locationManager.js
 export class LocationManager {
   constructor() {
-    this.map = null;
-    this.geocoder = null;
-    this.markers = [];
     this.locations = [];
     this.startLocation = null;
-    this.startLocationMarker = null;
-    this.bounds = null;
-    this.currentSearchMarker = null;
     this.currentSearchResult = null;
+    this.geocoder = null;
 
-    this.initializeMap();
     this.initializeGeocoder();
     this.setupEventListeners();
   }
 
-  initializeMap() {
+  initializeGeocoder() {
     mapboxgl.accessToken =
       "pk.eyJ1IjoiYXJuYXVkLWhhbHZpY2siLCJhIjoiY20yamRpeHV3MDQzZTJxb3Y4Y2w5c2Y4byJ9.twUyM4221bznoihxEh2PKA";
 
-    this.map = new mapboxgl.Map({
-      container: "map-container",
-      style: "mapbox://styles/mapbox/streets-v11",
-      center: [-96, 37.8],
-      zoom: 3,
-    });
-
-    this.bounds = new mapboxgl.LngLatBounds();
-  }
-
-  initializeGeocoder() {
     this.geocoder = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,
-      mapboxgl: mapboxgl,
-      marker: false,
+      types: "country,region,place,postcode,locality,neighborhood,address",
       placeholder: "Search for a location...",
     });
 
     const searchContainer = document.getElementById("locationSearch");
     if (searchContainer) {
-      searchContainer.appendChild(this.geocoder.onAdd(this.map));
+      searchContainer.appendChild(this.geocoder.onAdd());
     }
   }
 
   setupEventListeners() {
     this.geocoder.on("result", e => {
       console.log("Search result:", e.result);
-
-      if (this.currentSearchMarker) {
-        this.currentSearchMarker.remove();
-      }
-
-      this.currentSearchMarker = new mapboxgl.Marker({ color: "#FFD700" })
-        .setLngLat(e.result.center)
-        .addTo(this.map);
-
       this.currentSearchResult = e.result;
-
-      this.map.flyTo({
-        center: e.result.center,
-        zoom: 13,
-      });
+      // Show a success message when location is found
+      const searchContainer = document.getElementById("locationSearch");
+      const existingMessage = searchContainer.querySelector(
+        ".location-found-message",
+      );
+      if (existingMessage) {
+        existingMessage.remove();
+      }
+      const message = document.createElement("div");
+      message.className = "location-found-message text-sm text-green-600 mt-2";
+      message.textContent = `Location found: ${e.result.place_name}`;
+      searchContainer.appendChild(message);
     });
 
     const addLocationBtn = document.getElementById("addLocationBtn");
     if (addLocationBtn) {
       addLocationBtn.addEventListener("click", () => {
-        console.log("Add location clicked");
         if (this.currentSearchResult) {
-          // Fix: Use a simple `type: "Point"`
           const location = {
             type: "Point",
             coordinates: this.currentSearchResult.center,
@@ -79,11 +57,6 @@ export class LocationManager {
           };
 
           this.addLocation(location);
-
-          if (this.currentSearchMarker) {
-            this.currentSearchMarker.remove();
-            this.currentSearchMarker = null;
-          }
           this.currentSearchResult = null;
           this.geocoder.clear();
         }
@@ -93,9 +66,7 @@ export class LocationManager {
     const setStartLocationBtn = document.getElementById("setStartLocationBtn");
     if (setStartLocationBtn) {
       setStartLocationBtn.addEventListener("click", () => {
-        console.log("Set start location clicked");
         if (this.currentSearchResult) {
-          // Fix: Use a simple `type: "Point"`
           const location = {
             type: "Point",
             coordinates: this.currentSearchResult.center,
@@ -104,11 +75,6 @@ export class LocationManager {
           };
 
           this.setStartLocation(location);
-
-          if (this.currentSearchMarker) {
-            this.currentSearchMarker.remove();
-            this.currentSearchMarker = null;
-          }
           this.currentSearchResult = null;
           this.geocoder.clear();
         }
@@ -118,56 +84,11 @@ export class LocationManager {
 
   addLocation(location) {
     this.locations.push(location);
-
-    // Add marker
-    const marker = new mapboxgl.Marker({ color: "#FF0000" })
-      .setLngLat(location.coordinates)
-      .addTo(this.map);
-
-    // Add popup
-    const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-        <strong>Day ${location.day}</strong><br>
-        ${location.description}
-      `);
-
-    marker.setPopup(popup);
-    this.markers.push(marker);
-
-    // Update bounds
-    this.bounds.extend(location.coordinates);
-    this.map.fitBounds(this.bounds, {
-      padding: { top: 50, bottom: 50, left: 50, right: 50 },
-    });
-
-    // Update locations list
     this.updateLocationsList();
   }
 
   setStartLocation(location) {
-    console.log("Setting start location:", location);
-
     this.startLocation = location;
-
-    if (this.startLocationMarker) {
-      this.startLocationMarker.remove();
-    }
-
-    this.startLocationMarker = new mapboxgl.Marker({ color: "#00FF00" })
-      .setLngLat(location.coordinates)
-      .addTo(this.map);
-
-    const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-        <strong>Start Location</strong><br>
-        ${location.description}
-      `);
-
-    this.startLocationMarker.setPopup(popup);
-
-    this.bounds.extend(location.coordinates);
-    this.map.fitBounds(this.bounds, {
-      padding: { top: 50, bottom: 50, left: 50, right: 50 },
-    });
-
     this.updateStartLocationDisplay();
   }
 
@@ -202,7 +123,6 @@ export class LocationManager {
   }
 
   updateStartLocationDisplay() {
-    console.log("Updating start location display");
     const container = document.querySelector(".start-location-display");
     if (!container) return;
 
@@ -223,8 +143,6 @@ export class LocationManager {
   }
 
   removeLocation(index) {
-    this.markers[index].remove();
-    this.markers.splice(index, 1);
     this.locations.splice(index, 1);
 
     // Update day numbers
@@ -232,26 +150,7 @@ export class LocationManager {
       location.day = i + 1;
     });
 
-    this.recalculateBounds();
     this.updateLocationsList();
-  }
-
-  recalculateBounds() {
-    this.bounds = new mapboxgl.LngLatBounds();
-
-    if (this.startLocation) {
-      this.bounds.extend(this.startLocation.coordinates);
-    }
-
-    this.locations.forEach(location => {
-      this.bounds.extend(location.coordinates);
-    });
-
-    if (!this.bounds.isEmpty()) {
-      this.map.fitBounds(this.bounds, {
-        padding: { top: 50, bottom: 50, left: 50, right: 50 },
-      });
-    }
   }
 
   getLocations() {
@@ -265,8 +164,6 @@ export class LocationManager {
   setLocations(locations) {
     this.cleanup();
     locations.forEach(location => {
-      // Ensure location has the correct structure.
-      // Fix: Use a simple `type: "Point"` here, too.
       const formattedLocation = {
         type: "Point",
         coordinates: location.coordinates,
@@ -279,15 +176,9 @@ export class LocationManager {
   }
 
   cleanup() {
-    this.markers.forEach(marker => marker.remove());
-    this.markers = [];
-    this.startLocationMarker?.remove();
-    this.startLocationMarker = null;
-    this.currentSearchMarker?.remove();
-    this.currentSearchMarker = null;
     this.locations = [];
     this.startLocation = null;
-    this.bounds = new mapboxgl.LngLatBounds();
+    this.currentSearchResult = null;
     this.updateLocationsList();
     this.updateStartLocationDisplay();
     this.geocoder?.clear();

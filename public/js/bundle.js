@@ -8609,43 +8609,25 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
   function LocationManager() {
     _classCallCheck(this, LocationManager);
-    this.map = null;
-    this.geocoder = null;
-    this.markers = [];
     this.locations = [];
     this.startLocation = null;
-    this.startLocationMarker = null;
-    this.bounds = null;
-    this.currentSearchMarker = null;
     this.currentSearchResult = null;
-    this.initializeMap();
+    this.geocoder = null;
     this.initializeGeocoder();
     this.setupEventListeners();
   }
   return _createClass(LocationManager, [{
-    key: "initializeMap",
-    value: function initializeMap() {
-      mapboxgl.accessToken = "pk.eyJ1IjoiYXJuYXVkLWhhbHZpY2siLCJhIjoiY20yamRpeHV3MDQzZTJxb3Y4Y2w5c2Y4byJ9.twUyM4221bznoihxEh2PKA";
-      this.map = new mapboxgl.Map({
-        container: "map-container",
-        style: "mapbox://styles/mapbox/streets-v11",
-        center: [-96, 37.8],
-        zoom: 3
-      });
-      this.bounds = new mapboxgl.LngLatBounds();
-    }
-  }, {
     key: "initializeGeocoder",
     value: function initializeGeocoder() {
+      mapboxgl.accessToken = "pk.eyJ1IjoiYXJuYXVkLWhhbHZpY2siLCJhIjoiY20yamRpeHV3MDQzZTJxb3Y4Y2w5c2Y4byJ9.twUyM4221bznoihxEh2PKA";
       this.geocoder = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
-        mapboxgl: mapboxgl,
-        marker: false,
+        types: "country,region,place,postcode,locality,neighborhood,address",
         placeholder: "Search for a location..."
       });
       var searchContainer = document.getElementById("locationSearch");
       if (searchContainer) {
-        searchContainer.appendChild(this.geocoder.onAdd(this.map));
+        searchContainer.appendChild(this.geocoder.onAdd());
       }
     }
   }, {
@@ -8654,24 +8636,22 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
       var _this = this;
       this.geocoder.on("result", function (e) {
         console.log("Search result:", e.result);
-        if (_this.currentSearchMarker) {
-          _this.currentSearchMarker.remove();
-        }
-        _this.currentSearchMarker = new mapboxgl.Marker({
-          color: "#FFD700"
-        }).setLngLat(e.result.center).addTo(_this.map);
         _this.currentSearchResult = e.result;
-        _this.map.flyTo({
-          center: e.result.center,
-          zoom: 13
-        });
+        // Show a success message when location is found
+        var searchContainer = document.getElementById("locationSearch");
+        var existingMessage = searchContainer.querySelector(".location-found-message");
+        if (existingMessage) {
+          existingMessage.remove();
+        }
+        var message = document.createElement("div");
+        message.className = "location-found-message text-sm text-green-600 mt-2";
+        message.textContent = "Location found: ".concat(e.result.place_name);
+        searchContainer.appendChild(message);
       });
       var addLocationBtn = document.getElementById("addLocationBtn");
       if (addLocationBtn) {
         addLocationBtn.addEventListener("click", function () {
-          console.log("Add location clicked");
           if (_this.currentSearchResult) {
-            // Fix: Use a simple `type: "Point"`
             var location = {
               type: "Point",
               coordinates: _this.currentSearchResult.center,
@@ -8680,10 +8660,6 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
               day: _this.locations.length + 1
             };
             _this.addLocation(location);
-            if (_this.currentSearchMarker) {
-              _this.currentSearchMarker.remove();
-              _this.currentSearchMarker = null;
-            }
             _this.currentSearchResult = null;
             _this.geocoder.clear();
           }
@@ -8692,9 +8668,7 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
       var setStartLocationBtn = document.getElementById("setStartLocationBtn");
       if (setStartLocationBtn) {
         setStartLocationBtn.addEventListener("click", function () {
-          console.log("Set start location clicked");
           if (_this.currentSearchResult) {
-            // Fix: Use a simple `type: "Point"`
             var location = {
               type: "Point",
               coordinates: _this.currentSearchResult.center,
@@ -8702,10 +8676,6 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
               address: _this.currentSearchResult.place_name
             };
             _this.setStartLocation(location);
-            if (_this.currentSearchMarker) {
-              _this.currentSearchMarker.remove();
-              _this.currentSearchMarker = null;
-            }
             _this.currentSearchResult = null;
             _this.geocoder.clear();
           }
@@ -8716,57 +8686,12 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
     key: "addLocation",
     value: function addLocation(location) {
       this.locations.push(location);
-
-      // Add marker
-      var marker = new mapboxgl.Marker({
-        color: "#FF0000"
-      }).setLngLat(location.coordinates).addTo(this.map);
-
-      // Add popup
-      var popup = new mapboxgl.Popup({
-        offset: 25
-      }).setHTML("\n        <strong>Day ".concat(location.day, "</strong><br>\n        ").concat(location.description, "\n      "));
-      marker.setPopup(popup);
-      this.markers.push(marker);
-
-      // Update bounds
-      this.bounds.extend(location.coordinates);
-      this.map.fitBounds(this.bounds, {
-        padding: {
-          top: 50,
-          bottom: 50,
-          left: 50,
-          right: 50
-        }
-      });
-
-      // Update locations list
       this.updateLocationsList();
     }
   }, {
     key: "setStartLocation",
     value: function setStartLocation(location) {
-      console.log("Setting start location:", location);
       this.startLocation = location;
-      if (this.startLocationMarker) {
-        this.startLocationMarker.remove();
-      }
-      this.startLocationMarker = new mapboxgl.Marker({
-        color: "#00FF00"
-      }).setLngLat(location.coordinates).addTo(this.map);
-      var popup = new mapboxgl.Popup({
-        offset: 25
-      }).setHTML("\n        <strong>Start Location</strong><br>\n        ".concat(location.description, "\n      "));
-      this.startLocationMarker.setPopup(popup);
-      this.bounds.extend(location.coordinates);
-      this.map.fitBounds(this.bounds, {
-        padding: {
-          top: 50,
-          bottom: 50,
-          left: 50,
-          right: 50
-        }
-      });
       this.updateStartLocationDisplay();
     }
   }, {
@@ -8788,7 +8713,6 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
   }, {
     key: "updateStartLocationDisplay",
     value: function updateStartLocationDisplay() {
-      console.log("Updating start location display");
       var container = document.querySelector(".start-location-display");
       if (!container) return;
       if (this.startLocation) {
@@ -8800,38 +8724,13 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
   }, {
     key: "removeLocation",
     value: function removeLocation(index) {
-      this.markers[index].remove();
-      this.markers.splice(index, 1);
       this.locations.splice(index, 1);
 
       // Update day numbers
       this.locations.forEach(function (location, i) {
         location.day = i + 1;
       });
-      this.recalculateBounds();
       this.updateLocationsList();
-    }
-  }, {
-    key: "recalculateBounds",
-    value: function recalculateBounds() {
-      var _this3 = this;
-      this.bounds = new mapboxgl.LngLatBounds();
-      if (this.startLocation) {
-        this.bounds.extend(this.startLocation.coordinates);
-      }
-      this.locations.forEach(function (location) {
-        _this3.bounds.extend(location.coordinates);
-      });
-      if (!this.bounds.isEmpty()) {
-        this.map.fitBounds(this.bounds, {
-          padding: {
-            top: 50,
-            bottom: 50,
-            left: 50,
-            right: 50
-          }
-        });
-      }
     }
   }, {
     key: "getLocations",
@@ -8846,11 +8745,9 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
   }, {
     key: "setLocations",
     value: function setLocations(locations) {
-      var _this4 = this;
+      var _this3 = this;
       this.cleanup();
       locations.forEach(function (location) {
-        // Ensure location has the correct structure.
-        // Fix: Use a simple `type: "Point"` here, too.
         var formattedLocation = {
           type: "Point",
           coordinates: location.coordinates,
@@ -8858,24 +8755,16 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
           address: location.address,
           day: location.day
         };
-        _this4.addLocation(formattedLocation);
+        _this3.addLocation(formattedLocation);
       });
     }
   }, {
     key: "cleanup",
     value: function cleanup() {
-      var _this$startLocationMa, _this$currentSearchMa, _this$geocoder;
-      this.markers.forEach(function (marker) {
-        return marker.remove();
-      });
-      this.markers = [];
-      (_this$startLocationMa = this.startLocationMarker) === null || _this$startLocationMa === void 0 || _this$startLocationMa.remove();
-      this.startLocationMarker = null;
-      (_this$currentSearchMa = this.currentSearchMarker) === null || _this$currentSearchMa === void 0 || _this$currentSearchMa.remove();
-      this.currentSearchMarker = null;
+      var _this$geocoder;
       this.locations = [];
       this.startLocation = null;
-      this.bounds = new mapboxgl.LngLatBounds();
+      this.currentSearchResult = null;
       this.updateLocationsList();
       this.updateStartLocationDisplay();
       (_this$geocoder = this.geocoder) === null || _this$geocoder === void 0 || _this$geocoder.clear();

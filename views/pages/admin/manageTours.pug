@@ -52,7 +52,7 @@ block content
             span.close-modal &times;
             h3.heading-tertiary#modalTitle Edit Tour
             form#tourForm.form.form--inline
-              // Basic Information
+              // Basic Information Section
               .form__group
                 label.form__label(for='name') Name
                 input#name.form__input(type='text', required, minlength="10", maxlength="40")
@@ -80,7 +80,7 @@ block content
                 label.form__label(for='priceDiscount') Discount ($)
                 input#priceDiscount.form__input(type='number', min="0", step="0.01")
 
-              // Status and Actions
+              // Status and Description Section
               .form__group
                 label.form__label(for='hidden') Status
                 select#hidden.form__input(required)
@@ -95,7 +95,7 @@ block content
                 label.form__label(for='description') Description
                 textarea#description.form__input(required, rows="5")
 
-              // Images
+              // Images Section
               .form__group
                 label.form__label Cover Image
                 input#imageCover.form__input.form__upload(type='file', accept='image/*')
@@ -106,10 +106,9 @@ block content
                 input#tourImages.form__input.form__upload(type='file', accept='image/*', multiple)
                 #tourImagesContainer.image-container
 
-              // Location Management
+              // Location Management Section
               .form__group.full-width.location-section
                 h4.heading-quaternary.mb-4 Tour Locations
-                #map-container.mb-4
                 .location-controls.mb-4
                   #locationSearch.mb-2
                   .button-group.flex.gap-2
@@ -117,17 +116,16 @@ block content
                     button#addLocationBtn.btn.btn--small.btn--blue(type='button') Add to Route
                 
                 .start-location-display.mb-4
-                  // Start location details populated by JS
-                
                 .locations-list.mb-4
-                  // Tour locations populated by JS
               
-              // Tour Dates
+              // Tour Dates Section
               .form__group
                 label.form__label Tour Dates
                 #startDatesContainer.dates-container
                 button.btn.btn--small.btn--blue#addStartDateBtn(type='button') Add Date
-                
+              
+              // Form Actions
               .form__group.right
                 button.btn.btn--small.btn--red#deleteTourBtn(type='button', style='margin-right: 1rem') Delete Tour
                 button.btn.btn--small.btn--green(type='submit') Save Tour
+
