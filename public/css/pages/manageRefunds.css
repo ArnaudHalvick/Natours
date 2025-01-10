@@ -1,3 +1,9 @@
+.user-view__users-container {
+  max-width: 120rem;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
 /* General Text Styles */
 .text-success {
   color: #28a745;
@@ -39,15 +45,9 @@
   background-color: #f9f9f9;
 }
 
-/* Refund Title */
-.refund-title {
-  padding-left: 2rem;
-}
-
 /* Filters Section */
 .filters {
   background-color: #f4f4f4;
-  padding: 2rem;
   border-radius: 5px;
   margin-bottom: 20px;
 }
