@@ -8346,6 +8346,13 @@ exports.updateTour = exports.toggleTourVisibility = exports.fetchTours = exports
 var _axios = _interopRequireDefault(require("axios"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t.return || t.return(); } finally { if (u) throw o; } } }; }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; } // api/tourManagement.js
@@ -8417,124 +8424,141 @@ var fetchTourById = exports.fetchTourById = /*#__PURE__*/function () {
     return _ref2.apply(this, arguments);
   };
 }();
-var createTour = exports.createTour = /*#__PURE__*/function () {
-  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(tourData) {
-    var formData, res;
+var updateTour = exports.updateTour = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(tourId, formData) {
+    var locations, startLocation, startDates, _iterator, _step, _step$value, key, value, res, _error$response;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
           _context3.prev = 0;
-          formData = new FormData(); // Handle regular fields
-          Object.keys(tourData).forEach(function (key) {
-            if (key !== "images" && key !== "imageCover") {
-              if (_typeof(tourData[key]) === "object") {
-                formData.append(key, JSON.stringify(tourData[key]));
-              } else {
-                formData.append(key, tourData[key]);
-              }
+          console.log("Updating tour with ID:", tourId);
+
+          // Convert locations and startLocation back from string to object if they are strings
+          locations = formData.get("locations");
+          startLocation = formData.get("startLocation");
+          startDates = formData.get("startDates");
+          if (locations && typeof locations === "string") {
+            formData.delete("locations");
+            formData.append("locations", locations); // Keep as string, server will parse it
+          }
+          if (startLocation && typeof startLocation === "string") {
+            formData.delete("startLocation");
+            formData.append("startLocation", startLocation); // Keep as string, server will parse it
+          }
+          if (startDates && typeof startDates === "string") {
+            formData.delete("startDates");
+            formData.append("startDates", startDates); // Keep as string, server will parse it
+          }
+
+          // Log the final form data
+          console.log("FormData contents:");
+          _iterator = _createForOfIteratorHelper(formData.entries());
+          try {
+            for (_iterator.s(); !(_step = _iterator.n()).done;) {
+              _step$value = _slicedToArray(_step.value, 2), key = _step$value[0], value = _step$value[1];
+              console.log(key, ":", value);
+            }
+          } catch (err) {
+            _iterator.e(err);
+          } finally {
+            _iterator.f();
+          }
+          _context3.next = 13;
+          return _axios.default.patch("/api/v1/tours/".concat(tourId), formData, {
+            headers: {
+              "Content-Type": "multipart/form-data"
             }
           });
-
-          // Handle file uploads
-          if (tourData.imageCover) {
-            formData.append("imageCover", tourData.imageCover);
+        case 13:
+          res = _context3.sent;
+          return _context3.abrupt("return", res.data.data);
+        case 17:
+          _context3.prev = 17;
+          _context3.t0 = _context3["catch"](0);
+          console.error("Update tour error:", _context3.t0);
+          console.error("Error response:", (_error$response = _context3.t0.response) === null || _error$response === void 0 ? void 0 : _error$response.data);
+          throw _context3.t0;
+        case 22:
+        case "end":
+          return _context3.stop();
+      }
+    }, _callee3, null, [[0, 17]]);
+  }));
+  return function updateTour(_x2, _x3) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+var createTour = exports.createTour = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(tourData) {
+    var formData, _iterator2, _step2, _step2$value, key, value, res, _error$response2;
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
+        case 0:
+          _context4.prev = 0;
+          console.log("Creating new tour with data:", tourData);
+          formData = new FormData(); // Handle regular fields from the incoming FormData
+          _iterator2 = _createForOfIteratorHelper(tourData.entries());
+          try {
+            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+              _step2$value = _slicedToArray(_step2.value, 2), key = _step2$value[0], value = _step2$value[1];
+              formData.append(key, value);
+            }
+          } catch (err) {
+            _iterator2.e(err);
+          } finally {
+            _iterator2.f();
           }
-          if (tourData.images) {
-            tourData.images.forEach(function (image) {
-              formData.append("images", image);
-            });
-          }
-          _context3.next = 7;
+          _context4.next = 7;
           return _axios.default.post("/api/v1/tours", formData, {
             headers: {
               "Content-Type": "multipart/form-data"
             }
           });
         case 7:
-          res = _context3.sent;
-          return _context3.abrupt("return", res.data.data);
-        case 11:
-          _context3.prev = 11;
-          _context3.t0 = _context3["catch"](0);
-          throw _context3.t0;
-        case 14:
-        case "end":
-          return _context3.stop();
-      }
-    }, _callee3, null, [[0, 11]]);
-  }));
-  return function createTour(_x2) {
-    return _ref3.apply(this, arguments);
-  };
-}();
-var updateTour = exports.updateTour = /*#__PURE__*/function () {
-  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(tourId, tourData) {
-    var formData, res;
-    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-      while (1) switch (_context4.prev = _context4.next) {
-        case 0:
-          _context4.prev = 0;
-          formData = new FormData();
-          Object.keys(tourData).forEach(function (key) {
-            if (key !== "images" && key !== "imageCover") {
-              if (_typeof(tourData[key]) === "object") {
-                formData.append(key, JSON.stringify(tourData[key]));
-              } else {
-                formData.append(key, tourData[key]);
-              }
-            }
-          });
-          if (tourData.imageCover) {
-            formData.append("imageCover", tourData.imageCover);
-          }
-          if (tourData.images) {
-            tourData.images.forEach(function (image) {
-              formData.append("images", image);
-            });
-          }
-          _context4.next = 7;
-          return _axios.default.patch("/api/v1/tours/".concat(tourId), formData, {
-            headers: {
-              "Content-Type": "multipart/form-data"
-            }
-          });
-        case 7:
           res = _context4.sent;
+          console.log("Create response:", res.data);
           return _context4.abrupt("return", res.data.data);
-        case 11:
-          _context4.prev = 11;
+        case 12:
+          _context4.prev = 12;
           _context4.t0 = _context4["catch"](0);
+          console.error("Create tour error:", _context4.t0);
+          console.error("Error response:", (_error$response2 = _context4.t0.response) === null || _error$response2 === void 0 ? void 0 : _error$response2.data);
           throw _context4.t0;
-        case 14:
+        case 17:
         case "end":
           return _context4.stop();
       }
-    }, _callee4, null, [[0, 11]]);
+    }, _callee4, null, [[0, 12]]);
   }));
-  return function updateTour(_x3, _x4) {
+  return function createTour(_x4) {
     return _ref4.apply(this, arguments);
   };
 }();
 var deleteTour = exports.deleteTour = /*#__PURE__*/function () {
   var _ref5 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5(tourId) {
+    var res, _error$response3;
     return _regeneratorRuntime().wrap(function _callee5$(_context5) {
       while (1) switch (_context5.prev = _context5.next) {
         case 0:
           _context5.prev = 0;
-          _context5.next = 3;
+          console.log("Deleting tour with ID:", tourId);
+          _context5.next = 4;
           return _axios.default.delete("/api/v1/tours/".concat(tourId));
-        case 3:
-          _context5.next = 8;
-          break;
-        case 5:
-          _context5.prev = 5;
+        case 4:
+          res = _context5.sent;
+          console.log("Delete response:", res);
+          return _context5.abrupt("return", res);
+        case 9:
+          _context5.prev = 9;
           _context5.t0 = _context5["catch"](0);
+          console.error("Delete tour error:", _context5.t0);
+          console.error("Error response:", (_error$response3 = _context5.t0.response) === null || _error$response3 === void 0 ? void 0 : _error$response3.data);
           throw _context5.t0;
-        case 8:
+        case 14:
         case "end":
           return _context5.stop();
       }
-    }, _callee5, null, [[0, 5]]);
+    }, _callee5, null, [[0, 9]]);
   }));
   return function deleteTour(_x5) {
     return _ref5.apply(this, arguments);
@@ -8568,7 +8592,300 @@ var toggleTourVisibility = exports.toggleTourVisibility = /*#__PURE__*/function 
     return _ref6.apply(this, arguments);
   };
 }();
-},{"axios":"../../../node_modules/axios/index.js"}],"handlers/tourManagement.js":[function(require,module,exports) {
+},{"axios":"../../../node_modules/axios/index.js"}],"utils/locationManager.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.LocationManager = void 0;
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+// utils/locationManager.js
+var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
+  function LocationManager() {
+    _classCallCheck(this, LocationManager);
+    this.map = null;
+    this.geocoder = null;
+    this.markers = [];
+    this.locations = [];
+    this.startLocation = null;
+    this.startLocationMarker = null;
+    this.bounds = null;
+    this.currentSearchMarker = null;
+    this.currentSearchResult = null;
+    this.initializeMap();
+    this.initializeGeocoder();
+    this.setupEventListeners();
+  }
+  return _createClass(LocationManager, [{
+    key: "initializeMap",
+    value: function initializeMap() {
+      mapboxgl.accessToken = "pk.eyJ1IjoiYXJuYXVkLWhhbHZpY2siLCJhIjoiY20yamRpeHV3MDQzZTJxb3Y4Y2w5c2Y4byJ9.twUyM4221bznoihxEh2PKA";
+      this.map = new mapboxgl.Map({
+        container: "map-container",
+        style: "mapbox://styles/mapbox/streets-v11",
+        center: [-96, 37.8],
+        zoom: 3
+      });
+      this.bounds = new mapboxgl.LngLatBounds();
+    }
+  }, {
+    key: "initializeGeocoder",
+    value: function initializeGeocoder() {
+      this.geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl,
+        marker: false,
+        placeholder: "Search for a location..."
+      });
+      var searchContainer = document.getElementById("locationSearch");
+      if (searchContainer) {
+        searchContainer.appendChild(this.geocoder.onAdd(this.map));
+      }
+    }
+  }, {
+    key: "setupEventListeners",
+    value: function setupEventListeners() {
+      var _this = this;
+      this.geocoder.on("result", function (e) {
+        console.log("Search result:", e.result);
+        if (_this.currentSearchMarker) {
+          _this.currentSearchMarker.remove();
+        }
+        _this.currentSearchMarker = new mapboxgl.Marker({
+          color: "#FFD700"
+        }).setLngLat(e.result.center).addTo(_this.map);
+        _this.currentSearchResult = e.result;
+        _this.map.flyTo({
+          center: e.result.center,
+          zoom: 13
+        });
+      });
+      var addLocationBtn = document.getElementById("addLocationBtn");
+      if (addLocationBtn) {
+        addLocationBtn.addEventListener("click", function () {
+          console.log("Add location clicked");
+          if (_this.currentSearchResult) {
+            var location = {
+              type: {
+                type: "Point"
+              },
+              coordinates: _this.currentSearchResult.center,
+              description: _this.currentSearchResult.text,
+              address: _this.currentSearchResult.place_name,
+              day: _this.locations.length + 1
+            };
+            _this.addLocation(location);
+            if (_this.currentSearchMarker) {
+              _this.currentSearchMarker.remove();
+              _this.currentSearchMarker = null;
+            }
+            _this.currentSearchResult = null;
+            _this.geocoder.clear();
+          }
+        });
+      }
+      var setStartLocationBtn = document.getElementById("setStartLocationBtn");
+      if (setStartLocationBtn) {
+        setStartLocationBtn.addEventListener("click", function () {
+          console.log("Set start location clicked");
+          if (_this.currentSearchResult) {
+            var location = {
+              type: {
+                type: "Point"
+              },
+              coordinates: _this.currentSearchResult.center,
+              description: _this.currentSearchResult.text,
+              address: _this.currentSearchResult.place_name
+            };
+            _this.setStartLocation(location);
+            if (_this.currentSearchMarker) {
+              _this.currentSearchMarker.remove();
+              _this.currentSearchMarker = null;
+            }
+            _this.currentSearchResult = null;
+            _this.geocoder.clear();
+          }
+        });
+      }
+    }
+  }, {
+    key: "addLocation",
+    value: function addLocation(location) {
+      this.locations.push(location);
+
+      // Add marker
+      var marker = new mapboxgl.Marker({
+        color: "#FF0000"
+      }).setLngLat(location.coordinates).addTo(this.map);
+
+      // Add popup
+      var popup = new mapboxgl.Popup({
+        offset: 25
+      }).setHTML("\n        <strong>Day ".concat(location.day, "</strong><br>\n        ").concat(location.description, "\n      "));
+      marker.setPopup(popup);
+      this.markers.push(marker);
+
+      // Update bounds
+      this.bounds.extend(location.coordinates);
+      this.map.fitBounds(this.bounds, {
+        padding: {
+          top: 50,
+          bottom: 50,
+          left: 50,
+          right: 50
+        }
+      });
+
+      // Update locations list
+      this.updateLocationsList();
+    }
+  }, {
+    key: "setStartLocation",
+    value: function setStartLocation(location) {
+      console.log("Setting start location:", location);
+      this.startLocation = location;
+      if (this.startLocationMarker) {
+        this.startLocationMarker.remove();
+      }
+      this.startLocationMarker = new mapboxgl.Marker({
+        color: "#00FF00"
+      }).setLngLat(location.coordinates).addTo(this.map);
+      var popup = new mapboxgl.Popup({
+        offset: 25
+      }).setHTML("\n        <strong>Start Location</strong><br>\n        ".concat(location.description, "\n      "));
+      this.startLocationMarker.setPopup(popup);
+      this.bounds.extend(location.coordinates);
+      this.map.fitBounds(this.bounds, {
+        padding: {
+          top: 50,
+          bottom: 50,
+          left: 50,
+          right: 50
+        }
+      });
+      this.updateStartLocationDisplay();
+    }
+  }, {
+    key: "updateLocationsList",
+    value: function updateLocationsList() {
+      var _this2 = this;
+      var container = document.querySelector(".locations-list");
+      if (!container) return;
+      container.innerHTML = this.locations.map(function (location, index) {
+        return "\n        <div class=\"location-item p-4 bg-gray-100 rounded mb-2\">\n          <div class=\"flex justify-between items-center\">\n            <div>\n              <strong>Day ".concat(location.day, ":</strong> ").concat(location.description, "\n              <div class=\"text-sm text-gray-600\">").concat(location.address, "</div>\n            </div>\n            <button class=\"btn btn--small btn--red remove-location\" data-index=\"").concat(index, "\">\n              Remove\n            </button>\n          </div>\n        </div>\n      ");
+      }).join("");
+      container.querySelectorAll(".remove-location").forEach(function (button) {
+        button.addEventListener("click", function (e) {
+          var index = parseInt(e.target.dataset.index);
+          _this2.removeLocation(index);
+        });
+      });
+    }
+  }, {
+    key: "updateStartLocationDisplay",
+    value: function updateStartLocationDisplay() {
+      console.log("Updating start location display");
+      var container = document.querySelector(".start-location-display");
+      if (!container) return;
+      if (this.startLocation) {
+        container.innerHTML = "\n        <div class=\"p-4 bg-gray-100 rounded mb-2\">\n          <div class=\"flex justify-between items-center\">\n            <div>\n              <strong>Start Location:</strong> ".concat(this.startLocation.description, "\n              <div class=\"text-sm text-gray-600\">").concat(this.startLocation.address, "</div>\n            </div>\n          </div>\n        </div>\n      ");
+      } else {
+        container.innerHTML = "<p>No start location set</p>";
+      }
+    }
+  }, {
+    key: "removeLocation",
+    value: function removeLocation(index) {
+      this.markers[index].remove();
+      this.markers.splice(index, 1);
+      this.locations.splice(index, 1);
+
+      // Update day numbers
+      this.locations.forEach(function (location, i) {
+        location.day = i + 1;
+      });
+      this.recalculateBounds();
+      this.updateLocationsList();
+    }
+  }, {
+    key: "recalculateBounds",
+    value: function recalculateBounds() {
+      var _this3 = this;
+      this.bounds = new mapboxgl.LngLatBounds();
+      if (this.startLocation) {
+        this.bounds.extend(this.startLocation.coordinates);
+      }
+      this.locations.forEach(function (location) {
+        _this3.bounds.extend(location.coordinates);
+      });
+      if (!this.bounds.isEmpty()) {
+        this.map.fitBounds(this.bounds, {
+          padding: {
+            top: 50,
+            bottom: 50,
+            left: 50,
+            right: 50
+          }
+        });
+      }
+    }
+  }, {
+    key: "getLocations",
+    value: function getLocations() {
+      return this.locations;
+    }
+  }, {
+    key: "getStartLocation",
+    value: function getStartLocation() {
+      return this.startLocation;
+    }
+  }, {
+    key: "setLocations",
+    value: function setLocations(locations) {
+      var _this4 = this;
+      this.cleanup();
+      locations.forEach(function (location) {
+        // Ensure location has the correct structure
+        var formattedLocation = {
+          type: {
+            type: "Point"
+          },
+          coordinates: location.coordinates,
+          description: location.description,
+          address: location.address,
+          day: location.day
+        };
+        _this4.addLocation(formattedLocation);
+      });
+    }
+  }, {
+    key: "cleanup",
+    value: function cleanup() {
+      var _this$startLocationMa, _this$currentSearchMa, _this$geocoder;
+      this.markers.forEach(function (marker) {
+        return marker.remove();
+      });
+      this.markers = [];
+      (_this$startLocationMa = this.startLocationMarker) === null || _this$startLocationMa === void 0 || _this$startLocationMa.remove();
+      this.startLocationMarker = null;
+      (_this$currentSearchMa = this.currentSearchMarker) === null || _this$currentSearchMa === void 0 || _this$currentSearchMa.remove();
+      this.currentSearchMarker = null;
+      this.locations = [];
+      this.startLocation = null;
+      this.bounds = new mapboxgl.LngLatBounds();
+      this.updateLocationsList();
+      this.updateStartLocationDisplay();
+      (_this$geocoder = this.geocoder) === null || _this$geocoder === void 0 || _this$geocoder.clear();
+    }
+  }]);
+}();
+},{}],"handlers/tourManagement.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8579,6 +8896,7 @@ var _alert = require("../utils/alert");
 var _dom = require("../utils/dom");
 var _tourManagement = require("../api/tourManagement");
 var _pagination = require("../utils/pagination");
+var _locationManager = require("../utils/locationManager");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -8594,6 +8912,7 @@ var totalPages = 1;
 var currentSearch = "";
 var currentDifficulty = "";
 var limit = 10;
+var locationManager;
 var handleTourLoad = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
     var response, tourTableBody;
@@ -8635,16 +8954,6 @@ var handleTourLoad = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
-var populateLocationInputs = function populateLocationInputs() {
-  var locations = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-  var container = document.getElementById("locationsContainer");
-  container.innerHTML = "";
-  locations.forEach(function (location, index) {
-    var _location$coordinates;
-    var locationHtml = "\n      <div class=\"location-inputs\" data-index=\"".concat(index, "\">\n        <input type=\"text\" class=\"form__input location-address\" placeholder=\"Address\" value=\"").concat(location.address || "", "\" required>\n        <input type=\"text\" class=\"form__input location-description\" placeholder=\"Description\" value=\"").concat(location.description || "", "\" required>\n        <input type=\"text\" class=\"form__input location-coordinates\" placeholder=\"Coordinates (lng,lat)\" value=\"").concat(((_location$coordinates = location.coordinates) === null || _location$coordinates === void 0 ? void 0 : _location$coordinates.join(",")) || "", "\" required>\n        <input type=\"number\" class=\"form__input location-day\" placeholder=\"Day\" value=\"").concat(location.day || "", "\" required>\n        <button type=\"button\" class=\"btn btn--small btn--red remove-location\">Remove</button>\n      </div>\n    ");
-    container.insertAdjacentHTML("beforeend", locationHtml);
-  });
-};
 var populateStartDates = function populateStartDates() {
   var dates = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
   var container = document.getElementById("startDatesContainer");
@@ -8655,9 +8964,19 @@ var populateStartDates = function populateStartDates() {
     container.insertAdjacentHTML("beforeend", dateHtml);
   });
 };
+var initializeLocationManager = function initializeLocationManager() {
+  var locations = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  if (locationManager) {
+    locationManager.cleanup(); // Clean up previous instance if exists
+  }
+  locationManager = new _locationManager.LocationManager();
+  if (locations.length > 0) {
+    locationManager.setLocations(locations);
+  }
+};
 var handleEditClick = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(tourId) {
-    var _tour$hidden, _tour$images, tour, modal, form, modalTitle, _tour$startLocation$c, currentCoverImage, tourImagesContainer;
+    var _tour$hidden, _tour$images, tour, modal, form, modalTitle, currentCoverImage, tourImagesContainer;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
@@ -8686,11 +9005,12 @@ var handleEditClick = /*#__PURE__*/function () {
           form.elements.description.value = tour.description || "";
           form.elements.hidden.value = ((_tour$hidden = tour.hidden) === null || _tour$hidden === void 0 ? void 0 : _tour$hidden.toString()) || "false";
 
+          // Initialize map with tour locations
+          initializeLocationManager(tour.locations);
+
           // Populate start location
           if (tour.startLocation) {
-            form.querySelector("#startLocationAddress").value = tour.startLocation.address || "";
-            form.querySelector("#startLocationDesc").value = tour.startLocation.description || "";
-            form.querySelector("#startLocationCoords").value = ((_tour$startLocation$c = tour.startLocation.coordinates) === null || _tour$startLocation$c === void 0 ? void 0 : _tour$startLocation$c.join(",")) || "";
+            locationManager.setStartLocation(tour.startLocation);
           }
 
           // Show existing cover image if exists
@@ -8698,6 +9018,9 @@ var handleEditClick = /*#__PURE__*/function () {
           if (tour.imageCover) {
             currentCoverImage.src = "/img/tours/".concat(tour.imageCover);
             currentCoverImage.style.display = "block";
+            currentCoverImage.onerror = function () {
+              currentCoverImage.style.display = "none";
+            };
           } else {
             currentCoverImage.style.display = "none";
           }
@@ -8707,25 +9030,32 @@ var handleEditClick = /*#__PURE__*/function () {
           tourImagesContainer.innerHTML = "";
           if ((_tour$images = tour.images) !== null && _tour$images !== void 0 && _tour$images.length) {
             tour.images.forEach(function (img) {
-              tourImagesContainer.insertAdjacentHTML("beforeend", "\n          <img src=\"/img/tours/".concat(img, "\" alt=\"\" class=\"preview-image\">\n        "));
+              var imgElement = document.createElement("img");
+              imgElement.src = "/img/tours/".concat(img);
+              imgElement.alt = "";
+              imgElement.className = "preview-image";
+              imgElement.onerror = function () {
+                return imgElement.remove();
+              };
+              tourImagesContainer.appendChild(imgElement);
             });
           }
 
-          // Populate locations and dates
-          populateLocationInputs(tour.locations);
+          // Populate dates
           populateStartDates(tour.startDates);
 
           // Set form data attributes
           form.dataset.tourId = tourId;
           modalTitle.textContent = "Edit Tour";
           modal.classList.add("active");
-          _context2.next = 34;
+          _context2.next = 35;
           break;
         case 31:
           _context2.prev = 31;
           _context2.t0 = _context2["catch"](0);
+          console.error("Edit error:", _context2.t0);
           (0, _alert.showAlert)("error", "Failed to load tour details");
-        case 34:
+        case 35:
         case "end":
           return _context2.stop();
       }
@@ -8737,35 +9067,29 @@ var handleEditClick = /*#__PURE__*/function () {
 }();
 var handleFormSubmit = /*#__PURE__*/function () {
   var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
-    var form, tourId, formData, startLocation, locations, startDates, _err$response;
+    var form, tourId, formData, startLocation, locations, startDates, imageCoverInput, tourImagesInput, submitBtn, _err$response, _submitBtn;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
           e.preventDefault();
+          console.log("Form submitted");
           form = e.target;
           tourId = form.dataset.tourId;
-          formData = new FormData(form); // Handle start location
-          startLocation = {
-            type: "Point",
-            address: form.querySelector("#startLocationAddress").value,
-            description: form.querySelector("#startLocationDesc").value,
-            coordinates: form.querySelector("#startLocationCoords").value.split(",").map(Number)
-          };
-          formData.delete("startLocationAddress");
-          formData.delete("startLocationDesc");
-          formData.delete("startLocationCoords");
-          formData.append("startLocation", JSON.stringify(startLocation));
+          formData = new FormData(); // Add basic fields
+          formData.append("name", form.elements.name.value);
+          formData.append("duration", form.elements.duration.value);
+          formData.append("maxGroupSize", form.elements.maxGroupSize.value);
+          formData.append("difficulty", form.elements.difficulty.value);
+          formData.append("price", form.elements.price.value);
+          formData.append("priceDiscount", form.elements.priceDiscount.value);
+          formData.append("summary", form.elements.summary.value);
+          formData.append("description", form.elements.description.value);
+          formData.append("hidden", form.elements.hidden.value);
 
-          // Handle locations
-          locations = Array.from(form.querySelectorAll(".location-inputs")).map(function (div) {
-            return {
-              type: "Point",
-              address: div.querySelector(".location-address").value,
-              description: div.querySelector(".location-description").value,
-              coordinates: div.querySelector(".location-coordinates").value.split(",").map(Number),
-              day: parseInt(div.querySelector(".location-day").value)
-            };
-          });
+          // Get start location and tour locations from location manager
+          startLocation = locationManager.getStartLocation();
+          locations = locationManager.getLocations(); // Convert to strings only once
+          formData.append("startLocation", JSON.stringify(startLocation));
           formData.append("locations", JSON.stringify(locations));
 
           // Handle dates
@@ -8776,38 +9100,62 @@ var handleFormSubmit = /*#__PURE__*/function () {
             };
           });
           formData.append("startDates", JSON.stringify(startDates));
-          _context3.prev = 13;
+
+          // Handle files
+          imageCoverInput = document.getElementById("imageCover");
+          if (imageCoverInput.files.length > 0) {
+            formData.append("imageCover", imageCoverInput.files[0]);
+          }
+          tourImagesInput = document.getElementById("tourImages");
+          if (tourImagesInput.files.length > 0) {
+            Array.from(tourImagesInput.files).forEach(function (file) {
+              formData.append("images", file);
+            });
+          }
+          _context3.prev = 24;
+          submitBtn = form.querySelector('button[type="submit"]');
+          submitBtn.disabled = true;
+          submitBtn.textContent = tourId ? "Updating..." : "Creating...";
           if (!tourId) {
-            _context3.next = 20;
+            _context3.next = 35;
             break;
           }
-          _context3.next = 17;
+          console.log("Updating existing tour");
+          _context3.next = 32;
           return (0, _tourManagement.updateTour)(tourId, formData);
-        case 17:
+        case 32:
           (0, _alert.showAlert)("success", "Tour updated successfully");
-          _context3.next = 23;
+          _context3.next = 39;
           break;
-        case 20:
-          _context3.next = 22;
+        case 35:
+          console.log("Creating new tour");
+          _context3.next = 38;
           return (0, _tourManagement.createTour)(formData);
-        case 22:
+        case 38:
           (0, _alert.showAlert)("success", "Tour created successfully");
-        case 23:
+        case 39:
           document.getElementById("tourModal").classList.remove("active");
-          _context3.next = 26;
+          _context3.next = 42;
           return handleTourLoad();
-        case 26:
-          _context3.next = 31;
+        case 42:
+          _context3.next = 48;
           break;
-        case 28:
-          _context3.prev = 28;
-          _context3.t0 = _context3["catch"](13);
+        case 44:
+          _context3.prev = 44;
+          _context3.t0 = _context3["catch"](24);
+          console.error("Form submit error:", _context3.t0);
           (0, _alert.showAlert)("error", ((_err$response = _context3.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || "Error saving tour");
-        case 31:
+        case 48:
+          _context3.prev = 48;
+          _submitBtn = form.querySelector('button[type="submit"]');
+          _submitBtn.disabled = false;
+          _submitBtn.textContent = tourId ? "Update Tour" : "Create Tour";
+          return _context3.finish(48);
+        case 53:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[13, 28]]);
+    }, _callee3, null, [[24, 44, 48, 53]]);
   }));
   return function handleFormSubmit(_x2) {
     return _ref3.apply(this, arguments);
@@ -8830,20 +9178,21 @@ var handleDeleteTour = /*#__PURE__*/function () {
         case 5:
           (0, _alert.showAlert)("success", "Tour deleted successfully");
           document.getElementById("tourModal").classList.remove("active");
-          _context4.next = 9;
+          locationManager.cleanup();
+          _context4.next = 10;
           return handleTourLoad();
-        case 9:
-          _context4.next = 14;
+        case 10:
+          _context4.next = 15;
           break;
-        case 11:
-          _context4.prev = 11;
+        case 12:
+          _context4.prev = 12;
           _context4.t0 = _context4["catch"](2);
           (0, _alert.showAlert)("error", "Failed to delete tour");
-        case 14:
+        case 15:
         case "end":
           return _context4.stop();
       }
-    }, _callee4, null, [[2, 11]]);
+    }, _callee4, null, [[2, 12]]);
   }));
   return function handleDeleteTour(_x3) {
     return _ref4.apply(this, arguments);
@@ -8858,7 +9207,6 @@ var initializeEventListeners = function initializeEventListeners() {
   var tourForm = document.getElementById("tourForm");
   var closeModalBtn = document.querySelector(".close-modal");
   var deleteTourBtn = document.getElementById("deleteTourBtn");
-  var addLocationBtn = document.getElementById("addLocationBtn");
   var addStartDateBtn = document.getElementById("addStartDateBtn");
   searchInput === null || searchInput === void 0 || searchInput.addEventListener("input", (0, _dom.debounce)(function (e) {
     currentSearch = e.target.value;
@@ -8894,7 +9242,7 @@ var initializeEventListeners = function initializeEventListeners() {
       tourForm.reset();
       tourForm.removeAttribute("data-tour-id");
       document.getElementById("modalTitle").textContent = "Create New Tour";
-      populateLocationInputs();
+      initializeLocationManager();
       populateStartDates();
       document.getElementById("currentCoverImage").style.display = "none";
       document.getElementById("tourImagesContainer").innerHTML = "";
@@ -8903,8 +9251,11 @@ var initializeEventListeners = function initializeEventListeners() {
   });
   tourForm === null || tourForm === void 0 || tourForm.addEventListener("submit", handleFormSubmit);
   closeModalBtn === null || closeModalBtn === void 0 || closeModalBtn.addEventListener("click", function () {
-    var _document$getElementB3;
-    (_document$getElementB3 = document.getElementById("tourModal")) === null || _document$getElementB3 === void 0 || _document$getElementB3.classList.remove("active");
+    var modal = document.getElementById("tourModal");
+    modal === null || modal === void 0 || modal.classList.remove("active");
+    if (locationManager) {
+      locationManager.cleanup();
+    }
   });
   deleteTourBtn === null || deleteTourBtn === void 0 || deleteTourBtn.addEventListener("click", function () {
     var _form$dataset;
@@ -8912,19 +9263,7 @@ var initializeEventListeners = function initializeEventListeners() {
     var tourId = form === null || form === void 0 || (_form$dataset = form.dataset) === null || _form$dataset === void 0 ? void 0 : _form$dataset.tourId;
     if (tourId) {
       handleDeleteTour(tourId);
-      window.location.reload();
     }
-  });
-  addLocationBtn === null || addLocationBtn === void 0 || addLocationBtn.addEventListener("click", function () {
-    var locations = document.querySelectorAll(".location-inputs");
-    populateLocationInputs([].concat(_toConsumableArray(Array.from(locations).map(function (div) {
-      return {
-        address: div.querySelector(".location-address").value,
-        description: div.querySelector(".location-description").value,
-        coordinates: div.querySelector(".location-coordinates").value.split(","),
-        day: div.querySelector(".location-day").value
-      };
-    })), [{}]));
   });
   addStartDateBtn === null || addStartDateBtn === void 0 || addStartDateBtn.addEventListener("click", function () {
     var dates = document.querySelectorAll(".date-inputs");
@@ -8935,11 +9274,9 @@ var initializeEventListeners = function initializeEventListeners() {
     })), [{}]));
   });
 
-  // Event delegation for removing locations and dates
+  // Event delegation for removing dates
   document.addEventListener("click", function (e) {
-    if (e.target.matches(".remove-location")) {
-      e.target.closest(".location-inputs").remove();
-    } else if (e.target.matches(".remove-date")) {
+    if (e.target.matches(".remove-date")) {
       e.target.closest(".date-inputs").remove();
     }
   });
@@ -8949,7 +9286,7 @@ var initializeTourManagement = exports.initializeTourManagement = function initi
   initializeEventListeners();
   handleTourLoad();
 };
-},{"../utils/alert":"utils/alert.js","../utils/dom":"utils/dom.js","../api/tourManagement":"api/tourManagement.js","../utils/pagination":"utils/pagination.js"}],"utils/mapbox.js":[function(require,module,exports) {
+},{"../utils/alert":"utils/alert.js","../utils/dom":"utils/dom.js","../api/tourManagement":"api/tourManagement.js","../utils/pagination":"utils/pagination.js","../utils/locationManager":"utils/locationManager.js"}],"utils/mapbox.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9150,7 +9487,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "36531" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "37889" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

@@ -9,12 +9,14 @@ import {
   deleteTour,
 } from "../api/tourManagement";
 import { updatePaginationInfo } from "../utils/pagination";
+import { LocationManager } from "../utils/locationManager";
 
 let currentPage = 1;
 let totalPages = 1;
 let currentSearch = "";
 let currentDifficulty = "";
 const limit = 10;
+let locationManager;
 
 const handleTourLoad = async () => {
   try {
@@ -56,24 +58,6 @@ const handleTourLoad = async () => {
   }
 };
 
-const populateLocationInputs = (locations = []) => {
-  const container = document.getElementById("locationsContainer");
-  container.innerHTML = "";
-
-  locations.forEach((location, index) => {
-    const locationHtml = `
-      <div class="location-inputs" data-index="${index}">
-        <input type="text" class="form__input location-address" placeholder="Address" value="${location.address || ""}" required>
-        <input type="text" class="form__input location-description" placeholder="Description" value="${location.description || ""}" required>
-        <input type="text" class="form__input location-coordinates" placeholder="Coordinates (lng,lat)" value="${location.coordinates?.join(",") || ""}" required>
-        <input type="number" class="form__input location-day" placeholder="Day" value="${location.day || ""}" required>
-        <button type="button" class="btn btn--small btn--red remove-location">Remove</button>
-      </div>
-    `;
-    container.insertAdjacentHTML("beforeend", locationHtml);
-  });
-};
-
 const populateStartDates = (dates = []) => {
   const container = document.getElementById("startDatesContainer");
   container.innerHTML = "";
@@ -87,6 +71,16 @@ const populateStartDates = (dates = []) => {
     `;
     container.insertAdjacentHTML("beforeend", dateHtml);
   });
+};
+
+const initializeLocationManager = (locations = []) => {
+  if (locationManager) {
+    locationManager.cleanup(); // Clean up previous instance if exists
+  }
+  locationManager = new LocationManager();
+  if (locations.length > 0) {
+    locationManager.setLocations(locations);
+  }
 };
 
 const handleEditClick = async tourId => {
@@ -109,14 +103,12 @@ const handleEditClick = async tourId => {
     form.elements.description.value = tour.description || "";
     form.elements.hidden.value = tour.hidden?.toString() || "false";
 
+    // Initialize map with tour locations
+    initializeLocationManager(tour.locations);
+
     // Populate start location
     if (tour.startLocation) {
-      form.querySelector("#startLocationAddress").value =
-        tour.startLocation.address || "";
-      form.querySelector("#startLocationDesc").value =
-        tour.startLocation.description || "";
-      form.querySelector("#startLocationCoords").value =
-        tour.startLocation.coordinates?.join(",") || "";
+      locationManager.setStartLocation(tour.startLocation);
     }
 
     // Show existing cover image if exists
@@ -124,6 +116,9 @@ const handleEditClick = async tourId => {
     if (tour.imageCover) {
       currentCoverImage.src = `/img/tours/${tour.imageCover}`;
       currentCoverImage.style.display = "block";
+      currentCoverImage.onerror = () => {
+        currentCoverImage.style.display = "none";
+      };
     } else {
       currentCoverImage.style.display = "none";
     }
@@ -133,17 +128,16 @@ const handleEditClick = async tourId => {
     tourImagesContainer.innerHTML = "";
     if (tour.images?.length) {
       tour.images.forEach(img => {
-        tourImagesContainer.insertAdjacentHTML(
-          "beforeend",
-          `
-          <img src="/img/tours/${img}" alt="" class="preview-image">
-        `,
-        );
+        const imgElement = document.createElement("img");
+        imgElement.src = `/img/tours/${img}`;
+        imgElement.alt = "";
+        imgElement.className = "preview-image";
+        imgElement.onerror = () => imgElement.remove();
+        tourImagesContainer.appendChild(imgElement);
       });
     }
 
-    // Populate locations and dates
-    populateLocationInputs(tour.locations);
+    // Populate dates
     populateStartDates(tour.startDates);
 
     // Set form data attributes
@@ -151,44 +145,36 @@ const handleEditClick = async tourId => {
     modalTitle.textContent = "Edit Tour";
     modal.classList.add("active");
   } catch (err) {
+    console.error("Edit error:", err);
     showAlert("error", "Failed to load tour details");
   }
 };
 
 const handleFormSubmit = async e => {
   e.preventDefault();
+  console.log("Form submitted");
+
   const form = e.target;
   const tourId = form.dataset.tourId;
-  const formData = new FormData(form);
+  const formData = new FormData();
 
-  // Handle start location
-  const startLocation = {
-    type: "Point",
-    address: form.querySelector("#startLocationAddress").value,
-    description: form.querySelector("#startLocationDesc").value,
-    coordinates: form
-      .querySelector("#startLocationCoords")
-      .value.split(",")
-      .map(Number),
-  };
-  formData.delete("startLocationAddress");
-  formData.delete("startLocationDesc");
-  formData.delete("startLocationCoords");
+  // Add basic fields
+  formData.append("name", form.elements.name.value);
+  formData.append("duration", form.elements.duration.value);
+  formData.append("maxGroupSize", form.elements.maxGroupSize.value);
+  formData.append("difficulty", form.elements.difficulty.value);
+  formData.append("price", form.elements.price.value);
+  formData.append("priceDiscount", form.elements.priceDiscount.value);
+  formData.append("summary", form.elements.summary.value);
+  formData.append("description", form.elements.description.value);
+  formData.append("hidden", form.elements.hidden.value);
+
+  // Get start location and tour locations from location manager
+  const startLocation = locationManager.getStartLocation();
+  const locations = locationManager.getLocations();
+
+  // Convert to strings only once
   formData.append("startLocation", JSON.stringify(startLocation));
-
-  // Handle locations
-  const locations = Array.from(form.querySelectorAll(".location-inputs")).map(
-    div => ({
-      type: "Point",
-      address: div.querySelector(".location-address").value,
-      description: div.querySelector(".location-description").value,
-      coordinates: div
-        .querySelector(".location-coordinates")
-        .value.split(",")
-        .map(Number),
-      day: parseInt(div.querySelector(".location-day").value),
-    }),
-  );
   formData.append("locations", JSON.stringify(locations));
 
   // Handle dates
@@ -200,11 +186,30 @@ const handleFormSubmit = async e => {
   );
   formData.append("startDates", JSON.stringify(startDates));
 
+  // Handle files
+  const imageCoverInput = document.getElementById("imageCover");
+  if (imageCoverInput.files.length > 0) {
+    formData.append("imageCover", imageCoverInput.files[0]);
+  }
+
+  const tourImagesInput = document.getElementById("tourImages");
+  if (tourImagesInput.files.length > 0) {
+    Array.from(tourImagesInput.files).forEach(file => {
+      formData.append("images", file);
+    });
+  }
+
   try {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = tourId ? "Updating..." : "Creating...";
+
     if (tourId) {
+      console.log("Updating existing tour");
       await updateTour(tourId, formData);
       showAlert("success", "Tour updated successfully");
     } else {
+      console.log("Creating new tour");
       await createTour(formData);
       showAlert("success", "Tour created successfully");
     }
@@ -212,7 +217,12 @@ const handleFormSubmit = async e => {
     document.getElementById("tourModal").classList.remove("active");
     await handleTourLoad();
   } catch (err) {
+    console.error("Form submit error:", err);
     showAlert("error", err.response?.data?.message || "Error saving tour");
+  } finally {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = false;
+    submitBtn.textContent = tourId ? "Update Tour" : "Create Tour";
   }
 };
 
@@ -223,6 +233,7 @@ const handleDeleteTour = async tourId => {
     await deleteTour(tourId);
     showAlert("success", "Tour deleted successfully");
     document.getElementById("tourModal").classList.remove("active");
+    locationManager.cleanup();
     await handleTourLoad();
   } catch (err) {
     showAlert("error", "Failed to delete tour");
@@ -237,7 +248,6 @@ const initializeEventListeners = () => {
   const tourForm = document.getElementById("tourForm");
   const closeModalBtn = document.querySelector(".close-modal");
   const deleteTourBtn = document.getElementById("deleteTourBtn");
-  const addLocationBtn = document.getElementById("addLocationBtn");
   const addStartDateBtn = document.getElementById("addStartDateBtn");
 
   searchInput?.addEventListener(
@@ -282,7 +292,7 @@ const initializeEventListeners = () => {
       tourForm.reset();
       tourForm.removeAttribute("data-tour-id");
       document.getElementById("modalTitle").textContent = "Create New Tour";
-      populateLocationInputs();
+      initializeLocationManager();
       populateStartDates();
       document.getElementById("currentCoverImage").style.display = "none";
       document.getElementById("tourImagesContainer").innerHTML = "";
@@ -293,7 +303,11 @@ const initializeEventListeners = () => {
   tourForm?.addEventListener("submit", handleFormSubmit);
 
   closeModalBtn?.addEventListener("click", () => {
-    document.getElementById("tourModal")?.classList.remove("active");
+    const modal = document.getElementById("tourModal");
+    modal?.classList.remove("active");
+    if (locationManager) {
+      locationManager.cleanup();
+    }
   });
 
   deleteTourBtn?.addEventListener("click", () => {
@@ -302,23 +316,7 @@ const initializeEventListeners = () => {
 
     if (tourId) {
       handleDeleteTour(tourId);
-      window.location.reload();
     }
-  });
-
-  addLocationBtn?.addEventListener("click", () => {
-    const locations = document.querySelectorAll(".location-inputs");
-    populateLocationInputs([
-      ...Array.from(locations).map(div => ({
-        address: div.querySelector(".location-address").value,
-        description: div.querySelector(".location-description").value,
-        coordinates: div
-          .querySelector(".location-coordinates")
-          .value.split(","),
-        day: div.querySelector(".location-day").value,
-      })),
-      {},
-    ]);
   });
 
   addStartDateBtn?.addEventListener("click", () => {
@@ -331,11 +329,9 @@ const initializeEventListeners = () => {
     ]);
   });
 
-  // Event delegation for removing locations and dates
+  // Event delegation for removing dates
   document.addEventListener("click", e => {
-    if (e.target.matches(".remove-location")) {
-      e.target.closest(".location-inputs").remove();
-    } else if (e.target.matches(".remove-date")) {
+    if (e.target.matches(".remove-date")) {
       e.target.closest(".date-inputs").remove();
     }
   });

@@ -1,8 +1,12 @@
 extends ../../base
 
 block append head
+  link(rel="stylesheet", href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css")
+  link(rel="stylesheet", href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css")
   link(rel="stylesheet", href="/css/layout/user-view.css")
   link(rel="stylesheet" href="/css/pages/manageTours.css")
+  script(src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js')
+  script(src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js')
 
 block content
   main.main
@@ -48,6 +52,7 @@ block content
             span.close-modal &times;
             h3.heading-tertiary#modalTitle Edit Tour
             form#tourForm.form.form--inline
+              // Basic Information
               .form__group
                 label.form__label(for='name') Name
                 input#name.form__input(type='text', required, minlength="10", maxlength="40")
@@ -82,24 +87,30 @@ block content
               .form__group.ma-bt-md
                 label.form__label(for='description') Description
                 textarea#description.form__input(required, rows="5")
+
+              // Location Management
+              .form__group.full-width.location-section
+                h4.heading-quaternary.mb-4 Tour Locations
+                #map-container.mb-4
+                .location-controls.mb-4
+                  #locationSearch.mb-2
+                  .button-group.flex.gap-2
+                    button#setStartLocationBtn.btn.btn--small.btn--green(type='button') Set Start Location
+                    button#addLocationBtn.btn.btn--small.btn--blue(type='button') Add to Route
+                
+                .start-location-display.mb-4
+                  // Start location details populated by JS
+                
+                .locations-list.mb-4
+                  // Tour locations populated by JS
               
-              .form__group
-                label.form__label Start Location
-                .start-location-inputs
-                  input#startLocationAddress.form__input(type='text', placeholder='Address', required)
-                  input#startLocationDesc.form__input(type='text', placeholder='Description', required)
-                  input#startLocationCoords.form__input(type='text', placeholder='Coordinates (lng,lat)', required)
-              
-              .form__group
-                label.form__label Tour Locations
-                #locationsContainer.locations-container
-                button.btn.btn--small.btn--blue#addLocationBtn(type='button') Add Location
-              
+              // Tour Dates
               .form__group
                 label.form__label Tour Dates
                 #startDatesContainer.dates-container
                 button.btn.btn--small.btn--blue#addStartDateBtn(type='button') Add Date
               
+              // Images
               .form__group
                 label.form__label Cover Image
                 input#imageCover.form__input.form__upload(type='file', accept='image/*')
@@ -110,6 +121,7 @@ block content
                 input#tourImages.form__input.form__upload(type='file', accept='image/*', multiple)
                 #tourImagesContainer.image-container
               
+              // Status and Actions
               .form__group
                 label.form__label(for='hidden') Status
                 select#hidden.form__input(required)

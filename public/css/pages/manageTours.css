@@ -22,9 +22,9 @@
   position: relative;
   background-color: #fff;
   margin: 2rem auto;
-  padding: 3rem;
-  width: 100%;
-  max-width: 800px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 900px;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
@@ -56,7 +56,7 @@
 .modal .form--inline {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 2.5rem;
+  gap: 2rem;
 }
 
 .modal .form__group {
@@ -97,7 +97,9 @@
 
 .modal .form__group.right {
   grid-column: 1 / -1;
-  text-align: right;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 2rem;
   padding-top: 2rem;
   border-top: 2px solid #f0f0f0;
@@ -275,83 +277,69 @@
   box-shadow: 0 0 0 3px rgba(64, 192, 87, 0.1);
 }
 
-.modal .form__group.right {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 2px solid #f0f0f0;
-}
-
-/* Base Styles - Keep your existing styles up to location inputs */
-
-/* Your existing CSS until location inputs remains the same */
-
-/* Enhanced Location and Date Management Styles */
-.locations-container,
-.dates-container {
-  background: #f8f9fa;
-  padding: 2rem;
-  border-radius: 8px;
+/* Location Management Styles */
+#map-container {
+  height: 400px;
+  width: 100%;
+  border-radius: 4px;
   margin-bottom: 2rem;
 }
 
-.location-inputs,
-.date-inputs {
-  display: grid;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+.mapboxgl-ctrl-geocoder {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+.location-controls {
+  background: #f8f9fa;
   padding: 1.5rem;
-  background: white;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
-  position: relative;
+  border-radius: 4px;
+  margin-bottom: 2rem;
 }
 
-.location-inputs {
-  grid-template-columns: repeat(4, 1fr);
-}
-
-.date-inputs {
-  grid-template-columns: 1fr auto;
-}
-
-.remove-location,
-.remove-date {
-  padding: 1.2rem;
-  height: 100%;
-}
-
-/* Image Upload Styles */
-.image-upload-container {
+.location-section {
   grid-column: 1 / -1;
+  width: 100%;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.start-location-display,
+.locations-list {
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.location-item {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.location-item:last-child {
+  border-bottom: none;
 }
 
 .preview-image {
-  max-width: 20rem;
-  max-height: 20rem;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-top: 1rem;
-  display: block;
-  border: 2px solid #e0e0e0;
+  max-width: 150px;
+  height: auto;
+  border-radius: 4px;
+  margin-top: 0.5rem;
 }
 
 .image-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
-  gap: 1.5rem;
-  margin-top: 1.5rem;
-}
-
-.image-container img {
-  width: 100%;
-  height: 12rem;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 2px solid #e0e0e0;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 /* File Upload Styling */
@@ -428,6 +416,18 @@
   .modal .form__group.location-group,
   .modal .form__group.dates-group {
     padding: 1.5rem;
+  }
+
+  .form--inline {
+    grid-template-columns: 1fr;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  #map-container {
+    height: 300px;
   }
 }
 

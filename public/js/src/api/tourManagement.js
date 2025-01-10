@@ -32,76 +32,82 @@ export const fetchTourById = async tourId => {
   }
 };
 
-export const createTour = async tourData => {
+export const updateTour = async (tourId, formData) => {
   try {
-    const formData = new FormData();
+    console.log("Updating tour with ID:", tourId);
 
-    // Handle regular fields
-    Object.keys(tourData).forEach(key => {
-      if (key !== "images" && key !== "imageCover") {
-        if (typeof tourData[key] === "object") {
-          formData.append(key, JSON.stringify(tourData[key]));
-        } else {
-          formData.append(key, tourData[key]);
-        }
-      }
+    // Convert locations and startLocation back from string to object if they are strings
+    const locations = formData.get("locations");
+    const startLocation = formData.get("startLocation");
+    const startDates = formData.get("startDates");
+
+    if (locations && typeof locations === "string") {
+      formData.delete("locations");
+      formData.append("locations", locations); // Keep as string, server will parse it
+    }
+
+    if (startLocation && typeof startLocation === "string") {
+      formData.delete("startLocation");
+      formData.append("startLocation", startLocation); // Keep as string, server will parse it
+    }
+
+    if (startDates && typeof startDates === "string") {
+      formData.delete("startDates");
+      formData.append("startDates", startDates); // Keep as string, server will parse it
+    }
+
+    // Log the final form data
+    console.log("FormData contents:");
+    for (let [key, value] of formData.entries()) {
+      console.log(key, ":", value);
+    }
+
+    const res = await axios.patch(`/api/v1/tours/${tourId}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
 
-    // Handle file uploads
-    if (tourData.imageCover) {
-      formData.append("imageCover", tourData.imageCover);
-    }
-    if (tourData.images) {
-      tourData.images.forEach(image => {
-        formData.append("images", image);
-      });
+    return res.data.data;
+  } catch (error) {
+    console.error("Update tour error:", error);
+    console.error("Error response:", error.response?.data);
+    throw error;
+  }
+};
+
+export const createTour = async tourData => {
+  try {
+    console.log("Creating new tour with data:", tourData);
+
+    const formData = new FormData();
+
+    // Handle regular fields from the incoming FormData
+    for (let [key, value] of tourData.entries()) {
+      formData.append(key, value);
     }
 
     const res = await axios.post("/api/v1/tours", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
+    console.log("Create response:", res.data);
     return res.data.data;
   } catch (error) {
-    throw error;
-  }
-};
-
-export const updateTour = async (tourId, tourData) => {
-  try {
-    const formData = new FormData();
-
-    Object.keys(tourData).forEach(key => {
-      if (key !== "images" && key !== "imageCover") {
-        if (typeof tourData[key] === "object") {
-          formData.append(key, JSON.stringify(tourData[key]));
-        } else {
-          formData.append(key, tourData[key]);
-        }
-      }
-    });
-
-    if (tourData.imageCover) {
-      formData.append("imageCover", tourData.imageCover);
-    }
-    if (tourData.images) {
-      tourData.images.forEach(image => {
-        formData.append("images", image);
-      });
-    }
-
-    const res = await axios.patch(`/api/v1/tours/${tourId}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    return res.data.data;
-  } catch (error) {
+    console.error("Create tour error:", error);
+    console.error("Error response:", error.response?.data);
     throw error;
   }
 };
 
 export const deleteTour = async tourId => {
   try {
-    await axios.delete(`/api/v1/tours/${tourId}`);
+    console.log("Deleting tour with ID:", tourId);
+    const res = await axios.delete(`/api/v1/tours/${tourId}`);
+    console.log("Delete response:", res);
+    return res;
   } catch (error) {
+    console.error("Delete tour error:", error);
+    console.error("Error response:", error.response?.data);
     throw error;
   }
 };
