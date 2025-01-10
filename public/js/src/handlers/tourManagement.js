@@ -161,7 +161,6 @@ const handleEditClick = async tourId => {
 
 const handleFormSubmit = async e => {
   e.preventDefault();
-  console.log("Form submitted");
 
   const form = e.target;
   const tourId = form.dataset.tourId;
@@ -214,11 +213,9 @@ const handleFormSubmit = async e => {
     submitBtn.textContent = tourId ? "Updating..." : "Creating...";
 
     if (tourId) {
-      console.log("Updating existing tour");
       await updateTour(tourId, formData);
       showAlert("success", "Tour updated successfully");
     } else {
-      console.log("Creating new tour");
       await createTour(formData);
       showAlert("success", "Tour created successfully");
     }

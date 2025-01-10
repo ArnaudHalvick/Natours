@@ -34,8 +34,6 @@ export const fetchTourById = async tourId => {
 
 export const updateTour = async (tourId, formData) => {
   try {
-    console.log("Updating tour with ID:", tourId);
-
     // Convert locations and startLocation back from string to object if they are strings
     const locations = formData.get("locations");
     const startLocation = formData.get("startLocation");
@@ -56,12 +54,6 @@ export const updateTour = async (tourId, formData) => {
       formData.append("startDates", startDates); // Keep as string, server will parse it
     }
 
-    // Log the final form data
-    console.log("FormData contents:");
-    for (let [key, value] of formData.entries()) {
-      console.log(key, ":", value);
-    }
-
     const res = await axios.patch(`/api/v1/tours/${tourId}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -78,8 +70,6 @@ export const updateTour = async (tourId, formData) => {
 
 export const createTour = async tourData => {
   try {
-    console.log("Creating new tour with data:", tourData);
-
     const formData = new FormData();
 
     // Handle regular fields from the incoming FormData
@@ -90,24 +80,17 @@ export const createTour = async tourData => {
     const res = await axios.post("/api/v1/tours", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
-    console.log("Create response:", res.data);
     return res.data.data;
   } catch (error) {
-    console.error("Create tour error:", error);
-    console.error("Error response:", error.response?.data);
     throw error;
   }
 };
 
 export const deleteTour = async tourId => {
   try {
-    console.log("Deleting tour with ID:", tourId);
     const res = await axios.delete(`/api/v1/tours/${tourId}`);
-    console.log("Delete response:", res);
     return res;
   } catch (error) {
-    console.error("Delete tour error:", error);
-    console.error("Error response:", error.response?.data);
     throw error;
   }
 };

@@ -8426,13 +8426,11 @@ var fetchTourById = exports.fetchTourById = /*#__PURE__*/function () {
 }();
 var updateTour = exports.updateTour = /*#__PURE__*/function () {
   var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(tourId, formData) {
-    var locations, startLocation, startDates, _iterator, _step, _step$value, key, value, res, _error$response;
+    var locations, startLocation, startDates, res, _error$response;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
           _context3.prev = 0;
-          console.log("Updating tour with ID:", tourId);
-
           // Convert locations and startLocation back from string to object if they are strings
           locations = formData.get("locations");
           startLocation = formData.get("startLocation");
@@ -8449,40 +8447,26 @@ var updateTour = exports.updateTour = /*#__PURE__*/function () {
             formData.delete("startDates");
             formData.append("startDates", startDates); // Keep as string, server will parse it
           }
-
-          // Log the final form data
-          console.log("FormData contents:");
-          _iterator = _createForOfIteratorHelper(formData.entries());
-          try {
-            for (_iterator.s(); !(_step = _iterator.n()).done;) {
-              _step$value = _slicedToArray(_step.value, 2), key = _step$value[0], value = _step$value[1];
-              console.log(key, ":", value);
-            }
-          } catch (err) {
-            _iterator.e(err);
-          } finally {
-            _iterator.f();
-          }
-          _context3.next = 13;
+          _context3.next = 9;
           return _axios.default.patch("/api/v1/tours/".concat(tourId), formData, {
             headers: {
               "Content-Type": "multipart/form-data"
             }
           });
-        case 13:
+        case 9:
           res = _context3.sent;
           return _context3.abrupt("return", res.data.data);
-        case 17:
-          _context3.prev = 17;
+        case 13:
+          _context3.prev = 13;
           _context3.t0 = _context3["catch"](0);
           console.error("Update tour error:", _context3.t0);
           console.error("Error response:", (_error$response = _context3.t0.response) === null || _error$response === void 0 ? void 0 : _error$response.data);
           throw _context3.t0;
-        case 22:
+        case 18:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[0, 17]]);
+    }, _callee3, null, [[0, 13]]);
   }));
   return function updateTour(_x2, _x3) {
     return _ref3.apply(this, arguments);
@@ -8490,45 +8474,41 @@ var updateTour = exports.updateTour = /*#__PURE__*/function () {
 }();
 var createTour = exports.createTour = /*#__PURE__*/function () {
   var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(tourData) {
-    var formData, _iterator2, _step2, _step2$value, key, value, res, _error$response2;
+    var formData, _iterator, _step, _step$value, key, value, res;
     return _regeneratorRuntime().wrap(function _callee4$(_context4) {
       while (1) switch (_context4.prev = _context4.next) {
         case 0:
           _context4.prev = 0;
-          console.log("Creating new tour with data:", tourData);
           formData = new FormData(); // Handle regular fields from the incoming FormData
-          _iterator2 = _createForOfIteratorHelper(tourData.entries());
+          _iterator = _createForOfIteratorHelper(tourData.entries());
           try {
-            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-              _step2$value = _slicedToArray(_step2.value, 2), key = _step2$value[0], value = _step2$value[1];
+            for (_iterator.s(); !(_step = _iterator.n()).done;) {
+              _step$value = _slicedToArray(_step.value, 2), key = _step$value[0], value = _step$value[1];
               formData.append(key, value);
             }
           } catch (err) {
-            _iterator2.e(err);
+            _iterator.e(err);
           } finally {
-            _iterator2.f();
+            _iterator.f();
           }
-          _context4.next = 7;
+          _context4.next = 6;
           return _axios.default.post("/api/v1/tours", formData, {
             headers: {
               "Content-Type": "multipart/form-data"
             }
           });
-        case 7:
+        case 6:
           res = _context4.sent;
-          console.log("Create response:", res.data);
           return _context4.abrupt("return", res.data.data);
-        case 12:
-          _context4.prev = 12;
+        case 10:
+          _context4.prev = 10;
           _context4.t0 = _context4["catch"](0);
-          console.error("Create tour error:", _context4.t0);
-          console.error("Error response:", (_error$response2 = _context4.t0.response) === null || _error$response2 === void 0 ? void 0 : _error$response2.data);
           throw _context4.t0;
-        case 17:
+        case 13:
         case "end":
           return _context4.stop();
       }
-    }, _callee4, null, [[0, 12]]);
+    }, _callee4, null, [[0, 10]]);
   }));
   return function createTour(_x4) {
     return _ref4.apply(this, arguments);
@@ -8536,29 +8516,25 @@ var createTour = exports.createTour = /*#__PURE__*/function () {
 }();
 var deleteTour = exports.deleteTour = /*#__PURE__*/function () {
   var _ref5 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5(tourId) {
-    var res, _error$response3;
+    var res;
     return _regeneratorRuntime().wrap(function _callee5$(_context5) {
       while (1) switch (_context5.prev = _context5.next) {
         case 0:
           _context5.prev = 0;
-          console.log("Deleting tour with ID:", tourId);
-          _context5.next = 4;
+          _context5.next = 3;
           return _axios.default.delete("/api/v1/tours/".concat(tourId));
-        case 4:
+        case 3:
           res = _context5.sent;
-          console.log("Delete response:", res);
           return _context5.abrupt("return", res);
-        case 9:
-          _context5.prev = 9;
+        case 7:
+          _context5.prev = 7;
           _context5.t0 = _context5["catch"](0);
-          console.error("Delete tour error:", _context5.t0);
-          console.error("Error response:", (_error$response3 = _context5.t0.response) === null || _error$response3 === void 0 ? void 0 : _error$response3.data);
           throw _context5.t0;
-        case 14:
+        case 10:
         case "end":
           return _context5.stop();
       }
-    }, _callee5, null, [[0, 9]]);
+    }, _callee5, null, [[0, 7]]);
   }));
   return function deleteTour(_x5) {
     return _ref5.apply(this, arguments);
@@ -8635,7 +8611,6 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
     value: function setupEventListeners() {
       var _this = this;
       this.geocoder.on("result", function (e) {
-        console.log("Search result:", e.result);
         _this.currentSearchResult = e.result;
         // Show a success message when location is found
         var searchContainer = document.getElementById("locationSearch");
@@ -8967,7 +8942,6 @@ var handleFormSubmit = /*#__PURE__*/function () {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
           e.preventDefault();
-          console.log("Form submitted");
           form = e.target;
           tourId = form.dataset.tourId;
           formData = new FormData(); // Add basic fields
@@ -9007,50 +8981,48 @@ var handleFormSubmit = /*#__PURE__*/function () {
               formData.append("images", file);
             });
           }
-          _context3.prev = 24;
+          _context3.prev = 23;
           submitBtn = form.querySelector('button[type="submit"]');
           submitBtn.disabled = true;
           submitBtn.textContent = tourId ? "Updating..." : "Creating...";
           if (!tourId) {
-            _context3.next = 35;
+            _context3.next = 33;
             break;
           }
-          console.log("Updating existing tour");
-          _context3.next = 32;
+          _context3.next = 30;
           return (0, _tourManagement.updateTour)(tourId, formData);
-        case 32:
+        case 30:
           (0, _alert.showAlert)("success", "Tour updated successfully");
-          _context3.next = 39;
+          _context3.next = 36;
           break;
-        case 35:
-          console.log("Creating new tour");
-          _context3.next = 38;
+        case 33:
+          _context3.next = 35;
           return (0, _tourManagement.createTour)(formData);
-        case 38:
+        case 35:
           (0, _alert.showAlert)("success", "Tour created successfully");
-        case 39:
+        case 36:
           document.getElementById("tourModal").classList.remove("active");
-          _context3.next = 42;
+          _context3.next = 39;
           return handleTourLoad();
-        case 42:
-          _context3.next = 48;
+        case 39:
+          _context3.next = 45;
           break;
-        case 44:
-          _context3.prev = 44;
-          _context3.t0 = _context3["catch"](24);
+        case 41:
+          _context3.prev = 41;
+          _context3.t0 = _context3["catch"](23);
           console.error("Form submit error:", _context3.t0);
           (0, _alert.showAlert)("error", ((_err$response = _context3.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || "Error saving tour");
-        case 48:
-          _context3.prev = 48;
+        case 45:
+          _context3.prev = 45;
           _submitBtn = form.querySelector('button[type="submit"]');
           _submitBtn.disabled = false;
           _submitBtn.textContent = tourId ? "Update Tour" : "Create Tour";
-          return _context3.finish(48);
-        case 53:
+          return _context3.finish(45);
+        case 50:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[24, 44, 48, 53]]);
+    }, _callee3, null, [[23, 41, 45, 50]]);
   }));
   return function handleFormSubmit(_x2) {
     return _ref3.apply(this, arguments);

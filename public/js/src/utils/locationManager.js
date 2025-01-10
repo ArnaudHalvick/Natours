@@ -28,7 +28,6 @@ export class LocationManager {
 
   setupEventListeners() {
     this.geocoder.on("result", e => {
-      console.log("Search result:", e.result);
       this.currentSearchResult = e.result;
       // Show a success message when location is found
       const searchContainer = document.getElementById("locationSearch");
