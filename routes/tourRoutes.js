@@ -1,12 +1,13 @@
 const express = require("express");
+const router = express.Router();
 
 const tourController = require("./../controllers/tourController");
 const authController = require("./../controllers/authController");
 const reviewController = require("./../controllers/reviewController");
-const viewsController = require("../controllers/viewsController");
 
 const reviewRouter = require("./reviewRoutes");
-const router = express.Router();
+
+const { parseJSONFields } = require("../utils/parseJSONFields");
 
 // --- Public Routes ---
 
@@ -39,9 +40,10 @@ router.route("/").post(tourController.createNewTour);
 router
   .route("/:id")
   .patch(
-    tourController.uploadTourImages,
-    tourController.resizeTourImages,
-    tourController.updateTour,
+    tourController.uploadTourImages, // 1) Multer for files
+    parseJSONFields(["locations", "startLocation", "startDates"]), // 2) Parse JSON fields
+    tourController.resizeTourImages, // 3) Image resizing
+    tourController.updateTour, // 4) Finally, the update logic
   )
   .delete(tourController.deleteTour);
 

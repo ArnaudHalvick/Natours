@@ -69,8 +69,9 @@ export class LocationManager {
       addLocationBtn.addEventListener("click", () => {
         console.log("Add location clicked");
         if (this.currentSearchResult) {
+          // Fix: Use a simple `type: "Point"`
           const location = {
-            type: { type: "Point" },
+            type: "Point",
             coordinates: this.currentSearchResult.center,
             description: this.currentSearchResult.text,
             address: this.currentSearchResult.place_name,
@@ -94,8 +95,9 @@ export class LocationManager {
       setStartLocationBtn.addEventListener("click", () => {
         console.log("Set start location clicked");
         if (this.currentSearchResult) {
+          // Fix: Use a simple `type: "Point"`
           const location = {
-            type: { type: "Point" },
+            type: "Point",
             coordinates: this.currentSearchResult.center,
             description: this.currentSearchResult.text,
             address: this.currentSearchResult.place_name,
@@ -263,9 +265,10 @@ export class LocationManager {
   setLocations(locations) {
     this.cleanup();
     locations.forEach(location => {
-      // Ensure location has the correct structure
+      // Ensure location has the correct structure.
+      // Fix: Use a simple `type: "Point"` here, too.
       const formattedLocation = {
-        type: { type: "Point" },
+        type: "Point",
         coordinates: location.coordinates,
         description: location.description,
         address: location.address,

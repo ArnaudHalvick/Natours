@@ -8671,10 +8671,9 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
         addLocationBtn.addEventListener("click", function () {
           console.log("Add location clicked");
           if (_this.currentSearchResult) {
+            // Fix: Use a simple `type: "Point"`
             var location = {
-              type: {
-                type: "Point"
-              },
+              type: "Point",
               coordinates: _this.currentSearchResult.center,
               description: _this.currentSearchResult.text,
               address: _this.currentSearchResult.place_name,
@@ -8695,10 +8694,9 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
         setStartLocationBtn.addEventListener("click", function () {
           console.log("Set start location clicked");
           if (_this.currentSearchResult) {
+            // Fix: Use a simple `type: "Point"`
             var location = {
-              type: {
-                type: "Point"
-              },
+              type: "Point",
               coordinates: _this.currentSearchResult.center,
               description: _this.currentSearchResult.text,
               address: _this.currentSearchResult.place_name
@@ -8851,11 +8849,10 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
       var _this4 = this;
       this.cleanup();
       locations.forEach(function (location) {
-        // Ensure location has the correct structure
+        // Ensure location has the correct structure.
+        // Fix: Use a simple `type: "Point"` here, too.
         var formattedLocation = {
-          type: {
-            type: "Point"
-          },
+          type: "Point",
           coordinates: location.coordinates,
           description: location.description,
           address: location.address,
@@ -9487,7 +9484,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "37889" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "32897" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
