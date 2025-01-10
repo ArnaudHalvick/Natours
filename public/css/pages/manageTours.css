@@ -157,6 +157,15 @@
   border-top: 2px solid #f0f0f0;
 }
 
+.full-width {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.form__input.start-date {
+  width: auto;
+}
+
 /* Table Styles */
 .table {
   width: 100%;
@@ -260,11 +269,6 @@
   margin-bottom: 2rem;
 }
 
-.location-section {
-  grid-column: 1 / -1;
-  width: 100%;
-}
-
 .button-group {
   display: flex;
   flex-wrap: wrap;
@@ -309,6 +313,23 @@
 .form__upload:hover {
   border-color: #40c057;
   background-color: #f1f8f2;
+}
+
+.dates-container {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.date-inputs {
+  display: flex;
+  border-bottom: 1px solid grey;
+  padding: 1rem 0;
+  justify-content: space-between;
+}
+
+.date-inputs:last-child {
+  border-bottom: none;
+  padding-bottom: 2rem;
 }
 
 /* Preview Images */
