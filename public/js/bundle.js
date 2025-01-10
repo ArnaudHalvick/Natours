@@ -8963,12 +8963,21 @@ var populateStartDates = function populateStartDates() {
 };
 var initializeLocationManager = function initializeLocationManager() {
   var locations = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  var showMap = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
   if (locationManager) {
     locationManager.cleanup(); // Clean up previous instance if exists
   }
+
+  // Always initialize LocationManager, but only show map if needed
   locationManager = new _locationManager.LocationManager();
   if (locations.length > 0) {
     locationManager.setLocations(locations);
+  }
+
+  // Hide the map container if showMap is false
+  var mapContainer = document.getElementById("map-container");
+  if (mapContainer) {
+    mapContainer.style.display = showMap ? "block" : "none";
   }
 };
 var handleEditClick = /*#__PURE__*/function () {
@@ -9002,10 +9011,10 @@ var handleEditClick = /*#__PURE__*/function () {
           form.elements.description.value = tour.description || "";
           form.elements.hidden.value = ((_tour$hidden = tour.hidden) === null || _tour$hidden === void 0 ? void 0 : _tour$hidden.toString()) || "false";
 
-          // Initialize map with tour locations
-          initializeLocationManager(tour.locations);
+          // Initialize location manager without showing the map
+          initializeLocationManager(tour.locations, false);
 
-          // Populate start location
+          // Populate start location without displaying the map
           if (tour.startLocation) {
             locationManager.setStartLocation(tour.startLocation);
           }
@@ -9484,7 +9493,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "32897" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "43299" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

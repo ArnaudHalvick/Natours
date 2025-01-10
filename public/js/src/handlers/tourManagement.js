@@ -73,13 +73,22 @@ const populateStartDates = (dates = []) => {
   });
 };
 
-const initializeLocationManager = (locations = []) => {
+const initializeLocationManager = (locations = [], showMap = false) => {
   if (locationManager) {
     locationManager.cleanup(); // Clean up previous instance if exists
   }
+
+  // Always initialize LocationManager, but only show map if needed
   locationManager = new LocationManager();
+
   if (locations.length > 0) {
     locationManager.setLocations(locations);
+  }
+
+  // Hide the map container if showMap is false
+  const mapContainer = document.getElementById("map-container");
+  if (mapContainer) {
+    mapContainer.style.display = showMap ? "block" : "none";
   }
 };
 
@@ -103,10 +112,10 @@ const handleEditClick = async tourId => {
     form.elements.description.value = tour.description || "";
     form.elements.hidden.value = tour.hidden?.toString() || "false";
 
-    // Initialize map with tour locations
-    initializeLocationManager(tour.locations);
+    // Initialize location manager without showing the map
+    initializeLocationManager(tour.locations, false);
 
-    // Populate start location
+    // Populate start location without displaying the map
     if (tour.startLocation) {
       locationManager.setStartLocation(tour.startLocation);
     }
