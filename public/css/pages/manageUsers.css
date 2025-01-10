@@ -10,29 +10,49 @@
 /* Controls Section */
 .user-controls {
   display: flex;
-  gap: 3rem;
-  margin-bottom: 4rem;
+  justify-content: space-between;
   align-items: center;
-  background-color: #e6f8db;
+  gap: 2rem;
   padding: 2rem;
+  margin-bottom: 3rem;
   border-radius: 1rem;
 }
 
 .search-box {
-  flex: 2;
+  flex: 1;
+  max-width: 40rem;
+}
+
+.search-box input,
+.filter-box select {
+  width: 100%;
+  padding: 1.2rem 1.6rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  transition: all 0.3s;
+  background-color: #f8f8f8;
+}
+
+.search-box input:focus,
+.filter-box select:focus {
+  outline: none;
+  border-color: #55c57a;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(85, 197, 122, 0.1);
 }
 
 .filter-box {
-  flex: 1;
+  display: flex;
+  gap: 1rem;
+  min-width: 15rem;
 }
 
 .action-box {
-  flex: 1;
   display: flex;
   justify-content: flex-end;
 }
 
-/* Table Styles */
 .user-table {
   background-color: #fff;
   border-radius: 3px;
@@ -291,6 +311,11 @@
 
 /* Responsive Adjustments for Modal */
 @media only screen and (max-width: 768px) {
+  .user-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
   .modal#userModal .modal-content {
     padding: 2rem;
     max-width: 90%;
@@ -314,7 +339,11 @@
   }
 
   .search-box,
-  .filter-box,
+  .filter-box {
+    max-width: 100%;
+    width: 100%;
+  }
+
   .action-box {
     width: 100%;
   }
