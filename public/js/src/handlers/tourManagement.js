@@ -297,8 +297,13 @@ const initializeEventListeners = () => {
   });
 
   deleteTourBtn?.addEventListener("click", () => {
-    const tourId = tourForm.dataset.tourId;
-    if (tourId) handleDeleteTour(tourId);
+    const form = document.getElementById("tourForm");
+    const tourId = form?.dataset?.tourId;
+
+    if (tourId) {
+      handleDeleteTour(tourId);
+      window.location.reload();
+    }
   });
 
   addLocationBtn?.addEventListener("click", () => {

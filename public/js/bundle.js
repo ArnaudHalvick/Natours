@@ -8907,8 +8907,13 @@ var initializeEventListeners = function initializeEventListeners() {
     (_document$getElementB3 = document.getElementById("tourModal")) === null || _document$getElementB3 === void 0 || _document$getElementB3.classList.remove("active");
   });
   deleteTourBtn === null || deleteTourBtn === void 0 || deleteTourBtn.addEventListener("click", function () {
-    var tourId = tourForm.dataset.tourId;
-    if (tourId) handleDeleteTour(tourId);
+    var _form$dataset;
+    var form = document.getElementById("tourForm");
+    var tourId = form === null || form === void 0 || (_form$dataset = form.dataset) === null || _form$dataset === void 0 ? void 0 : _form$dataset.tourId;
+    if (tourId) {
+      handleDeleteTour(tourId);
+      window.location.reload();
+    }
   });
   addLocationBtn === null || addLocationBtn === void 0 || addLocationBtn.addEventListener("click", function () {
     var locations = document.querySelectorAll(".location-inputs");
@@ -9145,7 +9150,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33241" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "36531" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
