@@ -74,6 +74,7 @@ const helmetConfig = {
 if (process.env.NODE_ENV === "development") {
   helmetConfig.contentSecurityPolicy.directives.connectSrc.push(
     "ws://127.0.0.1:*",
+    "ws://localhost:*",
   );
 }
 
