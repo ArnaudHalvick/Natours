@@ -7116,30 +7116,35 @@ function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; } // api/user.js
 var updateSettings = exports.updateSettings = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(data, type) {
-    var url, res;
+    var url, requestData, res;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
           _context.prev = 0;
-          url = type === "password" ? "/api/v1/users/updateMyPassword" : "/api/v1/users/updateMe";
-          _context.next = 4;
+          url = type === "password" ? "/api/v1/users/updateMyPassword" : "/api/v1/users/updateMe"; // If it's a password update, transform the data to match API expectations
+          requestData = type === "password" ? {
+            currentPassword: data.passwordCurrent,
+            password: data.password,
+            passwordConfirm: data.passwordConfirm
+          } : data;
+          _context.next = 5;
           return (0, _axios.default)({
             method: "PATCH",
             url: url,
-            data: data
+            data: requestData
           });
-        case 4:
+        case 5:
           res = _context.sent;
           return _context.abrupt("return", res.data);
-        case 8:
-          _context.prev = 8;
+        case 9:
+          _context.prev = 9;
           _context.t0 = _context["catch"](0);
           throw _context.t0;
-        case 11:
+        case 12:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[0, 8]]);
+    }, _callee, null, [[0, 9]]);
   }));
   return function updateSettings(_x, _x2) {
     return _ref.apply(this, arguments);
@@ -7197,14 +7202,14 @@ var handleSettingsUpdate = /*#__PURE__*/function () {
           e.preventDefault();
           _context.prev = 1;
           form = e.target;
-          type = form.classList.contains("form-user-password") ? "password" : "data";
+          type = form.id === "passwordForm" ? "password" : "data";
           data = type === "password" ? {
-            passwordCurrent: form.passwordCurrent.value,
-            password: form.password.value,
-            passwordConfirm: form.passwordConfirm.value
+            passwordCurrent: document.getElementById("password-current").value,
+            password: document.getElementById("password").value,
+            passwordConfirm: document.getElementById("password-confirm").value
           } : {
-            name: form.name.value,
-            email: form.email.value
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value
           };
           _context.next = 7;
           return (0, _user.updateSettings)(data, type);
@@ -7212,9 +7217,16 @@ var handleSettingsUpdate = /*#__PURE__*/function () {
           res = _context.sent;
           if (res.status === "success") {
             (0, _alert.showAlert)("success", "".concat(type.toUpperCase(), " updated successfully!"));
-            window.setTimeout(function () {
-              return location.reload();
-            }, 1000);
+            if (type === "password") {
+              // Clear password fields
+              document.getElementById("password-current").value = "";
+              document.getElementById("password").value = "";
+              document.getElementById("password-confirm").value = "";
+            } else {
+              window.setTimeout(function () {
+                return location.reload();
+              }, 1500);
+            }
           }
           _context.next = 15;
           break;

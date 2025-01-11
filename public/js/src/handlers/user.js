@@ -8,27 +8,33 @@ const handleSettingsUpdate = async e => {
 
   try {
     const form = e.target;
-    const type = form.classList.contains("form-user-password")
-      ? "password"
-      : "data";
+    const type = form.id === "passwordForm" ? "password" : "data";
 
     const data =
       type === "password"
         ? {
-            passwordCurrent: form.passwordCurrent.value,
-            password: form.password.value,
-            passwordConfirm: form.passwordConfirm.value,
+            passwordCurrent: document.getElementById("password-current").value,
+            password: document.getElementById("password").value,
+            passwordConfirm: document.getElementById("password-confirm").value,
           }
         : {
-            name: form.name.value,
-            email: form.email.value,
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
           };
 
     const res = await updateSettings(data, type);
 
     if (res.status === "success") {
       showAlert("success", `${type.toUpperCase()} updated successfully!`);
-      window.setTimeout(() => location.reload(), 1000);
+
+      if (type === "password") {
+        // Clear password fields
+        document.getElementById("password-current").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("password-confirm").value = "";
+      } else {
+        window.setTimeout(() => location.reload(), 1500);
+      }
     }
   } catch (err) {
     const errorMessage =
