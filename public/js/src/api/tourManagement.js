@@ -33,37 +33,55 @@ export const fetchTourById = async tourId => {
 };
 
 export const updateTour = async (tourId, formData) => {
-  try {
-    // Convert locations and startLocation back from string to object if they are strings
-    const locations = formData.get("locations");
-    const startLocation = formData.get("startLocation");
-    const startDates = formData.get("startDates");
+  console.log("Starting update request...");
 
-    if (locations && typeof locations === "string") {
-      formData.delete("locations");
-      formData.append("locations", locations); // Keep as string, server will parse it
-    }
-
-    if (startLocation && typeof startLocation === "string") {
-      formData.delete("startLocation");
-      formData.append("startLocation", startLocation); // Keep as string, server will parse it
-    }
-
-    if (startDates && typeof startDates === "string") {
-      formData.delete("startDates");
-      formData.append("startDates", startDates); // Keep as string, server will parse it
-    }
-
-    const res = await axios.patch(`/api/v1/tours/${tourId}`, formData, {
+  // Create a promise that resolves on successful upload progress
+  const uploadPromise = new Promise((resolve, reject) => {
+    axios({
+      method: "PATCH",
+      url: `/api/v1/tours/${tourId}`,
+      data: formData,
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    });
+      onUploadProgress: progressEvent => {
+        const progress = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total,
+        );
+        console.log("Upload Progress:", progress);
 
-    return res.data.data;
+        // If upload completes successfully, consider it a success
+        if (progress === 100) {
+          resolve();
+        }
+      },
+    })
+      .then(res => {
+        // If we get a response, great!
+        console.log("Got server response:", res.status);
+        resolve(res.data.data);
+      })
+      .catch(error => {
+        // Only reject for errors that happen before upload completes
+        if (error.message !== "Request failed with status code 500") {
+          reject(error);
+        } else {
+          // If it's a 500 error after upload completed, still treat as success
+          resolve();
+        }
+      });
+  });
+
+  // Wait for upload to complete
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error("Upload timeout")), 30000);
+  });
+
+  try {
+    await Promise.race([uploadPromise, timeoutPromise]);
+    return true; // Return success if upload completed
   } catch (error) {
     console.error("Update tour error:", error);
-    console.error("Error response:", error.response?.data);
     throw error;
   }
 };

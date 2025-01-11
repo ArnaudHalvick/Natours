@@ -8,6 +8,7 @@ const reviewController = require("./../controllers/reviewController");
 const reviewRouter = require("./reviewRoutes");
 
 const { parseJSONFields } = require("../utils/parseJSONFields");
+const catchAsync = require("../utils/catchAsync");
 
 // --- Public Routes ---
 
@@ -40,10 +41,10 @@ router.route("/").post(tourController.createNewTour);
 router
   .route("/:id")
   .patch(
-    tourController.uploadTourImages, // 1) Multer for files
-    parseJSONFields(["locations", "startLocation", "startDates"]), // 2) Parse JSON fields
-    tourController.resizeTourImages, // 3) Image resizing
-    tourController.updateTour, // 4) Finally, the update logic
+    tourController.uploadTourImages,
+    parseJSONFields(["locations", "startLocation", "startDates"]),
+    tourController.resizeTourImages,
+    tourController.updateTour,
   )
   .delete(tourController.deleteTour);
 

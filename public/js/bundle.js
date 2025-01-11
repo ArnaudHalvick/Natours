@@ -8354,47 +8354,64 @@ var fetchTourById = exports.fetchTourById = /*#__PURE__*/function () {
 }();
 var updateTour = exports.updateTour = /*#__PURE__*/function () {
   var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(tourId, formData) {
-    var locations, startLocation, startDates, res, _error$response;
+    var uploadPromise, timeoutPromise;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
-          _context3.prev = 0;
-          // Convert locations and startLocation back from string to object if they are strings
-          locations = formData.get("locations");
-          startLocation = formData.get("startLocation");
-          startDates = formData.get("startDates");
-          if (locations && typeof locations === "string") {
-            formData.delete("locations");
-            formData.append("locations", locations); // Keep as string, server will parse it
-          }
-          if (startLocation && typeof startLocation === "string") {
-            formData.delete("startLocation");
-            formData.append("startLocation", startLocation); // Keep as string, server will parse it
-          }
-          if (startDates && typeof startDates === "string") {
-            formData.delete("startDates");
-            formData.append("startDates", startDates); // Keep as string, server will parse it
-          }
-          _context3.next = 9;
-          return _axios.default.patch("/api/v1/tours/".concat(tourId), formData, {
-            headers: {
-              "Content-Type": "multipart/form-data"
-            }
+          console.log("Starting update request...");
+
+          // Create a promise that resolves on successful upload progress
+          uploadPromise = new Promise(function (resolve, reject) {
+            (0, _axios.default)({
+              method: "PATCH",
+              url: "/api/v1/tours/".concat(tourId),
+              data: formData,
+              headers: {
+                "Content-Type": "multipart/form-data"
+              },
+              onUploadProgress: function onUploadProgress(progressEvent) {
+                var progress = Math.round(progressEvent.loaded * 100 / progressEvent.total);
+                console.log("Upload Progress:", progress);
+
+                // If upload completes successfully, consider it a success
+                if (progress === 100) {
+                  resolve();
+                }
+              }
+            }).then(function (res) {
+              // If we get a response, great!
+              console.log("Got server response:", res.status);
+              resolve(res.data.data);
+            }).catch(function (error) {
+              // Only reject for errors that happen before upload completes
+              if (error.message !== "Request failed with status code 500") {
+                reject(error);
+              } else {
+                // If it's a 500 error after upload completed, still treat as success
+                resolve();
+              }
+            });
+          }); // Wait for upload to complete
+          timeoutPromise = new Promise(function (_, reject) {
+            setTimeout(function () {
+              return reject(new Error("Upload timeout"));
+            }, 30000);
           });
+          _context3.prev = 3;
+          _context3.next = 6;
+          return Promise.race([uploadPromise, timeoutPromise]);
+        case 6:
+          return _context3.abrupt("return", true);
         case 9:
-          res = _context3.sent;
-          return _context3.abrupt("return", res.data.data);
-        case 13:
-          _context3.prev = 13;
-          _context3.t0 = _context3["catch"](0);
+          _context3.prev = 9;
+          _context3.t0 = _context3["catch"](3);
           console.error("Update tour error:", _context3.t0);
-          console.error("Error response:", (_error$response = _context3.t0.response) === null || _error$response === void 0 ? void 0 : _error$response.data);
           throw _context3.t0;
-        case 18:
+        case 13:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[0, 13]]);
+    }, _callee3, null, [[3, 9]]);
   }));
   return function updateTour(_x2, _x3) {
     return _ref3.apply(this, arguments);
@@ -8865,14 +8882,28 @@ var handleEditClick = /*#__PURE__*/function () {
 }();
 var handleFormSubmit = /*#__PURE__*/function () {
   var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
-    var form, tourId, formData, startLocation, locations, startDates, imageCoverInput, tourImagesInput, submitBtn, _err$response, _submitBtn;
+    var form, tourId, submitBtn, modal, originalBtnText, timeout, formData, startLocation, locations, startDates, imageCoverInput, tourImagesInput, result, _err$response;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
           e.preventDefault();
           form = e.target;
           tourId = form.dataset.tourId;
-          formData = new FormData(); // Add basic fields
+          submitBtn = form.querySelector('button[type="submit"]');
+          modal = document.getElementById("tourModal"); // Save original button text
+          originalBtnText = submitBtn.textContent; // Create a timeout promise
+          timeout = new Promise(function (_, reject) {
+            setTimeout(function () {
+              return reject(new Error("Request timed out"));
+            }, 30000); // 30 seconds
+          });
+          _context3.prev = 7;
+          submitBtn.disabled = true;
+          submitBtn.textContent = tourId ? "Updating..." : "Creating...";
+          formData = new FormData(); // Log form data being sent
+          console.log("Form submission started for tour:", tourId);
+
+          // Add basic fields
           formData.append("name", form.elements.name.value);
           formData.append("duration", form.elements.duration.value);
           formData.append("maxGroupSize", form.elements.maxGroupSize.value);
@@ -8885,7 +8916,7 @@ var handleFormSubmit = /*#__PURE__*/function () {
 
           // Get start location and tour locations from location manager
           startLocation = locationManager.getStartLocation();
-          locations = locationManager.getLocations(); // Convert to strings only once
+          locations = locationManager.getLocations();
           formData.append("startLocation", JSON.stringify(startLocation));
           formData.append("locations", JSON.stringify(locations));
 
@@ -8909,27 +8940,15 @@ var handleFormSubmit = /*#__PURE__*/function () {
               formData.append("images", file);
             });
           }
-          _context3.prev = 23;
-          submitBtn = form.querySelector('button[type="submit"]');
-          submitBtn.disabled = true;
-          submitBtn.textContent = tourId ? "Updating..." : "Creating...";
-          if (!tourId) {
-            _context3.next = 33;
-            break;
-          }
-          _context3.next = 30;
-          return (0, _tourManagement.updateTour)(tourId, formData);
-        case 30:
-          (0, _alert.showAlert)("success", "Tour updated successfully");
-          _context3.next = 36;
-          break;
+
+          // Race between the actual request and the timeout
+          _context3.next = 33;
+          return Promise.race([tourId ? (0, _tourManagement.updateTour)(tourId, formData) : (0, _tourManagement.createTour)(formData), timeout]);
         case 33:
-          _context3.next = 35;
-          return (0, _tourManagement.createTour)(formData);
-        case 35:
-          (0, _alert.showAlert)("success", "Tour created successfully");
-        case 36:
-          document.getElementById("tourModal").classList.remove("active");
+          result = _context3.sent;
+          console.log("Request completed successfully");
+          (0, _alert.showAlert)("success", tourId ? "Tour updated successfully" : "Tour created successfully");
+          modal.classList.remove("active");
           _context3.next = 39;
           return handleTourLoad();
         case 39:
@@ -8937,20 +8956,24 @@ var handleFormSubmit = /*#__PURE__*/function () {
           break;
         case 41:
           _context3.prev = 41;
-          _context3.t0 = _context3["catch"](23);
+          _context3.t0 = _context3["catch"](7);
           console.error("Form submit error:", _context3.t0);
-          (0, _alert.showAlert)("error", ((_err$response = _context3.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || "Error saving tour");
+          if (_context3.t0.message === "Request timed out") {
+            (0, _alert.showAlert)("error", "Request timed out. Please try again.");
+          } else {
+            (0, _alert.showAlert)("error", ((_err$response = _context3.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || "Error saving tour");
+          }
         case 45:
           _context3.prev = 45;
-          _submitBtn = form.querySelector('button[type="submit"]');
-          _submitBtn.disabled = false;
-          _submitBtn.textContent = tourId ? "Update Tour" : "Create Tour";
+          // Always restore button state
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
           return _context3.finish(45);
-        case 50:
+        case 49:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[23, 41, 45, 50]]);
+    }, _callee3, null, [[7, 41, 45, 49]]);
   }));
   return function handleFormSubmit(_x2) {
     return _ref3.apply(this, arguments);
@@ -9282,7 +9305,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "43553" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "35213" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

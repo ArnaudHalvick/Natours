@@ -74,21 +74,31 @@ exports.getOne = (Model, populateOptions) =>
 // Update a document by ID
 exports.updateOne = Model =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
-      new: true, // Return the updated document
-      runValidators: true, // Run model validators
-    });
+    console.log("Starting update in factory handler");
+    console.log("Tour ID:", req.params.id);
+    console.log("Update data:", req.body);
 
-    // If no document is found, return 404 error
-    if (!doc) {
-      return next(new AppError(`${Model.modelName} not found`, 404));
+    try {
+      const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
+      });
+
+      console.log("Document updated:", doc ? "success" : "not found");
+
+      // If no document is found, return 404 error
+      if (!doc) {
+        return next(new AppError(`${Model.modelName} not found`, 404));
+      }
+
+      // Send success response with the updated document
+      res.status(200).json({
+        status: "success",
+        data: { data: doc },
+      });
+    } catch (err) {
+      next(err);
     }
-
-    // Send success response with the updated document
-    res.status(200).json({
-      status: "success",
-      data: { data: doc },
-    });
   });
 
 // Delete a document by ID with permission check for reviews

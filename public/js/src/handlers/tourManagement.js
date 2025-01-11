@@ -164,71 +164,90 @@ const handleFormSubmit = async e => {
 
   const form = e.target;
   const tourId = form.dataset.tourId;
-  const formData = new FormData();
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const modal = document.getElementById("tourModal");
 
-  // Add basic fields
-  formData.append("name", form.elements.name.value);
-  formData.append("duration", form.elements.duration.value);
-  formData.append("maxGroupSize", form.elements.maxGroupSize.value);
-  formData.append("difficulty", form.elements.difficulty.value);
-  formData.append("price", form.elements.price.value);
-  formData.append("priceDiscount", form.elements.priceDiscount.value);
-  formData.append("summary", form.elements.summary.value);
-  formData.append("description", form.elements.description.value);
-  formData.append("hidden", form.elements.hidden.value);
+  // Save original button text
+  const originalBtnText = submitBtn.textContent;
 
-  // Get start location and tour locations from location manager
-  const startLocation = locationManager.getStartLocation();
-  const locations = locationManager.getLocations();
-
-  // Convert to strings only once
-  formData.append("startLocation", JSON.stringify(startLocation));
-  formData.append("locations", JSON.stringify(locations));
-
-  // Handle dates
-  const startDates = Array.from(form.querySelectorAll(".date-inputs")).map(
-    div => ({
-      date: div.querySelector(".start-date").value,
-      participants: 0,
-    }),
-  );
-  formData.append("startDates", JSON.stringify(startDates));
-
-  // Handle files
-  const imageCoverInput = document.getElementById("imageCover");
-  if (imageCoverInput.files.length > 0) {
-    formData.append("imageCover", imageCoverInput.files[0]);
-  }
-
-  const tourImagesInput = document.getElementById("tourImages");
-  if (tourImagesInput.files.length > 0) {
-    Array.from(tourImagesInput.files).forEach(file => {
-      formData.append("images", file);
-    });
-  }
+  // Create a timeout promise
+  const timeout = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error("Request timed out")), 30000); // 30 seconds
+  });
 
   try {
-    const submitBtn = form.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
     submitBtn.textContent = tourId ? "Updating..." : "Creating...";
 
-    if (tourId) {
-      await updateTour(tourId, formData);
-      showAlert("success", "Tour updated successfully");
-    } else {
-      await createTour(formData);
-      showAlert("success", "Tour created successfully");
+    const formData = new FormData();
+
+    // Log form data being sent
+    console.log("Form submission started for tour:", tourId);
+
+    // Add basic fields
+    formData.append("name", form.elements.name.value);
+    formData.append("duration", form.elements.duration.value);
+    formData.append("maxGroupSize", form.elements.maxGroupSize.value);
+    formData.append("difficulty", form.elements.difficulty.value);
+    formData.append("price", form.elements.price.value);
+    formData.append("priceDiscount", form.elements.priceDiscount.value);
+    formData.append("summary", form.elements.summary.value);
+    formData.append("description", form.elements.description.value);
+    formData.append("hidden", form.elements.hidden.value);
+
+    // Get start location and tour locations from location manager
+    const startLocation = locationManager.getStartLocation();
+    const locations = locationManager.getLocations();
+
+    formData.append("startLocation", JSON.stringify(startLocation));
+    formData.append("locations", JSON.stringify(locations));
+
+    // Handle dates
+    const startDates = Array.from(form.querySelectorAll(".date-inputs")).map(
+      div => ({
+        date: div.querySelector(".start-date").value,
+        participants: 0,
+      }),
+    );
+    formData.append("startDates", JSON.stringify(startDates));
+
+    // Handle files
+    const imageCoverInput = document.getElementById("imageCover");
+    if (imageCoverInput.files.length > 0) {
+      formData.append("imageCover", imageCoverInput.files[0]);
     }
 
-    document.getElementById("tourModal").classList.remove("active");
+    const tourImagesInput = document.getElementById("tourImages");
+    if (tourImagesInput.files.length > 0) {
+      Array.from(tourImagesInput.files).forEach(file => {
+        formData.append("images", file);
+      });
+    }
+
+    // Race between the actual request and the timeout
+    const result = await Promise.race([
+      tourId ? updateTour(tourId, formData) : createTour(formData),
+      timeout,
+    ]);
+
+    console.log("Request completed successfully");
+    showAlert(
+      "success",
+      tourId ? "Tour updated successfully" : "Tour created successfully",
+    );
+    modal.classList.remove("active");
     await handleTourLoad();
   } catch (err) {
     console.error("Form submit error:", err);
-    showAlert("error", err.response?.data?.message || "Error saving tour");
+    if (err.message === "Request timed out") {
+      showAlert("error", "Request timed out. Please try again.");
+    } else {
+      showAlert("error", err.response?.data?.message || "Error saving tour");
+    }
   } finally {
-    const submitBtn = form.querySelector('button[type="submit"]');
+    // Always restore button state
     submitBtn.disabled = false;
-    submitBtn.textContent = tourId ? "Update Tour" : "Create Tour";
+    submitBtn.textContent = originalBtnText;
   }
 };
 
