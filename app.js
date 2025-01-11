@@ -43,12 +43,15 @@ const helmetConfig = {
       defaultSrc: ["'self'"],
       scriptSrc: [
         "'self'",
+        "'unsafe-inline'",
+        "'unsafe-eval'",
         "https://api.mapbox.com",
         "https://cdnjs.cloudflare.com",
         "https://js.stripe.com",
       ],
       styleSrc: [
         "'self'",
+        "'unsafe-inline'",
         "https://api.mapbox.com",
         "https://fonts.googleapis.com",
       ],
