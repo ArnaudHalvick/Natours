@@ -8358,8 +8358,6 @@ var updateTour = exports.updateTour = /*#__PURE__*/function () {
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
-          console.log("Starting update request...");
-
           // Create a promise that resolves on successful upload progress
           uploadPromise = new Promise(function (resolve, reject) {
             (0, _axios.default)({
@@ -8371,7 +8369,6 @@ var updateTour = exports.updateTour = /*#__PURE__*/function () {
               },
               onUploadProgress: function onUploadProgress(progressEvent) {
                 var progress = Math.round(progressEvent.loaded * 100 / progressEvent.total);
-                console.log("Upload Progress:", progress);
 
                 // If upload completes successfully, consider it a success
                 if (progress === 100) {
@@ -8379,8 +8376,6 @@ var updateTour = exports.updateTour = /*#__PURE__*/function () {
                 }
               }
             }).then(function (res) {
-              // If we get a response, great!
-              console.log("Got server response:", res.status);
               resolve(res.data.data);
             }).catch(function (error) {
               // Only reject for errors that happen before upload completes
@@ -8397,21 +8392,21 @@ var updateTour = exports.updateTour = /*#__PURE__*/function () {
               return reject(new Error("Upload timeout"));
             }, 30000);
           });
-          _context3.prev = 3;
-          _context3.next = 6;
+          _context3.prev = 2;
+          _context3.next = 5;
           return Promise.race([uploadPromise, timeoutPromise]);
-        case 6:
+        case 5:
           return _context3.abrupt("return", true);
-        case 9:
-          _context3.prev = 9;
-          _context3.t0 = _context3["catch"](3);
+        case 8:
+          _context3.prev = 8;
+          _context3.t0 = _context3["catch"](2);
           console.error("Update tour error:", _context3.t0);
           throw _context3.t0;
-        case 13:
+        case 12:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[3, 9]]);
+    }, _callee3, null, [[2, 8]]);
   }));
   return function updateTour(_x2, _x3) {
     return _ref3.apply(this, arguments);
@@ -8900,10 +8895,7 @@ var handleFormSubmit = /*#__PURE__*/function () {
           _context3.prev = 7;
           submitBtn.disabled = true;
           submitBtn.textContent = tourId ? "Updating..." : "Creating...";
-          formData = new FormData(); // Log form data being sent
-          console.log("Form submission started for tour:", tourId);
-
-          // Add basic fields
+          formData = new FormData(); // Add basic fields
           formData.append("name", form.elements.name.value);
           formData.append("duration", form.elements.duration.value);
           formData.append("maxGroupSize", form.elements.maxGroupSize.value);
@@ -8942,20 +8934,19 @@ var handleFormSubmit = /*#__PURE__*/function () {
           }
 
           // Race between the actual request and the timeout
-          _context3.next = 33;
+          _context3.next = 32;
           return Promise.race([tourId ? (0, _tourManagement.updateTour)(tourId, formData) : (0, _tourManagement.createTour)(formData), timeout]);
-        case 33:
+        case 32:
           result = _context3.sent;
-          console.log("Request completed successfully");
           (0, _alert.showAlert)("success", tourId ? "Tour updated successfully" : "Tour created successfully");
           modal.classList.remove("active");
-          _context3.next = 39;
+          _context3.next = 37;
           return handleTourLoad();
-        case 39:
-          _context3.next = 45;
+        case 37:
+          _context3.next = 43;
           break;
-        case 41:
-          _context3.prev = 41;
+        case 39:
+          _context3.prev = 39;
           _context3.t0 = _context3["catch"](7);
           console.error("Form submit error:", _context3.t0);
           if (_context3.t0.message === "Request timed out") {
@@ -8963,17 +8954,17 @@ var handleFormSubmit = /*#__PURE__*/function () {
           } else {
             (0, _alert.showAlert)("error", ((_err$response = _context3.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || "Error saving tour");
           }
-        case 45:
-          _context3.prev = 45;
+        case 43:
+          _context3.prev = 43;
           // Always restore button state
           submitBtn.disabled = false;
           submitBtn.textContent = originalBtnText;
-          return _context3.finish(45);
-        case 49:
+          return _context3.finish(43);
+        case 47:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[7, 41, 45, 49]]);
+    }, _callee3, null, [[7, 39, 43, 47]]);
   }));
   return function handleFormSubmit(_x2) {
     return _ref3.apply(this, arguments);

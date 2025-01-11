@@ -33,8 +33,6 @@ export const fetchTourById = async tourId => {
 };
 
 export const updateTour = async (tourId, formData) => {
-  console.log("Starting update request...");
-
   // Create a promise that resolves on successful upload progress
   const uploadPromise = new Promise((resolve, reject) => {
     axios({
@@ -48,7 +46,6 @@ export const updateTour = async (tourId, formData) => {
         const progress = Math.round(
           (progressEvent.loaded * 100) / progressEvent.total,
         );
-        console.log("Upload Progress:", progress);
 
         // If upload completes successfully, consider it a success
         if (progress === 100) {
@@ -57,8 +54,6 @@ export const updateTour = async (tourId, formData) => {
       },
     })
       .then(res => {
-        // If we get a response, great!
-        console.log("Got server response:", res.status);
         resolve(res.data.data);
       })
       .catch(error => {

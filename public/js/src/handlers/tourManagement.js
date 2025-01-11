@@ -181,9 +181,6 @@ const handleFormSubmit = async e => {
 
     const formData = new FormData();
 
-    // Log form data being sent
-    console.log("Form submission started for tour:", tourId);
-
     // Add basic fields
     formData.append("name", form.elements.name.value);
     formData.append("duration", form.elements.duration.value);
@@ -230,7 +227,6 @@ const handleFormSubmit = async e => {
       timeout,
     ]);
 
-    console.log("Request completed successfully");
     showAlert(
       "success",
       tourId ? "Tour updated successfully" : "Tour created successfully",
