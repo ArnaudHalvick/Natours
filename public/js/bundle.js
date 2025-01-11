@@ -8037,7 +8037,8 @@ var roleFilter = "";
 var LIMIT = 10;
 var renderUserRow = function renderUserRow(user, currentUserId) {
   var isCurrentUser = user._id === currentUserId;
-  return "\n    <tr>\n      <td>\n        <img src=\"/img/users/".concat(user.photo, "\" alt=\"User photo\" class=\"user-photo\">\n      </td>\n      <td>").concat(user.name, "</td>\n      <td>").concat(user.email, "</td>\n      <td>").concat(user.role, "</td>\n      <td>\n        <button class=\"btn btn--small btn--edit\" data-id=\"").concat(user._id, "\" data-active=\"").concat(user.active, "\">\n          Edit\n        </button>\n        ").concat(!isCurrentUser ? "\n          <button class=\"btn btn--small btn--red btn--delete\" data-id=\"".concat(user._id, "\">\n            Delete\n          </button>\n        ") : "", "\n      </td>\n    </tr>\n  ");
+  var inactiveClass = !user.active ? "user--inactive" : "";
+  return "\n    <tr class=\"".concat(inactiveClass, "\">\n      <td>\n        <img src=\"/img/users/").concat(user.photo, "\" alt=\"User photo\" class=\"user-photo\">\n      </td>\n      <td>").concat(user.name, "</td>\n      <td>").concat(user.email, "</td>\n      <td>").concat(user.role, "</td>\n      <td>\n        ").concat(isCurrentUser ? "<span>Your account</span>" : "\n            <button class=\"btn btn--small btn--edit\" data-id=\"".concat(user._id, "\" data-active=\"").concat(user.active, "\">\n              Edit\n            </button>\n            <button class=\"btn btn--small btn--red btn--delete\" data-id=\"").concat(user._id, "\">\n              Delete\n            </button>\n          "), "\n      </td>\n    </tr>\n  ");
 };
 var handleUserLoad = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {

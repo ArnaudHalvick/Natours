@@ -14,8 +14,9 @@ const LIMIT = 10;
 
 const renderUserRow = (user, currentUserId) => {
   const isCurrentUser = user._id === currentUserId;
+  const inactiveClass = !user.active ? "user--inactive" : "";
   return `
-    <tr>
+    <tr class="${inactiveClass}">
       <td>
         <img src="/img/users/${user.photo}" alt="User photo" class="user-photo">
       </td>
@@ -23,17 +24,17 @@ const renderUserRow = (user, currentUserId) => {
       <td>${user.email}</td>
       <td>${user.role}</td>
       <td>
-        <button class="btn btn--small btn--edit" data-id="${user._id}" data-active="${user.active}">
-          Edit
-        </button>
         ${
-          !isCurrentUser
-            ? `
-          <button class="btn btn--small btn--red btn--delete" data-id="${user._id}">
-            Delete
-          </button>
-        `
-            : ""
+          isCurrentUser
+            ? "<span>Your account</span>"
+            : `
+            <button class="btn btn--small btn--edit" data-id="${user._id}" data-active="${user.active}">
+              Edit
+            </button>
+            <button class="btn btn--small btn--red btn--delete" data-id="${user._id}">
+              Delete
+            </button>
+          `
         }
       </td>
     </tr>
