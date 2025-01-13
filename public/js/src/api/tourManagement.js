@@ -17,7 +17,9 @@ export const fetchTours = async (
     if (difficulty) params.append("difficulty", difficulty);
 
     const res = await axios.get(`/api/v1/tours/regex?${params.toString()}`);
-    return res.data.data;
+
+    const { data: tours, pagination } = res.data.data;
+    return { tours, pagination };
   } catch (error) {
     throw error;
   }
@@ -33,7 +35,7 @@ export const fetchTourById = async tourId => {
 };
 
 export const updateTour = async (tourId, formData) => {
-  // Create a promise that resolves on successful upload progress
+  // Existing implementation remains unchanged
   const uploadPromise = new Promise((resolve, reject) => {
     axios({
       method: "PATCH",

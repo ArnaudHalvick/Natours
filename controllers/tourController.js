@@ -214,17 +214,12 @@ exports.getAllToursRegex = catchAsync(async (req, res, next) => {
   const limit = +req.query.limit || 10;
   const skip = (page - 1) * limit;
 
-  // We’ll build a single `$match` object
+  // Build match object
   const match = {};
-
-  // If `search` is provided, add an $or condition for name and _id
   if (search && search.trim() !== "") {
     const trimmedSearch = search.trim();
-
     match.$or = [
-      {
-        name: { $regex: trimmedSearch, $options: "i" },
-      },
+      { name: { $regex: trimmedSearch, $options: "i" } },
       {
         $expr: {
           $regexMatch: {
@@ -236,57 +231,52 @@ exports.getAllToursRegex = catchAsync(async (req, res, next) => {
       },
     ];
   }
-
-  // If difficulty is provided, match by difficulty as well
   if (difficulty) {
-    // If `$or` exists, we want to nest it properly.
-    // For a simple approach, just add it as another field:
     match.difficulty = difficulty;
   }
 
-  // Now build your pipeline. Only push $match if it's not empty
-  const pipeline = [];
+  // First get total count with matching criteria
+  const countPipeline = [];
   if (Object.keys(match).length > 0) {
-    pipeline.push({ $match: match });
+    countPipeline.push({ $match: match });
   }
+  countPipeline.push({ $count: "total" });
 
-  // Then do your pagination in a $facet
-  pipeline.push({
-    $facet: {
-      data: [
-        { $skip: skip },
-        { $limit: limit },
-        {
-          $project: {
-            name: 1,
-            price: 1,
-            duration: 1,
-            hidden: 1,
-            difficulty: 1,
-            ratingsAverage: 1,
-            ratingsQuantity: 1,
-            maxGroupSize: 1,
-            summary: 1,
-            description: 1,
-            imageCover: 1,
-            images: 1,
-            startLocation: 1,
-            locations: 1,
-            startDates: 1,
-            priceDiscount: 1,
-          },
-        },
-      ],
-      metadata: [{ $count: "total" }],
-    },
-  });
-
-  // Execute and format response
-  const [results] = await Tour.aggregate(pipeline);
-  const { data = [], metadata = [] } = results;
-
-  const total = metadata.length > 0 ? metadata[0].total : 0;
+  const [countResult] = await Tour.aggregate(countPipeline);
+  const total = countResult ? countResult.total : 0;
   const totalPages = Math.ceil(total / limit);
+
+  // Then get paginated data
+  const dataPipeline = [];
+  if (Object.keys(match).length > 0) {
+    dataPipeline.push({ $match: match });
+  }
+  dataPipeline.push(
+    { $skip: skip },
+    { $limit: limit },
+    {
+      $project: {
+        name: 1,
+        price: 1,
+        duration: 1,
+        hidden: 1,
+        difficulty: 1,
+        ratingsAverage: 1,
+        ratingsQuantity: 1,
+        maxGroupSize: 1,
+        summary: 1,
+        description: 1,
+        imageCover: 1,
+        images: 1,
+        startLocation: 1,
+        locations: 1,
+        startDates: 1,
+        priceDiscount: 1,
+      },
+    },
+  );
+
+  const data = await Tour.aggregate(dataPipeline);
 
   res.status(200).json({
     status: "success",

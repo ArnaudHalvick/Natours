@@ -20,33 +20,38 @@ let locationManager;
 
 const handleTourLoad = async () => {
   try {
-    const response = await fetchTours(
+    const { tours, pagination } = await fetchTours(
       currentPage,
       limit,
       currentSearch,
       currentDifficulty,
     );
-    totalPages = response.pagination.totalPages;
+
+    if (!pagination) {
+      throw new Error("Pagination information is missing from the response.");
+    }
+
+    totalPages = pagination.totalPages;
 
     const tourTableBody = document.getElementById("tourTableBody");
     if (!tourTableBody) return;
 
-    tourTableBody.innerHTML = response.data.length
-      ? response.data
+    tourTableBody.innerHTML = tours.length
+      ? tours
           .map(
             tour => `
-     <tr>
-       <td>${tour?._id ?? "N/A"}</td>
-       <td>${tour?.name ?? "N/A"}</td>
-       <td>$${tour?.price ?? "N/A"}</td>
-       <td>${tour?.duration ? `${tour.duration} days` : "N/A"}</td>
-       <td>${tour.ratingsAverage ? tour.ratingsAverage.toFixed(1) : "N/A"}</td>
-       <td>${tour.hidden ? "Hidden" : "Visible"}</td>
-       <td>
-         <button class="btn btn--small btn--edit" data-id="${tour._id}">Edit</button>
-       </td>
-     </tr>
-   `,
+          <tr>
+            <td>${tour?._id ?? "N/A"}</td>
+            <td>${tour?.name ?? "N/A"}</td>
+            <td>$${tour?.price ?? "N/A"}</td>
+            <td>${tour?.duration ? `${tour.duration} days` : "N/A"}</td>
+            <td>${tour.ratingsAverage ? tour.ratingsAverage.toFixed(1) : "N/A"}</td>
+            <td>${tour.hidden ? "Hidden" : "Visible"}</td>
+            <td>
+              <button class="btn btn--small btn--edit" data-id="${tour._id}">Edit</button>
+            </td>
+          </tr>
+        `,
           )
           .join("")
       : '<tr><td colspan="7" class="text-center">No tours found</td></tr>';

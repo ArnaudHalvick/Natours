@@ -8291,6 +8291,9 @@ var fetchTours = exports.fetchTours = /*#__PURE__*/function () {
       difficulty,
       params,
       res,
+      _res$data$data,
+      tours,
+      pagination,
       _args = arguments;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
@@ -8310,16 +8313,20 @@ var fetchTours = exports.fetchTours = /*#__PURE__*/function () {
           return _axios.default.get("/api/v1/tours/regex?".concat(params.toString()));
         case 10:
           res = _context.sent;
-          return _context.abrupt("return", res.data.data);
-        case 14:
-          _context.prev = 14;
+          _res$data$data = res.data.data, tours = _res$data$data.data, pagination = _res$data$data.pagination;
+          return _context.abrupt("return", {
+            tours: tours,
+            pagination: pagination
+          });
+        case 15:
+          _context.prev = 15;
           _context.t0 = _context["catch"](4);
           throw _context.t0;
-        case 17:
+        case 18:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[4, 14]]);
+    }, _callee, null, [[4, 15]]);
   }));
   return function fetchTours() {
     return _ref.apply(this, arguments);
@@ -8357,7 +8364,7 @@ var updateTour = exports.updateTour = /*#__PURE__*/function () {
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
-          // Create a promise that resolves on successful upload progress
+          // Existing implementation remains unchanged
           uploadPromise = new Promise(function (resolve, reject) {
             (0, _axios.default)({
               method: "PATCH",
@@ -8715,7 +8722,7 @@ var limit = 10;
 var locationManager;
 var handleTourLoad = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-    var response, tourTableBody;
+    var _yield$fetchTours, tours, pagination, tourTableBody;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
@@ -8723,32 +8730,40 @@ var handleTourLoad = /*#__PURE__*/function () {
           _context.next = 3;
           return (0, _tourManagement.fetchTours)(currentPage, limit, currentSearch, currentDifficulty);
         case 3:
-          response = _context.sent;
-          totalPages = response.pagination.totalPages;
-          tourTableBody = document.getElementById("tourTableBody");
-          if (tourTableBody) {
+          _yield$fetchTours = _context.sent;
+          tours = _yield$fetchTours.tours;
+          pagination = _yield$fetchTours.pagination;
+          if (pagination) {
             _context.next = 8;
             break;
           }
-          return _context.abrupt("return");
+          throw new Error("Pagination information is missing from the response.");
         case 8:
-          tourTableBody.innerHTML = response.data.length ? response.data.map(function (tour) {
+          totalPages = pagination.totalPages;
+          tourTableBody = document.getElementById("tourTableBody");
+          if (tourTableBody) {
+            _context.next = 12;
+            break;
+          }
+          return _context.abrupt("return");
+        case 12:
+          tourTableBody.innerHTML = tours.length ? tours.map(function (tour) {
             var _tour$_id, _tour$name, _tour$price;
-            return "\n     <tr>\n       <td>".concat((_tour$_id = tour === null || tour === void 0 ? void 0 : tour._id) !== null && _tour$_id !== void 0 ? _tour$_id : "N/A", "</td>\n       <td>").concat((_tour$name = tour === null || tour === void 0 ? void 0 : tour.name) !== null && _tour$name !== void 0 ? _tour$name : "N/A", "</td>\n       <td>$").concat((_tour$price = tour === null || tour === void 0 ? void 0 : tour.price) !== null && _tour$price !== void 0 ? _tour$price : "N/A", "</td>\n       <td>").concat(tour !== null && tour !== void 0 && tour.duration ? "".concat(tour.duration, " days") : "N/A", "</td>\n       <td>").concat(tour.ratingsAverage ? tour.ratingsAverage.toFixed(1) : "N/A", "</td>\n       <td>").concat(tour.hidden ? "Hidden" : "Visible", "</td>\n       <td>\n         <button class=\"btn btn--small btn--edit\" data-id=\"").concat(tour._id, "\">Edit</button>\n       </td>\n     </tr>\n   ");
+            return "\n          <tr>\n            <td>".concat((_tour$_id = tour === null || tour === void 0 ? void 0 : tour._id) !== null && _tour$_id !== void 0 ? _tour$_id : "N/A", "</td>\n            <td>").concat((_tour$name = tour === null || tour === void 0 ? void 0 : tour.name) !== null && _tour$name !== void 0 ? _tour$name : "N/A", "</td>\n            <td>$").concat((_tour$price = tour === null || tour === void 0 ? void 0 : tour.price) !== null && _tour$price !== void 0 ? _tour$price : "N/A", "</td>\n            <td>").concat(tour !== null && tour !== void 0 && tour.duration ? "".concat(tour.duration, " days") : "N/A", "</td>\n            <td>").concat(tour.ratingsAverage ? tour.ratingsAverage.toFixed(1) : "N/A", "</td>\n            <td>").concat(tour.hidden ? "Hidden" : "Visible", "</td>\n            <td>\n              <button class=\"btn btn--small btn--edit\" data-id=\"").concat(tour._id, "\">Edit</button>\n            </td>\n          </tr>\n        ");
           }).join("") : '<tr><td colspan="7" class="text-center">No tours found</td></tr>';
           (0, _pagination.updatePaginationInfo)(currentPage, totalPages);
-          _context.next = 16;
+          _context.next = 20;
           break;
-        case 12:
-          _context.prev = 12;
+        case 16:
+          _context.prev = 16;
           _context.t0 = _context["catch"](0);
           console.error("Load error:", _context.t0);
           (0, _alert.showAlert)("error", "Failed to load tours");
-        case 16:
+        case 20:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[0, 12]]);
+    }, _callee, null, [[0, 16]]);
   }));
   return function handleTourLoad() {
     return _ref.apply(this, arguments);
@@ -9295,7 +9310,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "43349" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "40113" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
