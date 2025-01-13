@@ -1,103 +1,107 @@
 /* Review Management Styles
-  ========================================================================== */
+   ========================================================================== */
 
 .heading-secondary.ma-bt-md {
   margin-left: 2rem;
+  font-size: 2rem;
 }
 
+/* Review Table Container */
 .reviews-container {
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+  border-radius: 3px;
+  overflow-x: auto;
+  box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.06);
+  margin-bottom: 3rem;
 }
 
+/* Table Styles */
 .table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
 }
 
-.table thead {
-  background-color: #f7f7f7;
+.table th,
+.table td {
+  padding: 1.2rem 1.6rem;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid #f2f2f2;
+  height: 6rem;
+  line-height: 1.4;
 }
 
 .table th {
-  padding: 1.6rem;
-  text-align: left;
-  font-weight: 600;
-  color: #555;
-  border-bottom: 2px solid #ddd;
+  background-color: #f7f7f7;
+  font-weight: 700;
+  text-transform: uppercase;
   font-size: 1.3rem;
+  color: #777;
 }
 
 .table td {
-  padding: 1.6rem;
-  border-bottom: 1px solid #eee;
-  color: #666;
-  vertical-align: top;
   font-size: 1.3rem;
+  color: #666;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
 }
 
 .table tbody tr:hover {
   background-color: #f9f9f9;
 }
 
-/* Column widths */
-.table th:nth-child(1),
-.table td:nth-child(1) {
-  width: 20%;
+/* Review Text Column */
+.review-text {
+  max-width: 30rem;
+  white-space: normal;
+  word-wrap: break-word;
 }
 
-.table th:nth-child(2),
-.table td:nth-child(2) {
-  width: 15%;
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.8rem;
 }
 
-.table th:nth-child(3),
-.table td:nth-child(3) {
-  width: 40%;
-}
-
-.table th:nth-child(4),
-.table td:nth-child(4) {
-  width: 10%;
-}
-
-.table th:nth-child(5),
-.table td:nth-child(5) {
-  width: 15%;
-}
-
-/* Buttons */
 .btn-hide,
 .btn-delete {
-  padding: 0.8rem 1.6rem;
-  min-width: 8rem;
-  border: none;
-  border-radius: 6px;
+  padding: 0.6rem 0;
+  font-size: 1.2rem;
+  border-radius: 4px;
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s;
+  transition: all 0.3s;
+  border: none;
+  width: 6rem;
+  text-align: center;
 }
 
 .btn-hide {
-  background-color: #f0f0f0;
-  color: #666;
-  margin-right: 0.8rem;
+  background-color: #55c57a;
+  color: #fff;
 }
 
 .btn-hide:hover {
-  background-color: #e0e0e0;
+  background-color: #4caf70;
+  transform: translateY(-1px);
 }
 
 .btn-delete {
-  background-color: #ff5c5c;
-  color: white;
+  background-color: #ff7730;
+  color: #fff;
 }
 
 .btn-delete:hover {
-  background-color: #ff3333;
+  background-color: #ff5c1f;
+  transform: translateY(-1px);
+}
+
+/* Review Status */
+.review--hidden td {
+  opacity: 0.6;
+  background-color: #f9f9f9;
+  color: #999;
 }
 
 /* Empty state */
@@ -105,18 +109,41 @@
   text-align: center;
   color: #666;
   padding: 2rem;
+  font-size: 1.3rem;
 }
 
-/* Grey out hidden reviews */
-.review--hidden td {
-  background-color: #e3e3e3;
-  color: #999;
+/* Form Controls */
+.review-controls {
+  margin-bottom: 2rem;
 }
 
-/* Responsive design */
+.form__input {
+  font-size: 1.3rem;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+#pageInfo {
+  font-size: 1.4rem;
+  color: #777;
+}
+
+/* Rating Column */
+.rating {
+  font-weight: 500;
+}
+
+/* Responsive Design */
 @media screen and (max-width: 768px) {
-  .container {
-    padding: 1rem;
+  .reviews-container {
+    margin: 0 1rem;
   }
 
   .table {
@@ -126,12 +153,18 @@
 
   .table th,
   .table td {
+    white-space: nowrap;
     min-width: 120px;
   }
 
   .btn-hide,
   .btn-delete {
+    width: 100%;
     padding: 0.6rem 1.2rem;
-    font-size: 1.2rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }

@@ -20,7 +20,7 @@ block content
             .filter-box
               select#tourFilter.form__input
                 option(value='') All Tours
-                each tour in tours
+                each tour in tours 
                   option(value=tour._id)= tour.name
               select#ratingFilter.form__input
                 option(value='') All Ratings
@@ -42,15 +42,16 @@ block content
                     th Review
                     th Rating
                     th Actions
-                tbody
+                tbody#reviewTableBody
                   each review in reviews
-                    tr(id=`review-${review._id}`)
+                    tr(id=`review-${review._id}` class=review.hidden ? 'review--hidden' : '')
                       td #{review.tour ? review.tour.name : 'Deleted Tour'}
                       td #{review.user ? review.user.name : 'Deleted User'}
-                      td #{review.review}
-                      td #{review.rating}
-                      td
-                        button.btn-hide(data-id=review._id) Hide
+                      td.review-text #{review.review}
+                      td.rating #{review.rating}
+                      td.action-buttons
+                        button.btn-hide(data-id=review._id data-hidden=review.hidden)
+                          | #{review.hidden ? 'Unhide' : 'Hide'}
                         button.btn-delete(data-id=review._id) Delete
               
               .pagination
