@@ -1,0 +1,157 @@
+/* Harmonized Control Styles
+   ========================================================================== */
+
+/* Base Control Container Styles */
+.booking-controls,
+.review-controls,
+.user-controls,
+.tour-controls,
+.refund-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 0 2rem;
+  margin-bottom: 3rem;
+  align-items: flex-start;
+}
+
+/* Search Box */
+.search-box {
+  flex: 1;
+  min-width: 25rem;
+}
+
+/* Filter Box */
+.filter-box {
+  display: flex;
+  gap: 1rem;
+}
+
+.filter-box select {
+  min-width: 15rem;
+}
+
+/* Action Box */
+.action-box {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Input and Select Styles */
+.search-box input,
+.filter-box select,
+.date-filter input,
+.form__input {
+  width: 100%;
+  padding: 1.2rem 1.6rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  transition: all 0.3s;
+  background-color: #f8f8f8;
+  color: #666;
+  font-family: inherit;
+}
+
+.search-box input:focus,
+.filter-box select:focus,
+.date-filter input:focus,
+.form__input:focus {
+  outline: none;
+  border-color: #55c57a;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(85, 197, 122, 0.1);
+}
+
+/* Date Filter Styles */
+.date-filter {
+  flex: 1;
+  min-width: 30rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.date-filter span {
+  color: #666;
+  font-size: 1.4rem;
+}
+
+.date-filter input[type="date"] {
+  width: 12rem;
+  font-size: 1.4rem;
+}
+
+/* Form Groups */
+.form__group {
+  margin-bottom: 2rem;
+}
+
+.form__label {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 0.8rem;
+}
+
+/* Date Range Inputs */
+.date-inputs {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.date-separator {
+  color: #666;
+  font-size: 1.4rem;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .booking-controls,
+  .review-controls,
+  .user-controls,
+  .tour-controls,
+  .refund-controls {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+
+  .search-box,
+  .filter-box,
+  .date-filter {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .filter-box {
+    flex-direction: column;
+  }
+
+  .filter-box select {
+    width: 100%;
+  }
+
+  .date-filter {
+    flex-wrap: wrap;
+  }
+
+  .action-box {
+    width: 100%;
+  }
+
+  .action-box .btn {
+    width: 100%;
+  }
+
+  .date-inputs {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .date-inputs input {
+    width: 100%;
+  }
+}
