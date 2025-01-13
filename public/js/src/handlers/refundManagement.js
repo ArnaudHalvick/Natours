@@ -150,7 +150,7 @@ const openModal = refundData => {
   document.getElementById("modalBookingId").textContent = refundData.bookingId;
   document.getElementById("modalUser").textContent = refundData.user;
   document.getElementById("modalAmount").textContent =
-    `$${refundData.amount.toFixed(2)}`;
+    `$${Number(refundData.amount).toFixed(2)}`;
   document.getElementById("modalRequestDate").textContent =
     refundData.requested;
   modal.classList.remove("hidden");

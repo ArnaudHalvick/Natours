@@ -7428,7 +7428,7 @@ var openModal = function openModal(refundData) {
   var modal = document.querySelector(".refund-modal");
   document.getElementById("modalBookingId").textContent = refundData.bookingId;
   document.getElementById("modalUser").textContent = refundData.user;
-  document.getElementById("modalAmount").textContent = "$".concat(refundData.amount.toFixed(2));
+  document.getElementById("modalAmount").textContent = "$".concat(Number(refundData.amount).toFixed(2));
   document.getElementById("modalRequestDate").textContent = refundData.requested;
   modal.classList.remove("hidden");
   modal.dataset.refundId = refundData.refundId;
@@ -9605,7 +9605,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33397" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "37073" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
