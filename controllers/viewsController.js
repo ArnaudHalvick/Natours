@@ -70,7 +70,7 @@ exports.getMyTours = catchAsync(async (req, res) => {
   ]);
 
   const refundsByBooking = refunds.reduce((acc, refund) => {
-    acc[refund.booking.toString()] = refund.status;
+    acc[refund.booking._id.toString()] = refund.status; 
     return acc;
   }, {});
 
