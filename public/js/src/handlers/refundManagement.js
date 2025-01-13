@@ -50,7 +50,7 @@ const loadRefunds = async () => {
           .map(
             refund => `
           <tr>
-            <td>${refund.booking._id}</td>
+            <td>${refund.booking ? refund.booking : "N/A"}</td> 
             <td>${refund.user ? refund.user.name : "Unknown User"}</td>
             <td>$${refund.amount.toFixed(2)}</td>
             <td>${new Date(refund.requestedAt).toLocaleDateString()}</td>
@@ -61,7 +61,7 @@ const loadRefunds = async () => {
                 refund.status === "pending"
                   ? `<button class="btn btn--small btn--manage" 
                       data-refund-id="${refund._id}"
-                      data-booking-id="${refund.booking._id}"
+                      data-booking-id="${refund.booking}"  
                       data-user="${refund.user ? refund.user.name : "Unknown User"}"
                       data-amount="${refund.amount}"
                       data-requested="${new Date(refund.requestedAt).toLocaleDateString()}">

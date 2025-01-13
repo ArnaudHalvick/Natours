@@ -7321,7 +7321,7 @@ var loadRefunds = /*#__PURE__*/function () {
           return _context.abrupt("return");
         case 10:
           refundTableBody.innerHTML = data.length ? data.map(function (refund) {
-            return "\n          <tr>\n            <td>".concat(refund.booking._id, "</td>\n            <td>").concat(refund.user ? refund.user.name : "Unknown User", "</td>\n            <td>$").concat(refund.amount.toFixed(2), "</td>\n            <td>").concat(new Date(refund.requestedAt).toLocaleDateString(), "</td>\n            <td>").concat(refund.processedAt ? new Date(refund.processedAt).toLocaleDateString() : "-", "</td>\n            <td>").concat(refund.status.charAt(0).toUpperCase() + refund.status.slice(1), "</td>\n            <td>\n              ").concat(refund.status === "pending" ? "<button class=\"btn btn--small btn--manage\" \n                      data-refund-id=\"".concat(refund._id, "\"\n                      data-booking-id=\"").concat(refund.booking._id, "\"\n                      data-user=\"").concat(refund.user ? refund.user.name : "Unknown User", "\"\n                      data-amount=\"").concat(refund.amount, "\"\n                      data-requested=\"").concat(new Date(refund.requestedAt).toLocaleDateString(), "\">\n                      Manage\n                    </button>") : refund.status === "processed" ? '<span class="text-success">Processed</span>' : '<span class="text-danger">Rejected</span>', "\n            </td>\n          </tr>\n        ");
+            return "\n          <tr>\n            <td>".concat(refund.booking ? refund.booking : "N/A", "</td> \n            <td>").concat(refund.user ? refund.user.name : "Unknown User", "</td>\n            <td>$").concat(refund.amount.toFixed(2), "</td>\n            <td>").concat(new Date(refund.requestedAt).toLocaleDateString(), "</td>\n            <td>").concat(refund.processedAt ? new Date(refund.processedAt).toLocaleDateString() : "-", "</td>\n            <td>").concat(refund.status.charAt(0).toUpperCase() + refund.status.slice(1), "</td>\n            <td>\n              ").concat(refund.status === "pending" ? "<button class=\"btn btn--small btn--manage\" \n                      data-refund-id=\"".concat(refund._id, "\"\n                      data-booking-id=\"").concat(refund.booking, "\"  \n                      data-user=\"").concat(refund.user ? refund.user.name : "Unknown User", "\"\n                      data-amount=\"").concat(refund.amount, "\"\n                      data-requested=\"").concat(new Date(refund.requestedAt).toLocaleDateString(), "\">\n                      Manage\n                    </button>") : refund.status === "processed" ? '<span class="text-success">Processed</span>' : '<span class="text-danger">Rejected</span>', "\n            </td>\n          </tr>\n        ");
           }).join("") : '<tr><td colspan="7" style="text-align: center;">No refund requests found.</td></tr>';
           pageInfo = document.getElementById("pageInfo");
           if (pageInfo) pageInfo.textContent = "Page ".concat(currentPage, " of ").concat(totalPages);
@@ -9590,7 +9590,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "37087" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "40451" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
