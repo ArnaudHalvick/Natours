@@ -129,20 +129,6 @@
   color: #fff;
 }
 
-/* Pagination Styles */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-  margin-top: 3rem;
-}
-
-#pageInfo {
-  font-size: 1.6rem;
-  color: #777;
-}
-
 /* ==============================================
    Create/Edit User Modal Styles
    ============================================== */

@@ -193,16 +193,6 @@
   font-size: 1.4rem;
 }
 
-/* Pagination */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-  margin: 3rem 0;
-  padding: 0 2rem;
-}
-
 /* Add these styles to your existing CSS */
 .booking-info {
   background-color: #f8f8f8;
@@ -234,11 +224,6 @@
   font-weight: 500;
   margin: 0;
   word-break: break-all;
-}
-
-#pageInfo {
-  font-size: 1.4rem;
-  color: #666;
 }
 
 /* Responsive Design */
