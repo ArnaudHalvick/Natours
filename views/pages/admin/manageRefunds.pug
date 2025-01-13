@@ -22,25 +22,26 @@ block content
                   label.form__label(for='search') Search
                   input#search.form__input(
                     type='text', 
-                    placeholder='Search by booking ID or user...'
+                    placeholder='Search by booking ID or user...',
+                    autocomplete='off'
                   )
 
               .filter-box
                 .form__group
                   label.form__label(for='status') Status
                   select#status.form__input(name='status')
-                    option(value='' selected=!currentStatus) All
-                    option(value='pending' selected=currentStatus==='pending') Pending
-                    option(value='processed' selected=currentStatus==='processed') Processed
-                    option(value='rejected' selected=currentStatus==='rejected') Rejected
+                    option(value='') All
+                    option(value='pending') Pending
+                    option(value='processed') Processed
+                    option(value='rejected') Rejected
 
                 .form__group
                   label.form__label(for='sort') Sort by
                   select#sort.form__input(name='sort')
-                    option(value='-requestedAt' selected=currentSort==='-requestedAt' || !currentSort) Latest First
-                    option(value='requestedAt' selected=currentSort==='requestedAt') Oldest First
-                    option(value='-amount' selected=currentSort==='-amount') Amount (High to Low)
-                    option(value='amount' selected=currentSort==='amount') Amount (Low to High)
+                    option(value='-requestedAt') Latest First
+                    option(value='requestedAt') Oldest First
+                    option(value='-amount') Amount (High to Low)
+                    option(value='amount') Amount (Low to High)
 
             .refund-controls__dates
               .form__group
@@ -48,14 +49,12 @@ block content
                 .date-inputs
                   input#dateFrom.form__input(
                     type='date', 
-                    name='dateFrom',
-                    value=currentDateFrom
+                    name='dateFrom'
                   )
                   span.date-separator to
                   input#dateTo.form__input(
                     type='date', 
-                    name='dateTo',
-                    value=currentDateTo
+                    name='dateTo'
                   )
 
           // Refunds Table
@@ -77,38 +76,13 @@ block content
                     span Status
                   th Actions
               tbody#refundTableBody
-                if refunds.length > 0
-                  each refund in refunds
-                    tr(class=refund.status === 'pending' ? 'refund--pending' : '')
-                      td= refund.booking._id
-                      td= refund.user ? refund.user.name : 'Unknown User'
-                      td.amount $#{refund.amount.toFixed(2)}
-                      td= refund.requestedAt.toLocaleDateString()
-                      td= refund.processedAt ? refund.processedAt.toLocaleDateString() : '-'
-                      td
-                        span(class=`status-badge status-badge--${refund.status}`)
-                          = refund.status.charAt(0).toUpperCase() + refund.status.slice(1)
-                      td.action-buttons
-                        if refund.status === 'pending'
-                          button.btn.btn--small.btn--manage(
-                            data-refund-id=refund._id,
-                            data-booking-id=refund.booking._id,
-                            data-user=refund.user ? refund.user.name : 'Unknown User',
-                            data-amount=refund.amount,
-                            data-requested=refund.requestedAt.toLocaleDateString()
-                          ) Manage
-                else
-                  tr
-                    td(colspan="7").empty-message No refund requests found.
+                // Table content will be populated by JavaScript
 
           // Pagination
-          if totalPages > 1
-            .pagination
-              if currentPage > 1
-                button.btn.btn--small#prevPage(data-page=currentPage - 1) Previous
-              span#pageInfo.pagination__numbers Page #{currentPage} of #{totalPages}
-              if currentPage < totalPages
-                button.btn.btn--small#nextPage(data-page=currentPage + 1) Next
+          .pagination
+            button.btn.btn--small#prevPage(disabled) Previous
+            span#pageInfo.pagination__numbers Page 1 of 1
+            button.btn.btn--small#nextPage(disabled) Next
 
           // Refund Modal
           .refund-modal.hidden

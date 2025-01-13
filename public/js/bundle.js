@@ -7293,12 +7293,6 @@ var dateTo = "";
 var limit = 10;
 
 // Admin interface functions
-var updatePaginationButtons = function updatePaginationButtons() {
-  var prevPageBtn = document.getElementById("prevPage");
-  var nextPageBtn = document.getElementById("nextPage");
-  if (prevPageBtn) prevPageBtn.disabled = currentPage <= 1;
-  if (nextPageBtn) nextPageBtn.disabled = currentPage >= totalPages;
-};
 var loadRefunds = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
     var _yield$fetchRefunds, data, pagination, refundTableBody, pageInfo, _err$response;
@@ -7313,7 +7307,7 @@ var loadRefunds = /*#__PURE__*/function () {
           data = _yield$fetchRefunds.data;
           pagination = _yield$fetchRefunds.pagination;
           totalPages = pagination.totalPages;
-          refundTableBody = document.querySelector(".refunds-table tbody");
+          refundTableBody = document.getElementById("refundTableBody");
           if (refundTableBody) {
             _context.next = 10;
             break;
@@ -7321,10 +7315,15 @@ var loadRefunds = /*#__PURE__*/function () {
           return _context.abrupt("return");
         case 10:
           refundTableBody.innerHTML = data.length ? data.map(function (refund) {
-            return "\n          <tr>\n            <td>".concat(refund.booking ? refund.booking : "N/A", "</td> \n            <td>").concat(refund.user ? refund.user.name : "Unknown User", "</td>\n            <td>$").concat(refund.amount.toFixed(2), "</td>\n            <td>").concat(new Date(refund.requestedAt).toLocaleDateString(), "</td>\n            <td>").concat(refund.processedAt ? new Date(refund.processedAt).toLocaleDateString() : "-", "</td>\n            <td>").concat(refund.status.charAt(0).toUpperCase() + refund.status.slice(1), "</td>\n            <td>\n              ").concat(refund.status === "pending" ? "<button class=\"btn btn--small btn--manage\" \n                      data-refund-id=\"".concat(refund._id, "\"\n                      data-booking-id=\"").concat(refund.booking, "\"  \n                      data-user=\"").concat(refund.user ? refund.user.name : "Unknown User", "\"\n                      data-amount=\"").concat(refund.amount, "\"\n                      data-requested=\"").concat(new Date(refund.requestedAt).toLocaleDateString(), "\">\n                      Manage\n                    </button>") : refund.status === "processed" ? '<span class="text-success">Processed</span>' : '<span class="text-danger">Rejected</span>', "\n            </td>\n          </tr>\n        ");
-          }).join("") : '<tr><td colspan="7" style="text-align: center;">No refund requests found.</td></tr>';
+            return "\n          <tr class=\"".concat(refund.status === "pending" ? "refund--pending" : "", "\">\n            <td class=\"booking-id\">").concat(refund.booking || "N/A", "</td>\n            <td class=\"user-id\">").concat(refund.user ? refund.user.name : "Unknown User", "</td>\n            <td class=\"amount\">$").concat((refund.amount / 100).toFixed(2), "</td>\n            <td>").concat(new Date(refund.requestedAt).toLocaleDateString(), "</td>\n            <td>").concat(refund.processedAt ? new Date(refund.processedAt).toLocaleDateString() : "-", "</td>\n            <td>\n              <span class=\"status-badge status-badge--").concat(refund.status, "\">\n                ").concat(refund.status.charAt(0).toUpperCase() + refund.status.slice(1), "\n              </span>\n            </td>\n            <td class=\"action-buttons\">\n              ").concat(refund.status === "pending" ? "<button class=\"btn btn--small btn--manage\"\n                      data-refund-id=\"".concat(refund._id, "\"\n                      data-booking-id=\"").concat(refund.booking, "\" \n                      data-user=\"").concat(refund.user ? refund.user.name : "Unknown User", "\"\n                      data-amount=\"").concat(refund.amount, "\"\n                      data-requested=\"").concat(new Date(refund.requestedAt).toLocaleDateString(), "\">\n                      Manage\n                    </button>") : "", "\n            </td>\n          </tr>\n        ");
+          }).join("") : '<tr><td colspan="7" class="empty-message">No refund requests found.</td></tr>';
+
+          // Update pagination
           pageInfo = document.getElementById("pageInfo");
-          if (pageInfo) pageInfo.textContent = "Page ".concat(currentPage, " of ").concat(totalPages);
+          if (pageInfo) {
+            pageInfo.textContent = "Page ".concat(currentPage, " of ").concat(totalPages);
+            pageInfo.className = "pagination__numbers";
+          }
           updatePaginationButtons();
           _context.next = 20;
           break;
@@ -7343,6 +7342,42 @@ var loadRefunds = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
+
+// Update the pagination buttons functionality
+var updatePaginationButtons = function updatePaginationButtons() {
+  var prevPageBtn = document.getElementById("prevPage");
+  var nextPageBtn = document.getElementById("nextPage");
+  if (prevPageBtn) {
+    prevPageBtn.disabled = currentPage <= 1;
+    prevPageBtn.classList.toggle("btn--disabled", currentPage <= 1);
+  }
+  if (nextPageBtn) {
+    nextPageBtn.disabled = currentPage >= totalPages;
+    nextPageBtn.classList.toggle("btn--disabled", currentPage >= totalPages);
+  }
+};
+
+// Update pagination event listeners
+var initPagination = function initPagination() {
+  var prevPageBtn = document.getElementById("prevPage");
+  var nextPageBtn = document.getElementById("nextPage");
+  if (prevPageBtn) {
+    prevPageBtn.addEventListener("click", function () {
+      if (currentPage > 1) {
+        currentPage--;
+        loadRefunds();
+      }
+    });
+  }
+  if (nextPageBtn) {
+    nextPageBtn.addEventListener("click", function () {
+      if (currentPage < totalPages) {
+        currentPage++;
+        loadRefunds();
+      }
+    });
+  }
+};
 var handleManageRefund = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(action, refundId) {
     var _err$response2;
@@ -7419,6 +7454,9 @@ var initUserRefundHandlers = function initUserRefundHandlers() {
 
 // Initialize admin management functionality
 var initAdminRefundHandlers = function initAdminRefundHandlers() {
+  // Load refunds immediately when the page loads
+  loadRefunds();
+
   // Filter and search inputs
   var searchInput = document.getElementById("search");
   var statusFilter = document.getElementById("status");
@@ -7440,7 +7478,7 @@ var initAdminRefundHandlers = function initAdminRefundHandlers() {
     });
   }
 
-  // Filter handlers - removed conditional checks for better responsiveness
+  // Filter handlers
   statusFilter === null || statusFilter === void 0 || statusFilter.addEventListener("change", function () {
     currentStatus = statusFilter.value;
     currentPage = 1;
@@ -7450,8 +7488,6 @@ var initAdminRefundHandlers = function initAdminRefundHandlers() {
     currentSort = sortSelect.value;
     loadRefunds();
   });
-
-  // Date filter handlers with immediate updates
   dateFromInput === null || dateFromInput === void 0 || dateFromInput.addEventListener("input", function () {
     dateFrom = dateFromInput.value;
     currentPage = 1;
@@ -7463,23 +7499,8 @@ var initAdminRefundHandlers = function initAdminRefundHandlers() {
     loadRefunds();
   });
 
-  // Pagination handlers
-  if (prevPageBtn) {
-    prevPageBtn.addEventListener("click", function () {
-      if (currentPage > 1) {
-        currentPage--;
-        loadRefunds();
-      }
-    });
-  }
-  if (nextPageBtn) {
-    nextPageBtn.addEventListener("click", function () {
-      if (currentPage < totalPages) {
-        currentPage++;
-        loadRefunds();
-      }
-    });
-  }
+  // Initialize pagination
+  initPagination();
 
   // Modal handlers
   document.addEventListener("click", function (e) {
@@ -7500,24 +7521,18 @@ var initAdminRefundHandlers = function initAdminRefundHandlers() {
       });
     }
   });
-  if (closeModalBtn) {
-    closeModalBtn.addEventListener("click", closeModal);
-  }
-  if (processRefundBtn) {
-    processRefundBtn.addEventListener("click", function () {
-      var refundId = document.querySelector(".refund-modal").dataset.refundId;
-      if (refundId) handleManageRefund("process", refundId);
-    });
-  }
-  if (rejectRefundBtn) {
-    rejectRefundBtn.addEventListener("click", function () {
-      var refundId = document.querySelector(".refund-modal").dataset.refundId;
-      if (refundId) handleManageRefund("reject", refundId);
-    });
-  }
-
-  // Initialize the refunds table
-  loadRefunds();
+  var closeModalBtn = document.getElementById("closeModalBtn");
+  var processRefundBtn = document.getElementById("processRefundBtn");
+  var rejectRefundBtn = document.getElementById("rejectRefundBtn");
+  closeModalBtn === null || closeModalBtn === void 0 || closeModalBtn.addEventListener("click", closeModal);
+  processRefundBtn === null || processRefundBtn === void 0 || processRefundBtn.addEventListener("click", function () {
+    var refundId = document.querySelector(".refund-modal").dataset.refundId;
+    if (refundId) handleManageRefund("process", refundId);
+  });
+  rejectRefundBtn === null || rejectRefundBtn === void 0 || rejectRefundBtn.addEventListener("click", function () {
+    var refundId = document.querySelector(".refund-modal").dataset.refundId;
+    if (refundId) handleManageRefund("reject", refundId);
+  });
 };
 
 // Combined initialization
@@ -9590,7 +9605,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39689" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33397" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
