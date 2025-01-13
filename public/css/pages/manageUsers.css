@@ -1,12 +1,6 @@
 /* User Management Styles
    ========================================================================== */
 
-.user-view__users-container {
-  max-width: 120rem;
-  margin: 0 auto;
-  padding: 0 2rem;
-}
-
 /* Controls Section */
 .user-controls {
   display: flex;
@@ -313,10 +307,6 @@
   .modal#userModal .btn--small.btn--green {
     width: 100%;
     padding: 1rem;
-  }
-
-  .user-view__users-container {
-    padding: 0 2rem;
   }
 
   .user-controls {

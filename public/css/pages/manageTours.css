@@ -1,7 +1,5 @@
-.user-view__users-container {
-  max-width: 120rem;
-  margin: 0 auto;
-  padding: 0 2rem;
+.heading-secondary.ma-bt-md {
+  margin-left: 2rem;
 }
 
 /* Tour Controls */
