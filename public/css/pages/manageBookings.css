@@ -5,62 +5,6 @@
   margin-left: 2rem;
 }
 
-.booking-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  padding: 0 2rem;
-  margin-bottom: 3rem;
-}
-
-.search-box {
-  flex: 1;
-  min-width: 25rem;
-}
-
-.filter-box {
-  width: 12rem;
-}
-
-.date-filter {
-  flex: 1;
-  min-width: 30rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.date-filter span {
-  color: #666;
-  font-size: 1.4rem;
-}
-
-.date-filter input[type="date"] {
-  width: 12rem;
-  font-size: 1.2rem;
-}
-
-.search-box input,
-.filter-box select,
-.date-filter input {
-  width: 100%;
-  padding: 1.2rem 1.6rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 1.4rem;
-  transition: all 0.3s;
-  background-color: #f8f8f8;
-}
-
-.search-box input:focus,
-.filter-box select:focus,
-.date-filter input:focus {
-  outline: none;
-  border-color: #55c57a;
-  background-color: #fff;
-  box-shadow: 0 0 0 2px rgba(85, 197, 122, 0.1);
-}
-
 .booking-table {
   background-color: #fff;
   border-radius: 8px;
@@ -194,7 +138,7 @@
   font-size: 1.4rem;
 }
 
-/* Add these styles to your existing CSS */
+/* Booking Info Styles */
 .booking-info {
   background-color: #f8f8f8;
   border-radius: 6px;
@@ -229,11 +173,6 @@
 
 /* Responsive Design */
 @media screen and (max-width: 768px) {
-  .booking-controls {
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
   .search-box,
   .filter-box,
   .date-filter {
