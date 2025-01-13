@@ -2,10 +2,16 @@
    ========================================================================== */
 
 /* Layout & Container Styles */
+.user-view__content {
+  max-width: 100%;
+  overflow-x: hidden;
+  padding: 7rem 2rem 0 2rem;
+}
 .user-view__container {
   max-width: 120rem;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0;
+  width: 100%;
 }
 
 .heading-secondary.ma-bt-md {
@@ -23,13 +29,18 @@
 
 .refund-controls__main {
   display: flex;
-  gap: 2rem;
   width: 100%;
-  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .refund-controls__dates {
+  margin-top: 2rem;
   width: 100%;
+}
+
+.filter-box {
+  display: flex;
+  gap: 1rem;
 }
 
 /* Form Groups and Inputs */
@@ -63,12 +74,6 @@
   box-shadow: 0 0 0 2px rgba(85, 197, 122, 0.1);
 }
 
-.search-box,
-.filter-box {
-  flex: 1;
-  min-width: 25rem;
-}
-
 .date-inputs {
   display: flex;
   align-items: center;
@@ -84,9 +89,11 @@
 .refund-table {
   background-color: #fff;
   border-radius: 3px;
-  overflow-x: auto;
   box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.06);
   margin-bottom: 3rem;
+  overflow-x: auto;
+  width: 100%;
+  min-width: 0; /* Add this to prevent overflow */
 }
 
 .table {
@@ -96,7 +103,7 @@
 
 .table th,
 .table td {
-  padding: 1.5rem 2rem;
+  padding: 1rem 1rem;
   text-align: left;
   vertical-align: middle;
   border-bottom: 1px solid #f2f2f2;
@@ -115,6 +122,16 @@
 .table td {
   font-size: 1.5rem;
   color: #666;
+  white-space: nowrap; /* Prevent text wrapping */
+  max-width: 20rem; /* Maximum width for cells */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Specific column widths */
+.table td:first-child {
+  /* Booking ID column */
+  max-width: 15rem;
 }
 
 .table tr:last-child td {
@@ -128,11 +145,12 @@
 /* Status Badge Styles */
 .status-badge {
   display: inline-block;
-  padding: 0.4rem 1.2rem;
+  padding: 0.3rem 1rem;
   border-radius: 2rem;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .status-badge--pending {
@@ -171,10 +189,11 @@
 }
 
 .btn--manage {
-  padding: 0.8rem 1.5rem !important;
-  font-size: 1.2rem !important;
+  padding: 0.6rem 1.2rem !important;
+  font-size: 1.1rem !important;
   background-color: #55c57a;
   color: #fff;
+  white-space: nowrap;
 }
 
 .btn--manage:hover {
@@ -257,12 +276,6 @@
   .refund-controls__main {
     flex-direction: column;
     gap: 1.5rem;
-  }
-
-  .search-box,
-  .filter-box {
-    width: 100%;
-    min-width: auto;
   }
 
   .date-inputs {
