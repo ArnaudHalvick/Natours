@@ -1,6 +1,41 @@
 /* Refund Management Styles
    ========================================================================== */
 
+.refund-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+/* Add this new class for the first row of controls */
+.refund-controls__main {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+}
+
+/* Add this new class for the date range row */
+.refund-controls__dates {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+/* Update the form__group within date controls */
+.refund-controls__dates .form__group {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.refund-controls__dates .date-inputs {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.refund-controls__dates .form__input {
+  max-width: 200px;
+}
+
 .heading-secondary.ma-bt-md {
   margin-left: 2rem;
 }

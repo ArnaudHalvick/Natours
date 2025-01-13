@@ -1,9 +1,9 @@
 extends ../../base
 
 block append head
-  link(rel="stylesheet" href="/css/pages/manageRefunds.css")
-  link(rel="stylesheet", href="/css/layout/user-view.css")
   link(rel="stylesheet" href="/css/layout/adminLayouts.css")
+  link(rel="stylesheet", href="/css/layout/user-view.css")
+  link(rel="stylesheet" href="/css/pages/manageRefunds.css")
 
 block content
   main.main
@@ -17,34 +17,35 @@ block content
           .filters
             form#filterForm.form.form--inline
               .refund-controls
-                // Add search box
-                .form__group
-                  label.form__label(for='search') Search
-                  input#search.form__input(type='text', placeholder='Search by booking ID or user...')
+                .refund-controls__main
+                  // Add search box
+                  .form__group
+                    label.form__label(for='search') Search
+                    input#search.form__input(type='text', placeholder='Search by booking ID or user...')
 
-                .form__group
-                  label.form__label(for='status') Status
-                  select#status.form__input(name='status')
-                    option(value='' selected=!currentStatus) All
-                    option(value='pending' selected=currentStatus==='pending') Pending
-                    option(value='processed' selected=currentStatus==='processed') Processed
-                    option(value='rejected' selected=currentStatus==='rejected') Rejected
+                  .form__group
+                    label.form__label(for='status') Status
+                    select#status.form__input(name='status')
+                      option(value='' selected=!currentStatus) All
+                      option(value='pending' selected=currentStatus==='pending') Pending
+                      option(value='processed' selected=currentStatus==='processed') Processed
+                      option(value='rejected' selected=currentStatus==='rejected') Rejected
 
-                .form__group
-                  label.form__label(for='sort') Sort by
-                  select#sort.form__input(name='sort')
-                    option(value='-requestedAt' selected=currentSort==='-requestedAt' || !currentSort) Latest First
-                    option(value='requestedAt' selected=currentSort==='requestedAt') Oldest First
-                    option(value='-amount' selected=currentSort==='-amount') Amount (High to Low)
-                    option(value='amount' selected=currentSort==='amount') Amount (Low to High)
+                  .form__group
+                    label.form__label(for='sort') Sort by
+                    select#sort.form__input(name='sort')
+                      option(value='-requestedAt' selected=currentSort==='-requestedAt' || !currentSort) Latest First
+                      option(value='requestedAt' selected=currentSort==='requestedAt') Oldest First
+                      option(value='-amount' selected=currentSort==='-amount') Amount (High to Low)
+                      option(value='amount' selected=currentSort==='amount') Amount (Low to High)
 
-                // Add date range filters
-                .form__group
-                  label.form__label(for='dateFrom') Date Range
-                  .date-inputs
-                    input#dateFrom.form__input(type='date', name='dateFrom')
-                    span.date-separator to
-                    input#dateTo.form__input(type='date', name='dateTo')
+                .refund-controls__dates
+                  .form__group
+                    label.form__label(for='dateFrom') Date Range
+                    .date-inputs
+                      input#dateFrom.form__input(type='date', name='dateFrom')
+                      span.date-separator to
+                      input#dateTo.form__input(type='date', name='dateTo')
 
           table.refunds-table.table
             thead
