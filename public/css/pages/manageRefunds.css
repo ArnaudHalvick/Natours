@@ -200,6 +200,7 @@
 .btn--manage {
   padding: 0.6rem 1.2rem !important;
   font-size: 1.1rem !important;
+  border-radius: 4px;
   background-color: #55c57a;
   color: #fff;
   white-space: nowrap;
