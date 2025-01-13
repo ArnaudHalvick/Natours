@@ -58,6 +58,29 @@ export const initReviewManagement = () => {
   const tourFilter = document.getElementById("tourFilter");
   const ratingFilter = document.getElementById("ratingFilter");
   const reviewsContainer = document.querySelector(".reviews-container tbody");
+  const prevPageBtn = document.getElementById("prevPage");
+  const nextPageBtn = document.getElementById("nextPage");
+
+  // Add pagination event listeners
+  if (prevPageBtn) {
+    prevPageBtn.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        handleReviewLoad(
+          searchInput.value,
+          tourFilter.value,
+          ratingFilter.value,
+        );
+      }
+    });
+  }
+
+  if (nextPageBtn) {
+    nextPageBtn.addEventListener("click", () => {
+      currentPage++;
+      handleReviewLoad(searchInput.value, tourFilter.value, ratingFilter.value);
+    });
+  }
 
   if (searchInput) {
     searchInput.addEventListener(

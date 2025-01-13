@@ -7450,6 +7450,24 @@ var initReviewManagement = exports.initReviewManagement = function initReviewMan
   var tourFilter = document.getElementById("tourFilter");
   var ratingFilter = document.getElementById("ratingFilter");
   var reviewsContainer = document.querySelector(".reviews-container tbody");
+  var prevPageBtn = document.getElementById("prevPage");
+  var nextPageBtn = document.getElementById("nextPage");
+
+  // Add pagination event listeners
+  if (prevPageBtn) {
+    prevPageBtn.addEventListener("click", function () {
+      if (currentPage > 1) {
+        currentPage--;
+        handleReviewLoad(searchInput.value, tourFilter.value, ratingFilter.value);
+      }
+    });
+  }
+  if (nextPageBtn) {
+    nextPageBtn.addEventListener("click", function () {
+      currentPage++;
+      handleReviewLoad(searchInput.value, tourFilter.value, ratingFilter.value);
+    });
+  }
   if (searchInput) {
     searchInput.addEventListener("input", (0, _dom.debounce)(function () {
       currentPage = 1;
