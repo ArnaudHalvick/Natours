@@ -115,15 +115,13 @@
   background-color: #f7f7f7;
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   color: #777;
 }
 
 .table td {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   color: #666;
-  white-space: nowrap; /* Prevent text wrapping */
-  max-width: 20rem; /* Maximum width for cells */
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -140,6 +138,17 @@
 
 .table tr:hover {
   background-color: #f9f9f9;
+}
+
+.booking-id {
+  min-width: 24rem;
+}
+
+.user-id {
+  max-width: 12rem;
+  white-space: normal;
+  word-wrap: break-word;
+  min-width: 12rem;
 }
 
 /* Status Badge Styles */
