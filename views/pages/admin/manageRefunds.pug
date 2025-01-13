@@ -16,6 +16,11 @@ block content
           .filters.ma-bt-md
             form#filterForm.form.form--inline
               .filter-group
+                // Add search box
+                .form__group
+                  label.form__label(for='search') Search
+                  input#search.form__input(type='text', placeholder='Search by booking ID or user...')
+
                 .form__group
                   label.form__label(for='status') Status
                   select#status.form__input(name='status')
@@ -31,6 +36,14 @@ block content
                     option(value='requestedAt' selected=currentSort==='requestedAt') Oldest First
                     option(value='-amount' selected=currentSort==='-amount') Amount (High to Low)
                     option(value='amount' selected=currentSort==='amount') Amount (Low to High)
+
+                // Add date range filters
+                .form__group
+                  label.form__label(for='dateFrom') Date Range
+                  .date-inputs
+                    input#dateFrom.form__input(type='date', name='dateFrom')
+                    span.date-separator to
+                    input#dateTo.form__input(type='date', name='dateTo')
 
           table.refunds-table.table
             thead
@@ -72,10 +85,10 @@ block content
           if totalPages > 1
             .pagination
               if currentPage > 1
-                button.btn.btn--small(data-page=currentPage - 1) Previous
-              span.pagination__numbers Page #{currentPage} of #{totalPages}
+                button.btn.btn--small#prevPage(data-page=currentPage - 1) Previous
+              span#pageInfo.pagination__numbers Page #{currentPage} of #{totalPages}
               if currentPage < totalPages
-                button.btn.btn--small(data-page=currentPage + 1) Next
+                button.btn.btn--small#nextPage(data-page=currentPage + 1) Next
 
           .refund-modal.hidden
             .refund-modal__content

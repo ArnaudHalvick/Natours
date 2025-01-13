@@ -4,8 +4,8 @@ import { elements } from "./utils/elements";
 import { initAuthHandlers } from "./handlers/auth";
 import { initBookingHandlers } from "./handlers/booking";
 import { initReviewHandlers } from "./handlers/review";
-import { initRefundHandlers } from "./handlers/refund";
 import { initUserHandlers } from "./handlers/user";
+import { initRefundManagement } from "./handlers/refundManagement"; // This is correct
 import { initReviewManagement } from "./handlers/reviewManagement";
 import { initializeBookingManagement } from "./handlers/bookingManagement";
 import { initializeUserManagement } from "./handlers/userManagement";
@@ -33,10 +33,10 @@ export class App {
       { init: initAuthHandlers, name: "Auth" },
       { init: initBookingHandlers, name: "Booking" },
       { init: initReviewHandlers, name: "Review" },
-      { init: initRefundHandlers, name: "Refund" },
       { init: initUserHandlers, name: "User" },
       { init: initReviewManagement, name: "Review Management" },
       { init: initializeUserManagement, name: "User Management" },
+      { init: initRefundManagement, name: "Refund Management" }, // Changed this line
     ];
 
     // Add booking management if on booking page

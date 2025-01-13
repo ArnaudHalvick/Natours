@@ -10,25 +10,109 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // Get all refund requests with optional filtering, sorting, and pagination
 exports.getAllRefunds = catchAsync(async (req, res, next) => {
-  const features = new APIFeatures(
-    Refund.find()
-      .populate({ path: "booking", select: "_id" })
-      .populate({ path: "user", select: "name email" }),
-    req.query,
-  )
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
+  const { search, status, dateFrom, dateTo } = req.query;
+  const page = +req.query.page || 1;
+  const limit = +req.query.limit || 10;
+  const skip = (page - 1) * limit;
 
-  const totalCount = await Refund.countDocuments(features.query._conditions);
-  const refunds = await features.query;
+  const pipeline = [];
+
+  // Add status filter if provided
+  if (status) {
+    pipeline.push({ $match: { status } });
+  }
+
+  // Add lookup stages for user and booking info
+  pipeline.push(
+    {
+      $lookup: {
+        from: "users",
+        localField: "user",
+        foreignField: "_id",
+        as: "userInfo",
+      },
+    },
+    { $unwind: "$userInfo" },
+    {
+      $lookup: {
+        from: "bookings",
+        localField: "booking",
+        foreignField: "_id",
+        as: "bookingInfo",
+      },
+    },
+    { $unwind: "$bookingInfo" },
+  );
+
+  // Add search functionality
+  if (search) {
+    pipeline.push({
+      $match: {
+        $or: [
+          { "userInfo.email": { $regex: search, $options: "i" } },
+          { "userInfo.name": { $regex: search, $options: "i" } },
+          {
+            $expr: {
+              $regexMatch: {
+                input: { $toString: "$booking" },
+                regex: search,
+                options: "i",
+              },
+            },
+          },
+        ],
+      },
+    });
+  }
+
+  // Add date range filter
+  if (dateFrom || dateTo) {
+    const dateQuery = {};
+    if (dateFrom) dateQuery.$gte = new Date(dateFrom);
+    if (dateTo) dateQuery.$lte = new Date(dateTo);
+
+    pipeline.push({
+      $match: {
+        requestedAt: dateQuery,
+      },
+    });
+  }
+
+  // Add pagination facet
+  pipeline.push({
+    $facet: {
+      data: [{ $skip: skip }, { $limit: limit }],
+      metadata: [{ $count: "total" }],
+    },
+  });
+
+  const [results] = await Refund.aggregate(pipeline);
+  const { data = [], metadata = [] } = results;
+  const total = metadata.length > 0 ? metadata[0].total : 0;
+  const totalPages = Math.ceil(total / limit);
+
+  const finalData = data.map(doc => ({
+    ...doc,
+    user: {
+      name: doc.userInfo.name,
+      email: doc.userInfo.email,
+    },
+    userInfo: undefined,
+    bookingInfo: undefined,
+  }));
 
   res.status(200).json({
     status: "success",
-    results: refunds.length,
-    total: totalCount,
-    data: { refunds },
+    results: data.length,
+    data: {
+      data: finalData,
+      pagination: {
+        total,
+        totalPages,
+        currentPage: page,
+        limit,
+      },
+    },
   });
 });
 

@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Route to get all refunds
 router.get(
-  "/all-refunds",
+  "/",
   authController.protect,
   authController.restrictTo("admin"),
   refundController.getAllRefunds,
