@@ -1,6 +1,19 @@
 // api/userManagement.js
 import axios from "axios";
 
+export const loadUsers = async (page, limit, sort, filter, search) => {
+  try {
+    let query = `?page=${page}&limit=${limit}&sort=${sort}`;
+    if (filter) query += `&role=${filter}`;
+    if (search) query += `&search=${encodeURIComponent(search)}`;
+
+    const res = await axios.get(`/api/v1/users${query}`);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const saveUser = async (userData, isEdit = false) => {
   try {
     const url = isEdit ? `/api/v1/users/${userData.id}` : "/api/v1/users";

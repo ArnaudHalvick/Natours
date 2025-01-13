@@ -1,8 +1,7 @@
 // handlers/userManagement.js
 import { elements } from "../utils/elements";
 import { showAlert } from "../utils/alert";
-import { loadUsers } from "../api/user";
-import { saveUser, deleteUser } from "../api/userManagement";
+import { saveUser, deleteUser, loadUsers } from "../api/userManagement";
 import { toggleModal, toggleFormFields } from "../utils/dom";
 import { updatePaginationInfo } from "../utils/pagination";
 

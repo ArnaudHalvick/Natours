@@ -29,16 +29,3 @@ export const updateSettings = async (data, type) => {
     throw error;
   }
 };
-
-export const loadUsers = async (page, limit, sort, filter, search) => {
-  try {
-    let query = `?page=${page}&limit=${limit}&sort=${sort}`;
-    if (filter) query += `&role=${filter}`;
-    if (search) query += `&search=${encodeURIComponent(search)}`;
-
-    const res = await axios.get(`/api/v1/users${query}`);
-    return res.data;
-  } catch (error) {
-    throw error;
-  }
-};
