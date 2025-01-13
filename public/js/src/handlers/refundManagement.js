@@ -44,7 +44,7 @@ const loadRefunds = async () => {
           <tr class="${refund.status === "pending" ? "refund--pending" : ""}">
             <td class="booking-id">${refund.booking || "N/A"}</td>
             <td class="user-id">${refund.user ? refund.user.name : "Unknown User"}</td>
-            <td class="amount">$${(refund.amount / 100).toFixed(2)}</td>
+            <td class="amount">$${refund.amount.toFixed(2)}</td>
             <td>${new Date(refund.requestedAt).toLocaleDateString()}</td>
             <td>${refund.processedAt ? new Date(refund.processedAt).toLocaleDateString() : "-"}</td>
             <td>
