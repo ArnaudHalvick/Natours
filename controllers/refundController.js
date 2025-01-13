@@ -4,7 +4,6 @@ const Refund = require("../models/refundModel");
 
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
-const APIFeatures = require("../utils/apiFeatures");
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
@@ -17,9 +16,24 @@ exports.getAllRefunds = catchAsync(async (req, res, next) => {
 
   const pipeline = [];
 
-  // Add status filter if provided
+  // Status filter
   if (status) {
     pipeline.push({ $match: { status } });
+  }
+
+  // Date range filter
+  if (dateFrom || dateTo) {
+    const dateQuery = {};
+    if (dateFrom) dateQuery.$gte = new Date(dateFrom);
+    if (dateTo) {
+      // Set time to end of day for dateTo
+      const endDate = new Date(dateTo);
+      endDate.setHours(23, 59, 59, 999);
+      dateQuery.$lte = endDate;
+    }
+    pipeline.push({
+      $match: { requestedAt: dateQuery },
+    });
   }
 
   // Add lookup stages for user and booking info
@@ -33,24 +47,16 @@ exports.getAllRefunds = catchAsync(async (req, res, next) => {
       },
     },
     { $unwind: "$userInfo" },
-    {
-      $lookup: {
-        from: "bookings",
-        localField: "booking",
-        foreignField: "_id",
-        as: "bookingInfo",
-      },
-    },
-    { $unwind: "$bookingInfo" },
   );
 
-  // Add search functionality
+  // Search functionality
   if (search) {
     pipeline.push({
       $match: {
         $or: [
-          { "userInfo.email": { $regex: search, $options: "i" } },
           { "userInfo.name": { $regex: search, $options: "i" } },
+          { "userInfo.email": { $regex: search, $options: "i" } },
+          // Use $toString to convert ObjectId to string for searching
           {
             $expr: {
               $regexMatch: {

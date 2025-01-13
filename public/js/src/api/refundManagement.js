@@ -33,14 +33,22 @@ export const fetchRefunds = async (
   dateTo,
 ) => {
   try {
-    let query = `?page=${page}&limit=${limit}`;
-    if (status) query += `&status=${status}`;
-    if (sort) query += `&sort=${sort}`;
-    if (search) query += `&search=${encodeURIComponent(search)}`;
-    if (dateFrom) query += `&dateFrom=${dateFrom}`;
-    if (dateTo) query += `&dateTo=${dateTo}`;
+    const params = new URLSearchParams();
 
-    const res = await axios.get(`/api/v1/refunds${query}`);
+    // Add basic pagination params
+    params.append("page", page);
+    params.append("limit", limit);
+
+    // Add filters only if they have values
+    if (status) params.append("status", status);
+    if (sort) params.append("sort", sort);
+    if (search) params.append("search", search);
+
+    // Add date filters only if they have values
+    if (dateFrom) params.append("dateFrom", dateFrom);
+    if (dateTo) params.append("dateTo", dateTo);
+
+    const res = await axios.get(`/api/v1/refunds?${params.toString()}`);
     return res.data.data;
   } catch (err) {
     throw err;

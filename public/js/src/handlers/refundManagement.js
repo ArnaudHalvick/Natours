@@ -1,5 +1,6 @@
 // handlers/refundManagement.js
 import { elements } from "../utils/elements";
+import { debounce } from "../utils/dom";
 import {
   requestRefund,
   processRefund,
@@ -17,15 +18,6 @@ let currentSearch = "";
 let dateFrom = "";
 let dateTo = "";
 const limit = 10;
-
-// Utility function for debouncing
-const debounce = (fn, delay) => {
-  let timeout;
-  return function (...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => fn.apply(this, args), delay);
-  };
-};
 
 // Admin interface functions
 const updatePaginationButtons = () => {
@@ -156,57 +148,42 @@ const initAdminRefundHandlers = () => {
   const dateFromInput = document.getElementById("dateFrom");
   const dateToInput = document.getElementById("dateTo");
 
-  // Pagination buttons
-  const prevPageBtn = document.getElementById("prevPage");
-  const nextPageBtn = document.getElementById("nextPage");
+  // Create debounced search function
+  const debouncedSearch = debounce(() => loadRefunds(), 300);
 
-  // Modal elements
-  const closeModalBtn = document.getElementById("closeModalBtn");
-  const processRefundBtn = document.getElementById("processRefundBtn");
-  const rejectRefundBtn = document.getElementById("rejectRefundBtn");
-
-  // Search handler
+  // Search handler with proper debouncing
   if (searchInput) {
-    searchInput.addEventListener(
-      "input",
-      debounce(() => {
-        currentSearch = searchInput.value;
-        currentPage = 1;
-        loadRefunds();
-      }, 300),
-    );
-  }
-
-  // Filter handlers
-  if (statusFilter) {
-    statusFilter.addEventListener("change", () => {
-      currentStatus = statusFilter.value;
+    searchInput.addEventListener("input", () => {
+      currentSearch = searchInput.value;
       currentPage = 1;
-      loadRefunds();
+      debouncedSearch();
     });
   }
 
-  if (sortSelect) {
-    sortSelect.addEventListener("change", () => {
-      currentSort = sortSelect.value;
-      loadRefunds();
-    });
-  }
+  // Filter handlers - removed conditional checks for better responsiveness
+  statusFilter?.addEventListener("change", () => {
+    currentStatus = statusFilter.value;
+    currentPage = 1;
+    loadRefunds();
+  });
 
-  // Date filter handlers
-  if (dateFromInput) {
-    dateFromInput.addEventListener("change", () => {
-      dateFrom = dateFromInput.value;
-      loadRefunds();
-    });
-  }
+  sortSelect?.addEventListener("change", () => {
+    currentSort = sortSelect.value;
+    loadRefunds();
+  });
 
-  if (dateToInput) {
-    dateToInput.addEventListener("change", () => {
-      dateTo = dateToInput.value;
-      loadRefunds();
-    });
-  }
+  // Date filter handlers with immediate updates
+  dateFromInput?.addEventListener("input", () => {
+    dateFrom = dateFromInput.value;
+    currentPage = 1;
+    loadRefunds();
+  });
+
+  dateToInput?.addEventListener("input", () => {
+    dateTo = dateToInput.value;
+    currentPage = 1;
+    loadRefunds();
+  });
 
   // Pagination handlers
   if (prevPageBtn) {
