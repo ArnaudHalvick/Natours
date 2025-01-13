@@ -3,41 +3,103 @@
 
 .heading-secondary.ma-bt-md {
   margin-left: 2rem;
+  font-size: 2rem;
 }
 
+/* Booking Table Container */
 .booking-table {
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  overflow-x: auto;
+  box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.06);
+  margin-bottom: 3rem;
 }
 
+/* Table Styles */
 .table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.table thead {
-  background-color: #f7f7f7;
+.table th,
+.table td {
+  padding: 1rem 1rem;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid #f2f2f2;
+  height: 6rem;
+  line-height: 1.4;
 }
 
 .table th {
-  padding: 1.2rem;
-  text-align: left;
-  font-weight: 600;
-  color: #555;
-  border-bottom: 2px solid #ddd;
-  font-size: 1.3rem;
+  background-color: #f7f7f7;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 1.2rem;
+  color: #777;
 }
 
 .table td {
-  padding: 1.2rem;
-  border-bottom: 1px solid #eee;
-  color: #666;
   font-size: 1.3rem;
+  color: #666;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
 }
 
 .table tbody tr:hover {
   background-color: #f9f9f9;
+}
+
+/* Column Specific Styles */
+.booking-id {
+  font-family: monospace;
+  font-size: 1.2rem;
+}
+
+.price {
+  font-weight: 500;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge--paid {
+  background-color: #e6f4ea;
+  color: #1e7e34;
+}
+
+.status-badge--unpaid {
+  background-color: #fef3f2;
+  color: #d92d20;
+}
+
+/* Action Button */
+.btn.btn--small.btn--edit {
+  /* Specifically target both classes */
+  padding: 0.6rem 1.2rem; /* Changed from padding: 0.6rem 0 */
+  font-size: 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+  width: auto; /* Changed from fixed width: 6rem */
+  text-align: center;
+  background-color: #55c57a;
+  color: #fff;
+}
+
+.btn.btn--small.btn--edit:hover {
+  background-color: #4caf70;
+  transform: translateY(-1px);
 }
 
 /* Modal Styles */
@@ -50,22 +112,22 @@
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1000;
-  overflow-y: auto;
 }
 
 .modal.active {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-content {
   position: relative;
   background-color: #fff;
-  margin: 5% auto;
   padding: 3rem;
   width: 90%;
-  max-width: 60rem;
+  max-width: 50rem;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.15);
 }
 
 .close-modal {
@@ -73,8 +135,8 @@
   right: 2rem;
   top: 2rem;
   font-size: 2.4rem;
-  cursor: pointer;
   color: #666;
+  cursor: pointer;
   transition: color 0.2s;
 }
 
@@ -88,66 +150,16 @@
   margin-bottom: 2rem;
 }
 
-/* Modal Form Styles */
-.modal .form__group {
-  margin-bottom: 2.5rem;
-}
-
-.modal .form__label {
-  display: block;
-  font-size: 1.4rem;
-  font-weight: 500;
-  color: #555;
-  margin-bottom: 0.8rem;
-}
-
-.modal .form__input {
-  display: block;
-  width: 100%;
-  padding: 1.2rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 1.4rem;
-  color: #444;
-  transition: all 0.3s;
-  background-color: #f8f8f8;
-}
-
-.modal .form__input:focus {
-  outline: none;
-  border-color: #55c57a;
-  background-color: #fff;
-  box-shadow: 0 0 0 2px rgba(85, 197, 122, 0.1);
-}
-
-.modal select.form__input {
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%22%20stroke%3D%22%23555%22%20fill%3D%22none%22%20stroke-width%3D%222%22%2F%3E%3C%2Fsvg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  padding-right: 3rem;
-}
-
-.modal .form__group.right {
-  text-align: right;
-}
-
-.modal .btn {
-  padding: 1.2rem 2.4rem;
-  font-size: 1.4rem;
-}
-
-/* Booking Info Styles */
+/* Booking Info Section */
 .booking-info {
   background-color: #f8f8f8;
   border-radius: 6px;
-  padding: 2rem;
-  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .info-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .info-group:last-child {
@@ -155,43 +167,64 @@
 }
 
 .info-label {
-  display: block;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #666;
-  margin-bottom: 0.4rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  margin-bottom: 0.2rem;
 }
 
 .info-value {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   color: #333;
   font-weight: 500;
-  margin: 0;
-  word-break: break-all;
+}
+
+.booking-controls__main {
+  display: flex;
+  gap: 4rem;
+  width: 100%;
+}
+
+.search-box {
+  flex: 1;
+}
+
+.form__input {
+  font-size: 1.3rem;
+}
+
+.date-filter {
+  display: flex;
+  justify-content: center;
+}
+
+.date-filter span {
+  color: #666;
+  font-size: 1.3rem;
+}
+
+.date-filter .form__input[type="date"] {
+  min-width: 16rem; /* Added this */
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+#pageInfo {
+  font-size: 1.4rem;
+  color: #777;
 }
 
 /* Responsive Design */
 @media screen and (max-width: 768px) {
-  .search-box,
-  .filter-box,
-  .date-filter {
-    width: 100%;
-    min-width: auto;
-  }
-
-  .date-filter {
-    flex-wrap: wrap;
-  }
-
-  .date-filter input[type="date"] {
-    width: 100%;
-  }
-
-  .modal-content {
-    width: 95%;
-    margin: 5% auto;
-    padding: 2rem;
+  .booking-table {
+    margin: 0 1rem;
   }
 
   .table {
@@ -199,8 +232,25 @@
     overflow-x: auto;
   }
 
-  .modal .btn {
+  .table th,
+  .table td {
+    white-space: nowrap;
+    min-width: 120px;
+  }
+
+  .btn--edit {
     width: 100%;
-    margin-top: 1rem;
+  }
+
+  .date-filter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .modal-content {
+    padding: 2rem;
+    margin: 2rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
   }
 }

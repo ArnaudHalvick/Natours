@@ -3,7 +3,7 @@
 
 .user-view {
   background-color: #fff;
-  max-width: 120rem;
+  max-width: 140rem;
   margin: 0 auto;
   min-height: 100vh;
   border-radius: 3px;
@@ -20,7 +20,7 @@
 }
 
 .user-view__container {
-  max-width: 120rem;
+  max-width: 140rem;
   margin: 0 auto;
   padding: 0 1.5rem;
 }
