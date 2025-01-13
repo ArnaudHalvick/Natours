@@ -57,26 +57,28 @@
   vertical-align: middle;
 }
 
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-}
-
-.btn--edit,
-.btn--delete {
+.user-table .btn--edit,
+.user-table .btn--delete {
   padding: 0.8rem 1.5rem !important;
   font-size: 1.2rem !important;
-}
-
-.btn--edit {
   background-color: #55c57a;
+  border-radius: 4px;
   color: #fff;
 }
 
-.btn--delete {
+.user-table .btn--edit:hover {
+  background-color: #4caf70;
+  transform: translateY(-1px);
+}
+
+.user-table .btn--delete {
   background-color: #ff7730;
   color: #fff;
+}
+
+.user-table .btn--delete:hover {
+  background-color: #ff5c1f;
+  transform: translateY(-1px);
 }
 
 /* ==============================================
