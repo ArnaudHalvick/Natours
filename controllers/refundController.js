@@ -7,12 +7,28 @@ const AppError = require("../utils/appError");
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
+// Allowed fields for sorting to prevent injection attacks
+const ALLOWED_SORT_FIELDS = [
+  "requestedAt",
+  "-requestedAt",
+  "amount",
+  "-amount",
+];
+
 // Get all refund requests with optional filtering, sorting, and pagination
 exports.getAllRefunds = catchAsync(async (req, res, next) => {
-  const { search, status, dateFrom, dateTo } = req.query;
+  const { search, status, dateFrom, dateTo, sort } = req.query;
   const page = +req.query.page || 1;
   const limit = +req.query.limit || 10;
   const skip = (page - 1) * limit;
+
+  // Validate sort parameter
+  let sortStage = { requestedAt: -1 }; // Default sort: Latest First
+  if (sort && ALLOWED_SORT_FIELDS.includes(sort)) {
+    const sortField = sort.startsWith("-") ? sort.substring(1) : sort;
+    const sortOrder = sort.startsWith("-") ? -1 : 1;
+    sortStage = { [sortField]: sortOrder };
+  }
 
   const pipeline = [];
 
@@ -36,7 +52,7 @@ exports.getAllRefunds = catchAsync(async (req, res, next) => {
     });
   }
 
-  // Add lookup stages for user and booking info
+  // Lookup for user information
   pipeline.push(
     {
       $lookup: {
@@ -71,18 +87,8 @@ exports.getAllRefunds = catchAsync(async (req, res, next) => {
     });
   }
 
-  // Add date range filter
-  if (dateFrom || dateTo) {
-    const dateQuery = {};
-    if (dateFrom) dateQuery.$gte = new Date(dateFrom);
-    if (dateTo) dateQuery.$lte = new Date(dateTo);
-
-    pipeline.push({
-      $match: {
-        requestedAt: dateQuery,
-      },
-    });
-  }
+  // Apply sort stage
+  pipeline.push({ $sort: sortStage });
 
   // Add pagination facet
   pipeline.push({
