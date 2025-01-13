@@ -50,10 +50,13 @@
   margin-bottom: 20px;
 }
 
-.filter-group {
+.refund-controls {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: 2rem;
-  align-items: flex-start;
+  padding: 0 2rem;
+  margin-bottom: 3rem;
 }
 
 .form--inline {
