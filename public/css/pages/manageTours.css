@@ -277,16 +277,6 @@
 }
 
 /* Action Button Styles */
-.btn.btn--small.btn--edit {
-  background-color: #55c57a;
-  color: #fff;
-}
-
-.btn.btn--small.btn--edit:hover {
-  background-color: #4caf70;
-  transform: translateY(-1px);
-}
-
 .btn.btn--small.btn--red {
   background-color: #fa5252;
   color: #fff;

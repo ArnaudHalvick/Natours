@@ -48,7 +48,7 @@ const handleTourLoad = async () => {
             <td>${tour.ratingsAverage ? tour.ratingsAverage.toFixed(1) : "N/A"}</td>
             <td>${tour.hidden ? "Hidden" : "Visible"}</td>
             <td>
-              <button class="btn btn--small btn--edit" data-id="${tour._id}">Edit</button>
+              <button class="btn btn--small btn--edit btn--green" data-id="${tour._id}">Edit</button>
             </td>
           </tr>
         `,
