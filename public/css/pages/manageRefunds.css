@@ -1,21 +1,8 @@
 /* Refund Management Styles
    ========================================================================== */
 
-/* Layout & Container Styles */
-.user-view__content {
-  max-width: 100%;
-  overflow-x: hidden;
-  padding: 7rem 2rem 0 2rem;
-}
-.user-view__container {
-  max-width: 120rem;
-  margin: 0 auto;
-  padding: 0;
-  width: 100%;
-}
-
 .heading-secondary.ma-bt-md {
-  margin-bottom: 3rem;
+  margin-left: 2rem;
 }
 
 /* Control Section Styles */

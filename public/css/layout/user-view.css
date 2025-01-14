@@ -14,15 +14,19 @@
 }
 
 /* Content Area */
+/* Layout & Container Styles */
 .user-view__content {
+  max-width: 100%;
+  overflow-x: hidden;
   flex: 1;
-  padding-top: 7rem;
+  padding: 7rem 2rem 0 2rem;
 }
 
 .user-view__container {
-  max-width: 140rem;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0;
+  width: 100%;
 }
 
 .user-view__form-container {
