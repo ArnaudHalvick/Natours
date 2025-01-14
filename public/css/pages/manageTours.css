@@ -5,6 +5,23 @@
   margin-left: 2rem;
 }
 
+.tour-controls {
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.form__label {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.75rem;
+}
+
+.form__group {
+  margin-bottom: 0;
+}
+
 /* Modal Styles */
 .modal {
   display: none !important;

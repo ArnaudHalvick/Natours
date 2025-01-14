@@ -3,9 +3,9 @@ extends ../../base
 block append head
   link(rel="stylesheet", href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css")
   link(rel="stylesheet", href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css")
+  link(rel="stylesheet" href="/css/layout/adminLayouts.css")
   link(rel="stylesheet", href="/css/layout/user-view.css")
   link(rel="stylesheet" href="/css/pages/manageTours.css")
-  link(rel="stylesheet" href="/css/layout/adminLayouts.css")
   script(src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js')
   script(src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js')
 
@@ -17,18 +17,28 @@ block content
       .user-view__container
         .user-view__content
           h2.heading-secondary.ma-bt-md Manage Tours
-          
+
           .tour-controls
             .search-box
-              input#searchTour.form__input(type='text', placeholder='Search tours...')
+              .form__group
+                label.form__label(for='searchTour') Search
+                input#searchTour.form__input(
+                  type='text', 
+                  placeholder='Search tours...', 
+                  autocomplete='off'
+                )
             .filter-box
-              select#difficultyFilter.form__input
-                option(value='') All Difficulties
-                option(value='easy') Easy
-                option(value='medium') Medium
-                option(value='hard') Hard
+              .form__group
+                label.form__label(for='difficultyFilter') Difficulty
+                select#difficultyFilter.form__input
+                  option(value='') All Difficulties
+                  option(value='easy') Easy
+                  option(value='medium') Medium
+                  option(value='hard') Hard
             .action-box
-              button#createTourBtn.btn.btn--small.btn--green Create New Tour
+              .form__group
+                label.form__label &nbsp;
+                button#createTourBtn.btn.btn--small.btn--green Create New Tour
 
           .user-view__table-container
             table.table
@@ -58,26 +68,26 @@ block content
                 .form__group
                   label.form__label(for='name') Name
                   input#name.form__input(type='text', required, minlength="10", maxlength="40")
-                
+
                 .form__group
                   label.form__label(for='duration') Duration (days)
                   input#duration.form__input(type='number', required, min="1")
-                
+
                 .form__group
                   label.form__label(for='maxGroupSize') Group Size
                   input#maxGroupSize.form__input(type='number', required, min="1")
-                
+
                 .form__group
                   label.form__label(for='difficulty') Difficulty
                   select#difficulty.form__input(required)
                     option(value='easy') Easy
                     option(value='medium') Medium
                     option(value='hard') Hard
-                
+
                 .form__group
                   label.form__label(for='price') Price ($)
                   input#price.form__input(type='number', required, min="0", step="0.01")
-                
+
                 .form__group
                   label.form__label(for='priceDiscount') Discount ($)
                   input#priceDiscount.form__input(type='number', min="0", step="0.01")
@@ -88,11 +98,11 @@ block content
                   select#hidden.form__input(required)
                     option(value='false') Visible
                     option(value='true') Hidden
-                
+
                 .form__group.ma-bt-md
                   label.form__label(for='summary') Summary
                   textarea#summary.form__input(required, rows="3")
-                
+
                 .form__group.ma-bt-md
                   label.form__label(for='description') Description
                   textarea#description.form__input(required, rows="5")
@@ -102,7 +112,7 @@ block content
                   label.form__label Cover Image
                   input#imageCover.form__input.form__upload(type='file', accept='image/*')
                   img#currentCoverImage.preview-image(alt='')
-                
+
                 .form__group
                   label.form__label Tour Images
                   input#tourImages.form__input.form__upload(type='file', accept='image/*', multiple)
@@ -116,18 +126,17 @@ block content
                     .button-group
                       button#setStartLocationBtn.btn.btn--small.btn--green(type='button') Set Start Location
                       button#addLocationBtn.btn.btn--small.btn--blue(type='button') Add to Route
-                  
+
                   .start-location-display
                   .locations-list
-                
+
                 // Tour Dates Section
                 .form__group.full-width
                   label.form__label Tour Dates
                   #startDatesContainer.dates-container
                   button.btn.btn--small.btn--blue#addStartDateBtn(type='button') Add Date
-                
+
                 // Form Actions
                 .form__group.right
                   button.btn.btn--small.btn--red#deleteTourBtn(type='button', style='margin-right: 1rem') Delete Tour
                   button.btn.btn--small.btn--green(type='submit') Save Tour
-
