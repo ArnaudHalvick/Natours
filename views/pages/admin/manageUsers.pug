@@ -9,25 +9,35 @@ block content
   main.main
     .user-view
       include ../../_sidenav
-      
+
       .user-view__content
         .user-view__users-container.user-view__container(data-current-user-id= currentUser._id)
           h2.heading-secondary.ma-bt-md Manage Users
-          
+
           // Search and Filter Section
           .user-controls
             .search-box
-              input#searchUser.form__input(type='text', placeholder='Search by name or email...')
+              .form__group
+                label.form__label(for='searchUser') Search
+                input#searchUser.form__input(
+                  type='text', 
+                  placeholder='Search by name or email...',
+                  autocomplete='off'
+                )
             .filter-box
-              select#roleFilter.form__input
-                option(value='') All Roles
-                option(value='user') User
-                option(value='guide') Guide
-                option(value='lead-guide') Lead Guide
-                option(value='admin') Admin
+              .form__group
+                label.form__label(for='roleFilter') Role
+                select#roleFilter.form__input
+                  option(value='') All Roles
+                  option(value='user') User
+                  option(value='guide') Guide
+                  option(value='lead-guide') Lead Guide
+                  option(value='admin') Admin
             .action-box
-              button.btn.btn--small.btn--green#createUserBtn Create New User
-  
+              .form__group
+                label.form__label &nbsp;
+                button.btn.btn--small.btn--green#createUserBtn Create New User
+
           // Users Table
           .user-table
             table.table
@@ -43,13 +53,13 @@ block content
                   th Actions
               tbody#userTableBody
                 // Users will be populated here via JavaScript
-  
+
           // Pagination
           .pagination
             button.btn.btn--small#prevPage Previous
             span#pageInfo Page 1 of 1
             button.btn.btn--small#nextPage Next
-  
+
           // Create/Edit User Modal
           .modal#userModal
             .modal-content
