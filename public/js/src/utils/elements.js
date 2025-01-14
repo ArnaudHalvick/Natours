@@ -19,6 +19,9 @@ export const elements = {
     container: () => document.querySelector(".mytours-container"),
     bookingsContainer: () =>
       document.querySelector(".user-view__bookings-container"),
+    managementModal: () => document.querySelector("#managementModal"),
+    refundModal: () => document.querySelector("#refundModal"),
+    managementButtons: () => document.querySelectorAll(".manage-booking-btn"),
   },
   review: {
     form: () => document.querySelector("#reviewForm"),

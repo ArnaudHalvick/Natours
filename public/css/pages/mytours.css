@@ -161,6 +161,149 @@
   font-size: 1.6rem;
 }
 
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+.modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  position: relative;
+  background-color: #fff;
+  padding: 3rem;
+  width: 90%;
+  max-width: 50rem;
+  border-radius: 8px;
+  box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.15);
+  transform: translateY(-20px);
+  transition: transform 0.3s ease;
+}
+
+.modal.show .modal-content {
+  transform: translateY(0);
+}
+
+.close-modal {
+  position: absolute;
+  right: 2rem;
+  top: 2rem;
+  font-size: 2.4rem;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.close-modal:hover {
+  color: #333;
+}
+
+/* Management Modal Specific Styles */
+#managementModal .booking-details {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+}
+
+#managementModal .booking-details p {
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+  color: #666;
+}
+
+#managementModal .booking-details p:last-child {
+  margin-bottom: 0;
+}
+
+#managementModal .booking-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+#managementModal .action-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+#managementModal .action-group button {
+  flex: 1;
+  max-width: 200px;
+}
+
+#managementModal #modalTitle {
+  font-size: 2rem;
+  color: #444;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Refund Modal Specific Styles */
+#refundModal .refund-details {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+}
+
+#refundModal .refund-warning {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background-color: #fff3e0;
+  border-radius: 8px;
+  color: #f57c00;
+}
+
+#refundModal .refund-warning i {
+  margin-right: 1rem;
+}
+
+#refundModal .action-btns {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+
+/* Responsive Modal Styles */
+@media screen and (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    padding: 2rem;
+    margin: 2rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+  }
+
+  #managementModal .action-group {
+    flex-direction: column;
+  }
+
+  #managementModal .action-group button {
+    max-width: 100%;
+  }
+}
+
 /* Responsive Design */
 @media screen and (max-width: 768px) {
   .booking-controls__main {
@@ -204,5 +347,14 @@
 
   .booking-table {
     margin: 0 1rem 2rem 1rem;
+  }
+  .modal-content {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  #refundModal .action-btns {
+    flex-direction: column;
+    gap: 1rem;
   }
 }
