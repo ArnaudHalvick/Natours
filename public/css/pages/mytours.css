@@ -1,169 +1,208 @@
 /* My Tours Page Styles
    ========================================================================== */
 
-.mytours-container {
-  min-width: 60rem;
-  max-width: 120rem;
-  margin: 0 auto;
-  padding: 0 4rem; /* Changed padding to horizontal only */
+.heading-secondary.ma-bt-md {
+  margin-left: 2rem;
+  font-size: 2rem;
+}
+
+/* Control Section Styles */
+.booking-controls {
+  margin-bottom: 2rem;
+  padding: 0 2rem;
+}
+
+.booking-controls__main {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.booking-table .btn {
+  padding: 0.8rem 1.5rem !important;
+  font-size: 1.2rem !important;
+  border-radius: 4px;
+}
+
+.tour-box,
+.sort-box {
   flex: 1;
 }
 
-/* Booking Card */
-.booking {
+/* Form Groups and Inputs */
+.form__group {
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.form__label {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.75rem;
+}
+
+.form__input {
+  width: 100%;
+  padding: 1.2rem 1.6rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  color: #666;
+  background-color: #f8f8f8;
+  transition: all 0.3s;
+}
+
+.form__input:focus {
+  outline: none;
+  border-color: #55c57a;
   background-color: #fff;
-  padding: 2.5rem 3rem;
-  margin-bottom: 3rem;
+  box-shadow: 0 0 0 2px rgba(85, 197, 122, 0.1);
+}
+
+/* Booking Table Styles */
+.booking-table {
+  background-color: #fff;
   border-radius: 3px;
-  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.06);
+  margin: 0 2rem 3rem 2rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 1.5rem 1.5rem;
   text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid #f2f2f2;
+  line-height: 1.4;
 }
 
-.booking__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem; /* Increased spacing */
-}
-
-.booking__title {
-  font-size: 2.2rem;
+.table th {
+  background-color: #f7f7f7;
   font-weight: 700;
-  color: #333;
-}
-
-/* Booking Information */
-.booking__info {
-  margin-bottom: 2rem; /* Increased spacing */
-}
-
-.booking__detail {
-  font-size: 1.6rem;
+  text-transform: uppercase;
+  font-size: 1.3rem;
   color: #777;
 }
 
-.booking__detail strong {
-  font-weight: 700;
-  color: #555;
-  margin-right: 0.8rem; /* Added spacing after labels */
-}
-
-/* Button Container */
-.booking__buttons {
-  display: flex;
-  justify-content: space-between;
-  gap: 1.5rem; /* Increased gap between buttons */
-  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
-}
-
-/* Button Styles */
-.btn {
-  padding: 1.2rem 2.4rem; /* Increased padding */
+.table td {
   font-size: 1.4rem;
-  text-decoration: none;
-  color: #fff;
-  cursor: pointer;
-  text-align: center;
-  border-radius: 10rem; /* Added border radius */
-  transition: all 0.2s; /* Added transition */
+  color: #666;
 }
 
-.btn--small {
-  padding: 1rem 2rem;
-  font-size: 1.3rem;
+.table tr:last-child td {
+  border-bottom: none;
 }
 
-/* Button Variants */
-.btn--green {
-  background-color: #55c57a;
-}
-.btn--green:hover {
-  background-color: #28b487;
-  transform: translateY(-2px); /* Added hover effect */
+.table tbody tr:hover {
+  background-color: #f9f9f9;
 }
 
-.btn--blue {
-  background-color: #3498db;
-}
-.btn--blue:hover {
-  background-color: #2980b9;
-  transform: translateY(-2px);
-}
-
-.btn--orange {
-  background-color: #e67e22;
-}
-.btn--orange:hover {
-  background-color: #cf6d17;
-  transform: translateY(-2px);
-}
-
-.btn--purple {
-  background-color: #9b59b6;
-}
-.btn--purple:hover {
-  background-color: #8e44ad;
-  transform: translateY(-2px);
-}
-
-.btn--red {
-  background-color: #e74c3c;
-}
-.btn--red:hover {
-  background-color: #c0392b;
-  transform: translateY(-2px);
-}
-
-/* Refund Button Styles */
-.refund-btn {
-  font-size: 1.4rem;
-  padding: 1.2rem 2.4rem;
-  border-radius: 10rem;
+/* Status Badge Styles */
+.status-badge {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 2rem;
+  font-size: 1.2rem;
+  font-weight: 600;
   text-transform: uppercase;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
+  white-space: nowrap;
 }
 
-.refund-btn--pending {
-  background-color: #f1c40f;
+.status-badge--started {
+  background-color: #e6f4ea;
+  color: #1e7e34;
 }
 
-.refund-btn--processed {
-  background-color: #2ecc71;
+.status-badge--upcoming {
+  background-color: #e3f2fd;
+  color: #1976d2;
 }
 
-.refund-btn--rejected {
-  background-color: #e79a3c;
+.status-badge--pending {
+  background-color: #fff3e0;
+  color: #f57c00;
 }
 
-.refund-btn--request {
-  background-color: #e74c3c;
+.status-badge--processed {
+  background-color: #e8f5e9;
+  color: #2e7d32;
 }
 
-.refund-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
+.status-badge--rejected {
+  background-color: #ffebee;
+  color: #c62828;
 }
 
-.refund-btn:disabled {
-  opacity: 0.8;
-  cursor: not-allowed;
+/* Table Actions */
+.table-actions {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
 }
 
-/* Media Queries */
-@media (max-width: 768px) {
-  .mytours-container {
-    min-width: auto; /* Remove min-width on mobile */
-    padding: 0 2rem; /* Reduce padding on mobile */
+.table-actions .btn {
+  padding: 0.8rem 1.2rem;
+  font-size: 1.2rem;
+}
+
+/* Empty State Message */
+.empty-message {
+  text-align: center;
+  padding: 3rem;
+  color: #999;
+  font-size: 1.6rem;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .booking-controls__main {
+    flex-direction: column;
+    gap: 1.5rem;
   }
 
-  .booking__buttons {
-    flex-direction: column; /* Stack buttons on mobile */
+  .table {
+    display: block;
+    overflow-x: auto;
   }
 
-  .btn,
-  .refund-btn {
-    width: 100%; /* Full width buttons on mobile */
+  .table th,
+  .table td {
+    white-space: nowrap;
+    min-width: 120px;
+  }
+
+  .table-actions {
+    flex-direction: column;
+  }
+
+  .table-actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .user-view__container {
+    padding: 0 1rem;
+  }
+
+  .heading-secondary {
+    font-size: 1.8rem;
+  }
+
+  .booking-controls {
+    padding: 1rem;
+  }
+
+  .booking-table {
+    margin: 0 1rem 2rem 1rem;
   }
 }

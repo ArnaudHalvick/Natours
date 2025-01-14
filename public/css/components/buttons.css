@@ -91,6 +91,26 @@
   transform: translateY(-2px);
 }
 
+.btn--blue {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn--blue:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+.btn--purple {
+  background-color: #8e44ad;
+  color: white;
+}
+
+.btn--purple:hover {
+  background-color: #732d91;
+  transform: translateY(-2px);
+}
+
 /* Button Sizes */
 .btn--small {
   padding: 1.25rem 3rem !important;
