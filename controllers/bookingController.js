@@ -410,6 +410,120 @@ exports.getAllBookingsRegex = catchAsync(async (req, res, next) => {
   });
 });
 
+// Get all user transactions with optional filters (search, date range, price range)
+exports.getAllUserTransactions = catchAsync(async (req, res, next) => {
+  const { search, dateFrom, dateTo, priceRange } = req.query;
+  const page = +req.query.page || 1;
+  const limit = +req.query.limit || 10;
+  const skip = (page - 1) * limit;
+
+  const pipeline = [];
+
+  // Basic match for user's transactions only
+  pipeline.push({
+    $match: {
+      user: new mongoose.Types.ObjectId(req.user._id),
+    },
+  });
+
+  // Lookup tours
+  pipeline.push(
+    {
+      $lookup: {
+        from: "tours",
+        localField: "tour",
+        foreignField: "_id",
+        as: "tourInfo",
+      },
+    },
+    { $unwind: "$tourInfo" },
+  );
+
+  // Search match for tour name or transaction ID
+  if (search) {
+    pipeline.push({
+      $match: {
+        $or: [
+          {
+            "tourInfo.name": {
+              $regex: search,
+              $options: "i",
+            },
+          },
+          {
+            $expr: {
+              $regexMatch: {
+                input: { $toString: "$_id" },
+                regex: search,
+                options: "i",
+              },
+            },
+          },
+        ],
+      },
+    });
+  }
+
+  // Date range match
+  if (dateFrom || dateTo) {
+    const dateQuery = {};
+    if (dateFrom) dateQuery.$gte = new Date(dateFrom);
+    if (dateTo) dateQuery.$lte = new Date(dateTo);
+
+    pipeline.push({
+      $match: {
+        createdAt: dateQuery,
+      },
+    });
+  }
+
+  // Price range match
+  if (priceRange) {
+    const [min, max] = priceRange.split("-").map(Number);
+    const priceQuery = {};
+    if (!isNaN(min)) priceQuery.$gte = min;
+    if (!isNaN(max)) priceQuery.$lte = max;
+    if (priceRange === "2001+") {
+      priceQuery.$gte = 2001;
+    }
+
+    if (Object.keys(priceQuery).length) {
+      pipeline.push({
+        $match: {
+          price: priceQuery,
+        },
+      });
+    }
+  }
+
+  // Pagination with facet
+  pipeline.push({
+    $facet: {
+      data: [{ $sort: { createdAt: -1 } }, { $skip: skip }, { $limit: limit }],
+      metadata: [{ $count: "total" }],
+    },
+  });
+
+  const [results] = await Booking.aggregate(pipeline);
+  const { data = [], metadata = [] } = results;
+  const total = metadata.length > 0 ? metadata[0].total : 0;
+  const totalPages = Math.ceil(total / limit);
+
+  res.status(200).json({
+    status: "success",
+    results: data.length,
+    data: {
+      data,
+      pagination: {
+        total,
+        totalPages,
+        currentPage: page,
+        limit,
+      },
+    },
+  });
+});
+
 // CRUD operations for bookings using the handler factory
 exports.createBooking = factory.createOne(Booking);
 exports.getBooking = factory.getOne(Booking);

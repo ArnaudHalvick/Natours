@@ -10,6 +10,7 @@ import { initReviewManagement } from "./handlers/reviewManagement";
 import { initializeBookingManagement } from "./handlers/bookingManagement";
 import { initializeUserManagement } from "./handlers/userManagement";
 import { initializeTourManagement } from "./handlers/tourManagement";
+import { initializeBillingManagement } from "./handlers/billingManagement";
 
 import { showAlert } from "./utils/alert";
 import { displayMap } from "./utils/mapbox";
@@ -38,6 +39,13 @@ export class App {
       { init: initializeUserManagement, name: "User Management" },
       { init: initRefundManagement, name: "Refund Management" }, // Changed this line
     ];
+
+    if (window.location.pathname === "/billing") {
+      handlers.push({
+        init: initializeBillingManagement,
+        name: "Billing Management",
+      });
+    }
 
     // Add booking management if on booking page
     if (document.querySelector(".user-view__bookings-container")) {
