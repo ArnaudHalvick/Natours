@@ -6,11 +6,28 @@ export class LocationManager {
     this.currentSearchResult = null;
     this.geocoder = null;
 
-    this.initializeGeocoder();
-    this.setupEventListeners();
+    // Wait for DOM to be ready
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => {
+        this.initializeGeocoder();
+        this.setupEventListeners();
+      });
+    } else {
+      this.initializeGeocoder();
+      this.setupEventListeners();
+    }
   }
 
   initializeGeocoder() {
+    const searchContainer = document.getElementById("locationSearch");
+    if (!searchContainer) {
+      console.error("Location search container not found");
+      return;
+    }
+
+    // Clear any existing content
+    searchContainer.innerHTML = "";
+
     mapboxgl.accessToken =
       "pk.eyJ1IjoiYXJuYXVkLWhhbHZpY2siLCJhIjoiY20yamRpeHV3MDQzZTJxb3Y4Y2w5c2Y4byJ9.twUyM4221bznoihxEh2PKA";
 
@@ -20,29 +37,38 @@ export class LocationManager {
       placeholder: "Search for a location...",
     });
 
-    const searchContainer = document.getElementById("locationSearch");
-    if (searchContainer) {
-      searchContainer.appendChild(this.geocoder.onAdd());
-    }
+    searchContainer.appendChild(this.geocoder.onAdd());
   }
 
   setupEventListeners() {
+    if (!this.geocoder) {
+      console.error("Geocoder not initialized");
+      return;
+    }
+
     this.geocoder.on("result", e => {
       this.currentSearchResult = e.result;
       // Show a success message when location is found
       const searchContainer = document.getElementById("locationSearch");
+      if (!searchContainer) return;
+
       const existingMessage = searchContainer.querySelector(
         ".location-found-message",
       );
       if (existingMessage) {
         existingMessage.remove();
       }
+
       const message = document.createElement("div");
       message.className = "location-found-message text-sm text-green-600 mt-2";
       message.textContent = `Location found: ${e.result.place_name}`;
       searchContainer.appendChild(message);
     });
 
+    this.setupButtonListeners();
+  }
+
+  setupButtonListeners() {
     const addLocationBtn = document.getElementById("addLocationBtn");
     if (addLocationBtn) {
       addLocationBtn.addEventListener("click", () => {
@@ -57,7 +83,7 @@ export class LocationManager {
 
           this.addLocation(location);
           this.currentSearchResult = null;
-          this.geocoder.clear();
+          this.geocoder?.clear();
         }
       });
     }
@@ -75,7 +101,7 @@ export class LocationManager {
 
           this.setStartLocation(location);
           this.currentSearchResult = null;
-          this.geocoder.clear();
+          this.geocoder?.clear();
         }
       });
     }
@@ -106,10 +132,11 @@ export class LocationManager {
               Remove
             </button>
           </div>  
-      `,
+        `,
       )
       .join("");
 
+    // Setup remove buttons
     container.querySelectorAll(".remove-location").forEach(button => {
       button.addEventListener("click", e => {
         const index = parseInt(e.target.dataset.index);
@@ -124,9 +151,9 @@ export class LocationManager {
 
     if (this.startLocation) {
       container.innerHTML = `
-            <div>
-              <strong>Start Location:</strong> ${this.startLocation.description}. ${this.startLocation.address}
-            </div>
+        <div>
+          <strong>Start Location:</strong> ${this.startLocation.description}. ${this.startLocation.address}
+        </div>
       `;
     } else {
       container.innerHTML = "<p>No start location set</p>";
@@ -135,12 +162,10 @@ export class LocationManager {
 
   removeLocation(index) {
     this.locations.splice(index, 1);
-
     // Update day numbers
     this.locations.forEach((location, i) => {
       location.day = i + 1;
     });
-
     this.updateLocationsList();
   }
 
@@ -172,6 +197,19 @@ export class LocationManager {
     this.currentSearchResult = null;
     this.updateLocationsList();
     this.updateStartLocationDisplay();
-    this.geocoder?.clear();
+    if (this.geocoder) {
+      this.geocoder.clear();
+    }
+  }
+
+  destroy() {
+    this.cleanup();
+    if (this.geocoder) {
+      const searchContainer = document.getElementById("locationSearch");
+      if (searchContainer) {
+        searchContainer.innerHTML = "";
+      }
+      this.geocoder = null;
+    }
   }
 }

@@ -8823,36 +8823,56 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 // utils/locationManager.js
 var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
   function LocationManager() {
+    var _this = this;
     _classCallCheck(this, LocationManager);
     this.locations = [];
     this.startLocation = null;
     this.currentSearchResult = null;
     this.geocoder = null;
-    this.initializeGeocoder();
-    this.setupEventListeners();
+
+    // Wait for DOM to be ready
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", function () {
+        _this.initializeGeocoder();
+        _this.setupEventListeners();
+      });
+    } else {
+      this.initializeGeocoder();
+      this.setupEventListeners();
+    }
   }
   return _createClass(LocationManager, [{
     key: "initializeGeocoder",
     value: function initializeGeocoder() {
+      var searchContainer = document.getElementById("locationSearch");
+      if (!searchContainer) {
+        console.error("Location search container not found");
+        return;
+      }
+
+      // Clear any existing content
+      searchContainer.innerHTML = "";
       mapboxgl.accessToken = "pk.eyJ1IjoiYXJuYXVkLWhhbHZpY2siLCJhIjoiY20yamRpeHV3MDQzZTJxb3Y4Y2w5c2Y4byJ9.twUyM4221bznoihxEh2PKA";
       this.geocoder = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         types: "country,region,place,postcode,locality,neighborhood,address",
         placeholder: "Search for a location..."
       });
-      var searchContainer = document.getElementById("locationSearch");
-      if (searchContainer) {
-        searchContainer.appendChild(this.geocoder.onAdd());
-      }
+      searchContainer.appendChild(this.geocoder.onAdd());
     }
   }, {
     key: "setupEventListeners",
     value: function setupEventListeners() {
-      var _this = this;
+      var _this2 = this;
+      if (!this.geocoder) {
+        console.error("Geocoder not initialized");
+        return;
+      }
       this.geocoder.on("result", function (e) {
-        _this.currentSearchResult = e.result;
+        _this2.currentSearchResult = e.result;
         // Show a success message when location is found
         var searchContainer = document.getElementById("locationSearch");
+        if (!searchContainer) return;
         var existingMessage = searchContainer.querySelector(".location-found-message");
         if (existingMessage) {
           existingMessage.remove();
@@ -8862,36 +8882,44 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
         message.textContent = "Location found: ".concat(e.result.place_name);
         searchContainer.appendChild(message);
       });
+      this.setupButtonListeners();
+    }
+  }, {
+    key: "setupButtonListeners",
+    value: function setupButtonListeners() {
+      var _this3 = this;
       var addLocationBtn = document.getElementById("addLocationBtn");
       if (addLocationBtn) {
         addLocationBtn.addEventListener("click", function () {
-          if (_this.currentSearchResult) {
+          if (_this3.currentSearchResult) {
+            var _this3$geocoder;
             var location = {
               type: "Point",
-              coordinates: _this.currentSearchResult.center,
-              description: _this.currentSearchResult.text,
-              address: _this.currentSearchResult.place_name,
-              day: _this.locations.length + 1
+              coordinates: _this3.currentSearchResult.center,
+              description: _this3.currentSearchResult.text,
+              address: _this3.currentSearchResult.place_name,
+              day: _this3.locations.length + 1
             };
-            _this.addLocation(location);
-            _this.currentSearchResult = null;
-            _this.geocoder.clear();
+            _this3.addLocation(location);
+            _this3.currentSearchResult = null;
+            (_this3$geocoder = _this3.geocoder) === null || _this3$geocoder === void 0 || _this3$geocoder.clear();
           }
         });
       }
       var setStartLocationBtn = document.getElementById("setStartLocationBtn");
       if (setStartLocationBtn) {
         setStartLocationBtn.addEventListener("click", function () {
-          if (_this.currentSearchResult) {
+          if (_this3.currentSearchResult) {
+            var _this3$geocoder2;
             var location = {
               type: "Point",
-              coordinates: _this.currentSearchResult.center,
-              description: _this.currentSearchResult.text,
-              address: _this.currentSearchResult.place_name
+              coordinates: _this3.currentSearchResult.center,
+              description: _this3.currentSearchResult.text,
+              address: _this3.currentSearchResult.place_name
             };
-            _this.setStartLocation(location);
-            _this.currentSearchResult = null;
-            _this.geocoder.clear();
+            _this3.setStartLocation(location);
+            _this3.currentSearchResult = null;
+            (_this3$geocoder2 = _this3.geocoder) === null || _this3$geocoder2 === void 0 || _this3$geocoder2.clear();
           }
         });
       }
@@ -8911,16 +8939,18 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
   }, {
     key: "updateLocationsList",
     value: function updateLocationsList() {
-      var _this2 = this;
+      var _this4 = this;
       var container = document.querySelector(".locations-list");
       if (!container) return;
       container.innerHTML = this.locations.map(function (location, index) {
-        return "\n          <div class=\"location-item\">  \n            <div>\n              <strong>Day ".concat(location.day, ":</strong> ").concat(location.description, ". ").concat(location.address, "\n            </div>\n            <button class=\"btn btn--small btn--red remove-location\" data-index=\"").concat(index, "\">\n              Remove\n            </button>\n          </div>  \n      ");
+        return "\n          <div class=\"location-item\">  \n            <div>\n              <strong>Day ".concat(location.day, ":</strong> ").concat(location.description, ". ").concat(location.address, "\n            </div>\n            <button class=\"btn btn--small btn--red remove-location\" data-index=\"").concat(index, "\">\n              Remove\n            </button>\n          </div>  \n        ");
       }).join("");
+
+      // Setup remove buttons
       container.querySelectorAll(".remove-location").forEach(function (button) {
         button.addEventListener("click", function (e) {
           var index = parseInt(e.target.dataset.index);
-          _this2.removeLocation(index);
+          _this4.removeLocation(index);
         });
       });
     }
@@ -8930,7 +8960,7 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
       var container = document.querySelector(".start-location-display");
       if (!container) return;
       if (this.startLocation) {
-        container.innerHTML = "\n            <div>\n              <strong>Start Location:</strong> ".concat(this.startLocation.description, ". ").concat(this.startLocation.address, "\n            </div>\n      ");
+        container.innerHTML = "\n        <div>\n          <strong>Start Location:</strong> ".concat(this.startLocation.description, ". ").concat(this.startLocation.address, "\n        </div>\n      ");
       } else {
         container.innerHTML = "<p>No start location set</p>";
       }
@@ -8939,7 +8969,6 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
     key: "removeLocation",
     value: function removeLocation(index) {
       this.locations.splice(index, 1);
-
       // Update day numbers
       this.locations.forEach(function (location, i) {
         location.day = i + 1;
@@ -8959,7 +8988,7 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
   }, {
     key: "setLocations",
     value: function setLocations(locations) {
-      var _this3 = this;
+      var _this5 = this;
       this.cleanup();
       locations.forEach(function (location) {
         var formattedLocation = {
@@ -8969,19 +8998,32 @@ var LocationManager = exports.LocationManager = /*#__PURE__*/function () {
           address: location.address,
           day: location.day
         };
-        _this3.addLocation(formattedLocation);
+        _this5.addLocation(formattedLocation);
       });
     }
   }, {
     key: "cleanup",
     value: function cleanup() {
-      var _this$geocoder;
       this.locations = [];
       this.startLocation = null;
       this.currentSearchResult = null;
       this.updateLocationsList();
       this.updateStartLocationDisplay();
-      (_this$geocoder = this.geocoder) === null || _this$geocoder === void 0 || _this$geocoder.clear();
+      if (this.geocoder) {
+        this.geocoder.clear();
+      }
+    }
+  }, {
+    key: "destroy",
+    value: function destroy() {
+      this.cleanup();
+      if (this.geocoder) {
+        var searchContainer = document.getElementById("locationSearch");
+        if (searchContainer) {
+          searchContainer.innerHTML = "";
+        }
+        this.geocoder = null;
+      }
     }
   }]);
 }();
@@ -9075,20 +9117,16 @@ var populateStartDates = function populateStartDates() {
 var initializeLocationManager = function initializeLocationManager() {
   var locations = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
   var showMap = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  if (locationManager) {
-    locationManager.cleanup(); // Clean up previous instance if exists
-  }
-
-  // Always initialize LocationManager, but only show map if needed
-  locationManager = new _locationManager.LocationManager();
-  if (locations.length > 0) {
-    locationManager.setLocations(locations);
-  }
-
-  // Hide the map container if showMap is false
-  var mapContainer = document.getElementById("map-container");
-  if (mapContainer) {
-    mapContainer.style.display = showMap ? "block" : "none";
+  try {
+    if (locationManager) {
+      locationManager.destroy(); // Fully destroy the previous instance
+    }
+    locationManager = new _locationManager.LocationManager();
+    if (locations.length > 0) {
+      locationManager.setLocations(locations);
+    }
+  } catch (error) {
+    console.error("Failed to initialize location manager:", error);
   }
 };
 var handleEditClick = /*#__PURE__*/function () {
@@ -9605,7 +9643,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38841" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33909" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

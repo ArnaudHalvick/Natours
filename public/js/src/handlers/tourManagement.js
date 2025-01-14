@@ -79,21 +79,16 @@ const populateStartDates = (dates = []) => {
 };
 
 const initializeLocationManager = (locations = [], showMap = false) => {
-  if (locationManager) {
-    locationManager.cleanup(); // Clean up previous instance if exists
-  }
-
-  // Always initialize LocationManager, but only show map if needed
-  locationManager = new LocationManager();
-
-  if (locations.length > 0) {
-    locationManager.setLocations(locations);
-  }
-
-  // Hide the map container if showMap is false
-  const mapContainer = document.getElementById("map-container");
-  if (mapContainer) {
-    mapContainer.style.display = showMap ? "block" : "none";
+  try {
+    if (locationManager) {
+      locationManager.destroy(); // Fully destroy the previous instance
+    }
+    locationManager = new LocationManager();
+    if (locations.length > 0) {
+      locationManager.setLocations(locations);
+    }
+  } catch (error) {
+    console.error("Failed to initialize location manager:", error);
   }
 };
 
