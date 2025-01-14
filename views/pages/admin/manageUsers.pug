@@ -99,6 +99,17 @@ block content
               span.close-delete-modal &times;
               h4.heading-quaternary Confirm Deletion
               p.delete-confirm-text Are you sure you want to delete this user?
+
+              // Add this section:
+              .delete-user-info
+                img#deleteUserPicture(src="", alt="User Photo", width="40", height="40")
+                p
+                  strong Name: 
+                  span#deleteUserName
+                p
+                  strong Email: 
+                  span#deleteUserEmail
+
               .delete-btn-group
                 button.btn.btn--small.btn--red#confirmDeleteUserBtn(type='button') Delete
                 button.btn.btn--small.btn--grey#cancelDeleteUserBtn(type='button') Cancel

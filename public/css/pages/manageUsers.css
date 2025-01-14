@@ -343,6 +343,18 @@
   background-color: #ccc;
 }
 
+img#deleteUserPicture {
+  height: 4rem;
+  width: 4rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.delete-user-info {
+  font-size: 1.5rem;
+  padding-bottom: 2rem;
+}
+
 /* Responsive Adjustments for Delete Modal */
 @media only screen and (max-width: 768px) {
   .modal#deleteUserModal .deleteModal-content {

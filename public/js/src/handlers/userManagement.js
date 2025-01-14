@@ -27,13 +27,23 @@ const renderUserRow = (user, currentUserId) => {
           isCurrentUser
             ? "<span>Your account</span>"
             : `
-            <button class="btn btn--small btn--edit" data-id="${user._id}" data-active="${user.active}">
-              Edit
-            </button>
-            <button class="btn btn--small btn--red btn--delete" data-id="${user._id}">
-              Delete
-            </button>
-          `
+              <button
+                class="btn btn--small btn--edit"
+                data-id="${user._id}"
+                data-active="${user.active}"
+              >
+                Edit
+              </button>
+              <button
+                class="btn btn--small btn--red btn--delete"
+                data-id="${user._id}"
+                data-name="${user.name}"
+                data-email="${user.email}"
+                data-photo="/img/users/${user.photo}"
+              >
+                Delete
+              </button>
+            `
         }
       </td>
     </tr>
@@ -239,6 +249,17 @@ const initializeEventListeners = () => {
 
     if (deleteBtn) {
       const userId = deleteBtn.dataset.id;
+      const userName = deleteBtn.dataset.name;
+      const userEmail = deleteBtn.dataset.email;
+      const userPhoto = deleteBtn.dataset.photo;
+
+      // Populate the modal fields
+      document.getElementById("deleteUserPicture").src =
+        userPhoto || "/img/users/default.jpg";
+      document.getElementById("deleteUserName").textContent = userName || "";
+      document.getElementById("deleteUserEmail").textContent = userEmail || "";
+
+      // Now open the modal with handleUserDelete logic
       handleUserDelete(userId);
     }
   });

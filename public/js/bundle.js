@@ -8330,7 +8330,7 @@ var LIMIT = 10;
 var renderUserRow = function renderUserRow(user, currentUserId) {
   var isCurrentUser = user._id === currentUserId;
   var inactiveClass = !user.active ? "user--inactive" : "";
-  return "\n    <tr class=\"".concat(inactiveClass, "\">\n      <td>\n        <img src=\"/img/users/").concat(user.photo, "\" alt=\"User photo\" class=\"user-photo\">\n      </td>\n      <td>").concat(user.name, "</td>\n      <td>").concat(user.email, "</td>\n      <td>").concat(user.role, "</td>\n      <td>\n        ").concat(isCurrentUser ? "<span>Your account</span>" : "\n            <button class=\"btn btn--small btn--edit\" data-id=\"".concat(user._id, "\" data-active=\"").concat(user.active, "\">\n              Edit\n            </button>\n            <button class=\"btn btn--small btn--red btn--delete\" data-id=\"").concat(user._id, "\">\n              Delete\n            </button>\n          "), "\n      </td>\n    </tr>\n  ");
+  return "\n    <tr class=\"".concat(inactiveClass, "\">\n      <td>\n        <img src=\"/img/users/").concat(user.photo, "\" alt=\"User photo\" class=\"user-photo\">\n      </td>\n      <td>").concat(user.name, "</td>\n      <td>").concat(user.email, "</td>\n      <td>").concat(user.role, "</td>\n      <td>\n        ").concat(isCurrentUser ? "<span>Your account</span>" : "\n              <button\n                class=\"btn btn--small btn--edit\"\n                data-id=\"".concat(user._id, "\"\n                data-active=\"").concat(user.active, "\"\n              >\n                Edit\n              </button>\n              <button\n                class=\"btn btn--small btn--red btn--delete\"\n                data-id=\"").concat(user._id, "\"\n                data-name=\"").concat(user.name, "\"\n                data-email=\"").concat(user.email, "\"\n                data-photo=\"/img/users/").concat(user.photo, "\"\n              >\n                Delete\n              </button>\n            "), "\n      </td>\n    </tr>\n  ");
 };
 var handleUserLoad = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -8560,6 +8560,16 @@ var initializeEventListeners = function initializeEventListeners() {
     }
     if (deleteBtn) {
       var _userId = deleteBtn.dataset.id;
+      var userName = deleteBtn.dataset.name;
+      var userEmail = deleteBtn.dataset.email;
+      var userPhoto = deleteBtn.dataset.photo;
+
+      // Populate the modal fields
+      document.getElementById("deleteUserPicture").src = userPhoto || "/img/users/default.jpg";
+      document.getElementById("deleteUserName").textContent = userName || "";
+      document.getElementById("deleteUserEmail").textContent = userEmail || "";
+
+      // Now open the modal with handleUserDelete logic
       handleUserDelete(_userId);
     }
   });
@@ -9656,7 +9666,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "41369" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39709" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
