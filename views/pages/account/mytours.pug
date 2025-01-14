@@ -4,7 +4,6 @@ block append head
   link(rel="stylesheet" href="/css/layout/user-view.css")
   link(rel="stylesheet" href="/css/pages/mytours.css")
 
-
 block content
   main.main
     .user-view
@@ -70,36 +69,56 @@ block content
                         else
                           span.status-badge.status-badge--upcoming Upcoming
                       td.td-actions
-                        .table-actions
-                          a.btn.btn--small.btn--green(href=`/tour/${booking.tour.slug}`) 
-                            i.fas.fa-eye
-                            | View Tour
-                          if hasStarted
-                            if reviewsByTour && reviewsByTour[booking.tour._id]
-                              a.btn.btn--small.btn--orange(href=`/tour/${booking.tour.slug}/review/${reviewsByTour[booking.tour._id]._id}/edit`)
-                                i.fas.fa-edit
-                                | Edit Review
-                            else
-                              a.btn.btn--small.btn--blue(href=`/tour/${booking.tour.slug}/review`)
-                                i.fas.fa-star
-                                | Write Review
-                          else
-                            if !refundStatus
-                              button.btn.btn--small.btn--purple.add-travelers-btn(data-booking-id=booking._id)
-                                i.fas.fa-user-plus
-                                | Add Travelers
-                              button.btn.btn--small.btn--red.refund-btn(
-                                type="button"
-                                data-booking-id=booking._id
-                              )
-                                i.fas.fa-undo
-                                | Request Refund
+                        button.btn.btn--small.btn--green.manage-booking-btn(
+                          type="button"
+                          data-booking-id=booking._id
+                          data-tour-name=booking.tour.name
+                          data-tour-slug=booking.tour.slug
+                          data-start-date=booking.startDate
+                          data-price=booking.price
+                          data-has-started=hasStarted
+                          data-refund-status=refundStatus
+                          data-has-review=reviewsByTour && reviewsByTour[booking.tour._id]
+                          data-review-id=reviewsByTour && reviewsByTour[booking.tour._id] ? reviewsByTour[booking.tour._id]._id : ''
+                        )
+                          i.fas.fa-cog
+                          | Manage
                 else
                   tr.empty-row
                     td(colspan="7")
                       .empty-message
                         i.fas.fa-calendar-times
                         p No bookings found
+
+          // Management Modal
+          .modal#managementModal
+            .modal-content
+              span.close-modal &times;
+              h3#modalTitle Manage Booking
+              .booking-details
+                p#manageTourName
+                p#manageStartDate
+                p#managePrice
+                p#manageStatus
+              .booking-actions
+                .action-group#viewTourAction
+                  button.btn.btn--green#viewTourBtn
+                    i.fas.fa-eye
+                    | View Tour
+                .action-group#reviewActions
+                  button.btn.btn--blue#writeReviewBtn
+                    i.fas.fa-star
+                    | Write Review
+                  button.btn.btn--orange#editReviewBtn
+                    i.fas.fa-edit
+                    | Edit Review
+                .action-group#upcomingActions
+                  button.btn.btn--purple#addTravelersBtn
+                    i.fas.fa-user-plus
+                    | Add Travelers
+                  button.btn.btn--red#requestRefundBtn
+                    i.fas.fa-undo
+                    | Request Refund
 
           // Refund Modal
           .modal#refundModal
