@@ -3,7 +3,11 @@
 import { debounce, toggleModal } from "../utils/dom";
 import { showAlert } from "../utils/alert";
 import { updatePaginationInfo } from "../utils/pagination";
-import { loadReviews, hideReview, deleteReview } from "../api/reviewManagementAPI";
+import {
+  loadReviews,
+  hideReview,
+  deleteReview,
+} from "../api/reviewManagementAPI";
 
 let currentPage = 1;
 const REVIEWS_PER_PAGE = 10;
@@ -89,11 +93,11 @@ const updateReviewsTable = reviews => {
           <td class="review-text">${review.review}</td>
           <td class="rating">${review.rating}</td>
           <td>
-            <button class="btn-hide" data-id="${review._id}" data-hidden="${review.hidden}">
+            <button class="btn-hide btn--green" data-id="${review._id}" data-hidden="${review.hidden}">
               ${hideButtonText}
             </button>
             <button
-              class="btn-delete"
+              class="btn-delete btn--red"
               data-id="${review._id}"
               data-tour="${review.tour ? review.tour.name : "Deleted Tour"}"
               data-user="${review.user ? review.user.name : "Deleted User"}"
