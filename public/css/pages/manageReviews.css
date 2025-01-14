@@ -156,10 +156,140 @@
   font-weight: 500;
 }
 
+/* ---------------------------------------------
+   Delete Confirmation Modal for Reviews
+--------------------------------------------- */
+.modal#deleteReviewModal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow: auto; /* Enable scrolling if content is taller than viewport */
+}
+
+/* Show Modal when active */
+.modal#deleteReviewModal.active {
+  display: flex;
+}
+
+/* Modal Content */
+.modal#deleteReviewModal .deleteModal-content {
+  position: relative;
+  background-color: #fff;
+  margin: auto auto;
+  padding: 2rem;
+  width: 30%;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+/* Close Button */
+.modal#deleteReviewModal .close-delete-modal {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem;
+  font-size: 2.4rem;
+  color: #777;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.modal#deleteReviewModal .close-delete-modal:hover {
+  color: #333;
+}
+
+/* Modal Title */
+.modal#deleteReviewModal h4.heading-quaternary {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+/* Confirmation Text */
+.modal#deleteReviewModal p.delete-confirm-text {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Review Info inside Modal */
+.delete-review-info {
+  font-size: 1.4rem;
+  text-align: left;
+  margin: 0 auto 2rem auto;
+  max-width: 80%;
+  line-height: 1.6;
+}
+
+.delete-review-info p {
+  margin-bottom: 0.8rem;
+}
+
+/* Delete Button Group */
+.modal#deleteReviewModal .delete-btn-group {
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.modal#deleteReviewModal .delete-btn-group button {
+  padding: 0.8rem 2rem;
+  font-size: 1.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal#deleteReviewModal .btn--red {
+  background-color: #fa5252;
+  color: #fff;
+}
+
+.modal#deleteReviewModal .btn--red:hover {
+  background-color: #f03e3e;
+}
+
+.modal#deleteReviewModal .btn--grey {
+  background-color: #ddd;
+  color: #333;
+}
+
+.modal#deleteReviewModal .btn--grey:hover {
+  background-color: #ccc;
+}
+
+/* Responsive Adjustments */
+
+@media only screen and (max-width: 480px) {
+  .modal#deleteReviewModal .deleteModal-content {
+    width: 95%;
+    padding: 1rem;
+  }
+  .modal#deleteReviewModal h4.heading-quaternary {
+    font-size: 1.6rem;
+  }
+  .modal#deleteReviewModal .delete-btn-group button {
+    padding: 0.6rem 1.5rem;
+    font-size: 1.2rem;
+  }
+}
+
 /* Responsive Design */
 @media screen and (max-width: 768px) {
   .reviews-container {
     margin: 0 1rem;
+  }
+
+  .modal#deleteReviewModal .deleteModal-content {
+    width: 80%;
+    padding: 1.5rem;
   }
 
   .table {

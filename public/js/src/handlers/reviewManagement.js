@@ -1,11 +1,77 @@
 // handlers/reviewManagement.js
-import { debounce } from "../utils/dom";
+
+import { debounce, toggleModal } from "../utils/dom";
 import { showAlert } from "../utils/alert";
 import { updatePaginationInfo } from "../utils/pagination";
 import { loadReviews, hideReview, deleteReview } from "../api/reviewManagement";
 
 let currentPage = 1;
 const REVIEWS_PER_PAGE = 10;
+
+const handleReviewLoad = async (search = "", tourId = "", rating = "") => {
+  try {
+    const { data, pagination } = await loadReviews(
+      currentPage,
+      REVIEWS_PER_PAGE,
+      search,
+      tourId,
+      rating,
+    );
+
+    updateReviewsTable(data);
+    updatePaginationInfo(pagination.currentPage, pagination.totalPages);
+  } catch (err) {
+    showAlert("error", err.response?.data?.message || "Error loading reviews");
+  }
+};
+
+const handleReviewDeleteModal = (reviewId, tour, user, reviewText, rating) => {
+  // Elements
+  const deleteReviewModal = document.getElementById("deleteReviewModal");
+  const confirmDeleteBtn = document.getElementById("confirmDeleteReviewBtn");
+  const closeDeleteModalBtn = document.querySelector(
+    "#deleteReviewModal .close-delete-modal",
+  );
+  const cancelDeleteBtn = document.getElementById("cancelDeleteReviewBtn");
+
+  // Populate the modal with review info
+  document.getElementById("deleteReviewTour").textContent = tour || "";
+  document.getElementById("deleteReviewUser").textContent = user || "";
+  document.getElementById("deleteReviewRating").textContent = rating || "";
+  document.getElementById("deleteReviewText").textContent = reviewText || "";
+
+  // Open the modal
+  toggleModal("deleteReviewModal", true);
+
+  // Handler to confirm deletion
+  const confirmHandler = async () => {
+    try {
+      await deleteReview(reviewId);
+      showAlert("success", "Review deleted successfully");
+      handleReviewLoad(); // Reload the table
+    } catch (err) {
+      showAlert(
+        "error",
+        err.response?.data?.message || "Error deleting review",
+      );
+    } finally {
+      // Cleanup
+      toggleModal("deleteReviewModal", false);
+      confirmDeleteBtn.removeEventListener("click", confirmHandler);
+    }
+  };
+
+  // Handler to close modal (cancel or close button)
+  const cancelHandler = () => {
+    toggleModal("deleteReviewModal", false);
+    confirmDeleteBtn.removeEventListener("click", confirmHandler);
+  };
+
+  // Attach listeners
+  confirmDeleteBtn.addEventListener("click", confirmHandler);
+  cancelDeleteBtn.addEventListener("click", cancelHandler);
+  closeDeleteModalBtn.addEventListener("click", cancelHandler);
+};
 
 const updateReviewsTable = reviews => {
   const reviewsContainer = document.querySelector(".reviews-container tbody");
@@ -20,34 +86,27 @@ const updateReviewsTable = reviews => {
         <tr id="review-${review._id}" class="${hiddenClass}">
           <td>${review.tour ? review.tour.name : "Deleted Tour"}</td>
           <td>${review.user ? review.user.name : "Deleted User"}</td>
-          <td>${review.review}</td>
-          <td>${review.rating}</td>
+          <td class="review-text">${review.review}</td>
+          <td class="rating">${review.rating}</td>
           <td>
             <button class="btn-hide" data-id="${review._id}" data-hidden="${review.hidden}">
               ${hideButtonText}
             </button>
-            <button class="btn-delete" data-id="${review._id}">Delete</button>
+            <button
+              class="btn-delete"
+              data-id="${review._id}"
+              data-tour="${review.tour ? review.tour.name : "Deleted Tour"}"
+              data-user="${review.user ? review.user.name : "Deleted User"}"
+              data-review="${review.review}"
+              data-rating="${review.rating}"
+            >
+              Delete
+            </button>
           </td>
         </tr>
       `;
     })
     .join("");
-};
-
-const handleReviewLoad = async (search = "", tourId = "", rating = "") => {
-  try {
-    const { data, pagination } = await loadReviews(
-      currentPage,
-      REVIEWS_PER_PAGE,
-      search,
-      tourId,
-      rating,
-    );
-    updateReviewsTable(data);
-    updatePaginationInfo(pagination.currentPage, pagination.totalPages);
-  } catch (err) {
-    showAlert("error", err.response?.data?.message || "Error loading reviews");
-  }
 };
 
 export const initReviewManagement = () => {
@@ -82,6 +141,7 @@ export const initReviewManagement = () => {
     });
   }
 
+  // Add search and filter event listeners
   if (searchInput) {
     searchInput.addEventListener(
       "input",
@@ -110,18 +170,17 @@ export const initReviewManagement = () => {
     });
   }
 
+  // Listen for Hide or Delete button clicks in the table
   if (reviewsContainer) {
     reviewsContainer.addEventListener("click", async e => {
       const hideBtn = e.target.closest(".btn-hide");
       const deleteBtn = e.target.closest(".btn-delete");
-      const reviewId = hideBtn?.dataset.id || deleteBtn?.dataset.id;
 
-      if (!reviewId) return;
-
-      try {
-        if (hideBtn) {
-          const currentlyHidden = hideBtn.dataset.hidden === "true";
-          const newHidden = !currentlyHidden;
+      if (hideBtn) {
+        const reviewId = hideBtn.dataset.id;
+        const currentlyHidden = hideBtn.dataset.hidden === "true";
+        const newHidden = !currentlyHidden;
+        try {
           await hideReview(reviewId, newHidden);
           showAlert(
             "success",
@@ -129,25 +188,29 @@ export const initReviewManagement = () => {
               ? "Review hidden successfully"
               : "Review unhidden successfully",
           );
-        } else if (
-          deleteBtn &&
-          confirm("Are you sure you want to delete this review?")
-        ) {
-          await deleteReview(reviewId);
-          showAlert("success", "Review deleted successfully");
+          handleReviewLoad(
+            searchInput.value,
+            tourFilter.value,
+            ratingFilter.value,
+          );
+        } catch (err) {
+          showAlert(
+            "error",
+            err.response?.data?.message || "Error updating review",
+          );
         }
+      }
 
-        // Re-fetch and update the reviews table after the action
-        handleReviewLoad(
-          searchInput.value,
-          tourFilter.value,
-          ratingFilter.value,
-        );
-      } catch (err) {
-        showAlert(
-          "error",
-          err.response?.data?.message || "Error updating review",
-        );
+      if (deleteBtn) {
+        // Collect data to show in the modal
+        const reviewId = deleteBtn.dataset.id;
+        const tour = deleteBtn.dataset.tour;
+        const user = deleteBtn.dataset.user;
+        const reviewText = deleteBtn.dataset.review;
+        const rating = deleteBtn.dataset.rating;
+
+        // Show the modal instead of confirm()
+        handleReviewDeleteModal(reviewId, tour, user, reviewText, rating);
       }
     });
   }

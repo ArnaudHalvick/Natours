@@ -2,7 +2,7 @@ extends ../../base
 
 block append head
   link(rel="stylesheet" href="/css/layout/adminLayouts.css")
-  link(rel="stylesheet", href="/css/layout/user-view.css")
+  link(rel="stylesheet" href="/css/layout/user-view.css")
   link(rel="stylesheet" href="/css/pages/manageReviews.css")
 
 block content
@@ -11,34 +11,34 @@ block content
       include ../../_sidenav
 
       .user-view__content
-        .user-view__container 
+        .user-view__container
           h2.heading-secondary.ma-bt-md Manage Reviews
           
           .review-controls
-              .search-box
-                .form__group
-                  label.form__label(for='searchReview') Search
-                  input#searchReview.form__input(
-                    type='text', 
-                    placeholder='Search reviews/users...',
-                    autocomplete='off'
-                  )
-              .filter-box
-                .form__group
-                  label.form__label(for='tourFilter') Tour
-                  select#tourFilter.form__input
-                    option(value='') All Tours
-                    each tour in tours 
-                      option(value=tour._id)= tour.name
-                .form__group
-                  label.form__label(for='ratingFilter') Rating
-                  select#ratingFilter.form__input
-                    option(value='') All Ratings
-                    option(value='1') 1 Star
-                    option(value='2') 2 Stars
-                    option(value='3') 3 Stars
-                    option(value='4') 4 Stars
-                    option(value='5') 5 Stars
+            .search-box
+              .form__group
+                label.form__label(for='searchReview') Search
+                input#searchReview.form__input(
+                  type='text',
+                  placeholder='Search reviews/users...',
+                  autocomplete='off'
+                )
+            .filter-box
+              .form__group
+                label.form__label(for='tourFilter') Tour
+                select#tourFilter.form__input
+                  option(value='') All Tours
+                  each tour in tours
+                    option(value=tour._id)= tour.name
+              .form__group
+                label.form__label(for='ratingFilter') Rating
+                select#ratingFilter.form__input
+                  option(value='') All Ratings
+                  option(value='1') 1 Star
+                  option(value='2') 2 Stars
+                  option(value='3') 3 Stars
+                  option(value='4') 4 Stars
+                  option(value='5') 5 Stars
 
           .reviews-container
             if reviews.length === 0
@@ -62,9 +62,35 @@ block content
                       td.action-buttons
                         button.btn-hide(data-id=review._id data-hidden=review.hidden)
                           | #{review.hidden ? 'Unhide' : 'Hide'}
-                        button.btn-delete(data-id=review._id) Delete
-              
+                        button.btn-delete(data-id=review._id data-tour=review.tour ? review.tour.name : 'Deleted Tour' data-user=review.user ? review.user.name : 'Deleted User' data-review=review.review data-rating=review.rating) Delete
+
               .pagination
                 button.btn.btn--small#prevPage Previous
                 span#pageInfo Page 1 of 1
                 button.btn.btn--small#nextPage Next
+
+          // DELETE CONFIRMATION MODAL
+          .modal#deleteReviewModal
+            .deleteModal-content
+              span.close-delete-modal &times;
+              h4.heading-quaternary Confirm Deletion
+              p.delete-confirm-text Are you sure you want to delete this review?
+
+              // Additional info
+              .delete-review-info
+                p
+                  strong Tour:
+                  span#deleteReviewTour
+                p
+                  strong User:
+                  span#deleteReviewUser
+                p
+                  strong Rating:
+                  span#deleteReviewRating
+                p
+                  strong Review:
+                  span#deleteReviewText
+
+              .delete-btn-group
+                button.btn.btn--small.btn--red#confirmDeleteReviewBtn(type='button') Delete
+                button.btn.btn--small.btn--grey#cancelDeleteReviewBtn(type='button') Cancel

@@ -7668,15 +7668,6 @@ function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; } // handlers/reviewManagement.js
 var currentPage = 1;
 var REVIEWS_PER_PAGE = 10;
-var updateReviewsTable = function updateReviewsTable(reviews) {
-  var reviewsContainer = document.querySelector(".reviews-container tbody");
-  if (!reviewsContainer) return;
-  reviewsContainer.innerHTML = reviews.map(function (review) {
-    var hiddenClass = review.hidden ? "review--hidden" : "";
-    var hideButtonText = review.hidden ? "Unhide" : "Hide";
-    return "\n        <tr id=\"review-".concat(review._id, "\" class=\"").concat(hiddenClass, "\">\n          <td>").concat(review.tour ? review.tour.name : "Deleted Tour", "</td>\n          <td>").concat(review.user ? review.user.name : "Deleted User", "</td>\n          <td>").concat(review.review, "</td>\n          <td>").concat(review.rating, "</td>\n          <td>\n            <button class=\"btn-hide\" data-id=\"").concat(review._id, "\" data-hidden=\"").concat(review.hidden, "\">\n              ").concat(hideButtonText, "\n            </button>\n            <button class=\"btn-delete\" data-id=\"").concat(review._id, "\">Delete</button>\n          </td>\n        </tr>\n      ");
-  }).join("");
-};
 var handleReviewLoad = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
     var search,
@@ -7718,6 +7709,78 @@ var handleReviewLoad = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
+var handleReviewDeleteModal = function handleReviewDeleteModal(reviewId, tour, user, reviewText, rating) {
+  // Elements
+  var deleteReviewModal = document.getElementById("deleteReviewModal");
+  var confirmDeleteBtn = document.getElementById("confirmDeleteReviewBtn");
+  var closeDeleteModalBtn = document.querySelector("#deleteReviewModal .close-delete-modal");
+  var cancelDeleteBtn = document.getElementById("cancelDeleteReviewBtn");
+
+  // Populate the modal with review info
+  document.getElementById("deleteReviewTour").textContent = tour || "";
+  document.getElementById("deleteReviewUser").textContent = user || "";
+  document.getElementById("deleteReviewRating").textContent = rating || "";
+  document.getElementById("deleteReviewText").textContent = reviewText || "";
+
+  // Open the modal
+  (0, _dom.toggleModal)("deleteReviewModal", true);
+
+  // Handler to confirm deletion
+  var _confirmHandler = /*#__PURE__*/function () {
+    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+      var _err$response2;
+      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+        while (1) switch (_context2.prev = _context2.next) {
+          case 0:
+            _context2.prev = 0;
+            _context2.next = 3;
+            return (0, _reviewManagement.deleteReview)(reviewId);
+          case 3:
+            (0, _alert.showAlert)("success", "Review deleted successfully");
+            handleReviewLoad(); // Reload the table
+            _context2.next = 10;
+            break;
+          case 7:
+            _context2.prev = 7;
+            _context2.t0 = _context2["catch"](0);
+            (0, _alert.showAlert)("error", ((_err$response2 = _context2.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || "Error deleting review");
+          case 10:
+            _context2.prev = 10;
+            // Cleanup
+            (0, _dom.toggleModal)("deleteReviewModal", false);
+            confirmDeleteBtn.removeEventListener("click", _confirmHandler);
+            return _context2.finish(10);
+          case 14:
+          case "end":
+            return _context2.stop();
+        }
+      }, _callee2, null, [[0, 7, 10, 14]]);
+    }));
+    return function confirmHandler() {
+      return _ref2.apply(this, arguments);
+    };
+  }();
+
+  // Handler to close modal (cancel or close button)
+  var cancelHandler = function cancelHandler() {
+    (0, _dom.toggleModal)("deleteReviewModal", false);
+    confirmDeleteBtn.removeEventListener("click", _confirmHandler);
+  };
+
+  // Attach listeners
+  confirmDeleteBtn.addEventListener("click", _confirmHandler);
+  cancelDeleteBtn.addEventListener("click", cancelHandler);
+  closeDeleteModalBtn.addEventListener("click", cancelHandler);
+};
+var updateReviewsTable = function updateReviewsTable(reviews) {
+  var reviewsContainer = document.querySelector(".reviews-container tbody");
+  if (!reviewsContainer) return;
+  reviewsContainer.innerHTML = reviews.map(function (review) {
+    var hiddenClass = review.hidden ? "review--hidden" : "";
+    var hideButtonText = review.hidden ? "Unhide" : "Hide";
+    return "\n        <tr id=\"review-".concat(review._id, "\" class=\"").concat(hiddenClass, "\">\n          <td>").concat(review.tour ? review.tour.name : "Deleted Tour", "</td>\n          <td>").concat(review.user ? review.user.name : "Deleted User", "</td>\n          <td class=\"review-text\">").concat(review.review, "</td>\n          <td class=\"rating\">").concat(review.rating, "</td>\n          <td>\n            <button class=\"btn-hide\" data-id=\"").concat(review._id, "\" data-hidden=\"").concat(review.hidden, "\">\n              ").concat(hideButtonText, "\n            </button>\n            <button\n              class=\"btn-delete\"\n              data-id=\"").concat(review._id, "\"\n              data-tour=\"").concat(review.tour ? review.tour.name : "Deleted Tour", "\"\n              data-user=\"").concat(review.user ? review.user.name : "Deleted User", "\"\n              data-review=\"").concat(review.review, "\"\n              data-rating=\"").concat(review.rating, "\"\n            >\n              Delete\n            </button>\n          </td>\n        </tr>\n      ");
+  }).join("");
+};
 var initReviewManagement = exports.initReviewManagement = function initReviewManagement() {
   var reviewManagementElements = document.querySelector(".reviews-container");
   if (!reviewManagementElements) return;
@@ -7743,6 +7806,8 @@ var initReviewManagement = exports.initReviewManagement = function initReviewMan
       handleReviewLoad(searchInput.value, tourFilter.value, ratingFilter.value);
     });
   }
+
+  // Add search and filter event listeners
   if (searchInput) {
     searchInput.addEventListener("input", (0, _dom.debounce)(function () {
       currentPage = 1;
@@ -7761,61 +7826,54 @@ var initReviewManagement = exports.initReviewManagement = function initReviewMan
       handleReviewLoad(searchInput.value, tourFilter.value, ratingFilter.value);
     });
   }
+
+  // Listen for Hide or Delete button clicks in the table
   if (reviewsContainer) {
     reviewsContainer.addEventListener("click", /*#__PURE__*/function () {
-      var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
-        var hideBtn, deleteBtn, reviewId, currentlyHidden, newHidden, _err$response2;
-        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-          while (1) switch (_context2.prev = _context2.next) {
+      var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
+        var hideBtn, deleteBtn, reviewId, currentlyHidden, newHidden, _err$response3, _reviewId, tour, user, reviewText, rating;
+        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+          while (1) switch (_context3.prev = _context3.next) {
             case 0:
               hideBtn = e.target.closest(".btn-hide");
               deleteBtn = e.target.closest(".btn-delete");
-              reviewId = (hideBtn === null || hideBtn === void 0 ? void 0 : hideBtn.dataset.id) || (deleteBtn === null || deleteBtn === void 0 ? void 0 : deleteBtn.dataset.id);
-              if (reviewId) {
-                _context2.next = 5;
-                break;
-              }
-              return _context2.abrupt("return");
-            case 5:
-              _context2.prev = 5;
               if (!hideBtn) {
-                _context2.next = 14;
+                _context3.next = 16;
                 break;
               }
+              reviewId = hideBtn.dataset.id;
               currentlyHidden = hideBtn.dataset.hidden === "true";
               newHidden = !currentlyHidden;
-              _context2.next = 11;
+              _context3.prev = 6;
+              _context3.next = 9;
               return (0, _reviewManagement.hideReview)(reviewId, newHidden);
-            case 11:
+            case 9:
               (0, _alert.showAlert)("success", newHidden ? "Review hidden successfully" : "Review unhidden successfully");
-              _context2.next = 18;
-              break;
-            case 14:
-              if (!(deleteBtn && confirm("Are you sure you want to delete this review?"))) {
-                _context2.next = 18;
-                break;
-              }
-              _context2.next = 17;
-              return (0, _reviewManagement.deleteReview)(reviewId);
-            case 17:
-              (0, _alert.showAlert)("success", "Review deleted successfully");
-            case 18:
-              // Re-fetch and update the reviews table after the action
               handleReviewLoad(searchInput.value, tourFilter.value, ratingFilter.value);
-              _context2.next = 24;
+              _context3.next = 16;
               break;
-            case 21:
-              _context2.prev = 21;
-              _context2.t0 = _context2["catch"](5);
-              (0, _alert.showAlert)("error", ((_err$response2 = _context2.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || "Error updating review");
-            case 24:
+            case 13:
+              _context3.prev = 13;
+              _context3.t0 = _context3["catch"](6);
+              (0, _alert.showAlert)("error", ((_err$response3 = _context3.t0.response) === null || _err$response3 === void 0 || (_err$response3 = _err$response3.data) === null || _err$response3 === void 0 ? void 0 : _err$response3.message) || "Error updating review");
+            case 16:
+              if (deleteBtn) {
+                // Collect data to show in the modal
+                _reviewId = deleteBtn.dataset.id;
+                tour = deleteBtn.dataset.tour;
+                user = deleteBtn.dataset.user;
+                reviewText = deleteBtn.dataset.review;
+                rating = deleteBtn.dataset.rating; // Show the modal instead of confirm()
+                handleReviewDeleteModal(_reviewId, tour, user, reviewText, rating);
+              }
+            case 17:
             case "end":
-              return _context2.stop();
+              return _context3.stop();
           }
-        }, _callee2, null, [[5, 21]]);
+        }, _callee3, null, [[6, 13]]);
       }));
       return function (_x) {
-        return _ref2.apply(this, arguments);
+        return _ref3.apply(this, arguments);
       };
     }());
   }
@@ -9666,7 +9724,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39709" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42191" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
