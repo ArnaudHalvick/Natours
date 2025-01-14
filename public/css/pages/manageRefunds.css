@@ -6,14 +6,6 @@
 }
 
 /* Control Section Styles */
-.refund-controls {
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 2rem;
-  margin-bottom: 3rem;
-  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.05);
-}
-
 .refund-controls__main {
   display: flex;
   width: 100%;
@@ -21,7 +13,6 @@
 }
 
 .refund-controls__dates {
-  margin-top: 2rem;
   width: 100%;
 }
 
