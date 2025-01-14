@@ -8531,6 +8531,7 @@ var initializeEventListeners = function initializeEventListeners() {
   var createUserBtn = document.getElementById("createUserBtn");
   var userForm = document.getElementById("userForm");
   var closeModalBtn = document.querySelector(".close-modal");
+  var cancelUserBtn = document.getElementById("cancelUserBtn");
   var prevPageBtn = document.getElementById("prevPage");
   var nextPageBtn = document.getElementById("nextPage");
   var closeDeleteModalBtn = document.querySelector(".close-delete-modal");
@@ -8560,6 +8561,13 @@ var initializeEventListeners = function initializeEventListeners() {
   if (closeModalBtn) {
     closeModalBtn.addEventListener("click", function () {
       return (0, _dom.toggleModal)("userModal", false);
+    });
+  }
+  if (cancelUserBtn) {
+    cancelUserBtn.addEventListener("click", function () {
+      var form = document.getElementById("userForm");
+      if (form) form.reset();
+      (0, _dom.toggleModal)("userModal", false);
     });
   }
   if (prevPageBtn) {
@@ -9719,7 +9727,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "37851" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33261" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

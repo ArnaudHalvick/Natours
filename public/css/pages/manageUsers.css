@@ -162,9 +162,6 @@
 }
 
 /* Form Groups */
-.modal#userModal .form__group {
-  margin-bottom: 2.5rem;
-}
 
 /* Form Labels */
 .modal#userModal label.form__label {
@@ -216,19 +213,6 @@
 .modal#userModal .form__group.right {
   display: flex;
   justify-content: flex-end;
-}
-
-/* Submit Button */
-.modal#userModal .btn--small.btn--green {
-  padding: 1rem 2.5rem;
-  font-size: 1.6rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.modal#userModal .btn--small.btn--green:hover {
-  background-color: #4caf70; /* Darker green on hover */
 }
 
 /* Highlight inactive users */
@@ -344,6 +328,13 @@ img#deleteUserPicture {
 .delete-user-info {
   font-size: 1.5rem;
   padding-bottom: 2rem;
+}
+
+.action-btns {
+  display: flex;
+  justify-content: space-around;
+  margin: 0;
+  padding: 0;
 }
 
 /* Responsive Adjustments for Delete Modal */

@@ -155,6 +155,7 @@ const initializeEventListeners = () => {
   const createUserBtn = document.getElementById("createUserBtn");
   const userForm = document.getElementById("userForm");
   const closeModalBtn = document.querySelector(".close-modal");
+  const cancelUserBtn = document.getElementById("cancelUserBtn");
   const prevPageBtn = document.getElementById("prevPage");
   const nextPageBtn = document.getElementById("nextPage");
   const closeDeleteModalBtn = document.querySelector(".close-delete-modal");
@@ -190,6 +191,14 @@ const initializeEventListeners = () => {
     closeModalBtn.addEventListener("click", () =>
       toggleModal("userModal", false),
     );
+  }
+
+  if (cancelUserBtn) {
+    cancelUserBtn.addEventListener("click", () => {
+      const form = document.getElementById("userForm");
+      if (form) form.reset();
+      toggleModal("userModal", false);
+    });
   }
 
   if (prevPageBtn) {

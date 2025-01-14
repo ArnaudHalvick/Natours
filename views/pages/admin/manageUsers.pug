@@ -90,8 +90,10 @@ block content
                 .form__group.creation-only
                   label.form__label(for='userPasswordConfirm') Confirm Password
                   input#userPasswordConfirm.form__input(type='password', minlength='8')
-                .form__group.right
+                .form__group.action-btns
                   button.btn.btn--small.btn--green(type='submit') Save User
+                  button.btn.btn--small.btn--grey#cancelUserBtn(type='button') Cancel
+
 
           // Delete Confirmation Modal
           .modal#deleteUserModal
