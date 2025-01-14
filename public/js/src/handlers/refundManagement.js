@@ -55,7 +55,7 @@ const loadRefunds = async () => {
             <td class="action-buttons">
               ${
                 refund.status === "pending"
-                  ? `<button class="btn btn--small btn--manage"
+                  ? `<button class="btn btn--small btn--manage btn--green"
                       data-refund-id="${refund._id}"
                       data-booking-id="${refund.booking}" 
                       data-user="${refund.user ? refund.user.name : "Unknown User"}"
