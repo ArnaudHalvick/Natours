@@ -3,6 +3,7 @@ const User = require("./../models/userModel");
 
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
+const Email = require("./../utils/email");
 const factory = require("./handlerFactory");
 
 const multer = require("multer");
@@ -79,6 +80,7 @@ exports.getMe = (req, res, next) => {
 
 // Update current user's details (authenticated users only)
 exports.updateMe = catchAsync(async (req, res, next) => {
+  // 1) Check if request includes password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(
       new AppError(
@@ -88,18 +90,70 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     );
   }
 
+  // 2) Filter allowed fields
   const filteredBody = filterObj(req.body, "name", "email");
   if (req.file) filteredBody.photo = req.file.filename;
 
-  const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
-    new: true,
-    runValidators: true,
-  });
+  // 3) Handle email change separately
+  if (filteredBody.email && filteredBody.email !== req.user.email) {
+    const user = await User.findById(req.user.id);
 
-  res.status(200).json({
-    status: "success",
-    data: { user: updatedUser },
-  });
+    // Set pending email and create verification token
+    user.pendingEmail = filteredBody.email;
+    const emailChangeToken = user.createEmailChangeToken();
+    await user.save({ validateBeforeSave: false });
+
+    // Send verification email
+    try {
+      const verifyURL = `${req.protocol}://${req.get(
+        "host",
+      )}/api/v1/users/verifyEmailChange/${emailChangeToken}`;
+
+      await new Email(user, verifyURL).sendEmailChangeVerification();
+
+      // Remove email from filteredBody so it's not updated yet
+      delete filteredBody.email;
+
+      res.status(200).json({
+        status: "success",
+        message:
+          "Verification email sent to new email address. Please verify to complete the change.",
+        data: {
+          user: await User.findByIdAndUpdate(req.user.id, filteredBody, {
+            new: true,
+            runValidators: true,
+          }),
+        },
+      });
+    } catch (err) {
+      user.pendingEmail = undefined;
+      user.pendingEmailToken = undefined;
+      user.pendingEmailTokenExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      return next(
+        new AppError("There was an error sending the email. Try again later!"),
+        500,
+      );
+    }
+  } else {
+    // If no email change, update other fields normally
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      filteredBody,
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        user: updatedUser,
+      },
+    });
+  }
 });
 
 // Deactivate current user's account (authenticated users only)

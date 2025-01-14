@@ -1,5 +1,6 @@
-// api/userAPI.js
+// In userAPI.js
 import axios from "axios";
+import { showAlert } from "../utils/alert";
 
 export const updateSettings = async (data, type) => {
   try {
@@ -8,24 +9,39 @@ export const updateSettings = async (data, type) => {
         ? "/api/v1/users/updateMyPassword"
         : "/api/v1/users/updateMe";
 
-    // If it's a password update, transform the data to match API expectations
-    const requestData =
-      type === "password"
-        ? {
-            currentPassword: data.passwordCurrent,
-            password: data.password,
-            passwordConfirm: data.passwordConfirm,
-          }
-        : data;
-
     const res = await axios({
       method: "PATCH",
       url,
-      data: requestData,
+      data:
+        type === "password"
+          ? {
+              currentPassword: data.passwordCurrent,
+              password: data.password,
+              passwordConfirm: data.passwordConfirm,
+            }
+          : data,
     });
 
+    if (res.data.status === "success") {
+      showAlert(
+        "success",
+        res.data.message || `${type.toUpperCase()} updated successfully!`,
+      );
+
+      if (type === "password") {
+        // Clear password fields
+        document.getElementById("password-current").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("password-confirm").value = "";
+      } else if (!res.data.message) {
+        // Only reload if it's not an email change (which shows a verification message)
+        window.setTimeout(() => location.reload(), 1500);
+      }
+    }
+
     return res.data;
-  } catch (error) {
-    throw error;
+  } catch (err) {
+    showAlert("error", err.response?.data?.message || "Update failed");
+    throw err;
   }
 };

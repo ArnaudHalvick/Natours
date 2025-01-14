@@ -77,4 +77,8 @@ module.exports = class Email {
   async sendTwoFACode(code) {
     await this.send("twoFA", "Your 2FA code", { code });
   }
+
+  async sendEmailChangeVerification() {
+    await this.send("emailChange", "Verify your new email address");
+  }
 };

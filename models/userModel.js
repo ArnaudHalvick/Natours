@@ -85,6 +85,13 @@ const userSchema = new mongoose.Schema(
         lastVerified: Date,
       },
     ],
+    pendingEmail: {
+      type: String,
+      validate: [validator.isEmail, "Please provide a valid email"],
+      lowercase: true,
+    },
+    pendingEmailToken: String,
+    pendingEmailTokenExpires: Date,
   },
   {
     toJSON: { virtuals: true },
@@ -117,6 +124,20 @@ userSchema.methods.createEmailConfirmationToken = function () {
     .update(confirmationToken)
     .digest("hex");
   return confirmationToken;
+};
+
+// Create email change token
+userSchema.methods.createEmailChangeToken = function () {
+  const changeToken = crypto.randomBytes(32).toString("hex");
+
+  this.pendingEmailToken = crypto
+    .createHash("sha256")
+    .update(changeToken)
+    .digest("hex");
+
+  this.pendingEmailTokenExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+  return changeToken;
 };
 
 // Generate and hash 2FA code

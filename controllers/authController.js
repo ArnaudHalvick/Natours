@@ -220,6 +220,35 @@ exports.resendConfirmation = catchAsync(async (req, res, next) => {
   });
 });
 
+// Confirm email change
+exports.verifyEmailChange = catchAsync(async (req, res, next) => {
+  // 1) Get user based on the token
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    pendingEmailToken: hashedToken,
+    pendingEmailTokenExpires: { $gt: Date.now() },
+  });
+
+  // 2) If token has not expired, and there is user, change the email
+  if (!user) {
+    return next(new AppError("Token is invalid or has expired", 400));
+  }
+
+  user.email = user.pendingEmail;
+  user.pendingEmail = undefined;
+  user.pendingEmailToken = undefined;
+  user.pendingEmailTokenExpires = undefined;
+
+  await user.save({ validateBeforeSave: false });
+
+  // 3) Log the user in with new JWT
+  createSendToken(user, 200, res, req);
+});
+
 // Login with 2FA
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;

@@ -44,8 +44,9 @@ const resendConfirmationLimiter = rateLimit({
    2) Public Routes (No authentication needed)
    ========================================================================== */
 
-// Route to confirm email via token
+// Route to confirm / verify email via token
 router.get("/confirmEmail/:token", authController.confirmEmail);
+router.get("/verifyEmailChange/:token", authController.verifyEmailChange);
 
 // 2FA-related routes (verify & resend code)
 router.post("/verify2FA", twoFALimiter, authController.verify2FA);
