@@ -149,6 +149,15 @@
   color: #c92a2a;
 }
 
+.btn--red {
+  background-color: #e74c3c;
+  color: white;
+}
+.btn--red:hover {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+}
+
 /* Empty State Message */
 .empty-message {
   text-align: center;
