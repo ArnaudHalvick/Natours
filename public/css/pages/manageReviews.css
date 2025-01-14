@@ -15,6 +15,22 @@
   margin-bottom: 3rem;
 }
 
+.review-controls {
+  gap: 2rem;
+}
+
+.form__label {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.75rem;
+}
+
+.form__group {
+  margin-bottom: 0;
+}
+
 /* Table Styles */
 .table {
   width: 100%;
