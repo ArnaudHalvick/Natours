@@ -36,7 +36,14 @@ router.use(authController.protect);
 router.use(authController.restrictTo("admin", "lead-guide"));
 
 // Tour CRUD operations
-router.route("/").post(tourController.createNewTour);
+router
+  .route("/")
+  .post(
+    tourController.uploadTourImages,
+    parseJSONFields(["locations", "startLocation", "startDates"]),
+    tourController.resizeTourImages,
+    tourController.createNewTour,
+  );
 
 router
   .route("/:id")
