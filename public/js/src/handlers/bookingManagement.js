@@ -18,6 +18,7 @@ let currentPage = 1;
 let totalPages = 1;
 let currentFilter = "";
 let currentSearch = "";
+let currentTourFilter = "";
 let dateFrom = "";
 let dateTo = "";
 const limit = 10;
@@ -39,6 +40,7 @@ const loadBookings = async () => {
       currentSearch,
       dateFrom,
       dateTo,
+      currentTourFilter,
     );
     totalPages = pagination.totalPages;
 
@@ -55,7 +57,11 @@ const loadBookings = async () => {
           <td>${booking.tour.name}</td>
           <td>${new Date(booking.startDate).toLocaleDateString()}</td>
           <td>$${booking.price.toFixed(2)}</td>
-          <td>${booking.paid ? "Paid" : "Unpaid"}</td>
+          <td>
+            <span class="status-badge status-badge--${booking.paid ? "paid" : "unpaid"}">
+              ${booking.paid ? "Paid" : "Unpaid"}
+            </span>
+          </td>
           <td>
             <button class="btn btn--small btn--edit" data-id="${booking._id}">Edit</button>
           </td>
@@ -143,6 +149,7 @@ const handleSaveBooking = async (bookingId, data) => {
 export const initializeBookingManagement = () => {
   const elements = {
     searchInput: document.getElementById("searchBooking"),
+    tourFilter: document.getElementById("tourFilter"),
     statusFilter: document.getElementById("statusFilter"),
     dateFromInput: document.getElementById("startDateFrom"),
     dateToInput: document.getElementById("startDateTo"),
@@ -162,6 +169,12 @@ export const initializeBookingManagement = () => {
       loadBookings();
     }, 300),
   );
+
+  elements.tourFilter?.addEventListener("change", e => {
+    currentTourFilter = e.target.value;
+    currentPage = 1;
+    loadBookings();
+  });
 
   elements.statusFilter?.addEventListener("change", e => {
     currentFilter = e.target.value;

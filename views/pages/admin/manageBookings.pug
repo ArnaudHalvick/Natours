@@ -9,42 +9,51 @@ block content
   main.main
     .user-view
       include ../../_sidenav
-      
+
       .user-view__container
         .user-view__bookings-container.user-view__content
           h2.heading-secondary.ma-bt-md Manage Bookings
-          
+
           // Search and Filter Section
           .booking-controls
-           .booking-controls__main
-             .search-box
-               .form__group
-                 label.form__label(for='searchBooking') Search
-                 input#searchBooking.form__input(
-                   type='text',
-                   placeholder='Search by booking ID or user email...',
-                   autocomplete='off'
-                 )
-             .filter-box
-               .form__group
-                 label.form__label(for='statusFilter') Status
-                 select#statusFilter.form__input
-                   option(value='') All Status
-                   option(value='true') Paid
-                   option(value='false') Unpaid
-           .booking-controls__dates
-             .form__group
-               label.form__label(for='startDateFrom') Date Range
-               .date-inputs
-                 input#startDateFrom.form__input(
-                   type='date',
-                   name='startDateFrom'
-                 )
-                 span.date-separator to
-                 input#startDateTo.form__input(
-                   type='date',
-                   name='startDateTo'
-                 )
+            .booking-controls__main
+              .search-box
+                .form__group
+                  label.form__label(for='searchBooking') Search by ID or Email
+                  input#searchBooking.form__input(
+                    type='text',
+                    placeholder='Search by booking ID or user email...',
+                    autocomplete='off'
+                  )
+              .tour-box
+                .form__group
+                  label.form__label(for='tourFilter') Tour
+                  select#tourFilter.form__input
+                    option(value='') All Tours
+                    if tours && tours.length
+                      each tour in tours
+                        option(value=`${tour._id}`)= tour.name
+              .filter-box
+                .form__group
+                  label.form__label(for='statusFilter') Status
+                  select#statusFilter.form__input
+                    option(value='') All Status
+                    option(value='true') Paid
+                    option(value='false') Unpaid
+
+            .booking-controls__dates
+              .form__group
+                label.form__label(for='startDateFrom') Date Range
+                .date-inputs
+                  input#startDateFrom.form__input(
+                    type='date',
+                    name='startDateFrom'
+                  )
+                  span.date-separator to
+                  input#startDateTo.form__input(
+                    type='date',
+                    name='startDateTo'
+                  )
 
           // Bookings Table
           .booking-table
@@ -60,7 +69,7 @@ block content
                   th Actions
               tbody#bookingTableBody
                 // Bookings will be populated here via JavaScript
-  
+
           // Pagination
           .pagination
             button.btn.btn--small#prevPage Previous

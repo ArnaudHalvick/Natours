@@ -70,7 +70,7 @@ exports.getMyTours = catchAsync(async (req, res) => {
   ]);
 
   const refundsByBooking = refunds.reduce((acc, refund) => {
-    acc[refund.booking._id.toString()] = refund.status; 
+    acc[refund.booking._id.toString()] = refund.status;
     return acc;
   }, {});
 
@@ -273,13 +273,18 @@ exports.getManageUsersPage = (req, res) => {
 };
 
 // Render admin page to manage bookings
-exports.getManageBookingsPage = (req, res) => {
+exports.getManageBookingsPage = catchAsync(async (req, res) => {
+  // Use only inclusion in select
+  const tours = await Tour.find()
+    .select("name _id") // Only include what we need
+    .sort({ name: 1 });
+
   res.status(200).render("pages/admin/manageBookings", {
     title: "Manage Bookings",
     user: req.user,
+    tours,
   });
-};
-
+});
 // Render admin page to manage reviews
 exports.getManageReviewsPage = catchAsync(async (req, res) => {
   const [reviews, tours] = await Promise.all([

@@ -7895,7 +7895,7 @@ function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyri
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; } // api/bookingManagement.js
 var fetchBookings = exports.fetchBookings = /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(page, limit, filter, search, dateFrom, dateTo) {
+  var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(page, limit, filter, search, dateFrom, dateTo, tourFilter) {
     var query, res;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
@@ -7905,45 +7905,43 @@ var fetchBookings = exports.fetchBookings = /*#__PURE__*/function () {
           if (search) query += "&search=".concat(encodeURIComponent(search));
           if (dateFrom) query += "&dateFrom=".concat(dateFrom);
           if (dateTo) query += "&dateTo=".concat(dateTo);
-          _context.next = 7;
+          if (tourFilter) query += "&tour=".concat(tourFilter);
+          _context.next = 8;
           return _axios.default.get("/api/v1/bookings/regex".concat(query));
-        case 7:
+        case 8:
           res = _context.sent;
           return _context.abrupt("return", res.data.data);
-        case 9:
+        case 10:
         case "end":
           return _context.stop();
       }
     }, _callee);
   }));
-  return function fetchBookings(_x, _x2, _x3, _x4, _x5, _x6) {
+  return function fetchBookings(_x, _x2, _x3, _x4, _x5, _x6, _x7) {
     return _ref.apply(this, arguments);
   };
 }();
 var fetchBookingById = exports.fetchBookingById = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(bookingId) {
-    var res, bookings, booking, _err$response;
+    var res, booking, _err$response;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
           _context2.prev = 0;
           _context2.next = 3;
-          return _axios.default.get("/api/v1/bookings/regex?search=".concat(bookingId));
+          return _axios.default.get("/api/v1/bookings/".concat(bookingId));
         case 3:
           res = _context2.sent;
-          bookings = res.data.data.data;
-          booking = bookings.find(function (b) {
-            return b._id === bookingId;
-          });
+          booking = res.data.data.data;
           if (booking) {
-            _context2.next = 8;
+            _context2.next = 7;
             break;
           }
           throw new Error("Booking not found");
-        case 8:
+        case 7:
           return _context2.abrupt("return", booking);
-        case 11:
-          _context2.prev = 11;
+        case 10:
+          _context2.prev = 10;
           _context2.t0 = _context2["catch"](0);
           console.error("Error in fetchBookingById:", {
             error: _context2.t0,
@@ -7951,13 +7949,13 @@ var fetchBookingById = exports.fetchBookingById = /*#__PURE__*/function () {
             response: (_err$response = _context2.t0.response) === null || _err$response === void 0 ? void 0 : _err$response.data
           });
           throw _context2.t0;
-        case 15:
+        case 14:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 11]]);
+    }, _callee2, null, [[0, 10]]);
   }));
-  return function fetchBookingById(_x7) {
+  return function fetchBookingById(_x8) {
     return _ref2.apply(this, arguments);
   };
 }();
@@ -7987,7 +7985,7 @@ var updateBooking = exports.updateBooking = /*#__PURE__*/function () {
       }
     }, _callee3, null, [[0, 7]]);
   }));
-  return function updateBooking(_x8, _x9) {
+  return function updateBooking(_x9, _x10) {
     return _ref3.apply(this, arguments);
   };
 }();
@@ -8021,6 +8019,7 @@ var currentPage = 1;
 var totalPages = 1;
 var currentFilter = "";
 var currentSearch = "";
+var currentTourFilter = "";
 var dateFrom = "";
 var dateTo = "";
 var limit = 10;
@@ -8038,7 +8037,7 @@ var loadBookings = /*#__PURE__*/function () {
         case 0:
           _context.prev = 0;
           _context.next = 3;
-          return (0, _bookingManagement.fetchBookings)(currentPage, limit, currentFilter, currentSearch, dateFrom, dateTo);
+          return (0, _bookingManagement.fetchBookings)(currentPage, limit, currentFilter, currentSearch, dateFrom, dateTo, currentTourFilter);
         case 3:
           _yield$fetchBookings = _context.sent;
           data = _yield$fetchBookings.data;
@@ -8052,7 +8051,7 @@ var loadBookings = /*#__PURE__*/function () {
           return _context.abrupt("return");
         case 10:
           bookingTableBody.innerHTML = data.length ? data.map(function (booking) {
-            return "\n        <tr>\n          <td>".concat(booking._id, "</td>\n          <td>").concat(booking.user.email, "</td>\n          <td>").concat(booking.tour.name, "</td>\n          <td>").concat(new Date(booking.startDate).toLocaleDateString(), "</td>\n          <td>$").concat(booking.price.toFixed(2), "</td>\n          <td>").concat(booking.paid ? "Paid" : "Unpaid", "</td>\n          <td>\n            <button class=\"btn btn--small btn--edit\" data-id=\"").concat(booking._id, "\">Edit</button>\n          </td>\n        </tr>\n      ");
+            return "\n        <tr>\n          <td>".concat(booking._id, "</td>\n          <td>").concat(booking.user.email, "</td>\n          <td>").concat(booking.tour.name, "</td>\n          <td>").concat(new Date(booking.startDate).toLocaleDateString(), "</td>\n          <td>$").concat(booking.price.toFixed(2), "</td>\n          <td>\n            <span class=\"status-badge status-badge--").concat(booking.paid ? "paid" : "unpaid", "\">\n              ").concat(booking.paid ? "Paid" : "Unpaid", "\n            </span>\n          </td>\n          <td>\n            <button class=\"btn btn--small btn--edit\" data-id=\"").concat(booking._id, "\">Edit</button>\n          </td>\n        </tr>\n      ");
           }).join("") : '<tr><td colspan="7" style="text-align: center;">No bookings found.</td></tr>';
           pageInfo = document.getElementById("pageInfo");
           if (pageInfo) pageInfo.textContent = "Page ".concat(currentPage, " of ").concat(totalPages);
@@ -8176,9 +8175,10 @@ var handleSaveBooking = /*#__PURE__*/function () {
   };
 }();
 var initializeBookingManagement = exports.initializeBookingManagement = function initializeBookingManagement() {
-  var _elements$searchInput, _elements$statusFilte, _elements$dateFromInp, _elements$dateToInput, _elements$prevPageBtn, _elements$nextPageBtn, _elements$bookingTabl, _elements$bookingForm, _elements$closeModalB, _elements$bookingModa2;
+  var _elements$searchInput, _elements$tourFilter, _elements$statusFilte, _elements$dateFromInp, _elements$dateToInput, _elements$prevPageBtn, _elements$nextPageBtn, _elements$bookingTabl, _elements$bookingForm, _elements$closeModalB, _elements$bookingModa2;
   var elements = {
     searchInput: document.getElementById("searchBooking"),
+    tourFilter: document.getElementById("tourFilter"),
     statusFilter: document.getElementById("statusFilter"),
     dateFromInput: document.getElementById("startDateFrom"),
     dateToInput: document.getElementById("startDateTo"),
@@ -8194,6 +8194,11 @@ var initializeBookingManagement = exports.initializeBookingManagement = function
     currentPage = 1;
     loadBookings();
   }, 300));
+  (_elements$tourFilter = elements.tourFilter) === null || _elements$tourFilter === void 0 || _elements$tourFilter.addEventListener("change", function (e) {
+    currentTourFilter = e.target.value;
+    currentPage = 1;
+    loadBookings();
+  });
   (_elements$statusFilte = elements.statusFilter) === null || _elements$statusFilte === void 0 || _elements$statusFilte.addEventListener("change", function (e) {
     currentFilter = e.target.value;
     currentPage = 1;
@@ -9724,7 +9729,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42191" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "32915" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

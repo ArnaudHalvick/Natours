@@ -288,13 +288,14 @@ exports.webhookCheckout = (req, res, next) => {
 
 // Get all bookings with optional filters (search, date range, paid status)
 exports.getAllBookingsRegex = catchAsync(async (req, res, next) => {
-  const { search, dateFrom, dateTo, paid } = req.query;
+  const { search, dateFrom, dateTo, paid, tour } = req.query;
   const page = +req.query.page || 1;
   const limit = +req.query.limit || 10;
   const skip = (page - 1) * limit;
 
   const pipeline = [];
 
+  // 1. Initial match for paid status if provided
   if (typeof paid !== "undefined" && paid !== "") {
     pipeline.push({
       $match: {
@@ -303,6 +304,16 @@ exports.getAllBookingsRegex = catchAsync(async (req, res, next) => {
     });
   }
 
+  // 2. Match tour if provided (before lookups for better performance)
+  if (tour) {
+    pipeline.push({
+      $match: {
+        tour: new mongoose.Types.ObjectId(tour), // Fixed: Added 'new' keyword
+      },
+    });
+  }
+
+  // Rest of your pipeline stages...
   pipeline.push(
     {
       $lookup: {
@@ -313,7 +324,6 @@ exports.getAllBookingsRegex = catchAsync(async (req, res, next) => {
       },
     },
     { $unwind: "$userInfo" },
-
     {
       $lookup: {
         from: "tours",
@@ -325,26 +335,15 @@ exports.getAllBookingsRegex = catchAsync(async (req, res, next) => {
     { $unwind: "$tourInfo" },
   );
 
+  // Search match
   if (search) {
     pipeline.push({
       $match: {
         $or: [
           {
-            $expr: {
-              $regexMatch: {
-                input: "$userInfo.email",
-                regex: search,
-                options: "i",
-              },
-            },
-          },
-          {
-            $expr: {
-              $regexMatch: {
-                input: "$tourInfo.name",
-                regex: search,
-                options: "i",
-              },
+            "userInfo.email": {
+              $regex: search,
+              $options: "i",
             },
           },
           {
@@ -361,6 +360,7 @@ exports.getAllBookingsRegex = catchAsync(async (req, res, next) => {
     });
   }
 
+  // Date range match
   if (dateFrom || dateTo) {
     const dateQuery = {};
     if (dateFrom) dateQuery.$gte = new Date(dateFrom);
@@ -373,9 +373,10 @@ exports.getAllBookingsRegex = catchAsync(async (req, res, next) => {
     });
   }
 
+  // Pagination with facet
   pipeline.push({
     $facet: {
-      data: [{ $skip: skip }, { $limit: limit }],
+      data: [{ $sort: { startDate: -1 } }, { $skip: skip }, { $limit: limit }],
       metadata: [{ $count: "total" }],
     },
   });
@@ -385,10 +386,11 @@ exports.getAllBookingsRegex = catchAsync(async (req, res, next) => {
   const total = metadata.length > 0 ? metadata[0].total : 0;
   const totalPages = Math.ceil(total / limit);
 
+  // Clean up and transform the output
   const finalData = data.map(doc => ({
     ...doc,
-    user: { email: doc.userInfo.email },
-    tour: { name: doc.tourInfo.name },
+    user: { email: doc.userInfo.email, _id: doc.userInfo._id },
+    tour: { name: doc.tourInfo.name, _id: doc.tourInfo._id },
     userInfo: undefined,
     tourInfo: undefined,
   }));

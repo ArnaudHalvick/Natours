@@ -8,12 +8,14 @@ export const fetchBookings = async (
   search,
   dateFrom,
   dateTo,
+  tourFilter,
 ) => {
   let query = `?page=${page}&limit=${limit}`;
   if (filter) query += `&paid=${filter}`;
   if (search) query += `&search=${encodeURIComponent(search)}`;
   if (dateFrom) query += `&dateFrom=${dateFrom}`;
   if (dateTo) query += `&dateTo=${dateTo}`;
+  if (tourFilter) query += `&tour=${tourFilter}`;
 
   const res = await axios.get(`/api/v1/bookings/regex${query}`);
   return res.data.data;
@@ -21,9 +23,8 @@ export const fetchBookings = async (
 
 export const fetchBookingById = async bookingId => {
   try {
-    const res = await axios.get(`/api/v1/bookings/regex?search=${bookingId}`);
-    const bookings = res.data.data.data;
-    const booking = bookings.find(b => b._id === bookingId);
+    const res = await axios.get(`/api/v1/bookings/${bookingId}`);
+    const booking = res.data.data.data;
 
     if (!booking) {
       throw new Error("Booking not found");
