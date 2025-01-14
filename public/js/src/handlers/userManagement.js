@@ -31,7 +31,6 @@ const renderUserRow = (user, currentUserId) => {
       <td>${user.name}</td>
       <td>
         ${user.email}
-        ${emailStatus}
       </td>
       <td>${user.role}</td>
       <td>
@@ -40,7 +39,7 @@ const renderUserRow = (user, currentUserId) => {
             ? "<span>Your account</span>"
             : `
               <button
-                class="btn btn--small btn--edit"
+                class="btn btn--small btn--green btn--edit"
                 data-id="${user._id}"
                 data-active="${user.active}"
               >
@@ -56,10 +55,10 @@ const renderUserRow = (user, currentUserId) => {
                 Delete
               </button>
               ${
-                !user.emailConfirmed
+                user.active
                   ? `
                 <button
-                  class="btn btn--small btn--green btn--resend"
+                  class="btn btn--small btn--orange btn--resend"
                   data-id="${user._id}"
                   data-email="${user.email}"
                 >
