@@ -1,7 +1,12 @@
 // handlers/userManagement.js
 import { elements } from "../utils/elements";
 import { showAlert } from "../utils/alert";
-import { saveUser, deleteUser, loadUsers } from "../api/userManagementAPI";
+import {
+  saveUser,
+  deleteUser,
+  loadUsers,
+  resendConfirmation,
+} from "../api/userManagementAPI";
 import { toggleModal, toggleFormFields } from "../utils/dom";
 import { updatePaginationInfo } from "../utils/pagination";
 
@@ -170,7 +175,7 @@ const handleUserSubmit = async e => {
   }
 };
 
-const handleResendConfirmation = async email => {
+const handleResendConfirmation = async (userId, email) => {
   try {
     await resendConfirmation(email);
     showAlert("success", "Confirmation email resent successfully!");
@@ -309,8 +314,9 @@ const initializeEventListeners = () => {
     }
 
     if (resendBtn) {
+      const userId = resendBtn.dataset.id;
       const email = resendBtn.dataset.email;
-      await handleResendConfirmation(email);
+      await handleResendConfirmation(userId, email);
     }
   });
 

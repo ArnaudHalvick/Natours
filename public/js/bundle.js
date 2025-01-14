@@ -8375,28 +8375,33 @@ var deleteUser = exports.deleteUser = /*#__PURE__*/function () {
   };
 }();
 var resendConfirmation = exports.resendConfirmation = /*#__PURE__*/function () {
-  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(email) {
-    var res;
+  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(userEmail) {
+    var url, res;
     return _regeneratorRuntime().wrap(function _callee4$(_context4) {
       while (1) switch (_context4.prev = _context4.next) {
         case 0:
           _context4.prev = 0;
-          _context4.next = 3;
-          return _axios.default.post("/api/v1/users/resendConfirmation", {
-            email: email
+          url = "/api/v1/users/resendConfirmation";
+          _context4.next = 4;
+          return (0, _axios.default)({
+            method: "POST",
+            url: url,
+            data: {
+              email: userEmail
+            }
           });
-        case 3:
+        case 4:
           res = _context4.sent;
           return _context4.abrupt("return", res.data);
-        case 7:
-          _context4.prev = 7;
+        case 8:
+          _context4.prev = 8;
           _context4.t0 = _context4["catch"](0);
           throw _context4.t0;
-        case 10:
+        case 11:
         case "end":
           return _context4.stop();
       }
-    }, _callee4, null, [[0, 7]]);
+    }, _callee4, null, [[0, 8]]);
   }));
   return function resendConfirmation(_x8) {
     return _ref4.apply(this, arguments);
@@ -8570,14 +8575,14 @@ var handleUserSubmit = /*#__PURE__*/function () {
   };
 }();
 var handleResendConfirmation = /*#__PURE__*/function () {
-  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(email) {
+  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(userId, email) {
     var _err$response4;
     return _regeneratorRuntime().wrap(function _callee4$(_context4) {
       while (1) switch (_context4.prev = _context4.next) {
         case 0:
           _context4.prev = 0;
           _context4.next = 3;
-          return resendConfirmation(email);
+          return (0, _userManagementAPI.resendConfirmation)(email);
         case 3:
           (0, _alert.showAlert)("success", "Confirmation email resent successfully!");
           _context4.next = 9;
@@ -8592,7 +8597,7 @@ var handleResendConfirmation = /*#__PURE__*/function () {
       }
     }, _callee4, null, [[0, 6]]);
   }));
-  return function handleResendConfirmation(_x2) {
+  return function handleResendConfirmation(_x2, _x3) {
     return _ref4.apply(this, arguments);
   };
 }();
@@ -8675,7 +8680,7 @@ var initializeEventListeners = function initializeEventListeners() {
   // Event delegation for edit, delete, and resend buttons
   container.addEventListener("click", /*#__PURE__*/function () {
     var _ref5 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5(e) {
-      var editBtn, deleteBtn, resendBtn, userId, row, name, role, active, form, _userId, userName, userEmail, userPhoto, email;
+      var editBtn, deleteBtn, resendBtn, userId, row, name, role, active, form, _userId, userName, userEmail, userPhoto, _userId2, email;
       return _regeneratorRuntime().wrap(function _callee5$(_context5) {
         while (1) switch (_context5.prev = _context5.next) {
           case 0:
@@ -8711,19 +8716,20 @@ var initializeEventListeners = function initializeEventListeners() {
               handleUserDelete(_userId);
             }
             if (!resendBtn) {
-              _context5.next = 9;
+              _context5.next = 10;
               break;
             }
+            _userId2 = resendBtn.dataset.id;
             email = resendBtn.dataset.email;
-            _context5.next = 9;
-            return handleResendConfirmation(email);
-          case 9:
+            _context5.next = 10;
+            return handleResendConfirmation(_userId2, email);
+          case 10:
           case "end":
             return _context5.stop();
         }
       }, _callee5);
     }));
-    return function (_x3) {
+    return function (_x4) {
       return _ref5.apply(this, arguments);
     };
   }());
@@ -10089,7 +10095,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "35869" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "45647" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

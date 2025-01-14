@@ -48,9 +48,16 @@ export const deleteUser = async userId => {
   }
 };
 
-export const resendConfirmation = async email => {
+export const resendConfirmation = async userEmail => {
   try {
-    const res = await axios.post("/api/v1/users/resendConfirmation", { email });
+    const url = "/api/v1/users/resendConfirmation";
+
+    const res = await axios({
+      method: "POST",
+      url: url,
+      data: { email: userEmail },
+    });
+
     return res.data;
   } catch (error) {
     throw error;
