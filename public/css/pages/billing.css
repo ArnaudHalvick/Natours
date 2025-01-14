@@ -1,50 +1,161 @@
 /* Billing Page Styles
-========================================================================== */
-.billing-summary {
-  background-color: #fff;
-  padding: 2rem;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  margin-bottom: 3rem;
-}
-.billing-summary h3 {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-.billing-summary p {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-/* Transaction Styles */
-.transactions {
-  margin-top: 3rem;
-}
-.transaction-item {
-  background-color: #fff;
-  padding: 2rem;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+   ========================================================================== */
+
+/* Control Section Styles */
+.billing-controls {
   margin-bottom: 2rem;
 }
-.transaction-item__title {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
+
+.billing-controls__main {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
 }
-.transaction-item__info p {
+
+.search-box,
+.date-controls,
+.filter-box {
+  flex: 1;
+  min-width: 250px;
+}
+
+/* Form Groups and Labels */
+.form__label {
+  display: block;
   font-size: 1.4rem;
-  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.75rem;
 }
-.btn--blue {
-  padding: 1rem 2rem;
+
+.form__input {
+  width: 100%;
+  padding: 1.2rem 1.6rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
   font-size: 1.4rem;
-  text-decoration: none;
-  border-radius: 5px;
-  color: white;
-  background-color: #3498db;
+  color: #666;
+  background-color: #f8f8f8;
+  transition: all 0.3s;
 }
-.btn--blue:hover {
-  background-color: #2980b9;
+
+.form__input:focus {
+  outline: none;
+  border-color: #55c57a;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(85, 197, 122, 0.1);
+}
+
+/* Date Range Inputs */
+.date-inputs {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.date-separator {
+  color: #666;
+  font-size: 1.4rem;
+}
+
+/* Transaction Table Styles */
+.transaction-table {
+  background-color: #fff;
+  border-radius: 3px;
+  overflow-x: auto;
+  box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.06);
+  margin-bottom: 3rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 1.2rem 1.6rem;
+  text-align: left;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.table th {
+  background-color: #f7f7f7;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 1.2rem;
+  color: #777;
+}
+
+.table td {
+  font-size: 1.4rem;
+  color: #666;
+  vertical-align: middle;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+#pageInfo {
+  font-size: 1.4rem;
+  color: #777;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .billing-controls__main {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .date-inputs {
+    flex-direction: column;
+  }
+
+  .date-separator {
+    display: none;
+  }
+
+  .transaction-table {
+    margin: 0 1rem;
+  }
+
+  .table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .table th,
+  .table td {
+    white-space: nowrap;
+    min-width: 120px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .user-view__container {
+    padding: 0 1rem;
+  }
+
+  .heading-secondary {
+    font-size: 1.8rem;
+  }
+
+  .billing-controls {
+    padding: 1.5rem;
+  }
 }

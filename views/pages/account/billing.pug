@@ -1,32 +1,88 @@
 extends ../../base
 
 block append head 
-  link(rel="stylesheet", href="/css/pages/billing.css")
+  link(rel="stylesheet", href="/css/layout/adminLayouts.css")
   link(rel="stylesheet", href="/css/layout/user-view.css")
+  link(rel="stylesheet", href="/css/pages/billing.css")
 
 block content
   main.main
     .user-view
       include ../../_sidenav
-      .user-view__content
-        .user-view__form-container
+
+      .user-view__container
+        .user-view__content
           h2.heading-secondary.ma-bt-md Billing
 
+          // Summary Card
           .billing-summary
-            h3 Summary 
-            p Total Spent: $#{totalSpent.toFixed(2)}
+            h3.heading-tertirary Total Spent: $#{totalSpent.toFixed(2)}
 
-          .transactions
-            h2.heading-secondary.ma-bt-md Your Transactions
-            if transactions.length > 0
-              each transaction in transactions
-                .transaction-item
-                  h3.transaction-item__title= transaction.tour.name
-                  .transaction-item__info
-                    p Date: #{new Date(transaction.createdAt).toLocaleDateString()}
-                    p Amount: $#{transaction.price.toFixed(2)} 
-                    p Status: Completed
-                  a.btn.btn--blue.btn--small(href=`/api/v1/billing/download-invoice/${transaction.id}`) Download Invoice
-            else
-              p No transactions found.
+          // Search and Filter Controls
+          .billing-controls
+            .billing-controls__main
+              .search-box
+                .form__group
+                  label.form__label(for='searchTransaction') Search by Tour
+                  input#searchTransaction.form__input(
+                    type='text',
+                    placeholder='Search by tour name or transaction ID ...',
+                    autocomplete='off'
+                  )
 
+              .date-controls
+                .form__group
+                  label.form__label Purchase Date Range
+                  .date-inputs
+                    input#dateFrom.form__input(
+                      type='date',
+                      name='dateFrom'
+                    )
+                    span.date-separator to
+                    input#dateTo.form__input(
+                      type='date',
+                      name='dateTo'
+                    )
+
+              .filter-box
+                .form__group
+                  label.form__label(for='priceRange') Price Range
+                  select#priceRange.form__input
+                    option(value='') All Prices
+                    option(value='0-500') $0 - $500
+                    option(value='501-1000') $501 - $1000
+                    option(value='1001-2000') $1001 - $2000
+                    option(value='2001+') $2001+
+
+          // Transactions Table
+          .transaction-table
+            table.table
+              thead
+                tr
+                  th Transaction ID
+                  th Tour
+                  th Date
+                  th Participants
+                  th Amount
+                  th Actions
+              tbody#transactionTableBody
+                if transactions.length > 0
+                  each transaction in transactions
+                    tr
+                      td= transaction._id
+                      td= transaction.tour.name
+                      td= new Date(transaction.createdAt).toLocaleDateString()
+                      td= transaction.numParticipants
+                      td $#{transaction.price.toFixed(2)}
+                      td
+                        a.btn.btn--small.btn--green(href=`/api/v1/billing/download-invoice/${transaction._id}`) 
+                          | Download Invoice
+                else
+                  tr
+                    td(colspan="6" style="text-align: center;") No transactions found.
+
+          // Pagination
+          .pagination
+            button.btn.btn--small#prevPage Previous
+            span#pageInfo Page 1 of 1
+            button.btn.btn--small#nextPage Next
