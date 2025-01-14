@@ -1,6 +1,6 @@
 // handlers/booking.js
 import { elements } from "../utils/elements";
-import { bookTour, addTravelersToBooking } from "../api/booking";
+import { bookTour, addTravelersToBooking } from "../api/bookingAPI";
 
 export const initBookingHandlers = () => {
   const { form, addTravelersForm, container } = elements.booking;

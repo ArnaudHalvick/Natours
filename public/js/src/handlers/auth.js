@@ -6,7 +6,7 @@ import {
   verify2FA,
   forgotPassword,
   resetPassword,
-} from "../api/auth";
+} from "../api/authAPI";
 import { showAlert } from "../utils/alert";
 
 export const initAuthHandlers = () => {

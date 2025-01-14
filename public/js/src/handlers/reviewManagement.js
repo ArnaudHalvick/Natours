@@ -3,7 +3,7 @@
 import { debounce, toggleModal } from "../utils/dom";
 import { showAlert } from "../utils/alert";
 import { updatePaginationInfo } from "../utils/pagination";
-import { loadReviews, hideReview, deleteReview } from "../api/reviewManagement";
+import { loadReviews, hideReview, deleteReview } from "../api/reviewManagementAPI";
 
 let currentPage = 1;
 const REVIEWS_PER_PAGE = 10;

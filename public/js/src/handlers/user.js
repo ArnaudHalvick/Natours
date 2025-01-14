@@ -1,7 +1,7 @@
 // handlers/user.js
 import { elements } from "../utils/elements";
 import { showAlert } from "../utils/alert";
-import { updateSettings } from "../api/user";
+import { updateSettings } from "../api/userAPI";
 
 const handleSettingsUpdate = async e => {
   e.preventDefault();

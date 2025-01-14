@@ -1,6 +1,6 @@
 // handlers/review.js
 import { elements } from "../utils/elements";
-import { createReview, updateReview, deleteReview } from "../api/review";
+import { createReview, updateReview, deleteReview } from "../api/reviewAPI";
 
 export const initReviewHandlers = () => {
   const { form, editForm, deleteBtn } = elements.review;

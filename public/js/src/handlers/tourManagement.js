@@ -7,7 +7,7 @@ import {
   updateTour,
   createTour,
   deleteTour,
-} from "../api/tourManagement";
+} from "../api/tourManagementAPI";
 import { updatePaginationInfo } from "../utils/pagination";
 import { LocationManager } from "../utils/locationManager";
 

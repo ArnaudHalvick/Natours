@@ -6,7 +6,7 @@ import {
   processRefund,
   rejectRefund,
   fetchRefunds,
-} from "../api/refundManagement";
+} from "../api/refundManagementAPI";
 import { showAlert } from "../utils/alert";
 
 // State management for admin interface

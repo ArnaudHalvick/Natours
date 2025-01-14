@@ -3,7 +3,7 @@ import {
   fetchBookings,
   fetchBookingById,
   updateBooking,
-} from "../api/bookingManagement";
+} from "../api/bookingManagementAPI";
 import { debounce } from "../utils/dom";
 
 let currentPage = 1;
