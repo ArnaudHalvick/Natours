@@ -49,6 +49,16 @@
   align-items: center;
 }
 
+.delete-confirm-text {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.delete-btn-group {
+  display: flex;
+  justify-content: space-around;
+}
+
 .location-item:last-child {
   border-bottom: none;
 }
@@ -137,6 +147,16 @@
   padding: 2rem;
   width: 90%;
   max-width: 900px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.deleteModal-content {
+  position: relative;
+  background-color: #fff;
+  margin: auto auto;
+  padding: 2rem;
+  width: 20%;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
