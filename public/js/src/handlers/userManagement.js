@@ -80,16 +80,25 @@ const handleRoleFilter = e => {
   handleUserLoad();
 };
 
-const handleUserDelete = async userId => {
-  if (!confirm("Are you sure you want to delete this user?")) return;
+const handleUserDelete = userId => {
+  const deleteModal = document.getElementById("deleteUserModal");
+  const confirmDeleteBtn = document.getElementById("confirmDeleteUserBtn");
 
-  try {
-    await deleteUser(userId);
-    showAlert("success", "User deleted successfully!");
-    handleUserLoad();
-  } catch (err) {
-    showAlert("error", err.response?.data?.message || "Error deleting user");
-  }
+  const confirmHandler = async () => {
+    try {
+      await deleteUser(userId);
+      showAlert("success", "User deleted successfully!");
+      handleUserLoad();
+    } catch (err) {
+      showAlert("error", err.response?.data?.message || "Error deleting user");
+    } finally {
+      toggleModal("deleteUserModal", false);
+      confirmDeleteBtn.removeEventListener("click", confirmHandler);
+    }
+  };
+
+  confirmDeleteBtn.addEventListener("click", confirmHandler);
+  toggleModal("deleteUserModal", true);
 };
 
 const handleUserSubmit = async e => {
@@ -138,6 +147,8 @@ const initializeEventListeners = () => {
   const closeModalBtn = document.querySelector(".close-modal");
   const prevPageBtn = document.getElementById("prevPage");
   const nextPageBtn = document.getElementById("nextPage");
+  const closeDeleteModalBtn = document.querySelector(".close-delete-modal");
+  const cancelDeleteBtn = document.getElementById("cancelDeleteUserBtn");
 
   if (searchInput) {
     searchInput.addEventListener("input", handleSearch);
@@ -187,6 +198,18 @@ const initializeEventListeners = () => {
         handleUserLoad();
       }
     });
+  }
+
+  if (closeDeleteModalBtn) {
+    closeDeleteModalBtn.addEventListener("click", () =>
+      toggleModal("deleteUserModal", false),
+    );
+  }
+
+  if (cancelDeleteBtn) {
+    cancelDeleteBtn.addEventListener("click", () =>
+      toggleModal("deleteUserModal", false),
+    );
   }
 
   // Event delegation for edit and delete buttons

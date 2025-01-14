@@ -246,6 +246,125 @@
   color: #999; /* Gray text */
 }
 
+/* ==============================================
+   Delete Confirmation Modal for Users
+   ============================================== */
+
+/* Modal Overlay */
+.modal#deleteUserModal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow: auto; /* Enable scrolling if content is taller than viewport */
+}
+
+/* Show Modal when active */
+.modal#deleteUserModal.active {
+  display: flex;
+}
+
+/* Modal Content */
+.modal#deleteUserModal .deleteModal-content {
+  position: relative;
+  background-color: #fff;
+  margin: auto auto;
+  padding: 2rem;
+  width: 30%;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+/* Close Button */
+.modal#deleteUserModal .close-delete-modal {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem;
+  font-size: 2.4rem;
+  color: #777;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.modal#deleteUserModal .close-delete-modal:hover {
+  color: #333;
+}
+
+/* Modal Title */
+.modal#deleteUserModal h4.heading-quaternary {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+/* Confirmation Text */
+.modal#deleteUserModal p.delete-confirm-text {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Delete Button Group */
+.modal#deleteUserModal .delete-btn-group {
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+}
+
+.modal#deleteUserModal .delete-btn-group button {
+  padding: 0.8rem 2rem;
+  font-size: 1.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal#deleteUserModal .btn--red {
+  background-color: #fa5252;
+  color: #fff;
+}
+
+.modal#deleteUserModal .btn--red:hover {
+  background-color: #f03e3e;
+}
+
+.modal#deleteUserModal .btn--grey {
+  background-color: #ddd;
+  color: #333;
+}
+
+.modal#deleteUserModal .btn--grey:hover {
+  background-color: #ccc;
+}
+
+/* Responsive Adjustments for Delete Modal */
+@media only screen and (max-width: 768px) {
+  .modal#deleteUserModal .deleteModal-content {
+    width: 80%;
+    padding: 1.5rem;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .modal#deleteUserModal .deleteModal-content {
+    width: 95%;
+    padding: 1rem;
+  }
+  .modal#deleteUserModal h4.heading-quaternary {
+    font-size: 1.6rem;
+  }
+  .modal#deleteUserModal .delete-btn-group button {
+    padding: 0.6rem 1.5rem;
+    font-size: 1.2rem;
+  }
+}
+
 /* Animation */
 @keyframes fadeIn {
   from {

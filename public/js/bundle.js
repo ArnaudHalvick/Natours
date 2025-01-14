@@ -8385,40 +8385,45 @@ var handleRoleFilter = function handleRoleFilter(e) {
   currentPage = 1;
   handleUserLoad();
 };
-var handleUserDelete = /*#__PURE__*/function () {
-  var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(userId) {
-    var _err$response2;
-    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-      while (1) switch (_context2.prev = _context2.next) {
-        case 0:
-          if (confirm("Are you sure you want to delete this user?")) {
-            _context2.next = 2;
+var handleUserDelete = function handleUserDelete(userId) {
+  var deleteModal = document.getElementById("deleteUserModal");
+  var confirmDeleteBtn = document.getElementById("confirmDeleteUserBtn");
+  var _confirmHandler = /*#__PURE__*/function () {
+    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+      var _err$response2;
+      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+        while (1) switch (_context2.prev = _context2.next) {
+          case 0:
+            _context2.prev = 0;
+            _context2.next = 3;
+            return (0, _userManagement.deleteUser)(userId);
+          case 3:
+            (0, _alert.showAlert)("success", "User deleted successfully!");
+            handleUserLoad();
+            _context2.next = 10;
             break;
-          }
-          return _context2.abrupt("return");
-        case 2:
-          _context2.prev = 2;
-          _context2.next = 5;
-          return (0, _userManagement.deleteUser)(userId);
-        case 5:
-          (0, _alert.showAlert)("success", "User deleted successfully!");
-          handleUserLoad();
-          _context2.next = 12;
-          break;
-        case 9:
-          _context2.prev = 9;
-          _context2.t0 = _context2["catch"](2);
-          (0, _alert.showAlert)("error", ((_err$response2 = _context2.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || "Error deleting user");
-        case 12:
-        case "end":
-          return _context2.stop();
-      }
-    }, _callee2, null, [[2, 9]]);
-  }));
-  return function handleUserDelete(_x) {
-    return _ref2.apply(this, arguments);
-  };
-}();
+          case 7:
+            _context2.prev = 7;
+            _context2.t0 = _context2["catch"](0);
+            (0, _alert.showAlert)("error", ((_err$response2 = _context2.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || "Error deleting user");
+          case 10:
+            _context2.prev = 10;
+            (0, _dom.toggleModal)("deleteUserModal", false);
+            confirmDeleteBtn.removeEventListener("click", _confirmHandler);
+            return _context2.finish(10);
+          case 14:
+          case "end":
+            return _context2.stop();
+        }
+      }, _callee2, null, [[0, 7, 10, 14]]);
+    }));
+    return function confirmHandler() {
+      return _ref2.apply(this, arguments);
+    };
+  }();
+  confirmDeleteBtn.addEventListener("click", _confirmHandler);
+  (0, _dom.toggleModal)("deleteUserModal", true);
+};
 var handleUserSubmit = /*#__PURE__*/function () {
   var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
     var form, isEdit, formData, _err$response3;
@@ -8459,7 +8464,7 @@ var handleUserSubmit = /*#__PURE__*/function () {
       }
     }, _callee3, null, [[3, 13]]);
   }));
-  return function handleUserSubmit(_x2) {
+  return function handleUserSubmit(_x) {
     return _ref3.apply(this, arguments);
   };
 }();
@@ -8475,6 +8480,8 @@ var initializeEventListeners = function initializeEventListeners() {
   var closeModalBtn = document.querySelector(".close-modal");
   var prevPageBtn = document.getElementById("prevPage");
   var nextPageBtn = document.getElementById("nextPage");
+  var closeDeleteModalBtn = document.querySelector(".close-delete-modal");
+  var cancelDeleteBtn = document.getElementById("cancelDeleteUserBtn");
   if (searchInput) {
     searchInput.addEventListener("input", handleSearch);
   }
@@ -8516,6 +8523,16 @@ var initializeEventListeners = function initializeEventListeners() {
         currentPage++;
         handleUserLoad();
       }
+    });
+  }
+  if (closeDeleteModalBtn) {
+    closeDeleteModalBtn.addEventListener("click", function () {
+      return (0, _dom.toggleModal)("deleteUserModal", false);
+    });
+  }
+  if (cancelDeleteBtn) {
+    cancelDeleteBtn.addEventListener("click", function () {
+      return (0, _dom.toggleModal)("deleteUserModal", false);
     });
   }
 

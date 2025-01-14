@@ -20,7 +20,7 @@ block content
               .form__group
                 label.form__label(for='searchUser') Search
                 input#searchUser.form__input(
-                  type='text', 
+                  type='text',
                   placeholder='Search by name or email...',
                   autocomplete='off'
                 )
@@ -44,11 +44,11 @@ block content
               thead
                 tr
                   th Photo
-                  th 
+                  th
                     span Name
-                  th 
+                  th
                     span Email
-                  th 
+                  th
                     span Role
                   th Actions
               tbody#userTableBody
@@ -83,7 +83,7 @@ block content
                   label.form__label(for='userActive') Account Status
                   select#userActive.form__input
                     option(value='true') Active
-                    option(value='false') Inactive    
+                    option(value='false') Inactive
                 .form__group.creation-only
                   label.form__label(for='userPassword') Password
                   input#userPassword.form__input(type='password', minlength='8')
@@ -92,3 +92,13 @@ block content
                   input#userPasswordConfirm.form__input(type='password', minlength='8')
                 .form__group.right
                   button.btn.btn--small.btn--green(type='submit') Save User
+
+          // Delete Confirmation Modal
+          .modal#deleteUserModal
+            .deleteModal-content
+              span.close-delete-modal &times;
+              h4.heading-quaternary Confirm Deletion
+              p.delete-confirm-text Are you sure you want to delete this user?
+              .delete-btn-group
+                button.btn.btn--small.btn--red#confirmDeleteUserBtn(type='button') Delete
+                button.btn.btn--small.btn--grey#cancelDeleteUserBtn(type='button') Cancel
