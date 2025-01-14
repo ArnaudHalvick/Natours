@@ -6,6 +6,14 @@
   margin-left: 2rem;
 }
 
+.heading-quaternary {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.75rem;
+}
+
 .tour-controls {
   gap: 2rem;
   margin-bottom: 2rem;
@@ -24,10 +32,38 @@
   margin-bottom: 0;
 }
 
-.edit-action-btns {
-  margin-top: 1.5rem;
+/* Start Location Layout */
+.start-location-display {
+  font-family: inherit;
+  font-size: 1.5rem;
+  border-bottom: 1px solid grey;
+  padding-bottom: 1rem;
+}
+
+.location-item {
+  font-family: inherit;
+  font-size: 1.4rem;
+  border-bottom: 1px solid grey;
+  padding: 1rem 0;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.location-item:last-child {
+  border-bottom: none;
+}
+
+.date-inputs {
+  display: flex;
+  border-bottom: 1px solid grey;
+  padding: 1rem 0;
+  justify-content: space-between;
+}
+
+.date-inputs:last-child {
+  border-bottom: none;
+  padding-bottom: 2rem;
 }
 
 /* Table Container and Styles */
@@ -241,6 +277,12 @@
 
 .btn.btn--small.btn--blue:hover {
   background-color: #2980b9;
+}
+
+.edit-action-btns {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: space-around;
 }
 
 /* Responsive Design */
