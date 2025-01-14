@@ -240,20 +240,21 @@ const handleFormSubmit = async e => {
 };
 
 const handleDeleteTour = async tourId => {
-  if (!confirm("Are you sure you want to delete this tour?")) return;
-
   try {
-    await deleteTour(tourId);
+    await deleteTour(tourId); // your API call
     showAlert("success", "Tour deleted successfully");
 
-    // Close the modal
-    const modal = document.getElementById("tourModal");
-    modal.classList.remove("active");
+    // Close the modals
+    const deleteModal = document.getElementById("deleteConfirmationModal");
+    const editModal = document.getElementById("tourModal");
+
+    deleteModal.classList.remove("active");
+    editModal.classList.remove("active");
 
     // Cleanup location manager
-    locationManager.cleanup();
+    if (locationManager) locationManager.cleanup();
 
-    // Reload the list of tours without reloading the page
+    // Reload tours
     await handleTourLoad();
   } catch (err) {
     showAlert("error", "Failed to delete tour");
@@ -269,6 +270,26 @@ const initializeEventListeners = () => {
   const closeModalBtn = document.querySelector(".close-modal");
   const deleteTourBtn = document.getElementById("deleteTourBtn");
   const addStartDateBtn = document.getElementById("addStartDateBtn");
+
+  const deleteModal = document.getElementById("deleteConfirmationModal");
+  const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+  const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+  const closeDeleteModalBtn = document.querySelector(".close-delete-modal");
+
+  // Event listener for confirming deletion
+  confirmDeleteBtn?.addEventListener("click", () => {
+    const tourId = deleteModal.dataset.tourId;
+    if (!tourId) return;
+    handleDeleteTour(tourId);
+  });
+
+  // Event listeners to close the delete modal
+  const closeModal = () => {
+    deleteModal.classList.remove("active");
+  };
+
+  cancelDeleteBtn?.addEventListener("click", closeModal);
+  closeDeleteModalBtn?.addEventListener("click", closeModal);
 
   searchInput?.addEventListener(
     "input",
@@ -334,9 +355,11 @@ const initializeEventListeners = () => {
     const form = document.getElementById("tourForm");
     const tourId = form?.dataset?.tourId;
 
-    if (tourId) {
-      handleDeleteTour(tourId);
-    }
+    if (!tourId) return;
+
+    // Show the delete confirmation modal
+    deleteModal.dataset.tourId = tourId;
+    deleteModal.classList.add("active");
   });
 
   addStartDateBtn?.addEventListener("click", () => {

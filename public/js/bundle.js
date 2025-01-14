@@ -9288,30 +9288,27 @@ var handleFormSubmit = /*#__PURE__*/function () {
 }();
 var handleDeleteTour = /*#__PURE__*/function () {
   var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(tourId) {
-    var modal;
+    var deleteModal, editModal;
     return _regeneratorRuntime().wrap(function _callee4$(_context4) {
       while (1) switch (_context4.prev = _context4.next) {
         case 0:
-          if (confirm("Are you sure you want to delete this tour?")) {
-            _context4.next = 2;
-            break;
-          }
-          return _context4.abrupt("return");
-        case 2:
-          _context4.prev = 2;
-          _context4.next = 5;
+          _context4.prev = 0;
+          _context4.next = 3;
           return (0, _tourManagement.deleteTour)(tourId);
-        case 5:
+        case 3:
+          // your API call
           (0, _alert.showAlert)("success", "Tour deleted successfully");
 
-          // Close the modal
-          modal = document.getElementById("tourModal");
-          modal.classList.remove("active");
+          // Close the modals
+          deleteModal = document.getElementById("deleteConfirmationModal");
+          editModal = document.getElementById("tourModal");
+          deleteModal.classList.remove("active");
+          editModal.classList.remove("active");
 
           // Cleanup location manager
-          locationManager.cleanup();
+          if (locationManager) locationManager.cleanup();
 
-          // Reload the list of tours without reloading the page
+          // Reload tours
           _context4.next = 11;
           return handleTourLoad();
         case 11:
@@ -9319,13 +9316,13 @@ var handleDeleteTour = /*#__PURE__*/function () {
           break;
         case 13:
           _context4.prev = 13;
-          _context4.t0 = _context4["catch"](2);
+          _context4.t0 = _context4["catch"](0);
           (0, _alert.showAlert)("error", "Failed to delete tour");
         case 16:
         case "end":
           return _context4.stop();
       }
-    }, _callee4, null, [[2, 13]]);
+    }, _callee4, null, [[0, 13]]);
   }));
   return function handleDeleteTour(_x3) {
     return _ref4.apply(this, arguments);
@@ -9341,6 +9338,24 @@ var initializeEventListeners = function initializeEventListeners() {
   var closeModalBtn = document.querySelector(".close-modal");
   var deleteTourBtn = document.getElementById("deleteTourBtn");
   var addStartDateBtn = document.getElementById("addStartDateBtn");
+  var deleteModal = document.getElementById("deleteConfirmationModal");
+  var confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+  var cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+  var closeDeleteModalBtn = document.querySelector(".close-delete-modal");
+
+  // Event listener for confirming deletion
+  confirmDeleteBtn === null || confirmDeleteBtn === void 0 || confirmDeleteBtn.addEventListener("click", function () {
+    var tourId = deleteModal.dataset.tourId;
+    if (!tourId) return;
+    handleDeleteTour(tourId);
+  });
+
+  // Event listeners to close the delete modal
+  var closeModal = function closeModal() {
+    deleteModal.classList.remove("active");
+  };
+  cancelDeleteBtn === null || cancelDeleteBtn === void 0 || cancelDeleteBtn.addEventListener("click", closeModal);
+  closeDeleteModalBtn === null || closeDeleteModalBtn === void 0 || closeDeleteModalBtn.addEventListener("click", closeModal);
   searchInput === null || searchInput === void 0 || searchInput.addEventListener("input", (0, _dom.debounce)(function (e) {
     currentSearch = e.target.value;
     currentPage = 1;
@@ -9394,9 +9409,11 @@ var initializeEventListeners = function initializeEventListeners() {
     var _form$dataset;
     var form = document.getElementById("tourForm");
     var tourId = form === null || form === void 0 || (_form$dataset = form.dataset) === null || _form$dataset === void 0 ? void 0 : _form$dataset.tourId;
-    if (tourId) {
-      handleDeleteTour(tourId);
-    }
+    if (!tourId) return;
+
+    // Show the delete confirmation modal
+    deleteModal.dataset.tourId = tourId;
+    deleteModal.classList.add("active");
   });
   addStartDateBtn === null || addStartDateBtn === void 0 || addStartDateBtn.addEventListener("click", function () {
     var dates = document.querySelectorAll(".date-inputs");
@@ -9622,7 +9639,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "35743" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "41369" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

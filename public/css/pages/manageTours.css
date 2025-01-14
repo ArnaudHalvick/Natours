@@ -1,5 +1,4 @@
-/* Tour Management Styles
-   ========================================================================== */
+/* Tour Management Styles */
 
 /* Header and Controls */
 .heading-secondary.ma-bt-md {
@@ -154,6 +153,22 @@
 }
 
 .close-modal:hover {
+  color: #333;
+}
+
+/* Delete Confirmation Modal */
+.close-delete-modal {
+  position: absolute;
+  right: 2rem;
+  top: 2rem;
+  font-size: 2.4rem;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  line-height: 1;
+}
+
+.close-delete-modal:hover {
   color: #333;
 }
 
