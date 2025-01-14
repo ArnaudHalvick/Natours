@@ -306,3 +306,10 @@ exports.getManageToursPage = catchAsync(async (req, res) => {
     title: "Manage Tours",
   });
 });
+
+// Render email change success page
+exports.getEmailChangeSuccess = (req, res) => {
+  res.status(200).render("pages/emailChangeSuccess", {
+    title: "Email Changed Successfully",
+  });
+};

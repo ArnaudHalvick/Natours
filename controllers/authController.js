@@ -245,8 +245,25 @@ exports.verifyEmailChange = catchAsync(async (req, res, next) => {
 
   await user.save({ validateBeforeSave: false });
 
-  // 3) Log the user in with new JWT
-  createSendToken(user, 200, res, req);
+  // 3) Create JWT token and set cookie
+  const token = signToken(user._id);
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 86400000,
+    ),
+    httpOnly: true,
+    secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+    sameSite: "lax",
+  };
+
+  if (process.env.NODE_ENV === "production") {
+    cookieOptions.domain = process.env.COOKIE_DOMAIN;
+  }
+
+  res.cookie("jwt", token, cookieOptions);
+
+  // 4) Redirect to success page
+  res.redirect("/emailChangeSuccess");
 });
 
 // Login with 2FA

@@ -17,6 +17,8 @@ router.get("/", viewsController.getOverview);
 
 router.get("/resetPassword/:token", viewsController.getResetPasswordForm);
 
+router.get("/emailChangeSuccess", viewsController.getEmailChangeSuccess);
+
 router.get("/tour/:slug", viewsController.getTour);
 router.get("/login", viewsController.getLogin);
 router.get("/signup", viewsController.getSignup);

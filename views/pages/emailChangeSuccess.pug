@@ -1,0 +1,35 @@
+extends ../base
+
+block content
+  main.main
+    .success-container
+      .card
+        h2.heading-secondary.ma-bt-lg Email Changed Successfully!
+        p Your email address has been successfully updated.
+        p You are now logged in with your new email address.
+        .form-group.center
+          a.btn.btn--green(href='/me') Go to My Account
+
+block append head
+  style.
+    .success-container {
+      max-width: 60rem;
+      margin: 8rem auto;
+      padding: 0 2rem;
+    }
+    .card {
+      background-color: #fff;
+      padding: 4rem;
+      box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      text-align: center;
+    }
+    .center {
+      text-align: center;
+      margin-top: 3rem;
+    }
+    p {
+      font-size: 1.6rem;
+      color: #777;
+      margin-bottom: 1rem;
+    }
