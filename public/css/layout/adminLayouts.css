@@ -39,7 +39,6 @@
 /* Input and Select Styles */
 .search-box input,
 .filter-box select,
-.date-filter input,
 .form__input {
   width: 100%;
   padding: 1.2rem 1.6rem;
@@ -54,31 +53,11 @@
 
 .search-box input:focus,
 .filter-box select:focus,
-.date-filter input:focus,
 .form__input:focus {
   outline: none;
   border-color: #55c57a;
   background-color: #fff;
   box-shadow: 0 0 0 2px rgba(85, 197, 122, 0.1);
-}
-
-/* Date Filter Styles */
-.date-filter {
-  flex: 1;
-  min-width: 30rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.date-filter span {
-  color: #666;
-  font-size: 1.4rem;
-}
-
-.date-filter input[type="date"] {
-  width: 12rem;
-  font-size: 1.4rem;
 }
 
 /* Form Groups */
@@ -119,8 +98,7 @@
   }
 
   .search-box,
-  .filter-box,
-  .date-filter {
+  .filter-box {
     width: 100%;
     min-width: auto;
   }
@@ -131,10 +109,6 @@
 
   .filter-box select {
     width: 100%;
-  }
-
-  .date-filter {
-    flex-wrap: wrap;
   }
 
   .action-box {
