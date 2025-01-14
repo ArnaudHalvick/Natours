@@ -239,6 +239,16 @@ const handleFormSubmit = async e => {
   }
 };
 
+const handleCancelClick = () => {
+  const modal = document.getElementById("tourModal");
+  if (modal) {
+    modal.classList.remove("active");
+    if (locationManager) {
+      locationManager.cleanup();
+    }
+  }
+};
+
 const handleDeleteTour = async tourId => {
   try {
     await deleteTour(tourId); // your API call
@@ -269,6 +279,7 @@ const initializeEventListeners = () => {
   const tourForm = document.getElementById("tourForm");
   const closeModalBtn = document.querySelector(".close-modal");
   const deleteTourBtn = document.getElementById("deleteTourBtn");
+  const cancelTourBtn = document.getElementById("cancelTourBtn");
   const addStartDateBtn = document.getElementById("addStartDateBtn");
 
   const deleteModal = document.getElementById("deleteConfirmationModal");
@@ -343,13 +354,8 @@ const initializeEventListeners = () => {
 
   tourForm?.addEventListener("submit", handleFormSubmit);
 
-  closeModalBtn?.addEventListener("click", () => {
-    const modal = document.getElementById("tourModal");
-    modal?.classList.remove("active");
-    if (locationManager) {
-      locationManager.cleanup();
-    }
-  });
+  closeModalBtn?.addEventListener("click", handleCancelClick);
+  cancelTourBtn?.addEventListener("click", handleCancelClick);
 
   deleteTourBtn?.addEventListener("click", () => {
     const form = document.getElementById("tourForm");

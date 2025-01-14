@@ -9374,6 +9374,15 @@ var handleFormSubmit = /*#__PURE__*/function () {
     return _ref3.apply(this, arguments);
   };
 }();
+var handleCancelClick = function handleCancelClick() {
+  var modal = document.getElementById("tourModal");
+  if (modal) {
+    modal.classList.remove("active");
+    if (locationManager) {
+      locationManager.cleanup();
+    }
+  }
+};
 var handleDeleteTour = /*#__PURE__*/function () {
   var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(tourId) {
     var deleteModal, editModal;
@@ -9425,6 +9434,7 @@ var initializeEventListeners = function initializeEventListeners() {
   var tourForm = document.getElementById("tourForm");
   var closeModalBtn = document.querySelector(".close-modal");
   var deleteTourBtn = document.getElementById("deleteTourBtn");
+  var cancelTourBtn = document.getElementById("cancelTourBtn");
   var addStartDateBtn = document.getElementById("addStartDateBtn");
   var deleteModal = document.getElementById("deleteConfirmationModal");
   var confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
@@ -9486,13 +9496,8 @@ var initializeEventListeners = function initializeEventListeners() {
     }
   });
   tourForm === null || tourForm === void 0 || tourForm.addEventListener("submit", handleFormSubmit);
-  closeModalBtn === null || closeModalBtn === void 0 || closeModalBtn.addEventListener("click", function () {
-    var modal = document.getElementById("tourModal");
-    modal === null || modal === void 0 || modal.classList.remove("active");
-    if (locationManager) {
-      locationManager.cleanup();
-    }
-  });
+  closeModalBtn === null || closeModalBtn === void 0 || closeModalBtn.addEventListener("click", handleCancelClick);
+  cancelTourBtn === null || cancelTourBtn === void 0 || cancelTourBtn.addEventListener("click", handleCancelClick);
   deleteTourBtn === null || deleteTourBtn === void 0 || deleteTourBtn.addEventListener("click", function () {
     var _form$dataset;
     var form = document.getElementById("tourForm");

@@ -1,10 +1,10 @@
 extends ../../base
 
 block append head
-  link(rel="stylesheet", href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css")
-  link(rel="stylesheet", href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css")
+  link(rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css")
+  link(rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css")
   link(rel="stylesheet" href="/css/layout/adminLayouts.css")
-  link(rel="stylesheet", href="/css/layout/user-view.css")
+  link(rel="stylesheet" href="/css/layout/user-view.css")
   link(rel="stylesheet" href="/css/pages/manageTours.css")
   script(src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js')
   script(src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js')
@@ -118,7 +118,8 @@ block content
                   #startDatesContainer.dates-container
                   button.btn.btn--small.btn--blue#addStartDateBtn(type='button') Add Date
                 .edit-action-btns.full-width
-                  button.btn.btn--small.btn--red#deleteTourBtn(type='button', style='margin-right: 1rem') Delete Tour
+                  button.btn.btn--small.btn--red#deleteTourBtn(type='button') Delete Tour
+                  button.btn.btn--small.btn--grey#cancelTourBtn(type='button') Cancel
                   button.btn.btn--small.btn--green(type='submit') Save Tour
           .modal#deleteConfirmationModal
             .deleteModal-content
