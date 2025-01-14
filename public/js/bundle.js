@@ -9317,6 +9317,7 @@ var handleFormSubmit = /*#__PURE__*/function () {
 }();
 var handleDeleteTour = /*#__PURE__*/function () {
   var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(tourId) {
+    var modal;
     return _regeneratorRuntime().wrap(function _callee4$(_context4) {
       while (1) switch (_context4.prev = _context4.next) {
         case 0:
@@ -9331,22 +9332,29 @@ var handleDeleteTour = /*#__PURE__*/function () {
           return (0, _tourManagement.deleteTour)(tourId);
         case 5:
           (0, _alert.showAlert)("success", "Tour deleted successfully");
-          document.getElementById("tourModal").classList.remove("active");
+
+          // Close the modal
+          modal = document.getElementById("tourModal");
+          modal.classList.remove("active");
+
+          // Cleanup location manager
           locationManager.cleanup();
-          _context4.next = 10;
+
+          // Reload the list of tours without reloading the page
+          _context4.next = 11;
           return handleTourLoad();
-        case 10:
-          _context4.next = 15;
+        case 11:
+          _context4.next = 16;
           break;
-        case 12:
-          _context4.prev = 12;
+        case 13:
+          _context4.prev = 13;
           _context4.t0 = _context4["catch"](2);
           (0, _alert.showAlert)("error", "Failed to delete tour");
-        case 15:
+        case 16:
         case "end":
           return _context4.stop();
       }
-    }, _callee4, null, [[2, 12]]);
+    }, _callee4, null, [[2, 13]]);
   }));
   return function handleDeleteTour(_x3) {
     return _ref4.apply(this, arguments);
@@ -9643,7 +9651,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "45965" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33389" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

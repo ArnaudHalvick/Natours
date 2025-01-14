@@ -253,8 +253,15 @@ const handleDeleteTour = async tourId => {
   try {
     await deleteTour(tourId);
     showAlert("success", "Tour deleted successfully");
-    document.getElementById("tourModal").classList.remove("active");
+
+    // Close the modal
+    const modal = document.getElementById("tourModal");
+    modal.classList.remove("active");
+
+    // Cleanup location manager
     locationManager.cleanup();
+
+    // Reload the list of tours without reloading the page
     await handleTourLoad();
   } catch (err) {
     showAlert("error", "Failed to delete tour");
