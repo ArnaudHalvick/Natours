@@ -1,4 +1,4 @@
-// api/tourManagement.js
+// api/tourManagementAPI.js
 import axios from "axios";
 
 export const fetchTours = async (

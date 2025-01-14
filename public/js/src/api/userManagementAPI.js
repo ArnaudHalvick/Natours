@@ -1,4 +1,4 @@
-// api/userManagement.js
+// api/userManagementAPI.js
 import axios from "axios";
 
 export const loadUsers = async (page, limit, sort, filter, search) => {

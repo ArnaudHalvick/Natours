@@ -1,4 +1,4 @@
-// api/user.js
+// api/userAPI.js
 import axios from "axios";
 
 export const updateSettings = async (data, type) => {

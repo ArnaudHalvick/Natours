@@ -1,4 +1,4 @@
-// api/auth.js
+// api/authAPI.js
 import axios from "axios";
 import { showAlert } from "../utils/alert";
 

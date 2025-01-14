@@ -1,4 +1,4 @@
-// api/bookingManagement.js
+// api/bookingManagementAPI.js
 import axios from "axios";
 
 export const fetchBookings = async (

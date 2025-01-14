@@ -1,4 +1,4 @@
-// api/reviewManagement.js
+// api/reviewManagementAPI.js
 import axios from "axios";
 
 export const loadReviews = async (page, limit, search, tourId, rating) => {
