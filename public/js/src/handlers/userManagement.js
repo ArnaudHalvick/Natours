@@ -14,13 +14,20 @@ const LIMIT = 10;
 const renderUserRow = (user, currentUserId) => {
   const isCurrentUser = user._id === currentUserId;
   const inactiveClass = !user.active ? "user--inactive" : "";
+  const emailStatus = user.emailConfirmed
+    ? '<span class="badge badge--success">Confirmed</span>'
+    : '<span class="badge badge--warning">Pending</span>';
+
   return `
     <tr class="${inactiveClass}">
       <td>
         <img src="/img/users/${user.photo}" alt="User photo" class="user-photo">
       </td>
       <td>${user.name}</td>
-      <td>${user.email}</td>
+      <td>
+        ${user.email}
+        ${emailStatus}
+      </td>
       <td>${user.role}</td>
       <td>
         ${
@@ -43,6 +50,19 @@ const renderUserRow = (user, currentUserId) => {
               >
                 Delete
               </button>
+              ${
+                !user.emailConfirmed
+                  ? `
+                <button
+                  class="btn btn--small btn--green btn--resend"
+                  data-id="${user._id}"
+                  data-email="${user.email}"
+                >
+                  Resend Email
+                </button>
+              `
+                  : ""
+              }
             `
         }
       </td>
@@ -133,15 +153,32 @@ const handleUserSubmit = async e => {
       ).value;
     }
 
-    await saveUser(formData, isEdit);
+    const response = await saveUser(formData, isEdit);
     showAlert(
       "success",
       `User ${isEdit ? "updated" : "created"} successfully!`,
     );
+
+    if (!isEdit) {
+      showAlert("success", "Confirmation email sent to user.");
+    }
+
     toggleModal("userModal", false);
     handleUserLoad();
   } catch (err) {
     showAlert("error", err.response?.data?.message || "Error saving user");
+  }
+};
+
+const handleResendConfirmation = async email => {
+  try {
+    await resendConfirmation(email);
+    showAlert("success", "Confirmation email resent successfully!");
+  } catch (err) {
+    showAlert(
+      "error",
+      err.response?.data?.message || "Error resending confirmation email",
+    );
   }
 };
 
@@ -231,10 +268,11 @@ const initializeEventListeners = () => {
     );
   }
 
-  // Event delegation for edit and delete buttons
-  container.addEventListener("click", e => {
+  // Event delegation for edit, delete, and resend buttons
+  container.addEventListener("click", async e => {
     const editBtn = e.target.closest(".btn--edit");
     const deleteBtn = e.target.closest(".btn--delete");
+    const resendBtn = e.target.closest(".btn--resend");
 
     if (editBtn) {
       const userId = editBtn.dataset.id;
@@ -262,16 +300,92 @@ const initializeEventListeners = () => {
       const userEmail = deleteBtn.dataset.email;
       const userPhoto = deleteBtn.dataset.photo;
 
-      // Populate the modal fields
       document.getElementById("deleteUserPicture").src =
         userPhoto || "/img/users/default.jpg";
       document.getElementById("deleteUserName").textContent = userName || "";
       document.getElementById("deleteUserEmail").textContent = userEmail || "";
 
-      // Now open the modal with handleUserDelete logic
       handleUserDelete(userId);
     }
+
+    if (resendBtn) {
+      const email = resendBtn.dataset.email;
+      await handleResendConfirmation(email);
+    }
   });
+
+  // Initialize search handlers
+  if (searchInput) {
+    searchInput.addEventListener("input", handleSearch);
+  }
+
+  if (roleFilter) {
+    roleFilter.addEventListener("change", handleRoleFilter);
+  }
+
+  // Initialize modal handlers
+  if (createUserBtn) {
+    createUserBtn.addEventListener("click", () => {
+      const form = document.getElementById("userForm");
+      if (form) {
+        form.reset();
+        form.dataset.editing = "false";
+        delete form.dataset.userId;
+        toggleFormFields(form, true);
+        document.getElementById("modalTitle").textContent = "Create New User";
+        toggleModal("userModal", true);
+      }
+    });
+  }
+
+  if (userForm) {
+    userForm.addEventListener("submit", handleUserSubmit);
+  }
+
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener("click", () =>
+      toggleModal("userModal", false),
+    );
+  }
+
+  if (cancelUserBtn) {
+    cancelUserBtn.addEventListener("click", () => {
+      const form = document.getElementById("userForm");
+      if (form) form.reset();
+      toggleModal("userModal", false);
+    });
+  }
+
+  // Initialize pagination handlers
+  if (prevPageBtn) {
+    prevPageBtn.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        handleUserLoad();
+      }
+    });
+  }
+
+  if (nextPageBtn) {
+    nextPageBtn.addEventListener("click", () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        handleUserLoad();
+      }
+    });
+  }
+
+  if (closeDeleteModalBtn) {
+    closeDeleteModalBtn.addEventListener("click", () =>
+      toggleModal("deleteUserModal", false),
+    );
+  }
+
+  if (cancelDeleteBtn) {
+    cancelDeleteBtn.addEventListener("click", () =>
+      toggleModal("deleteUserModal", false),
+    );
+  }
 
   // Initial load
   handleUserLoad();

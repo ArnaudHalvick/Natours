@@ -8263,7 +8263,7 @@ var initializeBookingManagement = exports.initializeBookingManagement = function
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.saveUser = exports.loadUsers = exports.deleteUser = void 0;
+exports.saveUser = exports.resendConfirmation = exports.loadUsers = exports.deleteUser = void 0;
 var _axios = _interopRequireDefault(require("axios"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
@@ -8374,6 +8374,34 @@ var deleteUser = exports.deleteUser = /*#__PURE__*/function () {
     return _ref3.apply(this, arguments);
   };
 }();
+var resendConfirmation = exports.resendConfirmation = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(email) {
+    var res;
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
+        case 0:
+          _context4.prev = 0;
+          _context4.next = 3;
+          return _axios.default.post("/api/v1/users/resendConfirmation", {
+            email: email
+          });
+        case 3:
+          res = _context4.sent;
+          return _context4.abrupt("return", res.data);
+        case 7:
+          _context4.prev = 7;
+          _context4.t0 = _context4["catch"](0);
+          throw _context4.t0;
+        case 10:
+        case "end":
+          return _context4.stop();
+      }
+    }, _callee4, null, [[0, 7]]);
+  }));
+  return function resendConfirmation(_x8) {
+    return _ref4.apply(this, arguments);
+  };
+}();
 },{"axios":"../../../node_modules/axios/index.js"}],"handlers/userManagement.js":[function(require,module,exports) {
 "use strict";
 
@@ -8398,7 +8426,8 @@ var LIMIT = 10;
 var renderUserRow = function renderUserRow(user, currentUserId) {
   var isCurrentUser = user._id === currentUserId;
   var inactiveClass = !user.active ? "user--inactive" : "";
-  return "\n    <tr class=\"".concat(inactiveClass, "\">\n      <td>\n        <img src=\"/img/users/").concat(user.photo, "\" alt=\"User photo\" class=\"user-photo\">\n      </td>\n      <td>").concat(user.name, "</td>\n      <td>").concat(user.email, "</td>\n      <td>").concat(user.role, "</td>\n      <td>\n        ").concat(isCurrentUser ? "<span>Your account</span>" : "\n              <button\n                class=\"btn btn--small btn--edit\"\n                data-id=\"".concat(user._id, "\"\n                data-active=\"").concat(user.active, "\"\n              >\n                Edit\n              </button>\n              <button\n                class=\"btn btn--small btn--red btn--delete\"\n                data-id=\"").concat(user._id, "\"\n                data-name=\"").concat(user.name, "\"\n                data-email=\"").concat(user.email, "\"\n                data-photo=\"/img/users/").concat(user.photo, "\"\n              >\n                Delete\n              </button>\n            "), "\n      </td>\n    </tr>\n  ");
+  var emailStatus = user.emailConfirmed ? '<span class="badge badge--success">Confirmed</span>' : '<span class="badge badge--warning">Pending</span>';
+  return "\n    <tr class=\"".concat(inactiveClass, "\">\n      <td>\n        <img src=\"/img/users/").concat(user.photo, "\" alt=\"User photo\" class=\"user-photo\">\n      </td>\n      <td>").concat(user.name, "</td>\n      <td>\n        ").concat(user.email, "\n        ").concat(emailStatus, "\n      </td>\n      <td>").concat(user.role, "</td>\n      <td>\n        ").concat(isCurrentUser ? "<span>Your account</span>" : "\n              <button\n                class=\"btn btn--small btn--edit\"\n                data-id=\"".concat(user._id, "\"\n                data-active=\"").concat(user.active, "\"\n              >\n                Edit\n              </button>\n              <button\n                class=\"btn btn--small btn--red btn--delete\"\n                data-id=\"").concat(user._id, "\"\n                data-name=\"").concat(user.name, "\"\n                data-email=\"").concat(user.email, "\"\n                data-photo=\"/img/users/").concat(user.photo, "\"\n              >\n                Delete\n              </button>\n              ").concat(!user.emailConfirmed ? "\n                <button\n                  class=\"btn btn--small btn--green btn--resend\"\n                  data-id=\"".concat(user._id, "\"\n                  data-email=\"").concat(user.email, "\"\n                >\n                  Resend Email\n                </button>\n              ") : "", "\n            "), "\n      </td>\n    </tr>\n  ");
 };
 var handleUserLoad = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -8494,7 +8523,7 @@ var handleUserDelete = function handleUserDelete(userId) {
 };
 var handleUserSubmit = /*#__PURE__*/function () {
   var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
-    var form, isEdit, formData, _err$response3;
+    var form, isEdit, formData, response, _err$response3;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
@@ -8517,23 +8546,54 @@ var handleUserSubmit = /*#__PURE__*/function () {
           _context3.next = 8;
           return (0, _userManagementAPI.saveUser)(formData, isEdit);
         case 8:
+          response = _context3.sent;
           (0, _alert.showAlert)("success", "User ".concat(isEdit ? "updated" : "created", " successfully!"));
+          if (!isEdit) {
+            (0, _alert.showAlert)("success", "Confirmation email sent to user.");
+          }
           (0, _dom.toggleModal)("userModal", false);
           handleUserLoad();
-          _context3.next = 16;
+          _context3.next = 18;
           break;
-        case 13:
-          _context3.prev = 13;
+        case 15:
+          _context3.prev = 15;
           _context3.t0 = _context3["catch"](3);
           (0, _alert.showAlert)("error", ((_err$response3 = _context3.t0.response) === null || _err$response3 === void 0 || (_err$response3 = _err$response3.data) === null || _err$response3 === void 0 ? void 0 : _err$response3.message) || "Error saving user");
-        case 16:
+        case 18:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[3, 13]]);
+    }, _callee3, null, [[3, 15]]);
   }));
   return function handleUserSubmit(_x) {
     return _ref3.apply(this, arguments);
+  };
+}();
+var handleResendConfirmation = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(email) {
+    var _err$response4;
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
+        case 0:
+          _context4.prev = 0;
+          _context4.next = 3;
+          return resendConfirmation(email);
+        case 3:
+          (0, _alert.showAlert)("success", "Confirmation email resent successfully!");
+          _context4.next = 9;
+          break;
+        case 6:
+          _context4.prev = 6;
+          _context4.t0 = _context4["catch"](0);
+          (0, _alert.showAlert)("error", ((_err$response4 = _context4.t0.response) === null || _err$response4 === void 0 || (_err$response4 = _err$response4.data) === null || _err$response4 === void 0 ? void 0 : _err$response4.message) || "Error resending confirmation email");
+        case 9:
+        case "end":
+          return _context4.stop();
+      }
+    }, _callee4, null, [[0, 6]]);
+  }));
+  return function handleResendConfirmation(_x2) {
+    return _ref4.apply(this, arguments);
   };
 }();
 var initializeEventListeners = function initializeEventListeners() {
@@ -8612,43 +8672,127 @@ var initializeEventListeners = function initializeEventListeners() {
     });
   }
 
-  // Event delegation for edit and delete buttons
-  container.addEventListener("click", function (e) {
-    var editBtn = e.target.closest(".btn--edit");
-    var deleteBtn = e.target.closest(".btn--delete");
-    if (editBtn) {
-      var userId = editBtn.dataset.id;
-      var row = editBtn.closest("tr");
-      var name = row.cells[1].textContent;
-      var role = row.cells[3].textContent;
-      var active = editBtn.dataset.active;
+  // Event delegation for edit, delete, and resend buttons
+  container.addEventListener("click", /*#__PURE__*/function () {
+    var _ref5 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5(e) {
+      var editBtn, deleteBtn, resendBtn, userId, row, name, role, active, form, _userId, userName, userEmail, userPhoto, email;
+      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+        while (1) switch (_context5.prev = _context5.next) {
+          case 0:
+            editBtn = e.target.closest(".btn--edit");
+            deleteBtn = e.target.closest(".btn--delete");
+            resendBtn = e.target.closest(".btn--resend");
+            if (editBtn) {
+              userId = editBtn.dataset.id;
+              row = editBtn.closest("tr");
+              name = row.cells[1].textContent;
+              role = row.cells[3].textContent;
+              active = editBtn.dataset.active;
+              form = document.getElementById("userForm");
+              if (form) {
+                form.dataset.editing = "true";
+                form.dataset.userId = userId;
+                document.getElementById("userName").value = name;
+                document.getElementById("userRole").value = role;
+                document.getElementById("userActive").value = active;
+                (0, _dom.toggleFormFields)(form, false);
+                document.getElementById("modalTitle").textContent = "Edit User";
+                (0, _dom.toggleModal)("userModal", true);
+              }
+            }
+            if (deleteBtn) {
+              _userId = deleteBtn.dataset.id;
+              userName = deleteBtn.dataset.name;
+              userEmail = deleteBtn.dataset.email;
+              userPhoto = deleteBtn.dataset.photo;
+              document.getElementById("deleteUserPicture").src = userPhoto || "/img/users/default.jpg";
+              document.getElementById("deleteUserName").textContent = userName || "";
+              document.getElementById("deleteUserEmail").textContent = userEmail || "";
+              handleUserDelete(_userId);
+            }
+            if (!resendBtn) {
+              _context5.next = 9;
+              break;
+            }
+            email = resendBtn.dataset.email;
+            _context5.next = 9;
+            return handleResendConfirmation(email);
+          case 9:
+          case "end":
+            return _context5.stop();
+        }
+      }, _callee5);
+    }));
+    return function (_x3) {
+      return _ref5.apply(this, arguments);
+    };
+  }());
+
+  // Initialize search handlers
+  if (searchInput) {
+    searchInput.addEventListener("input", handleSearch);
+  }
+  if (roleFilter) {
+    roleFilter.addEventListener("change", handleRoleFilter);
+  }
+
+  // Initialize modal handlers
+  if (createUserBtn) {
+    createUserBtn.addEventListener("click", function () {
       var form = document.getElementById("userForm");
       if (form) {
-        form.dataset.editing = "true";
-        form.dataset.userId = userId;
-        document.getElementById("userName").value = name;
-        document.getElementById("userRole").value = role;
-        document.getElementById("userActive").value = active;
-        (0, _dom.toggleFormFields)(form, false);
-        document.getElementById("modalTitle").textContent = "Edit User";
+        form.reset();
+        form.dataset.editing = "false";
+        delete form.dataset.userId;
+        (0, _dom.toggleFormFields)(form, true);
+        document.getElementById("modalTitle").textContent = "Create New User";
         (0, _dom.toggleModal)("userModal", true);
       }
-    }
-    if (deleteBtn) {
-      var _userId = deleteBtn.dataset.id;
-      var userName = deleteBtn.dataset.name;
-      var userEmail = deleteBtn.dataset.email;
-      var userPhoto = deleteBtn.dataset.photo;
+    });
+  }
+  if (userForm) {
+    userForm.addEventListener("submit", handleUserSubmit);
+  }
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener("click", function () {
+      return (0, _dom.toggleModal)("userModal", false);
+    });
+  }
+  if (cancelUserBtn) {
+    cancelUserBtn.addEventListener("click", function () {
+      var form = document.getElementById("userForm");
+      if (form) form.reset();
+      (0, _dom.toggleModal)("userModal", false);
+    });
+  }
 
-      // Populate the modal fields
-      document.getElementById("deleteUserPicture").src = userPhoto || "/img/users/default.jpg";
-      document.getElementById("deleteUserName").textContent = userName || "";
-      document.getElementById("deleteUserEmail").textContent = userEmail || "";
-
-      // Now open the modal with handleUserDelete logic
-      handleUserDelete(_userId);
-    }
-  });
+  // Initialize pagination handlers
+  if (prevPageBtn) {
+    prevPageBtn.addEventListener("click", function () {
+      if (currentPage > 1) {
+        currentPage--;
+        handleUserLoad();
+      }
+    });
+  }
+  if (nextPageBtn) {
+    nextPageBtn.addEventListener("click", function () {
+      if (currentPage < totalPages) {
+        currentPage++;
+        handleUserLoad();
+      }
+    });
+  }
+  if (closeDeleteModalBtn) {
+    closeDeleteModalBtn.addEventListener("click", function () {
+      return (0, _dom.toggleModal)("deleteUserModal", false);
+    });
+  }
+  if (cancelDeleteBtn) {
+    cancelDeleteBtn.addEventListener("click", function () {
+      return (0, _dom.toggleModal)("deleteUserModal", false);
+    });
+  }
 
   // Initial load
   handleUserLoad();
@@ -9945,7 +10089,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "43301" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "35869" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

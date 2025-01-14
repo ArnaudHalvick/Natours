@@ -54,7 +54,39 @@ const filterObj = (obj, ...allowedFields) => {
 exports.getUser = factory.getOne(User);
 
 // Create a new user (admin only)
-exports.createUser = factory.createOne(User);
+exports.createUser = catchAsync(async (req, res, next) => {
+  const doc = await User.create({
+    ...req.body,
+    emailConfirmed: false,
+  });
+
+  // Generate confirmation token and save
+  const confirmationToken = doc.createEmailConfirmationToken();
+  await doc.save({ validateBeforeSave: false });
+
+  // Send confirmation email
+  try {
+    const confirmationUrl = `${req.protocol}://${req.get("host")}/api/v1/users/confirmEmail/${confirmationToken}`;
+    await new Email(doc, confirmationUrl).sendConfirmation();
+
+    res.status(201).json({
+      status: "success",
+      message: "User created successfully. Confirmation email sent.",
+      data: {
+        data: doc,
+      },
+    });
+  } catch (err) {
+    // If email fails, delete the user and return error
+    await User.findByIdAndDelete(doc._id);
+    return next(
+      new AppError(
+        "There was an error sending the confirmation email. User not created.",
+        500,
+      ),
+    );
+  }
+});
 
 // Update user by ID (admin only)
 exports.updateUser = (req, res, next) => {
