@@ -231,11 +231,6 @@
   width: 100%;
 }
 
-.date-inputs:last-child {
-  border-bottom: none;
-  padding-bottom: 2rem;
-}
-
 /* Preview Images */
 .preview-image {
   max-width: 150px;

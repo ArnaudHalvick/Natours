@@ -52,12 +52,6 @@
   box-shadow: 0 0 0 2px rgba(85, 197, 122, 0.1);
 }
 
-.date-inputs {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
 .date-separator {
   color: #666;
   font-size: 1.4rem;
@@ -264,11 +258,6 @@
   .refund-controls__main {
     flex-direction: column;
     gap: 1.5rem;
-  }
-
-  .date-inputs {
-    flex-direction: column;
-    gap: 1rem;
   }
 
   .date-separator {
