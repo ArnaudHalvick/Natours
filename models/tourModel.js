@@ -207,13 +207,6 @@ tourSchema.post("save", function () {
   this.constructor.calcAverageRatings(this._id);
 });
 
-// Hook only for findOneAndUpdate to recalculate ratings after an update
-tourSchema.post("findOneAndUpdate", async function (doc) {
-  if (doc) {
-    await doc.constructor.calcAverageRatings(doc._id);
-  }
-});
-
 // EXPORT MODEL
 const Tour = mongoose.model("Tour", tourSchema);
 module.exports = Tour;

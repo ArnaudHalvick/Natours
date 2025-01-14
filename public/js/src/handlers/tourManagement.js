@@ -170,11 +170,6 @@ const handleFormSubmit = async e => {
   // Save original button text
   const originalBtnText = submitBtn.textContent;
 
-  // Create a timeout promise
-  const timeout = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error("Request timed out")), 30000); // 30 seconds
-  });
-
   try {
     submitBtn.disabled = true;
     submitBtn.textContent = tourId ? "Updating..." : "Creating...";
@@ -221,25 +216,22 @@ const handleFormSubmit = async e => {
       });
     }
 
-    // Race between the actual request and the timeout
-    const result = await Promise.race([
-      tourId ? updateTour(tourId, formData) : createTour(formData),
-      timeout,
-    ]);
+    // Send request to create or update tour
+    if (tourId) {
+      await updateTour(tourId, formData); // Wait for the update response
+    } else {
+      await createTour(formData); // Wait for the creation response
+    }
 
     showAlert(
       "success",
       tourId ? "Tour updated successfully" : "Tour created successfully",
     );
     modal.classList.remove("active");
-    await handleTourLoad();
+    await handleTourLoad(); // Reload the list of tours
   } catch (err) {
     console.error("Form submit error:", err);
-    if (err.message === "Request timed out") {
-      showAlert("error", "Request timed out. Please try again.");
-    } else {
-      showAlert("error", err.response?.data?.message || "Error saving tour");
-    }
+    showAlert("error", err.response?.data?.message || "Error saving tour");
   } finally {
     // Always restore button state
     submitBtn.disabled = false;

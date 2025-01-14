@@ -35,48 +35,13 @@ export const fetchTourById = async tourId => {
 };
 
 export const updateTour = async (tourId, formData) => {
-  // Existing implementation remains unchanged
-  const uploadPromise = new Promise((resolve, reject) => {
-    axios({
-      method: "PATCH",
-      url: `/api/v1/tours/${tourId}`,
-      data: formData,
+  try {
+    const res = await axios.patch(`/api/v1/tours/${tourId}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-      onUploadProgress: progressEvent => {
-        const progress = Math.round(
-          (progressEvent.loaded * 100) / progressEvent.total,
-        );
-
-        // If upload completes successfully, consider it a success
-        if (progress === 100) {
-          resolve();
-        }
-      },
-    })
-      .then(res => {
-        resolve(res.data.data);
-      })
-      .catch(error => {
-        // Only reject for errors that happen before upload completes
-        if (error.message !== "Request failed with status code 500") {
-          reject(error);
-        } else {
-          // If it's a 500 error after upload completed, still treat as success
-          resolve();
-        }
-      });
-  });
-
-  // Wait for upload to complete
-  const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error("Upload timeout")), 30000);
-  });
-
-  try {
-    await Promise.race([uploadPromise, timeoutPromise]);
-    return true; // Return success if upload completed
+    });
+    return res.data.data;
   } catch (error) {
     console.error("Update tour error:", error);
     throw error;
