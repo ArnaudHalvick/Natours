@@ -63,7 +63,7 @@ const loadBookings = async () => {
             </span>
           </td>
           <td>
-            <button class="btn btn--small btn--edit" data-id="${booking._id}">Edit</button>
+            <button class="btn btn--small btn--edit btn--green" data-id="${booking._id}">Edit</button>
           </td>
         </tr>
       `,

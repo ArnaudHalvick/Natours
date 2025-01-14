@@ -140,25 +140,6 @@
   color: #d92d20;
 }
 
-/* Action Buttons */
-.btn.btn--small.btn--edit {
-  padding: 0.6rem 1.2rem;
-  font-size: 1.2rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s;
-  border: none;
-  width: auto;
-  text-align: center;
-  background-color: #55c57a;
-  color: #fff;
-}
-
-.btn.btn--small.btn--edit:hover {
-  background-color: #4caf70;
-  transform: translateY(-1px);
-}
-
 /* Modal Styles */
 .modal {
   display: none;
@@ -285,9 +266,6 @@
     min-width: 120px;
   }
 
-  .btn--edit {
-    width: 100%;
-  }
 
   .modal-content {
     padding: 2rem;
