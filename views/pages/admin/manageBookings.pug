@@ -16,22 +16,36 @@ block content
           
           // Search and Filter Section
           .booking-controls
-            .booking-controls__main
-              .search-box
-                input#searchBooking.form__input(
-                  type='text', 
-                  placeholder='Search by booking ID or user email...'
-                )
-              .filter-box
-                select#statusFilter.form__input
-                  option(value='') All Status
-                  option(value='true') Paid
-                  option(value='false') Unpaid
-            .date-inputs
-              input#startDateFrom.form__input(type='date')
-              span to
-              input#startDateTo.form__input(type='date')
-              
+           .booking-controls__main
+             .search-box
+               .form__group
+                 label.form__label(for='searchBooking') Search
+                 input#searchBooking.form__input(
+                   type='text',
+                   placeholder='Search by booking ID or user email...',
+                   autocomplete='off'
+                 )
+             .filter-box
+               .form__group
+                 label.form__label(for='statusFilter') Status
+                 select#statusFilter.form__input
+                   option(value='') All Status
+                   option(value='true') Paid
+                   option(value='false') Unpaid
+           .booking-controls__dates
+             .form__group
+               label.form__label(for='startDateFrom') Date Range
+               .date-inputs
+                 input#startDateFrom.form__input(
+                   type='date',
+                   name='startDateFrom'
+                 )
+                 span.date-separator to
+                 input#startDateTo.form__input(
+                   type='date',
+                   name='startDateTo'
+                 )
+
           // Bookings Table
           .booking-table
             table.table
