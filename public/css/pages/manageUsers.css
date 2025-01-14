@@ -334,15 +334,6 @@
   background-color: #f03e3e;
 }
 
-.modal#deleteUserModal .btn--grey {
-  background-color: #ddd;
-  color: #333;
-}
-
-.modal#deleteUserModal .btn--grey:hover {
-  background-color: #ccc;
-}
-
 img#deleteUserPicture {
   height: 4rem;
   width: 4rem;

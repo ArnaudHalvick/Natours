@@ -1,4 +1,3 @@
-// handlers/bookingManagement.js
 import { showAlert } from "../utils/alert";
 import {
   fetchBookings,
@@ -44,22 +43,22 @@ const loadBookings = async () => {
       ? data
           .map(
             booking => `
-        <tr>
-          <td>${booking._id}</td>
-          <td>${booking.user.email}</td>
-          <td>${booking.tour.name}</td>
-          <td>${new Date(booking.startDate).toLocaleDateString()}</td>
-          <td>$${booking.price.toFixed(2)}</td>
-          <td>
-            <span class="status-badge status-badge--${booking.paid ? "paid" : "unpaid"}">
-              ${booking.paid ? "Paid" : "Unpaid"}
-            </span>
-          </td>
-          <td>
-            <button class="btn btn--small btn--edit btn--green" data-id="${booking._id}">Edit</button>
-          </td>
-        </tr>
-      `,
+       <tr>
+         <td>${booking._id}</td>
+         <td>${booking.user.email}</td>
+         <td>${booking.tour.name}</td>
+         <td>${new Date(booking.startDate).toLocaleDateString()}</td>
+         <td>$${booking.price.toFixed(2)}</td>
+         <td>
+           <span class="status-badge status-badge--${booking.paid ? "paid" : "unpaid"}">
+             ${booking.paid ? "Paid" : "Unpaid"}
+           </span>
+         </td>
+         <td>
+           <button class="btn btn--small btn--edit btn--green" data-id="${booking._id}">Edit</button>
+         </td>
+       </tr>
+     `,
           )
           .join("")
       : '<tr><td colspan="7" style="text-align: center;">No bookings found.</td></tr>';
@@ -152,6 +151,7 @@ export const initializeBookingManagement = () => {
     bookingModal: document.getElementById("bookingModal"),
     bookingForm: document.getElementById("bookingForm"),
     closeModalBtn: document.querySelector(".close-modal"),
+    cancelBtn: document.getElementById("cancelBtn"),
   };
 
   elements.searchInput?.addEventListener(
@@ -227,10 +227,10 @@ export const initializeBookingManagement = () => {
     elements.bookingModal?.classList.remove("active");
   });
 
-  elements.bookingModal?.addEventListener("click", e => {
-    if (e.target === elements.bookingModal) {
-      elements.bookingModal.classList.remove("active");
-    }
+  elements.cancelBtn?.addEventListener("click", () => {
+    const form = document.getElementById("bookingForm");
+    if (form) form.reset();
+    elements.bookingModal?.classList.remove("active");
   });
 
   loadBookings();

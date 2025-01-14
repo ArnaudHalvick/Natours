@@ -1,9 +1,11 @@
 extends ../../base
 
+
 block append head
   link(rel="stylesheet" href="/css/layout/adminLayouts.css")
   link(rel="stylesheet" href="/css/layout/user-view.css")
   link(rel="stylesheet" href="/css/pages/manageBookings.css")
+
 
 block content
   main.main
@@ -41,6 +43,7 @@ block content
                     option(value='true') Paid
                     option(value='false') Unpaid
 
+
             .booking-controls__dates
               .form__group
                 label.form__label(for='startDateFrom') Date Range
@@ -54,6 +57,7 @@ block content
                     type='date',
                     name='startDateTo'
                   )
+
 
           // Bookings Table
           .booking-table
@@ -70,11 +74,13 @@ block content
               tbody#bookingTableBody
                 // Bookings will be populated here via JavaScript
 
+
           // Pagination
           .pagination
             button.btn.btn--small#prevPage Previous
             span#pageInfo Page 1 of 1
             button.btn.btn--small#nextPage Next
+
 
           // Edit Booking Modal
           .modal#bookingModal
@@ -110,5 +116,6 @@ block content
                   select#paid.form__input
                     option(value='true') Paid
                     option(value='false') Unpaid
-                .form__group.right
+                .form__group.right.action-btns
                   button.btn.btn--small.btn--green(type='submit') Save Changes
+                  button.btn.btn--small.btn--grey#cancelBtn Cancel

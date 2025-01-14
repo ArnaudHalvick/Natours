@@ -182,6 +182,13 @@
   color: #333;
 }
 
+.action-btns {
+  display: flex;
+  justify-content: space-around;
+  margin: 0;
+  padding: 0;
+}
+
 #modalTitle {
   font-size: 2rem;
   color: #444;
@@ -265,7 +272,6 @@
     white-space: nowrap;
     min-width: 120px;
   }
-
 
   .modal-content {
     padding: 2rem;
