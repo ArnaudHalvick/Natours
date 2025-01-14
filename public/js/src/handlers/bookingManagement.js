@@ -5,14 +5,7 @@ import {
   fetchBookingById,
   updateBooking,
 } from "../api/bookingManagement";
-
-const debounce = (fn, delay) => {
-  let timeout;
-  return function (...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => fn.apply(this, args), delay);
-  };
-};
+import { debounce } from "../utils/dom";
 
 let currentPage = 1;
 let totalPages = 1;
