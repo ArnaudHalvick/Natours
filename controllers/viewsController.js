@@ -309,7 +309,7 @@ exports.getManageToursPage = catchAsync(async (req, res) => {
 
 // Render email change success page
 exports.getEmailChangeSuccess = (req, res) => {
-  res.status(200).render("pages/emailChangeSuccess", {
+  res.status(200).render("emails/emailChangeSuccess", {
     title: "Email Changed Successfully",
   });
 };
