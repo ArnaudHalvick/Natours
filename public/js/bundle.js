@@ -6747,7 +6747,7 @@ var requestRefund = exports.requestRefund = /*#__PURE__*/function () {
         case 0:
           _context3.prev = 0;
           _context3.next = 3;
-          return _axios.default.post("/api/v1/bookings/".concat(bookingId, "/refund"));
+          return _axios.default.post("/api/v1/refunds/request/".concat(bookingId));
         case 3:
           response = _context3.sent;
           if (response.data.status === "success") {
@@ -10442,7 +10442,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33129" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "34133" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

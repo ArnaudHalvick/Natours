@@ -60,7 +60,7 @@ export const addTravelersToBooking = async (bookingId, numParticipants) => {
 
 export const requestRefund = async bookingId => {
   try {
-    const response = await axios.post(`/api/v1/bookings/${bookingId}/refund`);
+    const response = await axios.post(`/api/v1/refunds/request/${bookingId}`);
 
     if (response.data.status === "success") {
       showAlert("success", "Refund requested successfully!");
