@@ -1,22 +1,36 @@
 // handlers/booking.js
-import { elements } from "../utils/elements";
 import {
   bookTour,
   addTravelersToBooking,
   requestRefund,
 } from "../api/bookingAPI";
-import { hideAlert } from "../utils/alert";
+import { hideAlert, showAlert } from "../utils/alert";
+import { getStripeKey } from "../config";
 
 class BookingHandler {
   constructor() {
-    // Initialize Stripe if the script is loaded
-    if (window.Stripe) {
-      this.stripe = Stripe(process.env.STRIPE_PUBLIC_KEY);
-    }
+    try {
+      // Initialize Stripe if the script is loaded
+      if (typeof Stripe === "undefined") {
+        console.warn("Stripe not loaded");
+        return;
+      }
 
-    // Store elements
-    this.init();
-    this.initializeEventListeners();
+      // Only initialize Stripe if we're on a booking page
+      const bookingForm =
+        document.querySelector("#bookingForm") ||
+        document.querySelector(".add-travelers__form");
+      if (bookingForm) {
+        this.stripe = Stripe(getStripeKey());
+      }
+
+      // Store elements
+      this.init();
+      this.initializeEventListeners();
+    } catch (error) {
+      console.error("BookingHandler initialization error:", error);
+      showAlert("error", "Failed to initialize booking system");
+    }
   }
 
   init() {
@@ -321,5 +335,10 @@ class BookingHandler {
 
 // Initialize booking handlers
 export const initBookingHandlers = () => {
-  new BookingHandler();
+  try {
+    new BookingHandler();
+  } catch (error) {
+    console.error("Failed to initialize booking handlers:", error);
+    showAlert("error", "Failed to initialize booking system");
+  }
 };

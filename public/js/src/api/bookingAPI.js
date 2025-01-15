@@ -1,19 +1,18 @@
 // api/bookingAPI.js
 import axios from "axios";
 import { showAlert } from "../utils/alert";
+import { getStripeKey } from "../config";
 
 export const bookTour = async (tourId, startDate, numParticipants) => {
-  if (typeof Stripe === "undefined") {
-    showAlert("error", "Unable to load payment. Please refresh the page.");
-    return;
-  }
-
-  // Initialize Stripe with the publishable key
-  const stripe = Stripe(
-    "pk_test_51QE9Pr01SQ3XzN0XdG38jyXT83vljVXop3ZXsPSSvKBz9nk98c3gcTyoIHvO3vAXocBSuUwWDSnAflmrstAcIqHM00hseI1ZMn",
-  );
-
   try {
+    if (typeof Stripe === "undefined") {
+      showAlert("error", "Unable to load payment. Please refresh the page.");
+      return;
+    }
+
+    // Initialize Stripe with the key from data attribute
+    const stripe = Stripe(getStripeKey());
+
     const session = await axios.get(
       `/api/v1/bookings/checkout-session/${tourId}?startDate=${encodeURIComponent(
         startDate,
@@ -24,6 +23,7 @@ export const bookTour = async (tourId, startDate, numParticipants) => {
       sessionId: session.data.session.id,
     });
   } catch (err) {
+    console.error("Booking error:", err);
     showAlert("error", err.response?.data?.message || "Booking error occurred");
     // Reset button text if there's an error
     const bookTourBtn = document.getElementById("bookTour");
@@ -38,10 +38,8 @@ export const addTravelersToBooking = async (bookingId, numParticipants) => {
       return;
     }
 
-    // Initialize Stripe with the publishable key
-    const stripe = Stripe(
-      "pk_test_51QE9Pr01SQ3XzN0XdG38jyXT83vljVXop3ZXsPSSvKBz9nk98c3gcTyoIHvO3vAXocBSuUwWDSnAflmrstAcIqHM00hseI1ZMn",
-    );
+    // Initialize Stripe with the key from data attribute
+    const stripe = Stripe(getStripeKey());
     const tourId = document.querySelector(".add-travelers-submit").dataset
       .tourId;
 
@@ -54,6 +52,7 @@ export const addTravelersToBooking = async (bookingId, numParticipants) => {
       sessionId: response.data.session.id,
     });
   } catch (err) {
+    console.error("Add travelers error:", err);
     showAlert("error", err.response?.data?.message || "Error adding travelers");
   }
 };
@@ -69,6 +68,7 @@ export const requestRefund = async bookingId => {
       }, 1500);
     }
   } catch (err) {
+    console.error("Refund request error:", err);
     showAlert(
       "error",
       err.response?.data?.message || "Error requesting refund",

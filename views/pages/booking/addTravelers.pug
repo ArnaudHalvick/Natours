@@ -10,7 +10,7 @@ block content
       .add-travelers__content
         h2.heading-secondary.ma-bt-lg Add Travelers to Your Booking
 
-        form.form.add-travelers__form
+        form.form.add-travelers__form(data-stripe-key=`${stripePublicKey}`)
           .form__group.ma-bt-md
             label.form__label(for='booking') Booking Reference
             input#booking.form__input(type='text', value=`${booking._id}`, readonly)

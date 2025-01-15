@@ -32,6 +32,10 @@ const app = express();
 app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
 
+// Make Stripe public key available to templates
+app.locals.stripePublicKey = process.env.STRIPE_PUBLIC_KEY;
+console.log("Setting Stripe public key:", process.env.STRIPE_PUBLIC_KEY); // Debug log
+
 app.use(cors()); // This is now correctly required
 
 // 2) GLOBAL MIDDLEWARES
@@ -48,6 +52,8 @@ const helmetConfig = {
         "https://api.mapbox.com",
         "https://cdnjs.cloudflare.com",
         "https://js.stripe.com",
+        "https://*.stripe.com",
+        "https://*.stripe.network",
       ],
       styleSrc: [
         "'self'",
@@ -56,18 +62,35 @@ const helmetConfig = {
         "https://fonts.googleapis.com",
       ],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "blob:", "https://api.mapbox.com"],
+      imgSrc: [
+        "'self'",
+        "data:",
+        "blob:",
+        "https://api.mapbox.com",
+        "https://*.stripe.com",
+      ],
       connectSrc: [
         "'self'",
         "https://api.mapbox.com",
         "https://events.mapbox.com",
         "https://api.stripe.com",
+        "https://*.stripe.com",
+        "https://*.stripe.network",
       ],
-      frameSrc: ["'self'", "https://js.stripe.com"],
-      workerSrc: ["'self'", "blob:"],
-      childSrc: ["'self'", "blob:"],
+      frameSrc: [
+        "'self'",
+        "https://js.stripe.com",
+        "https://*.stripe.com",
+        "https://*.stripe.network",
+      ],
+      workerSrc: ["'self'", "blob:", "https://*.stripe.com"],
+      childSrc: ["'self'", "blob:", "https://*.stripe.com"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"],
     },
   },
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" },
 };
 
 // If the app is running in development mode, allow WebSocket connections
