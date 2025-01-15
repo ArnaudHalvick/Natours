@@ -188,12 +188,26 @@ exports.getEditReviewForm = catchAsync(async (req, res, next) => {
 
 // Render user's reviews page
 exports.getMyReviews = catchAsync(async (req, res) => {
+  // 1) Fetch this user’s reviews, including each associated tour
   const reviews = await Review.find({ user: req.user.id }).populate("tour");
 
+  // 2) Build a userTours array to populate the Tour filter dropdown
+  const userTours = [];
+  const usedIds = new Set();
+
+  reviews.forEach(rev => {
+    if (rev.tour && !usedIds.has(rev.tour._id.toString())) {
+      userTours.push(rev.tour);
+      usedIds.add(rev.tour._id.toString());
+    }
+  });
+
+  // 3) Render the Pug template, passing `reviews` and `userTours`
   res.status(200).render("pages/account/myreviews", {
     title: "My Reviews",
     reviews,
-    user: req.user,
+    userTours, // <-- THIS is crucial for your Pug template
+    user: req.user, // (If you need the user in the template)
   });
 });
 

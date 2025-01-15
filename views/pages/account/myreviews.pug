@@ -3,7 +3,7 @@ extends ../../base
 block append head
   link(rel="stylesheet" href="/css/components/forms.css")
   link(rel="stylesheet" href="/css/layout/user-view.css")
-  link(rel="stylesheet" href="/css/pages/myreviews.css")
+  link(rel="stylesheet" href="/css/pages/manageReviews.css")
 
 block content
   main.main
@@ -11,36 +11,75 @@ block content
       include ../../_sidenav
 
       .user-view__content
-        .user-view__form-container
+        .user-view__container
           h2.heading-secondary.ma-bt-md Your Reviews
 
-          .myreviews-container
-            if reviews.length > 0
-              each review in reviews
-                .review(class= review.hidden ? 'review--hidden' : '')
-                  h2.review__title= review.tour.name
+          // FILTER CONTROLS
+          .review-controls
+            .filter-box
+              .form__group
+                label.form__label(for='tourFilter') Tour
+                select#tourFilter.form__input
+                  option(value='') All Tours
+                  each tour in userTours
+                    option(value=tour._id)= tour.name
 
-                  .review__info
-                    .review__rating
-                      strong Rating:
-                      | #{' ' + review.rating} / 5
+              .form__group
+                label.form__label(for='ratingFilter') Rating
+                select#ratingFilter.form__input
+                  option(value='') All Ratings
+                  option(value='1') 1 Star
+                  option(value='2') 2 Stars
+                  option(value='3') 3 Stars
+                  option(value='4') 4 Stars
+                  option(value='5') 5 Stars
 
-                    .review__text
-                      strong Review:
-                      | #{review.review}
+              .form__group
+                label.form__label(for='sortFilter') Sort By
+                select#sortFilter.form__input
+                  option(value='reviewDateDesc') Review Date (Newest First)
+                  option(value='reviewDateAsc') Review Date (Oldest First)
+                  option(value='startDateAsc') Tour Start (Earliest First)
+                  option(value='startDateDesc') Tour Start (Latest First)
 
-                  .review__meta
-                    p.review__date
-                      strong Review Date:
-                      | #{new Date(review.createdAt).toLocaleDateString('en-us', { year: 'numeric', month: 'long', day: 'numeric'})}
-
-                  .review__buttons
-                    if review.hidden
-                      p.hidden-review--admin
-                        | Your review has been hidden by an admin.
-                    else
-                      a.btn.btn--blue.btn--small(
-                        href=`/tour/${review.tour.slug}/review/${review._id}/edit`
-                      ) Edit
-            else
+          // TABLE CONTAINER
+          .reviews-container
+            if reviews.length === 0
               p No reviews found.
+            else
+              table.table
+                thead
+                  tr
+                    th Tour
+                    th Rating
+                    th Review
+                    th Tour Start
+                    th Review Date
+                    th Actions
+                tbody#myReviewsTableBody
+                  each review in reviews
+                    tr(class= review.hidden ? 'review--hidden' : '')
+                      td #{review.tour ? review.tour.name : 'Deleted Tour'}
+                      td.rating #{review.rating}
+                      td.review-text #{review.review}
+                      td
+                        if review.tour && review.tour.startDate
+                          = new Date(review.tour.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric'})
+                        else
+                          | N/A
+                      td
+                        = new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric'})
+                      td.action-buttons
+                        if !review.hidden
+                          a.btn.btn--blue.btn--small(
+                            href=`/tour/${review.tour.slug}/review/${review._id}/edit`
+                          ) Edit
+                        else
+                          p.hidden-review--admin
+                            | Your review has been hidden by an admin.
+
+              // PAGINATION
+              .pagination
+                button.btn.btn--small#prevPage Previous
+                span#pageInfo Page 1 of 1
+                button.btn.btn--small#nextPage Next
