@@ -76,7 +76,7 @@ block content
                           data-tour-slug=booking.tour.slug
                           data-start-date=booking.startDate
                           data-price=booking.price
-                          data-has-started=hasStarted
+                          data-has-started=(new Date(booking.startDate) < new Date()).toString()  
                           data-refund-status=refundStatus
                           data-has-review=reviewsByTour && reviewsByTour[booking.tour._id]
                           data-review-hidden=reviewsByTour && reviewsByTour[booking.tour._id] ? reviewsByTour[booking.tour._id].hidden : false

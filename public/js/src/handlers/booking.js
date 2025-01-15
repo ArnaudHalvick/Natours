@@ -161,21 +161,30 @@ class BookingHandler {
     const refundBtn = document.getElementById("requestRefundBtn");
     const refundBadge = document.getElementById("refundStatusBadge");
 
-    if (refundStatus) {
-      // Hide button and show status badge
+    if (hasStarted) {
+      // If tour has started, show disabled "Can't refund" button
+      refundBtn.style.display = "inline-block";
+      refundBadge.style.display = "none";
+      refundBtn.disabled = true;
+      refundBtn.textContent = "Can't refund";
+      refundBtn.className = "btn status-badge--started";
+      refundBtn.setAttribute(
+        "data-tooltip",
+        "Cannot request refund for started tours",
+      );
+    } else if (refundStatus) {
+      // If there's a refund status, show the badge
       refundBtn.style.display = "none";
       refundBadge.style.display = "inline-block";
       refundBadge.textContent = `Refund ${refundStatus}`;
       refundBadge.className = `btn status-badge--${refundStatus.toLowerCase()}`;
     } else {
-      // Show button with appropriate state
+      // Show active refund button
       refundBtn.style.display = "inline-block";
       refundBadge.style.display = "none";
-      refundBtn.disabled = hasStarted;
-      refundBtn.setAttribute(
-        "data-tooltip",
-        hasStarted ? "Cannot request refund for started tours" : "",
-      );
+      refundBtn.disabled = false;
+      refundBtn.className = "btn btn--red";
+      refundBtn.innerHTML = '<i class="fas fa-undo"></i> Request Refund';
     }
 
     // Review buttons logic
