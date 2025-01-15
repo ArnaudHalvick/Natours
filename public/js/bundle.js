@@ -9743,7 +9743,7 @@ var initializeLocationManager = function initializeLocationManager() {
 };
 var handleEditClick = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(tourId) {
-    var _tour$hidden, _tour$images, tour, modal, form, modalTitle, currentCoverImage, tourImagesContainer;
+    var _tour$hidden, _tour$images, tour, modal, form, modalTitle, deleteTourBtn, currentCoverImage, tourImagesContainer;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
@@ -9755,12 +9755,16 @@ var handleEditClick = /*#__PURE__*/function () {
           modal = document.getElementById("tourModal");
           form = document.getElementById("tourForm");
           modalTitle = document.getElementById("modalTitle");
+          deleteTourBtn = document.getElementById("deleteTourBtn");
           if (!(!modal || !form)) {
-            _context2.next = 9;
+            _context2.next = 10;
             break;
           }
           return _context2.abrupt("return");
-        case 9:
+        case 10:
+          // Show the "Delete Tour" button for existing tours
+          if (deleteTourBtn) deleteTourBtn.style.display = "block";
+
           // Populate basic fields
           form.elements.name.value = tour.name || "";
           form.elements.duration.value = tour.duration || "";
@@ -9771,16 +9775,10 @@ var handleEditClick = /*#__PURE__*/function () {
           form.elements.summary.value = tour.summary || "";
           form.elements.description.value = tour.description || "";
           form.elements.hidden.value = ((_tour$hidden = tour.hidden) === null || _tour$hidden === void 0 ? void 0 : _tour$hidden.toString()) || "false";
-
-          // Initialize location manager without showing the map
           initializeLocationManager(tour.locations, false);
-
-          // Populate start location without displaying the map
           if (tour.startLocation) {
             locationManager.setStartLocation(tour.startLocation);
           }
-
-          // Show existing cover image if exists
           currentCoverImage = document.getElementById("currentCoverImage");
           if (tour.imageCover) {
             currentCoverImage.src = "/img/tours/".concat(tour.imageCover);
@@ -9791,8 +9789,6 @@ var handleEditClick = /*#__PURE__*/function () {
           } else {
             currentCoverImage.style.display = "none";
           }
-
-          // Show existing tour images
           tourImagesContainer = document.getElementById("tourImagesContainer");
           tourImagesContainer.innerHTML = "";
           if ((_tour$images = tour.images) !== null && _tour$images !== void 0 && _tour$images.length) {
@@ -9807,26 +9803,22 @@ var handleEditClick = /*#__PURE__*/function () {
               tourImagesContainer.appendChild(imgElement);
             });
           }
-
-          // Populate dates
           populateStartDates(tour.startDates);
-
-          // Set form data attributes
           form.dataset.tourId = tourId;
           modalTitle.textContent = "Edit Tour";
           modal.classList.add("active");
-          _context2.next = 35;
+          _context2.next = 37;
           break;
-        case 31:
-          _context2.prev = 31;
+        case 33:
+          _context2.prev = 33;
           _context2.t0 = _context2["catch"](0);
           console.error("Edit error:", _context2.t0);
           (0, _alert.showAlert)("error", "Failed to load tour details");
-        case 35:
+        case 37:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 31]]);
+    }, _callee2, null, [[0, 33]]);
   }));
   return function handleEditClick(_x) {
     return _ref2.apply(this, arguments);
@@ -9994,6 +9986,20 @@ var initializeEventListeners = function initializeEventListeners() {
   var cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
   var closeDeleteModalBtn = document.querySelector(".close-delete-modal");
 
+  // Event listener for closing modal on Esc key
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      var modal = document.getElementById("tourModal");
+      if (modal && modal.classList.contains("active")) {
+        handleCancelClick();
+      }
+      var _deleteModal = document.getElementById("deleteConfirmationModal");
+      if (_deleteModal && _deleteModal.classList.contains("active")) {
+        _deleteModal.classList.remove("active");
+      }
+    }
+  });
+
   // Event listener for confirming deletion
   confirmDeleteBtn === null || confirmDeleteBtn === void 0 || confirmDeleteBtn.addEventListener("click", function () {
     var tourId = deleteModal.dataset.tourId;
@@ -10037,6 +10043,7 @@ var initializeEventListeners = function initializeEventListeners() {
   });
   createTourBtn === null || createTourBtn === void 0 || createTourBtn.addEventListener("click", function () {
     var modal = document.getElementById("tourModal");
+    var deleteTourBtn = document.getElementById("deleteTourBtn");
     if (modal && tourForm) {
       tourForm.reset();
       tourForm.removeAttribute("data-tour-id");
@@ -10045,6 +10052,9 @@ var initializeEventListeners = function initializeEventListeners() {
       populateStartDates();
       document.getElementById("currentCoverImage").style.display = "none";
       document.getElementById("tourImagesContainer").innerHTML = "";
+
+      // Hide the "Delete Tour" button for new tours
+      if (deleteTourBtn) deleteTourBtn.style.display = "none";
       modal.classList.add("active");
     }
   });
