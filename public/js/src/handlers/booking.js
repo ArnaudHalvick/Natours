@@ -5,76 +5,78 @@ import {
   addTravelersToBooking,
   requestRefund,
 } from "../api/bookingAPI";
-import { hideAlert } from "../utils/alert";
 
-class BookingHandler {
-  constructor() {
-    // Modal elements
-    this.managementModal = document.getElementById("managementModal");
-    this.refundModal = document.getElementById("refundModal");
+export const initBookingHandlers = () => {
+  const { form, addTravelersForm, container } = elements.booking;
+  const managementModal = document.getElementById("managementModal");
+  const refundModal = document.getElementById("refundModal");
 
-    // Management modal elements
-    this.manageTourName = document.getElementById("manageTourName");
-    this.manageStartDate = document.getElementById("manageStartDate");
-    this.managePrice = document.getElementById("managePrice");
-    this.manageStatus = document.getElementById("manageStatus");
-
-    // Action groups
-    this.viewTourAction = document.getElementById("viewTourAction");
-    this.reviewActions = document.getElementById("reviewActions");
-    this.upcomingActions = document.getElementById("upcomingActions");
-
-    // Action buttons
-    this.viewTourBtn = document.getElementById("viewTourBtn");
-    this.writeReviewBtn = document.getElementById("writeReviewBtn");
-    this.editReviewBtn = document.getElementById("editReviewBtn");
-    this.addTravelersBtn = document.getElementById("addTravelersBtn");
-    this.requestRefundBtn = document.getElementById("requestRefundBtn");
-
-    // Initialize handlers
-    this.initializeEventListeners();
+  // Booking form handler
+  if (form()) {
+    form().addEventListener("submit", e => {
+      e.preventDefault();
+      const startDate = document.getElementById("startDate").value;
+      const numParticipants = document.getElementById("numParticipants").value;
+      const tourId = document.getElementById("bookTour").dataset.tourId;
+      e.target.querySelector("#bookTour").textContent = "Processing...";
+      bookTour(tourId, startDate, numParticipants);
+    });
   }
 
-  initializeEventListeners() {
+  // Add travelers form handler
+  if (addTravelersForm()) {
+    addTravelersForm().addEventListener("submit", e => {
+      e.preventDefault();
+      const submitBtn = document.querySelector(".add-travelers-submit");
+      const bookingId = submitBtn.dataset.bookingId;
+      const numParticipants = document.getElementById("numParticipants").value;
+      addTravelersToBooking(bookingId, numParticipants);
+    });
+  }
+
+  // Only initialize modal handlers if the modal exists
+  if (managementModal) {
     // Management modal handlers
     document.querySelectorAll(".manage-booking-btn").forEach(btn => {
-      btn.addEventListener("click", e => this.handleManageClick(e));
+      btn.addEventListener("click", handleManageClick);
     });
 
     // Close modal handlers
     document.querySelectorAll(".close-modal").forEach(closeBtn => {
-      closeBtn.addEventListener("click", () => this.closeAllModals());
+      closeBtn.addEventListener("click", closeAllModals);
     });
 
     // Modal action handlers
-    this.viewTourBtn?.addEventListener("click", () => this.handleViewTour());
-    this.writeReviewBtn?.addEventListener("click", () =>
-      this.handleWriteReview(),
-    );
-    this.editReviewBtn?.addEventListener("click", () =>
-      this.handleEditReview(),
-    );
-    this.addTravelersBtn?.addEventListener("click", () =>
-      this.handleAddTravelers(),
-    );
-    this.requestRefundBtn?.addEventListener("click", () =>
-      this.handleRequestRefund(),
-    );
+    document
+      .getElementById("viewTourBtn")
+      ?.addEventListener("click", handleViewTour);
+    document
+      .getElementById("writeReviewBtn")
+      ?.addEventListener("click", handleWriteReview);
+    document
+      .getElementById("editReviewBtn")
+      ?.addEventListener("click", handleEditReview);
+    document
+      .getElementById("addTravelersBtn")
+      ?.addEventListener("click", handleAddTravelers);
+    document
+      .getElementById("requestRefundBtn")
+      ?.addEventListener("click", handleRequestRefund);
 
     // Refund modal handlers
     document
       .getElementById("confirmRefund")
-      ?.addEventListener("click", () => this.confirmRefund());
+      ?.addEventListener("click", handleConfirmRefund);
     document
       .getElementById("cancelRefund")
-      ?.addEventListener("click", () => this.closeAllModals());
+      ?.addEventListener("click", closeAllModals);
 
     // Close modals when clicking outside
-    [this.managementModal, this.refundModal].forEach(modal => {
+    [managementModal, refundModal].forEach(modal => {
       if (modal) {
         modal.addEventListener("click", e => {
           if (e.target === modal) {
-            this.closeAllModals();
+            closeAllModals();
           }
         });
       }
@@ -83,107 +85,135 @@ class BookingHandler {
     // Handle escape key
     document.addEventListener("keydown", e => {
       if (e.key === "Escape") {
-        this.closeAllModals();
+        closeAllModals();
       }
     });
   }
 
-  handleManageClick(e) {
-    const btn = e.currentTarget;
-    const bookingData = btn.dataset;
+  // Container click handler for add travelers button
+  if (container()) {
+    container().addEventListener("click", e => {
+      const addTravelersBtn = e.target.closest(".add-travelers-btn");
+      if (addTravelersBtn) {
+        const bookingId = addTravelersBtn.dataset.bookingId;
+        window.location.href = `/booking/${bookingId}/add-travelers`;
+      }
+    });
+  }
+};
 
-    // Store current booking ID for other operations
-    this.currentBookingId = bookingData.bookingId;
-    this.currentTourSlug = bookingData.tourSlug;
-    this.currentReviewId = bookingData.reviewId;
+// Modal handlers
+const handleManageClick = e => {
+  const btn = e.currentTarget;
+  const bookingData = btn.dataset;
+  const managementModal = document.getElementById("managementModal");
 
-    // Update modal content
-    this.manageTourName.textContent = `Tour: ${bookingData.tourName}`;
-    this.manageStartDate.textContent = `Start Date: ${new Date(bookingData.startDate).toLocaleDateString()}`;
-    this.managePrice.textContent = `Price: $${parseFloat(bookingData.price).toLocaleString()}`;
+  // Store data for other operations
+  managementModal.dataset.bookingId = bookingData.bookingId;
+  managementModal.dataset.tourSlug = bookingData.tourSlug;
+  managementModal.dataset.reviewId = bookingData.reviewId;
 
-    // Update status and available actions
-    const hasStarted = bookingData.hasStarted === "true";
-    const refundStatus = bookingData.refundStatus;
-    const hasReview = bookingData.hasReview === "true";
+  // Update modal content
+  document.getElementById("manageTourName").textContent =
+    `Tour: ${bookingData.tourName}`;
+  document.getElementById("manageStartDate").textContent =
+    `Start Date: ${new Date(bookingData.startDate).toLocaleDateString()}`;
+  document.getElementById("managePrice").textContent =
+    `Price: $${parseFloat(bookingData.price).toLocaleString()}`;
 
-    // Show/hide action groups based on status
-    this.viewTourAction.style.display = "block";
-    this.reviewActions.style.display = hasStarted ? "block" : "none";
-    this.upcomingActions.style.display =
-      !hasStarted && !refundStatus ? "block" : "none";
+  // Update status and available actions
+  const hasStarted = bookingData.hasStarted === "true";
+  const refundStatus = bookingData.refundStatus;
+  const hasReview = bookingData.hasReview === "true";
 
-    // Show/hide review buttons
-    if (hasStarted) {
-      this.writeReviewBtn.style.display = hasReview ? "none" : "block";
-      this.editReviewBtn.style.display = hasReview ? "block" : "none";
+  // Show/hide action groups based on status
+  document.getElementById("reviewActions").style.display = hasStarted
+    ? "block"
+    : "none";
+  document.getElementById("upcomingActions").style.display =
+    !hasStarted && !refundStatus ? "block" : "none";
+
+  // Show/hide review buttons
+  if (hasStarted) {
+    document.getElementById("writeReviewBtn").style.display = hasReview
+      ? "none"
+      : "block";
+    document.getElementById("editReviewBtn").style.display = hasReview
+      ? "block"
+      : "none";
+  }
+
+  // Open management modal
+  managementModal.classList.add("show");
+};
+
+const closeAllModals = () => {
+  const modals = [
+    document.getElementById("managementModal"),
+    document.getElementById("refundModal"),
+  ];
+
+  modals.forEach(modal => {
+    if (modal) {
+      modal.classList.remove("show");
+      // Wait for transition to complete before hiding
+      setTimeout(() => {
+        if (!modal.classList.contains("show")) {
+          modal.style.display = "none";
+        }
+      }, 300);
     }
+  });
+};
 
-    // Open management modal with animation
-    this.managementModal.style.display = "flex";
-    // Trigger reflow
-    void this.managementModal.offsetWidth;
-    this.managementModal.classList.add("show");
-  }
+const handleViewTour = () => {
+  const tourSlug = document.getElementById("managementModal").dataset.tourSlug;
+  window.location.href = `/tour/${tourSlug}`;
+};
 
-  closeAllModals() {
-    [this.managementModal, this.refundModal].forEach(modal => {
-      if (modal) {
-        modal.classList.remove("show");
-        // Wait for transition to complete before hiding
-        setTimeout(() => {
-          if (!modal.classList.contains("show")) {
-            modal.style.display = "none";
-          }
-        }, 300);
-      }
-    });
-  }
+const handleWriteReview = () => {
+  const tourSlug = document.getElementById("managementModal").dataset.tourSlug;
+  window.location.href = `/tour/${tourSlug}/review`;
+};
 
-  handleRequestRefund() {
-    // Close management modal and open refund modal
-    this.managementModal.classList.remove("show");
-    setTimeout(() => {
-      this.managementModal.style.display = "none";
-      this.refundModal.style.display = "flex";
-      // Trigger reflow
-      void this.refundModal.offsetWidth;
-      this.refundModal.classList.add("show");
+const handleEditReview = () => {
+  const tourSlug = document.getElementById("managementModal").dataset.tourSlug;
+  const reviewId = document.getElementById("managementModal").dataset.reviewId;
+  window.location.href = `/tour/${tourSlug}/review/${reviewId}/edit`;
+};
 
-      // Update refund modal content
-      document.getElementById("refundTourName").textContent =
-        this.manageTourName.textContent;
-      document.getElementById("refundStartDate").textContent =
-        this.manageStartDate.textContent;
-      document.getElementById("refundAmount").textContent =
-        this.managePrice.textContent;
-    }, 300);
-  }
+const handleAddTravelers = () => {
+  const bookingId =
+    document.getElementById("managementModal").dataset.bookingId;
+  window.location.href = `/booking/${bookingId}/add-travelers`;
+};
 
-  async confirmRefund() {
-    await requestRefund(this.currentBookingId);
-    this.closeAllModals();
-  }
+const handleRequestRefund = () => {
+  const managementModal = document.getElementById("managementModal");
+  const refundModal = document.getElementById("refundModal");
 
-  async handleBookingSubmit(e) {
-    e.preventDefault();
-    const startDate = document.getElementById("startDate").value;
-    const numParticipants = document.getElementById("numParticipants").value;
-    const tourId = document.getElementById("bookTour").dataset.tourId;
-    e.target.querySelector("#bookTour").textContent = "Processing...";
-    await bookTour(tourId, startDate, numParticipants);
-  }
+  // Close management modal and open refund modal
+  managementModal.classList.remove("show");
+  setTimeout(() => {
+    managementModal.style.display = "none";
+    refundModal.style.display = "flex";
 
-  async handleAddTravelersSubmit(e) {
-    e.preventDefault();
-    const submitBtn = document.querySelector(".add-travelers-submit");
-    const bookingId = submitBtn.dataset.bookingId;
-    const numParticipants = document.getElementById("numParticipants").value;
-    await addTravelersToBooking(bookingId, numParticipants);
-  }
-}
+    // Update refund modal content
+    document.getElementById("refundTourName").textContent =
+      document.getElementById("manageTourName").textContent;
+    document.getElementById("refundStartDate").textContent =
+      document.getElementById("manageStartDate").textContent;
+    document.getElementById("refundAmount").textContent =
+      document.getElementById("managePrice").textContent;
 
-// Initialize booking handlers
-export const initBookingHandlers = () => {
-  new BookingHandler();
+    // Show refund modal
+    refundModal.classList.add("show");
+  }, 300);
+};
+
+const handleConfirmRefund = async () => {
+  const bookingId =
+    document.getElementById("managementModal").dataset.bookingId;
+  await requestRefund(bookingId);
+  closeAllModals();
 };
