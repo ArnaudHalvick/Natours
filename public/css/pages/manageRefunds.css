@@ -61,7 +61,7 @@
   background-color: #fff;
   border-radius: 3px;
   box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.06);
-  margin-bottom: 3rem;
+  padding: 0 1.5rem 2rem 1.5rem;
   overflow-x: auto;
   width: 100%;
   min-width: 0; /* Add this to prevent overflow */
