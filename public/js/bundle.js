@@ -7473,11 +7473,118 @@ var _elements = require("../utils/elements");
 var _reviewAPI = require("../api/reviewAPI");
 // handlers/review.js
 
+var initReviewFilters = function initReviewFilters() {
+  var tourFilter = document.getElementById("tourFilter");
+  var ratingFilter = document.getElementById("ratingFilter");
+  var sortFilter = document.getElementById("sortFilter");
+  var tbody = document.getElementById("myReviewsTableBody");
+  var prevPageBtn = document.getElementById("prevPage");
+  var nextPageBtn = document.getElementById("nextPage");
+  var pageInfo = document.getElementById("pageInfo");
+  var currentPage = 1;
+  var itemsPerPage = 10;
+  var filteredReviews = [];
+
+  // Get all review rows and convert to array of objects for easier filtering
+  var getAllReviews = function getAllReviews() {
+    var rows = Array.from(tbody.getElementsByTagName("tr"));
+    return rows.map(function (row) {
+      var _row$querySelector;
+      return {
+        element: row,
+        tour: row.cells[0].textContent.trim(),
+        tourId: ((_row$querySelector = row.querySelector(".btn--blue")) === null || _row$querySelector === void 0 ? void 0 : _row$querySelector.href.split("/")[4]) || "",
+        rating: parseInt(row.cells[1].textContent.trim()),
+        review: row.cells[2].textContent.trim(),
+        tourStart: row.cells[3].textContent.trim(),
+        reviewDate: new Date(row.cells[4].textContent.trim()),
+        hidden: row.classList.contains("review--hidden")
+      };
+    });
+  };
+  var applyFilters = function applyFilters() {
+    var reviews = getAllReviews();
+    var selectedTour = tourFilter.value;
+    var selectedRating = ratingFilter.value;
+    var selectedSort = sortFilter.value;
+
+    // Apply filters
+    filteredReviews = reviews.filter(function (review) {
+      if (selectedTour && review.tourId !== selectedTour) return false;
+      if (selectedRating && review.rating !== parseInt(selectedRating)) return false;
+      return true;
+    });
+
+    // Apply sorting
+    filteredReviews.sort(function (a, b) {
+      switch (selectedSort) {
+        case "reviewDateDesc":
+          return b.reviewDate - a.reviewDate;
+        case "reviewDateAsc":
+          return a.reviewDate - b.reviewDate;
+        case "startDateAsc":
+          return new Date(a.tourStart) - new Date(b.tourStart);
+        case "startDateDesc":
+          return new Date(b.tourStart) - new Date(a.tourStart);
+        default:
+          return 0;
+      }
+    });
+    currentPage = 1;
+    updateDisplay();
+  };
+  var updateDisplay = function updateDisplay() {
+    var startIndex = (currentPage - 1) * itemsPerPage;
+    var endIndex = startIndex + itemsPerPage;
+    var totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
+
+    // Hide all rows
+    getAllReviews().forEach(function (review) {
+      review.element.style.display = "none";
+    });
+
+    // Show only filtered rows for current page
+    filteredReviews.slice(startIndex, endIndex).forEach(function (review) {
+      review.element.style.display = "";
+    });
+
+    // Update pagination
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === totalPages;
+    pageInfo.textContent = "Page ".concat(currentPage, " of ").concat(totalPages || 1);
+  };
+
+  // Event listeners
+  tourFilter.addEventListener("change", applyFilters);
+  ratingFilter.addEventListener("change", applyFilters);
+  sortFilter.addEventListener("change", applyFilters);
+  prevPageBtn.addEventListener("click", function () {
+    if (currentPage > 1) {
+      currentPage--;
+      updateDisplay();
+    }
+  });
+  nextPageBtn.addEventListener("click", function () {
+    var totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
+    if (currentPage < totalPages) {
+      currentPage++;
+      updateDisplay();
+    }
+  });
+
+  // Initialize
+  applyFilters();
+};
 var initReviewHandlers = exports.initReviewHandlers = function initReviewHandlers() {
   var _elements$review = _elements.elements.review,
     form = _elements$review.form,
     editForm = _elements$review.editForm,
     deleteBtn = _elements$review.deleteBtn;
+
+  // Initialize filters if we're on the my-reviews page
+  if (document.getElementById("myReviewsTableBody")) {
+    initReviewFilters();
+  }
   if (form()) {
     form().addEventListener("submit", function (e) {
       e.preventDefault();
@@ -10678,7 +10785,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42963" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "44847" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
