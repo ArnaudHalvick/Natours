@@ -3,7 +3,8 @@ extends ../../base
 block append head
   link(rel="stylesheet" href="/css/components/forms.css")
   link(rel="stylesheet" href="/css/layout/user-view.css")
-  link(rel="stylesheet" href="/css/pages/manageReviews.css")
+  link(rel="stylesheet" href="/css/pages/myreviews.css")
+
 
 block content
   main.main
@@ -78,8 +79,8 @@ block content
                           p.hidden-review--admin
                             | Your review has been hidden by an admin.
 
-              // PAGINATION
-              .pagination
-                button.btn.btn--small#prevPage Previous
-                span#pageInfo Page 1 of 1
-                button.btn.btn--small#nextPage Next
+        // PAGINATION
+        .pagination
+          button.btn.btn--small#prevPage Previous
+          span#pageInfo Page 1 of 1
+          button.btn.btn--small#nextPage Next

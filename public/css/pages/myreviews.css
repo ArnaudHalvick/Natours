@@ -1,142 +1,152 @@
 /* My Reviews Page Styles
    ========================================================================== */
 
-.myreviews-container {
-  padding: 0 1rem;
+/* Heading Styles */
+.heading-secondary.ma-bt-md {
+  margin-left: 2rem;
+  font-size: 2rem;
 }
 
-/* Review Card */
-.review {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  padding: 3rem;
-  margin-bottom: 3rem;
-  position: relative;
-  transition: transform 0.3s ease;
-}
-
-/* Highlight or style hidden reviews differently */
-.review--hidden {
-  border-color: #e74c3c; /* For example, a red border */
-  opacity: 0.7;
-}
-
-.review .hidden-review--admin {
-  color: #e74c3c;
-  font-size: 1.4rem;
-  margin-bottom: 1rem;
-}
-
-.review__title {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #2c3e50;
-  margin-bottom: 2.5rem;
-  padding-bottom: 1.2rem;
-  border-bottom: 2px solid #f0f2f5;
-}
-
-/* Review Content */
-.review__info {
-  display: grid;
-  gap: 1.8rem;
+/* Review Controls (Filter Section) */
+.review-controls {
   margin-bottom: 2rem;
+  padding: 0 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
 }
 
-.review__rating,
-.review__text {
-  font-size: 1.6rem;
-  line-height: 1.8;
+.review-controls .form__group {
+  margin-bottom: 0;
+  width: auto;
+}
+
+/* Each filter box can be a flex item */
+.filter-box {
+  display: flex;
+  gap: 2rem;
+}
+
+/* For the sort filter, etc. */
+.review-controls select.form__input {
+  min-width: 15rem;
+}
+
+/* Reviews Table Container */
+.reviews-container {
+  background-color: #fff;
+  border-radius: 3px;
+  overflow-x: auto;
+  box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.06);
+  margin: 0 2rem 3rem 2rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 1.5rem 1.5rem;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid #f2f2f2;
+  line-height: 1.4;
+}
+
+.table th {
+  background-color: #f7f7f7;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 1.3rem;
+  color: #777;
+}
+
+.table td {
+  font-size: 1.4rem;
   color: #666;
 }
 
-.review__rating strong,
-.review__text strong {
-  display: inline-block;
-  width: 8rem;
-  color: #2c3e50;
-  font-weight: 600;
+.table tr:last-child td {
+  border-bottom: none;
 }
 
-/* Review Meta */
-.review__meta {
-  margin-top: 2.5rem;
-  padding-top: 2rem;
-  border-top: 1px solid #f0f2f5;
+.table tbody tr:hover {
+  background-color: #f9f9f9;
 }
 
-.review__date {
-  font-size: 1.4rem;
-  color: #888;
+/* Action Buttons within the table (Edit, etc.) */
+.action-buttons {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
 }
 
-.review__date strong {
-  color: #2c3e50;
-  font-weight: 600;
-  margin-right: 0.8rem;
+.action-buttons .btn {
+  padding: 0.8rem 1.2rem;
+  font-size: 1.2rem;
+  border-radius: 4px;
 }
 
-/* Review Buttons */
-.review__buttons {
-  margin-top: 2rem;
+/* Hidden (admin) review style */
+.review--hidden td {
+  opacity: 0.6;
+  background-color: #f9f9f9;
+  color: #999;
 }
 
-.btn--blue {
-  background-color: #3498db;
-  color: #fff;
-  text-transform: uppercase;
-  font-size: 1.4rem;
-  padding: 1rem 2rem;
-  border-radius: 5px;
-  text-decoration: none;
-  display: inline-block;
-  transition: all 0.3s;
-  border: none;
-  cursor: pointer;
-  letter-spacing: 0.5px;
-  font-weight: 500;
-}
-
-.btn--blue:hover {
-  background-color: #2980b9;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Empty State */
-.myreviews-container > p {
+/* Empty State Message */
+.reviews-container p {
   text-align: center;
-  font-size: 1.8rem;
-  color: #7f8c8d;
-  padding: 4rem;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  padding: 3rem;
+  color: #999;
+  font-size: 1.6rem;
 }
 
-/* Media Queries */
+/* Responsive Design
+   ========================================================================== */
 @media screen and (max-width: 768px) {
-  .myreviews-container {
-    padding: 0 2rem;
+  .review-controls {
+    flex-direction: column;
+    padding: 0 1rem;
   }
 
-  .review {
+  .filter-box {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .reviews-container {
+    margin: 0 1rem 3rem 1rem;
+  }
+
+  .table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .table th,
+  .table td {
+    white-space: nowrap;
+    min-width: 120px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  /* Additional small-screen adjustments */
+  .heading-secondary.ma-bt-md {
+    margin-left: 1rem;
+    font-size: 1.8rem;
+  }
+
+  .reviews-container p {
     padding: 2rem;
-  }
-
-  .review__title {
-    font-size: 2rem;
-  }
-
-  .review__rating strong,
-  .review__text strong {
-    width: auto;
-    margin-bottom: 0.5rem;
-  }
-
-  .btn--blue {
-    width: 100%;
-    text-align: center;
+    font-size: 1.4rem;
   }
 }
