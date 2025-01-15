@@ -95,10 +95,9 @@ export class App {
 
     handlers.forEach(({ init, name }) => {
       try {
-        console.log(`Initializing ${name} handler...`);
         init();
       } catch (error) {
-        console.error(`${name} handler initialization error:`, error);
+        throw err;
       }
     });
   }

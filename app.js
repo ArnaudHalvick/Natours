@@ -34,7 +34,6 @@ app.set("views", path.join(__dirname, "views"));
 
 // Make Stripe public key available to templates
 app.locals.stripePublicKey = process.env.STRIPE_PUBLIC_KEY;
-console.log("Setting Stripe public key:", process.env.STRIPE_PUBLIC_KEY); // Debug log
 
 app.use(cors()); // This is now correctly required
 

@@ -10470,10 +10470,9 @@ var App = exports.App = /*#__PURE__*/function () {
         var init = _ref.init,
           name = _ref.name;
         try {
-          console.log("Initializing ".concat(name, " handler..."));
           init();
         } catch (error) {
-          console.error("".concat(name, " handler initialization error:"), error);
+          throw err;
         }
       });
     }
