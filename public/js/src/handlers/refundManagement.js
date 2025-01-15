@@ -259,11 +259,13 @@ const initAdminRefundHandlers = () => {
 export const initRefundManagement = () => {
   // Initialize user-facing functionality on my-tours page
   if (window.location.pathname === "/my-tours") {
+    console.log("DAFUQ");
     initUserRefundHandlers();
   }
 
   // Initialize admin management functionality on manage-refunds page
   if (window.location.pathname === "/manage-refunds") {
+    console.log("DAFUQ");
     initAdminRefundHandlers();
   }
 };

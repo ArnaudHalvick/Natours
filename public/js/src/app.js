@@ -74,7 +74,7 @@ export class App {
         handlers: ["auth", "reviewManagement"],
       },
       "/manage-refunds": {
-        handlers: ["auth", "refundManagement"],
+        handlers: ["auth", "refund"],
       },
       "/billing": {
         handlers: ["auth", "billingManagement"],

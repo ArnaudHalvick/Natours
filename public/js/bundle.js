@@ -8021,11 +8021,13 @@ var initAdminRefundHandlers = function initAdminRefundHandlers() {
 var initRefundManagement = exports.initRefundManagement = function initRefundManagement() {
   // Initialize user-facing functionality on my-tours page
   if (window.location.pathname === "/my-tours") {
+    console.log("DAFUQ");
     initUserRefundHandlers();
   }
 
   // Initialize admin management functionality on manage-refunds page
   if (window.location.pathname === "/manage-refunds") {
+    console.log("DAFUQ");
     initAdminRefundHandlers();
   }
 };
@@ -10449,7 +10451,7 @@ var App = exports.App = /*#__PURE__*/function () {
           handlers: ["auth", "reviewManagement"]
         },
         "/manage-refunds": {
-          handlers: ["auth", "refundManagement"]
+          handlers: ["auth", "refund"]
         },
         "/billing": {
           handlers: ["auth", "billingManagement"]
@@ -10582,7 +10584,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "46149" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "45741" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
