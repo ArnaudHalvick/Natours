@@ -8,6 +8,14 @@
 }
 
 /* Review Controls (Filter Section) */
+.form__label {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.75rem;
+}
+
 .review-controls {
   margin-bottom: 2rem;
   padding: 0 2rem;
