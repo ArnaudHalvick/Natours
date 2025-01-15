@@ -246,16 +246,18 @@ exports.getManageRefunds = catchAsync(async (req, res) => {
 // Render form to add travelers for a specific booking
 exports.getAddTravelers = catchAsync(async (req, res, next) => {
   const { bookingId } = req.params;
-  const [booking, tour] = await Promise.all([
-    Booking.findById(bookingId),
-    Tour.findById(booking.tour)
-      .select("_id name maxGroupSize startDates slug")
-      .lean(),
-  ]);
 
+  // 1. Fetch the booking
+  const booking = await Booking.findById(bookingId);
   if (!booking) return next(new AppError("Booking not found", 404));
+
+  // 2. Fetch the associated tour
+  const tour = await Tour.findById(booking.tour)
+    .select("_id name maxGroupSize startDates slug")
+    .lean();
   if (!tour) return next(new AppError("Tour not found", 404));
 
+  // 3. Render the page once both are fetched
   res.status(200).render("pages/booking/addTravelers", {
     title: "Add Travelers",
     booking,
