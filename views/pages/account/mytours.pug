@@ -46,8 +46,8 @@ block content
                   th.th-purchase Purchase Date
                   th.th-start Start Date
                   th.th-price Price
-                  th.th-participants Participants
-                  th.th-status Status
+                  th.th-participants Travelers
+                  th.th-status Refund Status
                   th.th-actions Actions
               tbody#bookingTableBody
                 if bookings.length > 0
@@ -63,9 +63,9 @@ block content
                         - const hasStarted = new Date(booking.startDate) < new Date()
                         - const refundStatus = refundsByBooking && refundsByBooking[booking._id.toString()]
                         if hasStarted
-                          span.status-badge.status-badge--started Started
+                          span.status-badge.status-badge--started Already Started
                         else if refundStatus
-                          span.status-badge(class=`status-badge--${refundStatus.toLowerCase()}`)= refundStatus
+                          span.status-badge(class=`status-badge--${refundStatus.toLowerCase()}`) Refund #{refundStatus}
                         else
                           span.status-badge.status-badge--upcoming Upcoming
                       td.td-actions
