@@ -10,30 +10,46 @@ import { getStripeKey } from "../config";
 class BookingHandler {
   constructor() {
     try {
-      // Initialize Stripe if the script is loaded
-      if (typeof Stripe === "undefined") {
-        console.warn("Stripe not loaded");
-        return;
-      }
-
-      // Only initialize Stripe if we're on a booking page
-      const bookingForm =
+      // Check which page we're on
+      this.isBookingPage = Boolean(
         document.querySelector("#bookingForm") ||
-        document.querySelector(".add-travelers__form");
-      if (bookingForm) {
-        this.stripe = Stripe(getStripeKey());
+          document.querySelector(".add-travelers__form"),
+      );
+      this.isManagementPage = Boolean(
+        document.querySelector(".user-view__bookings-container"),
+      );
+
+      // Only initialize Stripe on booking pages
+      if (this.isBookingPage) {
+        if (typeof Stripe === "undefined") {
+          console.warn("Stripe not loaded");
+          return;
+        }
+
+        const bookingForm =
+          document.querySelector("#bookingForm") ||
+          document.querySelector(".add-travelers__form");
+        if (bookingForm) {
+          this.stripe = Stripe(getStripeKey());
+        }
       }
 
-      // Store elements
+      // Initialize components
       this.init();
       this.initializeEventListeners();
     } catch (error) {
-      console.error("BookingHandler initialization error:", error);
-      showAlert("error", "Failed to initialize booking system");
+      // Only show error if we're on a booking page
+      if (this.isBookingPage) {
+        console.error("BookingHandler initialization error:", error);
+        showAlert("error", "Failed to initialize booking system");
+      }
     }
   }
 
   init() {
+    // Skip initialization if we're on the management page
+    if (this.isManagementPage) return;
+
     // Modal elements
     this.managementModal = document.getElementById("managementModal");
     this.refundModal = document.getElementById("refundModal");
@@ -56,12 +72,15 @@ class BookingHandler {
     this.addTravelersBtn = document.getElementById("addTravelersBtn");
     this.requestRefundBtn = document.getElementById("requestRefundBtn");
 
-    // Booking form
+    // Booking forms
     this.bookingForm = document.getElementById("bookingForm");
     this.addTravelersForm = document.querySelector(".add-travelers__form");
   }
 
   initializeEventListeners() {
+    // Skip event listeners if we're on the management page
+    if (this.isManagementPage) return;
+
     // Use event delegation for manage buttons
     document.addEventListener("click", e => {
       const manageBtn = e.target.closest(".manage-booking-btn");
@@ -138,6 +157,7 @@ class BookingHandler {
     }
   }
 
+  // The rest of the methods remain the same as they're only called when needed
   handleManageClick(btn) {
     const bookingData = btn.dataset;
 
@@ -148,8 +168,12 @@ class BookingHandler {
 
     // Update modal content
     this.manageTourName.textContent = `Tour: ${bookingData.tourName}`;
-    this.manageStartDate.textContent = `Start Date: ${new Date(bookingData.startDate).toLocaleDateString()}`;
-    this.managePrice.textContent = `Price: $${parseFloat(bookingData.price).toLocaleString()}`;
+    this.manageStartDate.textContent = `Start Date: ${new Date(
+      bookingData.startDate,
+    ).toLocaleDateString()}`;
+    this.managePrice.textContent = `Price: $${parseFloat(
+      bookingData.price,
+    ).toLocaleString()}`;
     document.getElementById("managePurchaseDate").textContent =
       `Purchase Date: ${new Date(bookingData.createdAt).toLocaleDateString()}`;
     document.getElementById("manageTravelers").textContent =
@@ -161,6 +185,19 @@ class BookingHandler {
     const hasReview = bookingData.hasReview === "true";
     const isReviewHidden = bookingData.reviewHidden === "true";
 
+    this.updateButtonStates(
+      hasStarted,
+      refundStatus,
+      hasReview,
+      isReviewHidden,
+    );
+
+    // Show modal
+    this.managementModal.style.display = "flex";
+    this.managementModal.classList.add("show");
+  }
+
+  updateButtonStates(hasStarted, refundStatus, hasReview, isReviewHidden) {
     // View Tour button is always enabled
     this.viewTourBtn.disabled = false;
 
@@ -179,8 +216,14 @@ class BookingHandler {
     const refundBtn = document.getElementById("requestRefundBtn");
     const refundBadge = document.getElementById("refundStatusBadge");
 
+    this.updateRefundButton(refundBtn, refundBadge, hasStarted, refundStatus);
+
+    // Review buttons logic
+    this.updateReviewButtons(hasStarted, hasReview, isReviewHidden);
+  }
+
+  updateRefundButton(refundBtn, refundBadge, hasStarted, refundStatus) {
     if (hasStarted) {
-      // If tour has started, show disabled "Can't refund" button
       refundBtn.style.display = "inline-block";
       refundBadge.style.display = "none";
       refundBtn.disabled = true;
@@ -191,21 +234,20 @@ class BookingHandler {
         "Cannot request refund for started tours",
       );
     } else if (refundStatus) {
-      // If there's a refund status, show the badge
       refundBtn.style.display = "none";
       refundBadge.style.display = "inline-block";
       refundBadge.textContent = `Refund ${refundStatus}`;
       refundBadge.className = `btn status-badge--${refundStatus.toLowerCase()}`;
     } else {
-      // Show active refund button
       refundBtn.style.display = "inline-block";
       refundBadge.style.display = "none";
       refundBtn.disabled = false;
       refundBtn.className = "btn btn--red";
       refundBtn.innerHTML = '<i class="fas fa-undo"></i> Request Refund';
     }
+  }
 
-    // Review buttons logic
+  updateReviewButtons(hasStarted, hasReview, isReviewHidden) {
     // Write Review button
     this.writeReviewBtn.disabled = !hasStarted || hasReview;
     this.writeReviewBtn.setAttribute(
@@ -229,10 +271,6 @@ class BookingHandler {
             ? "Review has been hidden by admin"
             : "",
     );
-
-    // Show modal
-    this.managementModal.style.display = "flex";
-    this.managementModal.classList.add("show");
   }
 
   closeAllModals() {
@@ -335,6 +373,11 @@ class BookingHandler {
 
 // Initialize booking handlers
 export const initBookingHandlers = () => {
+  // Skip initialization if we're on the management page
+  if (document.querySelector(".user-view__bookings-container")) {
+    return;
+  }
+
   try {
     new BookingHandler();
   } catch (error) {

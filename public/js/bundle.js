@@ -6818,29 +6818,39 @@ var BookingHandler = /*#__PURE__*/function () {
   function BookingHandler() {
     _classCallCheck(this, BookingHandler);
     try {
-      // Initialize Stripe if the script is loaded
-      if (typeof Stripe === "undefined") {
-        console.warn("Stripe not loaded");
-        return;
+      // Check which page we're on
+      this.isBookingPage = Boolean(document.querySelector("#bookingForm") || document.querySelector(".add-travelers__form"));
+      this.isManagementPage = Boolean(document.querySelector(".user-view__bookings-container"));
+
+      // Only initialize Stripe on booking pages
+      if (this.isBookingPage) {
+        if (typeof Stripe === "undefined") {
+          console.warn("Stripe not loaded");
+          return;
+        }
+        var bookingForm = document.querySelector("#bookingForm") || document.querySelector(".add-travelers__form");
+        if (bookingForm) {
+          this.stripe = Stripe((0, _config.getStripeKey)());
+        }
       }
 
-      // Only initialize Stripe if we're on a booking page
-      var bookingForm = document.querySelector("#bookingForm") || document.querySelector(".add-travelers__form");
-      if (bookingForm) {
-        this.stripe = Stripe((0, _config.getStripeKey)());
-      }
-
-      // Store elements
+      // Initialize components
       this.init();
       this.initializeEventListeners();
     } catch (error) {
-      console.error("BookingHandler initialization error:", error);
-      (0, _alert.showAlert)("error", "Failed to initialize booking system");
+      // Only show error if we're on a booking page
+      if (this.isBookingPage) {
+        console.error("BookingHandler initialization error:", error);
+        (0, _alert.showAlert)("error", "Failed to initialize booking system");
+      }
     }
   }
   return _createClass(BookingHandler, [{
     key: "init",
     value: function init() {
+      // Skip initialization if we're on the management page
+      if (this.isManagementPage) return;
+
       // Modal elements
       this.managementModal = document.getElementById("managementModal");
       this.refundModal = document.getElementById("refundModal");
@@ -6863,7 +6873,7 @@ var BookingHandler = /*#__PURE__*/function () {
       this.addTravelersBtn = document.getElementById("addTravelersBtn");
       this.requestRefundBtn = document.getElementById("requestRefundBtn");
 
-      // Booking form
+      // Booking forms
       this.bookingForm = document.getElementById("bookingForm");
       this.addTravelersForm = document.querySelector(".add-travelers__form");
     }
@@ -6871,6 +6881,9 @@ var BookingHandler = /*#__PURE__*/function () {
     key: "initializeEventListeners",
     value: function initializeEventListeners() {
       var _this = this;
+      // Skip event listeners if we're on the management page
+      if (this.isManagementPage) return;
+
       // Use event delegation for manage buttons
       document.addEventListener("click", function (e) {
         var manageBtn = e.target.closest(".manage-booking-btn");
@@ -6938,6 +6951,8 @@ var BookingHandler = /*#__PURE__*/function () {
         this.initializeAddTravelersValidation();
       }
     }
+
+    // The rest of the methods remain the same as they're only called when needed
   }, {
     key: "handleManageClick",
     value: function handleManageClick(btn) {
@@ -6960,7 +6975,15 @@ var BookingHandler = /*#__PURE__*/function () {
       var refundStatus = bookingData.refundStatus;
       var hasReview = bookingData.hasReview === "true";
       var isReviewHidden = bookingData.reviewHidden === "true";
+      this.updateButtonStates(hasStarted, refundStatus, hasReview, isReviewHidden);
 
+      // Show modal
+      this.managementModal.style.display = "flex";
+      this.managementModal.classList.add("show");
+    }
+  }, {
+    key: "updateButtonStates",
+    value: function updateButtonStates(hasStarted, refundStatus, hasReview, isReviewHidden) {
       // View Tour button is always enabled
       this.viewTourBtn.disabled = false;
 
@@ -6971,8 +6994,15 @@ var BookingHandler = /*#__PURE__*/function () {
       // Refund button logic
       var refundBtn = document.getElementById("requestRefundBtn");
       var refundBadge = document.getElementById("refundStatusBadge");
+      this.updateRefundButton(refundBtn, refundBadge, hasStarted, refundStatus);
+
+      // Review buttons logic
+      this.updateReviewButtons(hasStarted, hasReview, isReviewHidden);
+    }
+  }, {
+    key: "updateRefundButton",
+    value: function updateRefundButton(refundBtn, refundBadge, hasStarted, refundStatus) {
       if (hasStarted) {
-        // If tour has started, show disabled "Can't refund" button
         refundBtn.style.display = "inline-block";
         refundBadge.style.display = "none";
         refundBtn.disabled = true;
@@ -6980,21 +7010,21 @@ var BookingHandler = /*#__PURE__*/function () {
         refundBtn.className = "btn status-badge--started";
         refundBtn.setAttribute("data-tooltip", "Cannot request refund for started tours");
       } else if (refundStatus) {
-        // If there's a refund status, show the badge
         refundBtn.style.display = "none";
         refundBadge.style.display = "inline-block";
         refundBadge.textContent = "Refund ".concat(refundStatus);
         refundBadge.className = "btn status-badge--".concat(refundStatus.toLowerCase());
       } else {
-        // Show active refund button
         refundBtn.style.display = "inline-block";
         refundBadge.style.display = "none";
         refundBtn.disabled = false;
         refundBtn.className = "btn btn--red";
         refundBtn.innerHTML = '<i class="fas fa-undo"></i> Request Refund';
       }
-
-      // Review buttons logic
+    }
+  }, {
+    key: "updateReviewButtons",
+    value: function updateReviewButtons(hasStarted, hasReview, isReviewHidden) {
       // Write Review button
       this.writeReviewBtn.disabled = !hasStarted || hasReview;
       this.writeReviewBtn.setAttribute("data-tooltip", !hasStarted ? "Can only review after tour has started" : hasReview ? "You have already written a review" : "");
@@ -7002,10 +7032,6 @@ var BookingHandler = /*#__PURE__*/function () {
       // Edit Review button
       this.editReviewBtn.disabled = !hasStarted || !hasReview || isReviewHidden;
       this.editReviewBtn.setAttribute("data-tooltip", !hasStarted ? "Tour has not started yet" : !hasReview ? "No review to edit" : isReviewHidden ? "Review has been hidden by admin" : "");
-
-      // Show modal
-      this.managementModal.style.display = "flex";
-      this.managementModal.classList.add("show");
     }
   }, {
     key: "closeAllModals",
@@ -7153,6 +7179,10 @@ var BookingHandler = /*#__PURE__*/function () {
   }]);
 }(); // Initialize booking handlers
 var initBookingHandlers = exports.initBookingHandlers = function initBookingHandlers() {
+  // Skip initialization if we're on the management page
+  if (document.querySelector(".user-view__bookings-container")) {
+    return;
+  }
   try {
     new BookingHandler();
   } catch (error) {
@@ -10353,12 +10383,17 @@ var _billingManagement = require("./handlers/billingManagement");
 var _alert = require("./utils/alert");
 var _mapbox = require("./utils/mapbox");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
+function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } // js/app.js
-// This is correct
 var App = exports.App = /*#__PURE__*/function () {
   function App() {
     _classCallCheck(this, App);
@@ -10371,25 +10406,45 @@ var App = exports.App = /*#__PURE__*/function () {
         this.initializeHandlers();
         this.initializeGlobalFeatures();
       } catch (error) {
+        console.error("Application initialization error:", error);
         (0, _alert.showAlert)("error", "Application initialization failed");
       }
     }
   }, {
+    key: "determinePageType",
+    value: function determinePageType() {
+      var path = window.location.pathname;
+      var isBookingPage = Boolean(document.querySelector("#bookingForm") || document.querySelector(".add-travelers__form"));
+      var isManagementPage = Boolean(document.querySelector(".user-view__bookings-container"));
+      return {
+        isBookingPage: isBookingPage,
+        isManagementPage: isManagementPage,
+        isBillingPage: path === "/billing",
+        isTourManagementPage: path === "/manage-tours"
+      };
+    }
+  }, {
     key: "initializeHandlers",
     value: function initializeHandlers() {
-      var handlers = [{
+      var pageType = this.determinePageType();
+
+      // Base handlers that are always needed
+      var baseHandlers = [{
         init: _auth.initAuthHandlers,
         name: "Auth"
       }, {
-        init: _booking.initBookingHandlers,
-        name: "Booking"
-      }, {
-        init: _review.initReviewHandlers,
-        name: "Review"
-      }, {
         init: _user.initUserHandlers,
         name: "User"
-      }, {
+      }];
+
+      // Conditional handlers based on page type
+      var conditionalHandlers = [].concat(_toConsumableArray(!pageType.isManagementPage ? [{
+        init: _booking.initBookingHandlers,
+        name: "Booking"
+      }] : []), _toConsumableArray(!pageType.isManagementPage ? [{
+        init: _review.initReviewHandlers,
+        name: "Review"
+      }] : []), _toConsumableArray(pageType.isManagementPage ? [{
         init: _reviewManagement.initReviewManagement,
         name: "Review Management"
       }, {
@@ -10398,36 +10453,24 @@ var App = exports.App = /*#__PURE__*/function () {
       }, {
         init: _refundManagement.initRefundManagement,
         name: "Refund Management"
-      } // Changed this line
-      ];
-      if (window.location.pathname === "/billing") {
-        handlers.push({
-          init: _billingManagement.initializeBillingManagement,
-          name: "Billing Management"
-        });
-      }
+      }, {
+        init: _bookingManagement.initializeBookingManagement,
+        name: "Booking Management"
+      }] : []), _toConsumableArray(pageType.isBillingPage ? [{
+        init: _billingManagement.initializeBillingManagement,
+        name: "Billing Management"
+      }] : []), _toConsumableArray(pageType.isTourManagementPage ? [{
+        init: _tourManagement.initializeTourManagement,
+        name: "Tour Management"
+      }] : []));
 
-      // Add booking management if on booking page
-      if (document.querySelector(".user-view__bookings-container")) {
-        handlers.push({
-          init: _bookingManagement.initializeBookingManagement,
-          name: "Booking Management"
-        });
-      }
-
-      // Add tour management if on tour management page
-      if (window.location.pathname === "/manage-tours") {
-        handlers.push({
-          init: _tourManagement.initializeTourManagement,
-          name: "Tour Management"
-        });
-      }
-
-      // Initialize all handlers
+      // Combine and initialize all handlers
+      var handlers = [].concat(baseHandlers, _toConsumableArray(conditionalHandlers));
       handlers.forEach(function (_ref) {
         var init = _ref.init,
           name = _ref.name;
         try {
+          console.log("Initializing ".concat(name, " handler..."));
           init();
         } catch (error) {
           console.error("".concat(name, " handler initialization error:"), error);
@@ -10437,13 +10480,20 @@ var App = exports.App = /*#__PURE__*/function () {
   }, {
     key: "initializeGlobalFeatures",
     value: function initializeGlobalFeatures() {
-      // Handle alerts from body data attribute
+      this.initializeAlerts();
+      this.initializeMap();
+    }
+  }, {
+    key: "initializeAlerts",
+    value: function initializeAlerts() {
       var alertMessage = document.querySelector("body").dataset.alert;
       if (alertMessage) {
         (0, _alert.showAlert)("success", alertMessage, 15);
       }
-
-      // Initialize map if present
+    }
+  }, {
+    key: "initializeMap",
+    value: function initializeMap() {
       var mapElement = _elements.elements.map();
       if (mapElement) {
         try {
