@@ -81,6 +81,8 @@ block content
                           data-has-review=reviewsByTour && reviewsByTour[booking.tour._id]
                           data-review-hidden=reviewsByTour && reviewsByTour[booking.tour._id] ? reviewsByTour[booking.tour._id].hidden : false
                           data-review-id=reviewsByTour && reviewsByTour[booking.tour._id] ? reviewsByTour[booking.tour._id]._id : ''
+                          data-created-at=booking.createdAt
+                          data-num-participants=booking.numParticipants
                         )
                           i.fas.fa-cog
                           | Manage
@@ -98,7 +100,9 @@ block content
               h3#modalTitle Manage Booking
               .booking-details
                 p#manageTourName
+                p#managePurchaseDate
                 p#manageStartDate
+                p#manageTravelers
                 p#managePrice
                 p#manageStatus
 

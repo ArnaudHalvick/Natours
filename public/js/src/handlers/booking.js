@@ -136,6 +136,10 @@ class BookingHandler {
     this.manageTourName.textContent = `Tour: ${bookingData.tourName}`;
     this.manageStartDate.textContent = `Start Date: ${new Date(bookingData.startDate).toLocaleDateString()}`;
     this.managePrice.textContent = `Price: $${parseFloat(bookingData.price).toLocaleString()}`;
+    document.getElementById("managePurchaseDate").textContent =
+      `Purchase Date: ${new Date(bookingData.createdAt).toLocaleDateString()}`;
+    document.getElementById("manageTravelers").textContent =
+      `Travelers: ${bookingData.numParticipants}`;
 
     // Get states
     const hasStarted = bookingData.hasStarted === "true";

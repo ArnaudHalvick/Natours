@@ -272,7 +272,7 @@
 
 #managementModal .booking-details p {
   margin-bottom: 1rem;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   color: #666;
 }
 
@@ -291,7 +291,8 @@
   max-width: 200px;
 }
 
-#managementModal #modalTitle {
+#managementModal #modalTitle,
+#refundModal #modalTitle {
   font-size: 2rem;
   color: #444;
   margin-bottom: 2rem;
@@ -306,16 +307,8 @@
   border-radius: 8px;
 }
 
-#refundModal .refund-warning {
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background-color: #fff3e0;
-  border-radius: 8px;
-  color: #f57c00;
-}
-
-#refundModal .refund-warning i {
-  margin-right: 1rem;
+.refund-details {
+  font-size: 1.6rem;
 }
 
 #refundModal .action-btns {

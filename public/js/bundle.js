@@ -6918,6 +6918,8 @@ var BookingHandler = /*#__PURE__*/function () {
       this.manageTourName.textContent = "Tour: ".concat(bookingData.tourName);
       this.manageStartDate.textContent = "Start Date: ".concat(new Date(bookingData.startDate).toLocaleDateString());
       this.managePrice.textContent = "Price: $".concat(parseFloat(bookingData.price).toLocaleString());
+      document.getElementById("managePurchaseDate").textContent = "Purchase Date: ".concat(new Date(bookingData.createdAt).toLocaleDateString());
+      document.getElementById("manageTravelers").textContent = "Travelers: ".concat(bookingData.numParticipants);
 
       // Get states
       var hasStarted = bookingData.hasStarted === "true";
