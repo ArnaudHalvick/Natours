@@ -1,6 +1,9 @@
 /* User Management Styles
    ========================================================================== */
-
+.heading-secondary.ma-bt-md {
+  margin-left: 2rem;
+  font-size: 2rem;
+}
 /* User Table Styles */
 .user-table {
   background-color: #fff;

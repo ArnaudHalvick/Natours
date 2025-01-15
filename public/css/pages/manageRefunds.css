@@ -1,10 +1,9 @@
 /* Refund Management Styles
    ========================================================================== */
-
 .heading-secondary.ma-bt-md {
   margin-left: 2rem;
+  font-size: 2rem;
 }
-
 /* Control Section Styles */
 .refund-controls__main {
   display: flex;
