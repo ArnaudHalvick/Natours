@@ -63,11 +63,11 @@ block content
                         - const hasStarted = new Date(booking.startDate) < new Date()
                         - const refundStatus = refundsByBooking && refundsByBooking[booking._id.toString()]
                         if hasStarted
-                          span.status-badge.status-badge--started Already Started
+                          span.status-badge.status-badge--started Can't refund
                         else if refundStatus
-                          span.status-badge(class=`status-badge--${refundStatus.toLowerCase()}`) Refund #{refundStatus}
+                          span.status-badge(class=`status-badge--${refundStatus.toLowerCase()}`)= refundStatus
                         else
-                          span.status-badge.status-badge--upcoming Upcoming
+                          span.status-badge.status-badge--upcoming Not requested
                       td.td-actions
                         button.btn.btn--small.btn--green.manage-booking-btn(
                           type="button"
@@ -79,6 +79,7 @@ block content
                           data-has-started=hasStarted
                           data-refund-status=refundStatus
                           data-has-review=reviewsByTour && reviewsByTour[booking.tour._id]
+                          data-review-hidden=reviewsByTour && reviewsByTour[booking.tour._id] ? reviewsByTour[booking.tour._id].hidden : false
                           data-review-id=reviewsByTour && reviewsByTour[booking.tour._id] ? reviewsByTour[booking.tour._id]._id : ''
                         )
                           i.fas.fa-cog
@@ -100,25 +101,35 @@ block content
                 p#manageStartDate
                 p#managePrice
                 p#manageStatus
+
               .booking-actions
-                .action-group#viewTourAction
+                // View Tour - Always available
+                .action-group
                   button.btn.btn--green#viewTourBtn
                     i.fas.fa-eye
                     | View Tour
-                .action-group#reviewActions
-                  button.btn.btn--blue#writeReviewBtn
-                    i.fas.fa-star
-                    | Write Review
-                  button.btn.btn--orange#editReviewBtn
-                    i.fas.fa-edit
-                    | Edit Review
-                .action-group#upcomingActions
-                  button.btn.btn--purple#addTravelersBtn
+
+                // Add Travelers - For upcoming tours without refund requests
+                .action-group
+                  button.btn.btn--purple#addTravelersBtn(disabled)
                     i.fas.fa-user-plus
                     | Add Travelers
-                  button.btn.btn--red#requestRefundBtn
+
+                // Refund Section - Shows either button or status
+                .action-group.refund-section
+                  button.btn.btn--red#requestRefundBtn(disabled)
                     i.fas.fa-undo
                     | Request Refund
+                  span.btn.d-none#refundStatusBadge
+
+                // Review Section - Write or Edit based on state
+                .action-group.review-section
+                  button.btn.btn--blue#writeReviewBtn(disabled)
+                    i.fas.fa-star
+                    | Write Review
+                  button.btn.btn--orange#editReviewBtn(disabled)
+                    i.fas.fa-edit
+                    | Edit Review
 
           // Refund Modal
           .modal#refundModal
@@ -130,7 +141,7 @@ block content
                 p#refundStartDate
                 p#refundAmount
               .refund-warning
-                p 
+                p
                   i.fas.fa-exclamation-triangle
                   | Please note that refund requests can only be made for upcoming tours.
               .action-btns

@@ -1,6 +1,6 @@
-/* My Tours Page Styles
-   ========================================================================== */
+/* My Tours Page Styles ========================================================================== */
 
+/* Heading Styles */
 .heading-secondary.ma-bt-md {
   margin-left: 2rem;
   font-size: 2rem;
@@ -18,47 +18,9 @@
   margin-bottom: 2rem;
 }
 
-.booking-table .btn {
-  padding: 0.8rem 1.5rem !important;
-  font-size: 1.2rem !important;
-  border-radius: 4px;
-}
-
 .tour-box,
 .sort-box {
   flex: 1;
-}
-
-/* Form Groups and Inputs */
-.form__group {
-  margin-bottom: 1.5rem;
-  width: 100%;
-}
-
-.form__label {
-  display: block;
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: #555;
-  margin-bottom: 0.75rem;
-}
-
-.form__input {
-  width: 100%;
-  padding: 1.2rem 1.6rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 1.4rem;
-  color: #666;
-  background-color: #f8f8f8;
-  transition: all 0.3s;
-}
-
-.form__input:focus {
-  outline: none;
-  border-color: #55c57a;
-  background-color: #fff;
-  box-shadow: 0 0 0 2px rgba(85, 197, 122, 0.1);
 }
 
 /* Booking Table Styles */
@@ -68,6 +30,12 @@
   overflow-x: auto;
   box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.06);
   margin: 0 2rem 3rem 2rem;
+}
+
+.booking-table .btn {
+  padding: 0.8rem 1.5rem !important;
+  font-size: 1.2rem !important;
+  border-radius: 4px;
 }
 
 .table {
@@ -103,6 +71,50 @@
 
 .table tbody tr:hover {
   background-color: #f9f9f9;
+}
+
+/* Table Actions */
+.table-actions {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.table-actions .btn {
+  padding: 0.8rem 1.2rem;
+  font-size: 1.2rem;
+}
+
+/* Form Groups and Inputs */
+.form__group {
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.form__label {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.75rem;
+}
+
+.form__input {
+  width: 100%;
+  padding: 1.2rem 1.6rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  color: #666;
+  background-color: #f8f8f8;
+  transition: all 0.3s;
+}
+
+.form__input:focus {
+  outline: none;
+  border-color: #55c57a;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(85, 197, 122, 0.1);
 }
 
 /* Status Badge Styles */
@@ -141,24 +153,57 @@
   color: #c62828;
 }
 
-/* Table Actions */
-.table-actions {
-  display: flex;
-  gap: 0.8rem;
-  flex-wrap: wrap;
-}
-
-.table-actions .btn {
-  padding: 0.8rem 1.2rem;
-  font-size: 1.2rem;
-}
-
 /* Empty State Message */
 .empty-message {
   text-align: center;
   padding: 3rem;
   color: #999;
   font-size: 1.6rem;
+}
+
+/* Button States */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(30%);
+  position: relative;
+}
+
+.btn:disabled:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem 1rem;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 4px;
+  font-size: 1.2rem;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 5px;
+}
+
+/* Action Group Styles */
+#managementModal .action-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+#managementModal .action-group:last-child {
+  margin-bottom: 0;
+}
+
+#managementModal .status-badge {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 /* Modal Styles */
@@ -241,12 +286,6 @@
   gap: 1.5rem;
 }
 
-#managementModal .action-group {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-}
-
 #managementModal .action-group button {
   flex: 1;
   max-width: 200px;
@@ -285,7 +324,7 @@
   gap: 2rem;
 }
 
-/* Responsive Modal Styles */
+/* Responsive Design */
 @media screen and (max-width: 768px) {
   .modal-content {
     width: 95%;
@@ -302,10 +341,7 @@
   #managementModal .action-group button {
     max-width: 100%;
   }
-}
 
-/* Responsive Design */
-@media screen and (max-width: 768px) {
   .booking-controls__main {
     flex-direction: column;
     gap: 1.5rem;
@@ -348,6 +384,7 @@
   .booking-table {
     margin: 0 1rem 2rem 1rem;
   }
+
   .modal-content {
     padding: 1.5rem;
     margin: 1rem;
@@ -357,4 +394,14 @@
     flex-direction: column;
     gap: 1rem;
   }
+}
+
+/* Utility Classes */
+.d-none {
+  display: none !important;
+}
+
+#refundStatusBadge {
+  margin-left: 1rem;
+  font-weight: 900;
 }

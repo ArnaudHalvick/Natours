@@ -127,7 +127,7 @@ class BookingHandler {
   handleManageClick(btn) {
     const bookingData = btn.dataset;
 
-    // Store current booking ID for other operations
+    // Store current booking data
     this.currentBookingId = bookingData.bookingId;
     this.currentTourSlug = bookingData.tourSlug;
     this.currentReviewId = bookingData.reviewId;
@@ -137,24 +137,73 @@ class BookingHandler {
     this.manageStartDate.textContent = `Start Date: ${new Date(bookingData.startDate).toLocaleDateString()}`;
     this.managePrice.textContent = `Price: $${parseFloat(bookingData.price).toLocaleString()}`;
 
-    // Update status and available actions
+    // Get states
     const hasStarted = bookingData.hasStarted === "true";
     const refundStatus = bookingData.refundStatus;
     const hasReview = bookingData.hasReview === "true";
+    const isReviewHidden = bookingData.reviewHidden === "true";
 
-    // Show/hide action groups based on status
-    this.viewTourAction.style.display = "block";
-    this.reviewActions.style.display = hasStarted ? "block" : "none";
-    this.upcomingActions.style.display =
-      !hasStarted && !refundStatus ? "block" : "none";
+    // View Tour button is always enabled
+    this.viewTourBtn.disabled = false;
 
-    // Show/hide review buttons
-    if (hasStarted) {
-      this.writeReviewBtn.style.display = hasReview ? "none" : "block";
-      this.editReviewBtn.style.display = hasReview ? "block" : "none";
+    // Add Travelers button
+    this.addTravelersBtn.disabled = hasStarted || refundStatus;
+    this.addTravelersBtn.setAttribute(
+      "data-tooltip",
+      hasStarted
+        ? "Cannot add travelers to started tours"
+        : refundStatus
+          ? "Cannot add travelers to tours with refund requests"
+          : "",
+    );
+
+    // Refund button logic
+    const refundBtn = document.getElementById("requestRefundBtn");
+    const refundBadge = document.getElementById("refundStatusBadge");
+
+    if (refundStatus) {
+      // Hide button and show status badge
+      refundBtn.style.display = "none";
+      refundBadge.style.display = "inline-block";
+      refundBadge.textContent = `Refund ${refundStatus}`;
+      refundBadge.className = `btn status-badge--${refundStatus.toLowerCase()}`;
+    } else {
+      // Show button with appropriate state
+      refundBtn.style.display = "inline-block";
+      refundBadge.style.display = "none";
+      refundBtn.disabled = hasStarted;
+      refundBtn.setAttribute(
+        "data-tooltip",
+        hasStarted ? "Cannot request refund for started tours" : "",
+      );
     }
 
-    // Open management modal
+    // Review buttons logic
+    // Write Review button
+    this.writeReviewBtn.disabled = !hasStarted || hasReview;
+    this.writeReviewBtn.setAttribute(
+      "data-tooltip",
+      !hasStarted
+        ? "Can only review after tour has started"
+        : hasReview
+          ? "You have already written a review"
+          : "",
+    );
+
+    // Edit Review button
+    this.editReviewBtn.disabled = !hasStarted || !hasReview || isReviewHidden;
+    this.editReviewBtn.setAttribute(
+      "data-tooltip",
+      !hasStarted
+        ? "Tour has not started yet"
+        : !hasReview
+          ? "No review to edit"
+          : isReviewHidden
+            ? "Review has been hidden by admin"
+            : "",
+    );
+
+    // Show modal
     this.managementModal.style.display = "flex";
     this.managementModal.classList.add("show");
   }
