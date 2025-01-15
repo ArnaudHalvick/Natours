@@ -1,6 +1,9 @@
 // js/app.js
+import { showAlert } from "./utils/alert";
+import { displayMap } from "./utils/mapbox";
 import { elements } from "./utils/elements";
 
+// Handler imports
 import { initAuthHandlers } from "./handlers/auth";
 import { initBookingHandlers } from "./handlers/booking";
 import { initReviewHandlers } from "./handlers/review";
@@ -12,9 +15,6 @@ import { initializeUserManagement } from "./handlers/userManagement";
 import { initializeTourManagement } from "./handlers/tourManagement";
 import { initializeBillingManagement } from "./handlers/billingManagement";
 
-import { showAlert } from "./utils/alert";
-import { displayMap } from "./utils/mapbox";
-
 export class App {
   constructor() {
     this.init();
@@ -22,89 +22,126 @@ export class App {
 
   init() {
     try {
-      this.initializeHandlers();
-      this.initializeGlobalFeatures();
+      const pageConfig = this.getPageConfig();
+      this.initializeRequiredFeatures(pageConfig);
     } catch (error) {
       console.error("Application initialization error:", error);
       showAlert("error", "Application initialization failed");
     }
   }
 
-  determinePageType() {
+  getPageConfig() {
     const path = window.location.pathname;
-    const isBookingPage = Boolean(
-      document.querySelector("#bookingForm") ||
-        document.querySelector(".add-travelers__form"),
-    );
-    const isManagementPage = Boolean(
-      document.querySelector(".user-view__bookings-container"),
-    );
 
-    return {
-      isBookingPage,
-      isManagementPage,
-      isBillingPage: path === "/billing",
-      isTourManagementPage: path === "/manage-tours",
+    // Define page configurations
+    const pageConfigs = {
+      // Auth pages
+      "/login": {
+        handlers: ["auth"],
+      },
+      "/signup": {
+        handlers: ["auth"],
+      },
+      "/verify-2fa": {
+        handlers: ["auth"],
+      },
+      "/reset-password": {
+        handlers: ["auth"],
+      },
+
+      // User pages
+      "/me": {
+        handlers: ["auth", "user"],
+      },
+      "/my-tours": {
+        handlers: ["auth", "booking", "review", "refund"],
+      },
+      "/my-reviews": {
+        handlers: ["auth", "review"],
+      },
+
+      // Admin pages
+      "/manage-users": {
+        handlers: ["auth", "userManagement"],
+      },
+      "/manage-tours": {
+        handlers: ["auth", "tourManagement"],
+      },
+      "/manage-bookings": {
+        handlers: ["auth", "bookingManagement"],
+      },
+      "/manage-reviews": {
+        handlers: ["auth", "reviewManagement"],
+      },
+      "/manage-refunds": {
+        handlers: ["auth", "refundManagement"],
+      },
+      "/billing": {
+        handlers: ["auth", "billingManagement"],
+      },
     };
+
+    // Get the matching configuration or use default
+    let config = pageConfigs[path] || {
+      handlers: ["auth"], // Default handlers
+    };
+
+    // Special handling for booking paths
+    if (path.startsWith("/booking/")) {
+      config.handlers = ["auth", "booking"];
+    }
+    // Special handling for tour pages
+    else if (path.startsWith("/tour/")) {
+      if (path.includes("/review")) {
+        config.handlers = ["auth", "review"];
+      } else if (path.includes("/booking")) {
+        config.handlers = ["auth", "booking"];
+      } else if (path.includes("/checkout")) {
+        config.handlers = ["auth", "booking"];
+      } else {
+        config.handlers = ["auth"];
+        config.needsMap = true;
+      }
+    }
+
+    return config;
   }
 
-  initializeHandlers() {
-    const pageType = this.determinePageType();
+  initializeRequiredFeatures({ handlers = [], needsMap = false }) {
+    // Map handler names to initialization functions
+    const handlerMap = {
+      auth: initAuthHandlers,
+      user: initUserHandlers,
+      booking: initBookingHandlers,
+      review: initReviewHandlers,
+      refund: initRefundManagement,
+      reviewManagement: initReviewManagement,
+      userManagement: initializeUserManagement,
+      bookingManagement: initializeBookingManagement,
+      tourManagement: initializeTourManagement,
+      billingManagement: initializeBillingManagement,
+    };
 
-    // Base handlers that are always needed
-    const baseHandlers = [
-      { init: initAuthHandlers, name: "Auth" },
-      { init: initUserHandlers, name: "User" },
-    ];
-
-    // Conditional handlers based on page type
-    const conditionalHandlers = [
-      // Only initialize booking handlers if we're on a booking page
-      ...(!pageType.isManagementPage
-        ? [{ init: initBookingHandlers, name: "Booking" }]
-        : []),
-
-      // Initialize review handlers if not on management pages
-      ...(!pageType.isManagementPage
-        ? [{ init: initReviewHandlers, name: "Review" }]
-        : []),
-
-      // Management handlers for specific pages
-      ...(pageType.isManagementPage
-        ? [
-            { init: initReviewManagement, name: "Review Management" },
-            { init: initializeUserManagement, name: "User Management" },
-            { init: initRefundManagement, name: "Refund Management" },
-            { init: initializeBookingManagement, name: "Booking Management" },
-          ]
-        : []),
-
-      // Billing management
-      ...(pageType.isBillingPage
-        ? [{ init: initializeBillingManagement, name: "Billing Management" }]
-        : []),
-
-      // Tour management
-      ...(pageType.isTourManagementPage
-        ? [{ init: initializeTourManagement, name: "Tour Management" }]
-        : []),
-    ];
-
-    // Combine and initialize all handlers
-    const handlers = [...baseHandlers, ...conditionalHandlers];
-
-    handlers.forEach(({ init, name }) => {
-      try {
-        init();
-      } catch (error) {
-        throw err;
+    // Initialize only required handlers
+    handlers.forEach(handlerName => {
+      const initFunction = handlerMap[handlerName];
+      if (initFunction) {
+        try {
+          console.log(`Initializing ${handlerName} handler...`);
+          initFunction();
+        } catch (error) {
+          console.error(`${handlerName} handler initialization error:`, error);
+        }
       }
     });
-  }
 
-  initializeGlobalFeatures() {
+    // Initialize map if needed
+    if (needsMap) {
+      this.initializeMap();
+    }
+
+    // Always initialize alerts as they're global
     this.initializeAlerts();
-    this.initializeMap();
   }
 
   initializeAlerts() {

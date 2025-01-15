@@ -6189,7 +6189,56 @@ var initializeAxiosInterceptors = exports.initializeAxiosInterceptors = function
     };
   }());
 };
-},{"axios":"../../../node_modules/axios/index.js","../utils/alert":"utils/alert.js"}],"utils/elements.js":[function(require,module,exports) {
+},{"axios":"../../../node_modules/axios/index.js","../utils/alert":"utils/alert.js"}],"utils/mapbox.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.displayMap = void 0;
+// utils/mapbox.js
+var displayMap = exports.displayMap = function displayMap(locations) {
+  mapboxgl.accessToken = "pk.eyJ1IjoiYXJuYXVkLWhhbHZpY2siLCJhIjoiY20yamRpeHV3MDQzZTJxb3Y4Y2w5c2Y4byJ9.twUyM4221bznoihxEh2PKA";
+
+  // Initialize the map
+  var map = new mapboxgl.Map({
+    container: "map",
+    // Container ID
+    style: "mapbox://styles/mapbox/streets-v11",
+    // Map style
+    scrollZoom: false // Disable scroll zoom for a better user experience
+  });
+
+  // Set bounds to include all tour locations
+  var bounds = new mapboxgl.LngLatBounds();
+  locations.forEach(function (loc) {
+    // Extend map bounds to include the current location
+    bounds.extend(loc.coordinates);
+
+    // Add popup for the location with description
+    new mapboxgl.Popup({
+      offset: 30,
+      // Offset the popup to prevent overlapping with the marker
+      closeOnClick: false,
+      // Prevent popup from closing when clicking on the map
+      closeButton: false // Remove the close button from the popup
+    }).setLngLat(loc.coordinates).setHTML("<p>Day ".concat(loc.day, ": ").concat(loc.description, "</p>")).addTo(map);
+  });
+
+  // Fit the map to the bounds of the locations
+  map.fitBounds(bounds, {
+    padding: {
+      top: 250,
+      bottom: 100,
+      left: 100,
+      right: 100
+    }
+  });
+
+  // Force the page to remain at the top after the map loads
+  window.scrollTo(0, 0);
+};
+},{}],"utils/elements.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10313,62 +10362,15 @@ var initializeBillingManagement = exports.initializeBillingManagement = function
   // Initial load
   loadTransactions();
 };
-},{"../utils/alert":"utils/alert.js","../api/billingAPI":"api/billingAPI.js","../utils/dom":"utils/dom.js"}],"utils/mapbox.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.displayMap = void 0;
-// utils/mapbox.js
-var displayMap = exports.displayMap = function displayMap(locations) {
-  mapboxgl.accessToken = "pk.eyJ1IjoiYXJuYXVkLWhhbHZpY2siLCJhIjoiY20yamRpeHV3MDQzZTJxb3Y4Y2w5c2Y4byJ9.twUyM4221bznoihxEh2PKA";
-
-  // Initialize the map
-  var map = new mapboxgl.Map({
-    container: "map",
-    // Container ID
-    style: "mapbox://styles/mapbox/streets-v11",
-    // Map style
-    scrollZoom: false // Disable scroll zoom for a better user experience
-  });
-
-  // Set bounds to include all tour locations
-  var bounds = new mapboxgl.LngLatBounds();
-  locations.forEach(function (loc) {
-    // Extend map bounds to include the current location
-    bounds.extend(loc.coordinates);
-
-    // Add popup for the location with description
-    new mapboxgl.Popup({
-      offset: 30,
-      // Offset the popup to prevent overlapping with the marker
-      closeOnClick: false,
-      // Prevent popup from closing when clicking on the map
-      closeButton: false // Remove the close button from the popup
-    }).setLngLat(loc.coordinates).setHTML("<p>Day ".concat(loc.day, ": ").concat(loc.description, "</p>")).addTo(map);
-  });
-
-  // Fit the map to the bounds of the locations
-  map.fitBounds(bounds, {
-    padding: {
-      top: 250,
-      bottom: 100,
-      left: 100,
-      right: 100
-    }
-  });
-
-  // Force the page to remain at the top after the map loads
-  window.scrollTo(0, 0);
-};
-},{}],"app.js":[function(require,module,exports) {
+},{"../utils/alert":"utils/alert.js","../api/billingAPI":"api/billingAPI.js","../utils/dom":"utils/dom.js"}],"app.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.App = void 0;
+var _alert = require("./utils/alert");
+var _mapbox = require("./utils/mapbox");
 var _elements = require("./utils/elements");
 var _auth = require("./handlers/auth");
 var _booking = require("./handlers/booking");
@@ -10380,20 +10382,13 @@ var _bookingManagement = require("./handlers/bookingManagement");
 var _userManagement = require("./handlers/userManagement");
 var _tourManagement = require("./handlers/tourManagement");
 var _billingManagement = require("./handlers/billingManagement");
-var _alert = require("./utils/alert");
-var _mapbox = require("./utils/mapbox");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
-function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
-function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
-function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } // js/app.js
+// Handler imports
 var App = exports.App = /*#__PURE__*/function () {
   function App() {
     _classCallCheck(this, App);
@@ -10403,84 +10398,129 @@ var App = exports.App = /*#__PURE__*/function () {
     key: "init",
     value: function init() {
       try {
-        this.initializeHandlers();
-        this.initializeGlobalFeatures();
+        var pageConfig = this.getPageConfig();
+        this.initializeRequiredFeatures(pageConfig);
       } catch (error) {
         console.error("Application initialization error:", error);
         (0, _alert.showAlert)("error", "Application initialization failed");
       }
     }
   }, {
-    key: "determinePageType",
-    value: function determinePageType() {
+    key: "getPageConfig",
+    value: function getPageConfig() {
       var path = window.location.pathname;
-      var isBookingPage = Boolean(document.querySelector("#bookingForm") || document.querySelector(".add-travelers__form"));
-      var isManagementPage = Boolean(document.querySelector(".user-view__bookings-container"));
-      return {
-        isBookingPage: isBookingPage,
-        isManagementPage: isManagementPage,
-        isBillingPage: path === "/billing",
-        isTourManagementPage: path === "/manage-tours"
+
+      // Define page configurations
+      var pageConfigs = {
+        // Auth pages
+        "/login": {
+          handlers: ["auth"]
+        },
+        "/signup": {
+          handlers: ["auth"]
+        },
+        "/verify-2fa": {
+          handlers: ["auth"]
+        },
+        "/reset-password": {
+          handlers: ["auth"]
+        },
+        // User pages
+        "/me": {
+          handlers: ["auth", "user"]
+        },
+        "/my-tours": {
+          handlers: ["auth", "booking", "review", "refund"]
+        },
+        "/my-reviews": {
+          handlers: ["auth", "review"]
+        },
+        // Admin pages
+        "/manage-users": {
+          handlers: ["auth", "userManagement"]
+        },
+        "/manage-tours": {
+          handlers: ["auth", "tourManagement"]
+        },
+        "/manage-bookings": {
+          handlers: ["auth", "bookingManagement"]
+        },
+        "/manage-reviews": {
+          handlers: ["auth", "reviewManagement"]
+        },
+        "/manage-refunds": {
+          handlers: ["auth", "refundManagement"]
+        },
+        "/billing": {
+          handlers: ["auth", "billingManagement"]
+        }
       };
+
+      // Get the matching configuration or use default
+      var config = pageConfigs[path] || {
+        handlers: ["auth"] // Default handlers
+      };
+
+      // Special handling for booking paths
+      if (path.startsWith("/booking/")) {
+        config.handlers = ["auth", "booking"];
+      }
+      // Special handling for tour pages
+      else if (path.startsWith("/tour/")) {
+        if (path.includes("/review")) {
+          config.handlers = ["auth", "review"];
+        } else if (path.includes("/booking")) {
+          config.handlers = ["auth", "booking"];
+        } else if (path.includes("/checkout")) {
+          config.handlers = ["auth", "booking"];
+        } else {
+          config.handlers = ["auth"];
+          config.needsMap = true;
+        }
+      }
+      return config;
     }
   }, {
-    key: "initializeHandlers",
-    value: function initializeHandlers() {
-      var pageType = this.determinePageType();
+    key: "initializeRequiredFeatures",
+    value: function initializeRequiredFeatures(_ref) {
+      var _ref$handlers = _ref.handlers,
+        handlers = _ref$handlers === void 0 ? [] : _ref$handlers,
+        _ref$needsMap = _ref.needsMap,
+        needsMap = _ref$needsMap === void 0 ? false : _ref$needsMap;
+      // Map handler names to initialization functions
+      var handlerMap = {
+        auth: _auth.initAuthHandlers,
+        user: _user.initUserHandlers,
+        booking: _booking.initBookingHandlers,
+        review: _review.initReviewHandlers,
+        refund: _refundManagement.initRefundManagement,
+        reviewManagement: _reviewManagement.initReviewManagement,
+        userManagement: _userManagement.initializeUserManagement,
+        bookingManagement: _bookingManagement.initializeBookingManagement,
+        tourManagement: _tourManagement.initializeTourManagement,
+        billingManagement: _billingManagement.initializeBillingManagement
+      };
 
-      // Base handlers that are always needed
-      var baseHandlers = [{
-        init: _auth.initAuthHandlers,
-        name: "Auth"
-      }, {
-        init: _user.initUserHandlers,
-        name: "User"
-      }];
-
-      // Conditional handlers based on page type
-      var conditionalHandlers = [].concat(_toConsumableArray(!pageType.isManagementPage ? [{
-        init: _booking.initBookingHandlers,
-        name: "Booking"
-      }] : []), _toConsumableArray(!pageType.isManagementPage ? [{
-        init: _review.initReviewHandlers,
-        name: "Review"
-      }] : []), _toConsumableArray(pageType.isManagementPage ? [{
-        init: _reviewManagement.initReviewManagement,
-        name: "Review Management"
-      }, {
-        init: _userManagement.initializeUserManagement,
-        name: "User Management"
-      }, {
-        init: _refundManagement.initRefundManagement,
-        name: "Refund Management"
-      }, {
-        init: _bookingManagement.initializeBookingManagement,
-        name: "Booking Management"
-      }] : []), _toConsumableArray(pageType.isBillingPage ? [{
-        init: _billingManagement.initializeBillingManagement,
-        name: "Billing Management"
-      }] : []), _toConsumableArray(pageType.isTourManagementPage ? [{
-        init: _tourManagement.initializeTourManagement,
-        name: "Tour Management"
-      }] : []));
-
-      // Combine and initialize all handlers
-      var handlers = [].concat(baseHandlers, _toConsumableArray(conditionalHandlers));
-      handlers.forEach(function (_ref) {
-        var init = _ref.init,
-          name = _ref.name;
-        try {
-          init();
-        } catch (error) {
-          throw err;
+      // Initialize only required handlers
+      handlers.forEach(function (handlerName) {
+        var initFunction = handlerMap[handlerName];
+        if (initFunction) {
+          try {
+            console.log("Initializing ".concat(handlerName, " handler..."));
+            initFunction();
+          } catch (error) {
+            console.error("".concat(handlerName, " handler initialization error:"), error);
+          }
         }
       });
-    }
-  }, {
-    key: "initializeGlobalFeatures",
-    value: function initializeGlobalFeatures() {
+
+      // Initialize map if needed
+      if (needsMap) {
+        this.initializeMap();
+      }
+
+      // Always initialize alerts as they're global
       this.initializeAlerts();
-      this.initializeMap();
     }
   }, {
     key: "initializeAlerts",
@@ -10506,7 +10546,7 @@ var App = exports.App = /*#__PURE__*/function () {
     }
   }]);
 }();
-},{"./utils/elements":"utils/elements.js","./handlers/auth":"handlers/auth.js","./handlers/booking":"handlers/booking.js","./handlers/review":"handlers/review.js","./handlers/user":"handlers/user.js","./handlers/refundManagement":"handlers/refundManagement.js","./handlers/reviewManagement":"handlers/reviewManagement.js","./handlers/bookingManagement":"handlers/bookingManagement.js","./handlers/userManagement":"handlers/userManagement.js","./handlers/tourManagement":"handlers/tourManagement.js","./handlers/billingManagement":"handlers/billingManagement.js","./utils/alert":"utils/alert.js","./utils/mapbox":"utils/mapbox.js"}],"index.js":[function(require,module,exports) {
+},{"./utils/alert":"utils/alert.js","./utils/mapbox":"utils/mapbox.js","./utils/elements":"utils/elements.js","./handlers/auth":"handlers/auth.js","./handlers/booking":"handlers/booking.js","./handlers/review":"handlers/review.js","./handlers/user":"handlers/user.js","./handlers/refundManagement":"handlers/refundManagement.js","./handlers/reviewManagement":"handlers/reviewManagement.js","./handlers/bookingManagement":"handlers/bookingManagement.js","./handlers/userManagement":"handlers/userManagement.js","./handlers/tourManagement":"handlers/tourManagement.js","./handlers/billingManagement":"handlers/billingManagement.js"}],"index.js":[function(require,module,exports) {
 "use strict";
 
 var _interceptors = require("./api/interceptors");
@@ -10542,7 +10582,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "41261" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "46149" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
