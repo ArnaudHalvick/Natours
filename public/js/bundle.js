@@ -6773,6 +6773,7 @@ var requestRefund = exports.requestRefund = /*#__PURE__*/function () {
   };
 }();
 },{"axios":"../../../node_modules/axios/index.js","../utils/alert":"utils/alert.js"}],"handlers/booking.js":[function(require,module,exports) {
+var define;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6781,202 +6782,312 @@ Object.defineProperty(exports, "__esModule", {
 exports.initBookingHandlers = void 0;
 var _elements = require("../utils/elements");
 var _bookingAPI = require("../api/bookingAPI");
+var _alert = require("../utils/alert");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
-function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; } // handlers/booking.js
-var initBookingHandlers = exports.initBookingHandlers = function initBookingHandlers() {
-  var _elements$booking = _elements.elements.booking,
-    form = _elements$booking.form,
-    addTravelersForm = _elements$booking.addTravelersForm,
-    container = _elements$booking.container;
-  var managementModal = document.getElementById("managementModal");
-  var refundModal = document.getElementById("refundModal");
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } // handlers/booking.js
+var BookingHandler = /*#__PURE__*/function () {
+  function BookingHandler() {
+    _classCallCheck(this, BookingHandler);
+    // Initialize Stripe if the script is loaded
+    if (window.Stripe) {
+      this.stripe = Stripe(undefined);
+    }
 
-  // Booking form handler
-  if (form()) {
-    form().addEventListener("submit", function (e) {
-      e.preventDefault();
-      var startDate = document.getElementById("startDate").value;
-      var numParticipants = document.getElementById("numParticipants").value;
-      var tourId = document.getElementById("bookTour").dataset.tourId;
-      e.target.querySelector("#bookTour").textContent = "Processing...";
-      (0, _bookingAPI.bookTour)(tourId, startDate, numParticipants);
-    });
+    // Store elements
+    this.init();
+    this.initializeEventListeners();
   }
+  return _createClass(BookingHandler, [{
+    key: "init",
+    value: function init() {
+      // Modal elements
+      this.managementModal = document.getElementById("managementModal");
+      this.refundModal = document.getElementById("refundModal");
 
-  // Add travelers form handler
-  if (addTravelersForm()) {
-    addTravelersForm().addEventListener("submit", function (e) {
-      e.preventDefault();
-      var submitBtn = document.querySelector(".add-travelers-submit");
-      var bookingId = submitBtn.dataset.bookingId;
-      var numParticipants = document.getElementById("numParticipants").value;
-      (0, _bookingAPI.addTravelersToBooking)(bookingId, numParticipants);
-    });
-  }
+      // Management modal elements
+      this.manageTourName = document.getElementById("manageTourName");
+      this.manageStartDate = document.getElementById("manageStartDate");
+      this.managePrice = document.getElementById("managePrice");
+      this.manageStatus = document.getElementById("manageStatus");
 
-  // Only initialize modal handlers if the modal exists
-  if (managementModal) {
-    var _document$getElementB, _document$getElementB2, _document$getElementB3, _document$getElementB4, _document$getElementB5, _document$getElementB6, _document$getElementB7;
-    // Management modal handlers
-    document.querySelectorAll(".manage-booking-btn").forEach(function (btn) {
-      btn.addEventListener("click", handleManageClick);
-    });
+      // Action groups
+      this.viewTourAction = document.getElementById("viewTourAction");
+      this.reviewActions = document.getElementById("reviewActions");
+      this.upcomingActions = document.getElementById("upcomingActions");
 
-    // Close modal handlers
-    document.querySelectorAll(".close-modal").forEach(function (closeBtn) {
-      closeBtn.addEventListener("click", closeAllModals);
-    });
+      // Action buttons
+      this.viewTourBtn = document.getElementById("viewTourBtn");
+      this.writeReviewBtn = document.getElementById("writeReviewBtn");
+      this.editReviewBtn = document.getElementById("editReviewBtn");
+      this.addTravelersBtn = document.getElementById("addTravelersBtn");
+      this.requestRefundBtn = document.getElementById("requestRefundBtn");
 
-    // Modal action handlers
-    (_document$getElementB = document.getElementById("viewTourBtn")) === null || _document$getElementB === void 0 || _document$getElementB.addEventListener("click", handleViewTour);
-    (_document$getElementB2 = document.getElementById("writeReviewBtn")) === null || _document$getElementB2 === void 0 || _document$getElementB2.addEventListener("click", handleWriteReview);
-    (_document$getElementB3 = document.getElementById("editReviewBtn")) === null || _document$getElementB3 === void 0 || _document$getElementB3.addEventListener("click", handleEditReview);
-    (_document$getElementB4 = document.getElementById("addTravelersBtn")) === null || _document$getElementB4 === void 0 || _document$getElementB4.addEventListener("click", handleAddTravelers);
-    (_document$getElementB5 = document.getElementById("requestRefundBtn")) === null || _document$getElementB5 === void 0 || _document$getElementB5.addEventListener("click", handleRequestRefund);
+      // Booking form
+      this.bookingForm = document.getElementById("bookingForm");
+      this.addTravelersForm = document.querySelector(".add-travelers__form");
+    }
+  }, {
+    key: "initializeEventListeners",
+    value: function initializeEventListeners() {
+      var _this = this;
+      // Use event delegation for manage buttons
+      document.addEventListener("click", function (e) {
+        var manageBtn = e.target.closest(".manage-booking-btn");
+        if (manageBtn) {
+          _this.handleManageClick(manageBtn);
+        }
+      });
 
-    // Refund modal handlers
-    (_document$getElementB6 = document.getElementById("confirmRefund")) === null || _document$getElementB6 === void 0 || _document$getElementB6.addEventListener("click", handleConfirmRefund);
-    (_document$getElementB7 = document.getElementById("cancelRefund")) === null || _document$getElementB7 === void 0 || _document$getElementB7.addEventListener("click", closeAllModals);
+      // Modal close buttons using event delegation
+      document.addEventListener("click", function (e) {
+        if (e.target.matches(".close-modal")) {
+          _this.closeAllModals();
+        }
+      });
 
-    // Close modals when clicking outside
-    [managementModal, refundModal].forEach(function (modal) {
-      if (modal) {
-        modal.addEventListener("click", function (e) {
-          if (e.target === modal) {
-            closeAllModals();
+      // Action buttons using event delegation
+      if (this.managementModal) {
+        this.managementModal.addEventListener("click", function (e) {
+          var target = e.target;
+          if (target.matches("#viewTourBtn")) {
+            _this.handleViewTour();
+          } else if (target.matches("#writeReviewBtn")) {
+            _this.handleWriteReview();
+          } else if (target.matches("#editReviewBtn")) {
+            _this.handleEditReview();
+          } else if (target.matches("#addTravelersBtn")) {
+            _this.handleAddTravelers();
+          } else if (target.matches("#requestRefundBtn")) {
+            _this.handleRequestRefund();
           }
         });
       }
-    });
 
-    // Handle escape key
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") {
-        closeAllModals();
+      // Refund modal handlers using event delegation
+      if (this.refundModal) {
+        this.refundModal.addEventListener("click", function (e) {
+          if (e.target.matches("#confirmRefund")) {
+            _this.confirmRefund();
+          } else if (e.target.matches("#cancelRefund")) {
+            _this.closeAllModals();
+          }
+        });
       }
-    });
-  }
 
-  // Container click handler for add travelers button
-  if (container()) {
-    container().addEventListener("click", function (e) {
-      var addTravelersBtn = e.target.closest(".add-travelers-btn");
-      if (addTravelersBtn) {
-        var bookingId = addTravelersBtn.dataset.bookingId;
-        window.location.href = "/booking/".concat(bookingId, "/add-travelers");
+      // Close modals when clicking outside using event delegation
+      document.addEventListener("click", function (e) {
+        if (e.target === _this.managementModal || e.target === _this.refundModal) {
+          _this.closeAllModals();
+        }
+      });
+
+      // Handle escape key
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          _this.closeAllModals();
+        }
+      });
+
+      // Booking form handlers
+      if (this.bookingForm) {
+        this.bookingForm.addEventListener("submit", this.handleBookingSubmit.bind(this));
       }
-    });
-  }
-};
+      if (this.addTravelersForm) {
+        this.addTravelersForm.addEventListener("submit", this.handleAddTravelersSubmit.bind(this));
+        this.initializeAddTravelersValidation();
+      }
+    }
+  }, {
+    key: "handleManageClick",
+    value: function handleManageClick(btn) {
+      var bookingData = btn.dataset;
 
-// Modal handlers
-var handleManageClick = function handleManageClick(e) {
-  var btn = e.currentTarget;
-  var bookingData = btn.dataset;
-  var managementModal = document.getElementById("managementModal");
+      // Store current booking ID for other operations
+      this.currentBookingId = bookingData.bookingId;
+      this.currentTourSlug = bookingData.tourSlug;
+      this.currentReviewId = bookingData.reviewId;
 
-  // Store data for other operations
-  managementModal.dataset.bookingId = bookingData.bookingId;
-  managementModal.dataset.tourSlug = bookingData.tourSlug;
-  managementModal.dataset.reviewId = bookingData.reviewId;
+      // Update modal content
+      this.manageTourName.textContent = "Tour: ".concat(bookingData.tourName);
+      this.manageStartDate.textContent = "Start Date: ".concat(new Date(bookingData.startDate).toLocaleDateString());
+      this.managePrice.textContent = "Price: $".concat(parseFloat(bookingData.price).toLocaleString());
 
-  // Update modal content
-  document.getElementById("manageTourName").textContent = "Tour: ".concat(bookingData.tourName);
-  document.getElementById("manageStartDate").textContent = "Start Date: ".concat(new Date(bookingData.startDate).toLocaleDateString());
-  document.getElementById("managePrice").textContent = "Price: $".concat(parseFloat(bookingData.price).toLocaleString());
+      // Update status and available actions
+      var hasStarted = bookingData.hasStarted === "true";
+      var refundStatus = bookingData.refundStatus;
+      var hasReview = bookingData.hasReview === "true";
 
-  // Update status and available actions
-  var hasStarted = bookingData.hasStarted === "true";
-  var refundStatus = bookingData.refundStatus;
-  var hasReview = bookingData.hasReview === "true";
+      // Show/hide action groups based on status
+      this.viewTourAction.style.display = "block";
+      this.reviewActions.style.display = hasStarted ? "block" : "none";
+      this.upcomingActions.style.display = !hasStarted && !refundStatus ? "block" : "none";
 
-  // Show/hide action groups based on status
-  document.getElementById("reviewActions").style.display = hasStarted ? "block" : "none";
-  document.getElementById("upcomingActions").style.display = !hasStarted && !refundStatus ? "block" : "none";
+      // Show/hide review buttons
+      if (hasStarted) {
+        this.writeReviewBtn.style.display = hasReview ? "none" : "block";
+        this.editReviewBtn.style.display = hasReview ? "block" : "none";
+      }
 
-  // Show/hide review buttons
-  if (hasStarted) {
-    document.getElementById("writeReviewBtn").style.display = hasReview ? "none" : "block";
-    document.getElementById("editReviewBtn").style.display = hasReview ? "block" : "none";
-  }
-
-  // Open management modal
-  managementModal.classList.add("show");
-};
-var closeAllModals = function closeAllModals() {
-  var modals = [document.getElementById("managementModal"), document.getElementById("refundModal")];
-  modals.forEach(function (modal) {
-    if (modal) {
-      modal.classList.remove("show");
-      // Wait for transition to complete before hiding
-      setTimeout(function () {
-        if (!modal.classList.contains("show")) {
+      // Open management modal
+      this.managementModal.style.display = "flex";
+      this.managementModal.classList.add("show");
+    }
+  }, {
+    key: "closeAllModals",
+    value: function closeAllModals() {
+      [this.managementModal, this.refundModal].forEach(function (modal) {
+        if (modal) {
+          modal.classList.remove("show");
           modal.style.display = "none";
         }
-      }, 300);
+      });
     }
-  });
-};
-var handleViewTour = function handleViewTour() {
-  var tourSlug = document.getElementById("managementModal").dataset.tourSlug;
-  window.location.href = "/tour/".concat(tourSlug);
-};
-var handleWriteReview = function handleWriteReview() {
-  var tourSlug = document.getElementById("managementModal").dataset.tourSlug;
-  window.location.href = "/tour/".concat(tourSlug, "/review");
-};
-var handleEditReview = function handleEditReview() {
-  var tourSlug = document.getElementById("managementModal").dataset.tourSlug;
-  var reviewId = document.getElementById("managementModal").dataset.reviewId;
-  window.location.href = "/tour/".concat(tourSlug, "/review/").concat(reviewId, "/edit");
-};
-var handleAddTravelers = function handleAddTravelers() {
-  var bookingId = document.getElementById("managementModal").dataset.bookingId;
-  window.location.href = "/booking/".concat(bookingId, "/add-travelers");
-};
-var handleRequestRefund = function handleRequestRefund() {
-  var managementModal = document.getElementById("managementModal");
-  var refundModal = document.getElementById("refundModal");
+  }, {
+    key: "handleViewTour",
+    value: function handleViewTour() {
+      window.location.href = "/tour/".concat(this.currentTourSlug);
+    }
+  }, {
+    key: "handleWriteReview",
+    value: function handleWriteReview() {
+      window.location.href = "/tour/".concat(this.currentTourSlug, "/review");
+    }
+  }, {
+    key: "handleEditReview",
+    value: function handleEditReview() {
+      window.location.href = "/tour/".concat(this.currentTourSlug, "/review/").concat(this.currentReviewId, "/edit");
+    }
+  }, {
+    key: "handleAddTravelers",
+    value: function handleAddTravelers() {
+      window.location.href = "/booking/".concat(this.currentBookingId, "/add-travelers");
+    }
+  }, {
+    key: "handleRequestRefund",
+    value: function handleRequestRefund() {
+      // Close management modal and open refund modal
+      this.managementModal.classList.remove("show");
+      this.managementModal.style.display = "none";
 
-  // Close management modal and open refund modal
-  managementModal.classList.remove("show");
-  setTimeout(function () {
-    managementModal.style.display = "none";
-    refundModal.style.display = "flex";
-
-    // Update refund modal content
-    document.getElementById("refundTourName").textContent = document.getElementById("manageTourName").textContent;
-    document.getElementById("refundStartDate").textContent = document.getElementById("manageStartDate").textContent;
-    document.getElementById("refundAmount").textContent = document.getElementById("managePrice").textContent;
-
-    // Show refund modal
-    refundModal.classList.add("show");
-  }, 300);
-};
-var handleConfirmRefund = /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-    var bookingId;
-    return _regeneratorRuntime().wrap(function _callee$(_context) {
-      while (1) switch (_context.prev = _context.next) {
-        case 0:
-          bookingId = document.getElementById("managementModal").dataset.bookingId;
-          _context.next = 3;
-          return (0, _bookingAPI.requestRefund)(bookingId);
-        case 3:
-          closeAllModals();
-        case 4:
-        case "end":
-          return _context.stop();
+      // Update refund modal content and show it
+      document.getElementById("refundTourName").textContent = this.manageTourName.textContent;
+      document.getElementById("refundStartDate").textContent = this.manageStartDate.textContent;
+      document.getElementById("refundAmount").textContent = this.managePrice.textContent;
+      this.refundModal.style.display = "flex";
+      this.refundModal.classList.add("show");
+    }
+  }, {
+    key: "confirmRefund",
+    value: function () {
+      var _confirmRefund = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+        return _regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              _context.next = 2;
+              return (0, _bookingAPI.requestRefund)(this.currentBookingId);
+            case 2:
+              this.closeAllModals();
+            case 3:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function confirmRefund() {
+        return _confirmRefund.apply(this, arguments);
       }
-    }, _callee);
-  }));
-  return function handleConfirmRefund() {
-    return _ref.apply(this, arguments);
-  };
-}();
-},{"../utils/elements":"utils/elements.js","../api/bookingAPI":"api/bookingAPI.js"}],"api/reviewAPI.js":[function(require,module,exports) {
+      return confirmRefund;
+    }()
+  }, {
+    key: "handleBookingSubmit",
+    value: function () {
+      var _handleBookingSubmit = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
+        var startDate, numParticipants, tourId;
+        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              e.preventDefault();
+              startDate = document.getElementById("startDate").value;
+              numParticipants = document.getElementById("numParticipants").value;
+              tourId = document.getElementById("bookTour").dataset.tourId;
+              document.querySelector("#bookTour").textContent = "Processing...";
+              _context2.next = 7;
+              return (0, _bookingAPI.bookTour)(tourId, startDate, numParticipants);
+            case 7:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2);
+      }));
+      function handleBookingSubmit(_x) {
+        return _handleBookingSubmit.apply(this, arguments);
+      }
+      return handleBookingSubmit;
+    }()
+  }, {
+    key: "initializeAddTravelersValidation",
+    value: function initializeAddTravelersValidation() {
+      var numParticipantsInput = document.getElementById("numParticipants");
+      if (numParticipantsInput) {
+        numParticipantsInput.addEventListener("input", function (e) {
+          var availableSpots = parseInt(document.getElementById("availableSpots").value);
+          var requestedSpots = parseInt(e.target.value);
+          if (requestedSpots > availableSpots) {
+            e.target.setCustomValidity("Maximum ".concat(availableSpots, " additional participants allowed"));
+          } else {
+            e.target.setCustomValidity("");
+          }
+        });
+      }
+    }
+  }, {
+    key: "handleAddTravelersSubmit",
+    value: function () {
+      var _handleAddTravelersSubmit = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
+        var submitBtn, bookingId, numParticipants, availableSpots, requestedSpots;
+        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+          while (1) switch (_context3.prev = _context3.next) {
+            case 0:
+              e.preventDefault();
+              submitBtn = document.querySelector(".add-travelers-submit");
+              bookingId = submitBtn.dataset.bookingId;
+              numParticipants = document.getElementById("numParticipants").value;
+              availableSpots = parseInt(document.getElementById("availableSpots").value);
+              requestedSpots = parseInt(numParticipants);
+              if (!(requestedSpots > availableSpots)) {
+                _context3.next = 10;
+                break;
+              }
+              (0, _alert.hideAlert)();
+              showAlert("error", "Only ".concat(availableSpots, " spots available"));
+              return _context3.abrupt("return");
+            case 10:
+              _context3.next = 12;
+              return (0, _bookingAPI.addTravelersToBooking)(bookingId, numParticipants);
+            case 12:
+            case "end":
+              return _context3.stop();
+          }
+        }, _callee3);
+      }));
+      function handleAddTravelersSubmit(_x2) {
+        return _handleAddTravelersSubmit.apply(this, arguments);
+      }
+      return handleAddTravelersSubmit;
+    }()
+  }]);
+}(); // Initialize booking handlers
+var initBookingHandlers = exports.initBookingHandlers = function initBookingHandlers() {
+  new BookingHandler();
+};
+},{"../utils/elements":"utils/elements.js","../api/bookingAPI":"api/bookingAPI.js","../utils/alert":"utils/alert.js"}],"api/reviewAPI.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

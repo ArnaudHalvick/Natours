@@ -5,215 +5,259 @@ import {
   addTravelersToBooking,
   requestRefund,
 } from "../api/bookingAPI";
+import { hideAlert } from "../utils/alert";
 
-export const initBookingHandlers = () => {
-  const { form, addTravelersForm, container } = elements.booking;
-  const managementModal = document.getElementById("managementModal");
-  const refundModal = document.getElementById("refundModal");
+class BookingHandler {
+  constructor() {
+    // Initialize Stripe if the script is loaded
+    if (window.Stripe) {
+      this.stripe = Stripe(process.env.STRIPE_PUBLIC_KEY);
+    }
 
-  // Booking form handler
-  if (form()) {
-    form().addEventListener("submit", e => {
-      e.preventDefault();
-      const startDate = document.getElementById("startDate").value;
-      const numParticipants = document.getElementById("numParticipants").value;
-      const tourId = document.getElementById("bookTour").dataset.tourId;
-      e.target.querySelector("#bookTour").textContent = "Processing...";
-      bookTour(tourId, startDate, numParticipants);
-    });
+    // Store elements
+    this.init();
+    this.initializeEventListeners();
   }
 
-  // Add travelers form handler
-  if (addTravelersForm()) {
-    addTravelersForm().addEventListener("submit", e => {
-      e.preventDefault();
-      const submitBtn = document.querySelector(".add-travelers-submit");
-      const bookingId = submitBtn.dataset.bookingId;
-      const numParticipants = document.getElementById("numParticipants").value;
-      addTravelersToBooking(bookingId, numParticipants);
-    });
+  init() {
+    // Modal elements
+    this.managementModal = document.getElementById("managementModal");
+    this.refundModal = document.getElementById("refundModal");
+
+    // Management modal elements
+    this.manageTourName = document.getElementById("manageTourName");
+    this.manageStartDate = document.getElementById("manageStartDate");
+    this.managePrice = document.getElementById("managePrice");
+    this.manageStatus = document.getElementById("manageStatus");
+
+    // Action groups
+    this.viewTourAction = document.getElementById("viewTourAction");
+    this.reviewActions = document.getElementById("reviewActions");
+    this.upcomingActions = document.getElementById("upcomingActions");
+
+    // Action buttons
+    this.viewTourBtn = document.getElementById("viewTourBtn");
+    this.writeReviewBtn = document.getElementById("writeReviewBtn");
+    this.editReviewBtn = document.getElementById("editReviewBtn");
+    this.addTravelersBtn = document.getElementById("addTravelersBtn");
+    this.requestRefundBtn = document.getElementById("requestRefundBtn");
+
+    // Booking form
+    this.bookingForm = document.getElementById("bookingForm");
+    this.addTravelersForm = document.querySelector(".add-travelers__form");
   }
 
-  // Only initialize modal handlers if the modal exists
-  if (managementModal) {
-    // Management modal handlers
-    document.querySelectorAll(".manage-booking-btn").forEach(btn => {
-      btn.addEventListener("click", handleManageClick);
+  initializeEventListeners() {
+    // Use event delegation for manage buttons
+    document.addEventListener("click", e => {
+      const manageBtn = e.target.closest(".manage-booking-btn");
+      if (manageBtn) {
+        this.handleManageClick(manageBtn);
+      }
     });
 
-    // Close modal handlers
-    document.querySelectorAll(".close-modal").forEach(closeBtn => {
-      closeBtn.addEventListener("click", closeAllModals);
+    // Modal close buttons using event delegation
+    document.addEventListener("click", e => {
+      if (e.target.matches(".close-modal")) {
+        this.closeAllModals();
+      }
     });
 
-    // Modal action handlers
-    document
-      .getElementById("viewTourBtn")
-      ?.addEventListener("click", handleViewTour);
-    document
-      .getElementById("writeReviewBtn")
-      ?.addEventListener("click", handleWriteReview);
-    document
-      .getElementById("editReviewBtn")
-      ?.addEventListener("click", handleEditReview);
-    document
-      .getElementById("addTravelersBtn")
-      ?.addEventListener("click", handleAddTravelers);
-    document
-      .getElementById("requestRefundBtn")
-      ?.addEventListener("click", handleRequestRefund);
+    // Action buttons using event delegation
+    if (this.managementModal) {
+      this.managementModal.addEventListener("click", e => {
+        const target = e.target;
 
-    // Refund modal handlers
-    document
-      .getElementById("confirmRefund")
-      ?.addEventListener("click", handleConfirmRefund);
-    document
-      .getElementById("cancelRefund")
-      ?.addEventListener("click", closeAllModals);
+        if (target.matches("#viewTourBtn")) {
+          this.handleViewTour();
+        } else if (target.matches("#writeReviewBtn")) {
+          this.handleWriteReview();
+        } else if (target.matches("#editReviewBtn")) {
+          this.handleEditReview();
+        } else if (target.matches("#addTravelersBtn")) {
+          this.handleAddTravelers();
+        } else if (target.matches("#requestRefundBtn")) {
+          this.handleRequestRefund();
+        }
+      });
+    }
 
-    // Close modals when clicking outside
-    [managementModal, refundModal].forEach(modal => {
-      if (modal) {
-        modal.addEventListener("click", e => {
-          if (e.target === modal) {
-            closeAllModals();
-          }
-        });
+    // Refund modal handlers using event delegation
+    if (this.refundModal) {
+      this.refundModal.addEventListener("click", e => {
+        if (e.target.matches("#confirmRefund")) {
+          this.confirmRefund();
+        } else if (e.target.matches("#cancelRefund")) {
+          this.closeAllModals();
+        }
+      });
+    }
+
+    // Close modals when clicking outside using event delegation
+    document.addEventListener("click", e => {
+      if (e.target === this.managementModal || e.target === this.refundModal) {
+        this.closeAllModals();
       }
     });
 
     // Handle escape key
     document.addEventListener("keydown", e => {
       if (e.key === "Escape") {
-        closeAllModals();
+        this.closeAllModals();
       }
     });
-  }
 
-  // Container click handler for add travelers button
-  if (container()) {
-    container().addEventListener("click", e => {
-      const addTravelersBtn = e.target.closest(".add-travelers-btn");
-      if (addTravelersBtn) {
-        const bookingId = addTravelersBtn.dataset.bookingId;
-        window.location.href = `/booking/${bookingId}/add-travelers`;
-      }
-    });
-  }
-};
-
-// Modal handlers
-const handleManageClick = e => {
-  const btn = e.currentTarget;
-  const bookingData = btn.dataset;
-  const managementModal = document.getElementById("managementModal");
-
-  // Store data for other operations
-  managementModal.dataset.bookingId = bookingData.bookingId;
-  managementModal.dataset.tourSlug = bookingData.tourSlug;
-  managementModal.dataset.reviewId = bookingData.reviewId;
-
-  // Update modal content
-  document.getElementById("manageTourName").textContent =
-    `Tour: ${bookingData.tourName}`;
-  document.getElementById("manageStartDate").textContent =
-    `Start Date: ${new Date(bookingData.startDate).toLocaleDateString()}`;
-  document.getElementById("managePrice").textContent =
-    `Price: $${parseFloat(bookingData.price).toLocaleString()}`;
-
-  // Update status and available actions
-  const hasStarted = bookingData.hasStarted === "true";
-  const refundStatus = bookingData.refundStatus;
-  const hasReview = bookingData.hasReview === "true";
-
-  // Show/hide action groups based on status
-  document.getElementById("reviewActions").style.display = hasStarted
-    ? "block"
-    : "none";
-  document.getElementById("upcomingActions").style.display =
-    !hasStarted && !refundStatus ? "block" : "none";
-
-  // Show/hide review buttons
-  if (hasStarted) {
-    document.getElementById("writeReviewBtn").style.display = hasReview
-      ? "none"
-      : "block";
-    document.getElementById("editReviewBtn").style.display = hasReview
-      ? "block"
-      : "none";
-  }
-
-  // Open management modal
-  managementModal.classList.add("show");
-};
-
-const closeAllModals = () => {
-  const modals = [
-    document.getElementById("managementModal"),
-    document.getElementById("refundModal"),
-  ];
-
-  modals.forEach(modal => {
-    if (modal) {
-      modal.classList.remove("show");
-      // Wait for transition to complete before hiding
-      setTimeout(() => {
-        if (!modal.classList.contains("show")) {
-          modal.style.display = "none";
-        }
-      }, 300);
+    // Booking form handlers
+    if (this.bookingForm) {
+      this.bookingForm.addEventListener(
+        "submit",
+        this.handleBookingSubmit.bind(this),
+      );
     }
-  });
-};
 
-const handleViewTour = () => {
-  const tourSlug = document.getElementById("managementModal").dataset.tourSlug;
-  window.location.href = `/tour/${tourSlug}`;
-};
+    if (this.addTravelersForm) {
+      this.addTravelersForm.addEventListener(
+        "submit",
+        this.handleAddTravelersSubmit.bind(this),
+      );
+      this.initializeAddTravelersValidation();
+    }
+  }
 
-const handleWriteReview = () => {
-  const tourSlug = document.getElementById("managementModal").dataset.tourSlug;
-  window.location.href = `/tour/${tourSlug}/review`;
-};
+  handleManageClick(btn) {
+    const bookingData = btn.dataset;
 
-const handleEditReview = () => {
-  const tourSlug = document.getElementById("managementModal").dataset.tourSlug;
-  const reviewId = document.getElementById("managementModal").dataset.reviewId;
-  window.location.href = `/tour/${tourSlug}/review/${reviewId}/edit`;
-};
+    // Store current booking ID for other operations
+    this.currentBookingId = bookingData.bookingId;
+    this.currentTourSlug = bookingData.tourSlug;
+    this.currentReviewId = bookingData.reviewId;
 
-const handleAddTravelers = () => {
-  const bookingId =
-    document.getElementById("managementModal").dataset.bookingId;
-  window.location.href = `/booking/${bookingId}/add-travelers`;
-};
+    // Update modal content
+    this.manageTourName.textContent = `Tour: ${bookingData.tourName}`;
+    this.manageStartDate.textContent = `Start Date: ${new Date(bookingData.startDate).toLocaleDateString()}`;
+    this.managePrice.textContent = `Price: $${parseFloat(bookingData.price).toLocaleString()}`;
 
-const handleRequestRefund = () => {
-  const managementModal = document.getElementById("managementModal");
-  const refundModal = document.getElementById("refundModal");
+    // Update status and available actions
+    const hasStarted = bookingData.hasStarted === "true";
+    const refundStatus = bookingData.refundStatus;
+    const hasReview = bookingData.hasReview === "true";
 
-  // Close management modal and open refund modal
-  managementModal.classList.remove("show");
-  setTimeout(() => {
-    managementModal.style.display = "none";
-    refundModal.style.display = "flex";
+    // Show/hide action groups based on status
+    this.viewTourAction.style.display = "block";
+    this.reviewActions.style.display = hasStarted ? "block" : "none";
+    this.upcomingActions.style.display =
+      !hasStarted && !refundStatus ? "block" : "none";
 
-    // Update refund modal content
+    // Show/hide review buttons
+    if (hasStarted) {
+      this.writeReviewBtn.style.display = hasReview ? "none" : "block";
+      this.editReviewBtn.style.display = hasReview ? "block" : "none";
+    }
+
+    // Open management modal
+    this.managementModal.style.display = "flex";
+    this.managementModal.classList.add("show");
+  }
+
+  closeAllModals() {
+    [this.managementModal, this.refundModal].forEach(modal => {
+      if (modal) {
+        modal.classList.remove("show");
+        modal.style.display = "none";
+      }
+    });
+  }
+
+  handleViewTour() {
+    window.location.href = `/tour/${this.currentTourSlug}`;
+  }
+
+  handleWriteReview() {
+    window.location.href = `/tour/${this.currentTourSlug}/review`;
+  }
+
+  handleEditReview() {
+    window.location.href = `/tour/${this.currentTourSlug}/review/${this.currentReviewId}/edit`;
+  }
+
+  handleAddTravelers() {
+    window.location.href = `/booking/${this.currentBookingId}/add-travelers`;
+  }
+
+  handleRequestRefund() {
+    // Close management modal and open refund modal
+    this.managementModal.classList.remove("show");
+    this.managementModal.style.display = "none";
+
+    // Update refund modal content and show it
     document.getElementById("refundTourName").textContent =
-      document.getElementById("manageTourName").textContent;
+      this.manageTourName.textContent;
     document.getElementById("refundStartDate").textContent =
-      document.getElementById("manageStartDate").textContent;
+      this.manageStartDate.textContent;
     document.getElementById("refundAmount").textContent =
-      document.getElementById("managePrice").textContent;
+      this.managePrice.textContent;
 
-    // Show refund modal
-    refundModal.classList.add("show");
-  }, 300);
-};
+    this.refundModal.style.display = "flex";
+    this.refundModal.classList.add("show");
+  }
 
-const handleConfirmRefund = async () => {
-  const bookingId =
-    document.getElementById("managementModal").dataset.bookingId;
-  await requestRefund(bookingId);
-  closeAllModals();
+  async confirmRefund() {
+    await requestRefund(this.currentBookingId);
+    this.closeAllModals();
+  }
+
+  async handleBookingSubmit(e) {
+    e.preventDefault();
+    const startDate = document.getElementById("startDate").value;
+    const numParticipants = document.getElementById("numParticipants").value;
+    const tourId = document.getElementById("bookTour").dataset.tourId;
+
+    document.querySelector("#bookTour").textContent = "Processing...";
+    await bookTour(tourId, startDate, numParticipants);
+  }
+
+  initializeAddTravelersValidation() {
+    const numParticipantsInput = document.getElementById("numParticipants");
+    if (numParticipantsInput) {
+      numParticipantsInput.addEventListener("input", e => {
+        const availableSpots = parseInt(
+          document.getElementById("availableSpots").value,
+        );
+        const requestedSpots = parseInt(e.target.value);
+
+        if (requestedSpots > availableSpots) {
+          e.target.setCustomValidity(
+            `Maximum ${availableSpots} additional participants allowed`,
+          );
+        } else {
+          e.target.setCustomValidity("");
+        }
+      });
+    }
+  }
+
+  async handleAddTravelersSubmit(e) {
+    e.preventDefault();
+    const submitBtn = document.querySelector(".add-travelers-submit");
+    const bookingId = submitBtn.dataset.bookingId;
+    const numParticipants = document.getElementById("numParticipants").value;
+
+    const availableSpots = parseInt(
+      document.getElementById("availableSpots").value,
+    );
+    const requestedSpots = parseInt(numParticipants);
+
+    if (requestedSpots > availableSpots) {
+      hideAlert();
+      showAlert("error", `Only ${availableSpots} spots available`);
+      return;
+    }
+
+    await addTravelersToBooking(bookingId, numParticipants);
+  }
+}
+
+// Initialize booking handlers
+export const initBookingHandlers = () => {
+  new BookingHandler();
 };
