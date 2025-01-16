@@ -26,44 +26,28 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid number of participants.", 400));
   }
 
-  // Validate startDate
+  // Normalize the date to UTC and strip time component
   let startDateISO = "";
   if (startDate) {
     const dateObj = new Date(startDate);
     if (isNaN(dateObj.getTime())) {
       return next(new AppError("Invalid start date selected.", 400));
     }
-    startDateISO = dateObj.toISOString();
+
+    // Normalize to UTC midnight
+    const normalizedDate = new Date(
+      dateObj.getUTCFullYear(),
+      dateObj.getUTCMonth(),
+      dateObj.getUTCDate(),
+    );
+    startDateISO = normalizedDate.toISOString();
   } else {
     return next(new AppError("Start date is required.", 400));
   }
 
-  // Find start date object in the tour
-  const startDateObj = tour.startDates.find(sd => {
-    // Compare only year, month, and day
-    const tourDate = new Date(sd.date);
-    const selectedDate = new Date(startDateISO);
+  console.log("Creating checkout session with date:", startDateISO);
 
-    return (
-      tourDate.getUTCFullYear() === selectedDate.getUTCFullYear() &&
-      tourDate.getUTCMonth() === selectedDate.getUTCMonth() &&
-      tourDate.getUTCDate() === selectedDate.getUTCDate()
-    );
-  });
-
-  if (!startDateObj) {
-    return next(new AppError("Start date not found.", 400));
-  }
-
-  // Check available spots
-  const availableSpots = tour.maxGroupSize - startDateObj.participants;
-  if (numParticipantsInt > availableSpots) {
-    return next(
-      new AppError(`Only ${availableSpots} spots left for this date.`, 400),
-    );
-  }
-
-  // Create Stripe checkout session
+  // Create Stripe checkout session with normalized date
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     success_url: successUrl,
@@ -102,45 +86,83 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 // Function to create or update a booking after Stripe payment
 const createBookingCheckout = async session => {
   try {
+    const tourId = session.client_reference_id;
     const userEmail = session.customer_email;
     const price = session.amount_total / 100;
-    const { startDate, numParticipants, tourId } = session.metadata;
+    const { startDate, numParticipants } = session.metadata;
+
+    console.log("Creating booking with data:", {
+      tourId,
+      userEmail,
+      startDate,
+      numParticipants,
+    });
 
     const user = await User.findOne({ email: userEmail });
     if (!user) {
-      console.error(`No user found with email: ${userEmail}`);
-      return;
+      throw new Error(`No user found with email: ${userEmail}`);
     }
 
     const tour = await Tour.findById(tourId);
     if (!tour) {
-      console.error("Tour not found.");
-      return;
+      throw new Error("Tour not found");
     }
 
-    const startDateObj = tour.startDates.find(
-      sd => new Date(sd.date).getTime() === new Date(startDate).getTime(),
+    // Normalize the dates for comparison by stripping time component
+    const bookingDate = new Date(startDate);
+    const normalizedBookingDate = new Date(
+      bookingDate.getUTCFullYear(),
+      bookingDate.getUTCMonth(),
+      bookingDate.getUTCDate(),
     );
+
+    // Find matching start date
+    const startDateObj = tour.startDates.find(sd => {
+      const tourDate = new Date(sd.date);
+      const normalizedTourDate = new Date(
+        tourDate.getUTCFullYear(),
+        tourDate.getUTCMonth(),
+        tourDate.getUTCDate(),
+      );
+
+      console.log("Comparing dates:", {
+        normalizedBookingDate: normalizedBookingDate.toISOString(),
+        normalizedTourDate: normalizedTourDate.toISOString(),
+      });
+
+      return normalizedTourDate.getTime() === normalizedBookingDate.getTime();
+    });
+
     if (!startDateObj) {
-      console.error("Start date not found in tour.");
-      return;
+      console.error(
+        "Available dates:",
+        tour.startDates.map(d => new Date(d.date).toISOString()),
+      );
+      console.error("Requested date:", normalizedBookingDate.toISOString());
+      throw new Error("Start date not found in tour");
     }
 
+    // Update participants count
     const parsedParticipants = parseInt(numParticipants, 10);
     startDateObj.participants += parsedParticipants;
     tour.markModified("startDates");
     await tour.save();
 
-    await Booking.create({
+    // Create the booking
+    const booking = await Booking.create({
       tour: tourId,
       user: user._id,
       price,
-      startDate,
+      startDate: normalizedBookingDate,
       numParticipants: parsedParticipants,
       paymentIntentId: session.payment_intent,
     });
+
+    console.log("Booking created successfully:", booking);
+    return booking;
   } catch (error) {
     console.error("Error in createBookingCheckout:", error);
+    throw error; // Re-throw to be handled by the webhook
   }
 };
 
@@ -220,16 +242,30 @@ exports.webhookCheckout = (req, res, next) => {
       process.env.STRIPE_WEBHOOK_SECRET,
     );
   } catch (err) {
-    console.error("Webhook signature verification failed.", err.message);
+    console.error("Webhook signature verification failed:", err.message);
     return res.status(400).send(`Webhook error: ${err.message}`);
   }
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
-    createBookingCheckout(session);
-  }
 
-  res.status(200).json({ received: true });
+    // Handle booking creation
+    createBookingCheckout(session)
+      .then(booking => {
+        console.log("Booking created successfully:", booking);
+        res.status(200).json({ received: true });
+      })
+      .catch(err => {
+        console.error("Error creating booking:", err);
+        // Still return 200 to Stripe but log the error
+        res.status(200).json({
+          received: true,
+          error: err.message,
+        });
+      });
+  } else {
+    res.status(200).json({ received: true });
+  }
 };
 
 // Get all bookings with optional filters (search, date range, paid status)
