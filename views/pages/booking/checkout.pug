@@ -14,19 +14,19 @@ block content
         p.booking__text= tour.summary
         .booking__data
           svg.booking__icon
-            use(xlink:href='img/icons.svg#icon-map-pin')
+            use(xlink:href='/img/icons.svg#icon-map-pin')
           span= tour.startLocation.description
         .booking__data
           svg.booking__icon
-            use(xlink:href='img/icons.svg#icon-calendar')
+            use(xlink:href='/img/icons.svg#icon-calendar')
           span= new Date(tour.startDates[0].date).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })
         .booking__data
           svg.booking__icon
-            use(xlink:href='img/icons.svg#icon-flag')
+            use(xlink:href='/img/icons.svg#icon-flag')
           span= `${tour.locations.length} stops`
         .booking__data
           svg.booking__icon
-            use(xlink:href='img/icons.svg#icon-user')
+            use(xlink:href='/img/icons.svg#icon-user')
           span= `${tour.maxGroupSize} people max.`
         .booking__price
           p
@@ -40,7 +40,8 @@ block content
               if availableStartDates && availableStartDates.length > 0
                 each dateObj in availableStartDates
                   - const date = new Date(dateObj.date)
-                  option(value=date.toISOString())= `${date.toDateString()} (${dateObj.availableSpots} spots left)`
+                  - const isoDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()).toISOString()
+                  option(value=isoDate)= `${date.toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })} (${dateObj.availableSpots} spots left)`
               else
                 option(value='') No available dates
           .form__group
@@ -53,4 +54,4 @@ block content
               value="1",
               required)
           .form__group
-            button.btn.btn--green(type="submit", id="bookTour", data-tour-id=`${tour.id}`) Book now
+            button.btn.btn--green(type="submit", id="bookTour", data-tour-id=`${tour._id}`) Book now

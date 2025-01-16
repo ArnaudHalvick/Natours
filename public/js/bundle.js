@@ -6710,7 +6710,7 @@ var getStripeKey = exports.getStripeKey = function getStripeKey() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.requestRefund = exports.bookTour = exports.addTravelersToBooking = void 0;
+exports.requestRefund = exports.getUserBookings = exports.bookTour = exports.addTravelersToBooking = void 0;
 var _axios = _interopRequireDefault(require("axios"));
 var _alert = require("../utils/alert");
 var _config = require("../config");
@@ -6719,29 +6719,50 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; } // api/bookingAPI.js
+// Helper function to initialize Stripe
+var initializeStripe = function initializeStripe() {
+  if (typeof Stripe === "undefined") {
+    throw new Error("Payment system not loaded. Please refresh the page.");
+  }
+  return Stripe((0, _config.getStripeKey)());
+};
+
+// Helper function to format date consistently
+var formatDateForAPI = function formatDateForAPI(date) {
+  var dateObj = new Date(date);
+  return new Date(dateObj.getUTCFullYear(), dateObj.getUTCMonth(), dateObj.getUTCDate()).toISOString();
+};
+
+/**
+ * Creates a new booking and redirects to Stripe checkout
+ */
 var bookTour = exports.bookTour = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(tourId, startDate, numParticipants) {
-    var stripe, session, _err$response, bookTourBtn;
+    var _response$data, stripe, formattedDate, response, _err$response, errorMessage;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
           _context.prev = 0;
-          if (!(typeof Stripe === "undefined")) {
-            _context.next = 4;
+          stripe = initializeStripe();
+          formattedDate = formatDateForAPI(startDate); // Get checkout session from our API
+          _context.next = 5;
+          return _axios.default.get("/api/v1/bookings/checkout-session/".concat(tourId), {
+            params: {
+              startDate: formattedDate,
+              numParticipants: numParticipants
+            }
+          });
+        case 5:
+          response = _context.sent;
+          if ((_response$data = response.data) !== null && _response$data !== void 0 && (_response$data = _response$data.session) !== null && _response$data !== void 0 && _response$data.id) {
+            _context.next = 8;
             break;
           }
-          (0, _alert.showAlert)("error", "Unable to load payment. Please refresh the page.");
-          return _context.abrupt("return");
-        case 4:
-          // Initialize Stripe with the key from data attribute
-          stripe = Stripe((0, _config.getStripeKey)());
-          _context.next = 7;
-          return _axios.default.get("/api/v1/bookings/checkout-session/".concat(tourId, "?startDate=").concat(encodeURIComponent(startDate), "&numParticipants=").concat(encodeURIComponent(numParticipants)));
-        case 7:
-          session = _context.sent;
+          throw new Error("Invalid session response from server");
+        case 8:
           _context.next = 10;
           return stripe.redirectToCheckout({
-            sessionId: session.data.session.id
+            sessionId: response.data.session.id
           });
         case 10:
           _context.next = 18;
@@ -6749,11 +6770,10 @@ var bookTour = exports.bookTour = /*#__PURE__*/function () {
         case 12:
           _context.prev = 12;
           _context.t0 = _context["catch"](0);
+          errorMessage = ((_err$response = _context.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || _context.t0.message || "Booking error occurred";
           console.error("Booking error:", _context.t0);
-          (0, _alert.showAlert)("error", ((_err$response = _context.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || "Booking error occurred");
-          // Reset button text if there's an error
-          bookTourBtn = document.getElementById("bookTour");
-          if (bookTourBtn) bookTourBtn.textContent = "Book now";
+          (0, _alert.showAlert)("error", errorMessage);
+          throw _context.t0;
         case 18:
         case "end":
           return _context.stop();
@@ -6764,23 +6784,26 @@ var bookTour = exports.bookTour = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
+
+/**
+ * Adds travelers to an existing booking and redirects to Stripe checkout
+ */
 var addTravelersToBooking = exports.addTravelersToBooking = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(bookingId, numParticipants) {
-    var stripe, tourId, response, _err$response2;
+    var _submitButton$dataset, _response$data2, stripe, submitButton, tourId, response, _err$response2, errorMessage;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
           _context2.prev = 0;
-          if (!(typeof Stripe === "undefined")) {
-            _context2.next = 4;
+          stripe = initializeStripe(); // Get tourId from the submit button's data attributes
+          submitButton = document.querySelector(".add-travelers-submit");
+          if (submitButton !== null && submitButton !== void 0 && (_submitButton$dataset = submitButton.dataset) !== null && _submitButton$dataset !== void 0 && _submitButton$dataset.tourId) {
+            _context2.next = 5;
             break;
           }
-          (0, _alert.showAlert)("error", "Unable to load payment system");
-          return _context2.abrupt("return");
-        case 4:
-          // Initialize Stripe with the key from data attribute
-          stripe = Stripe((0, _config.getStripeKey)());
-          tourId = document.querySelector(".add-travelers-submit").dataset.tourId;
+          throw new Error("Tour information not found");
+        case 5:
+          tourId = submitButton.dataset.tourId; // Get checkout session from our API
           _context2.next = 8;
           return _axios.default.post("/api/v1/bookings/".concat(bookingId, "/add-travelers"), {
             tourId: tourId,
@@ -6788,31 +6811,43 @@ var addTravelersToBooking = exports.addTravelersToBooking = /*#__PURE__*/functio
           });
         case 8:
           response = _context2.sent;
-          _context2.next = 11;
+          if ((_response$data2 = response.data) !== null && _response$data2 !== void 0 && (_response$data2 = _response$data2.session) !== null && _response$data2 !== void 0 && _response$data2.id) {
+            _context2.next = 11;
+            break;
+          }
+          throw new Error("Invalid session response from server");
+        case 11:
+          _context2.next = 13;
           return stripe.redirectToCheckout({
             sessionId: response.data.session.id
           });
-        case 11:
-          _context2.next = 17;
-          break;
         case 13:
-          _context2.prev = 13;
+          _context2.next = 21;
+          break;
+        case 15:
+          _context2.prev = 15;
           _context2.t0 = _context2["catch"](0);
+          errorMessage = ((_err$response2 = _context2.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || _context2.t0.message || "Error adding travelers";
           console.error("Add travelers error:", _context2.t0);
-          (0, _alert.showAlert)("error", ((_err$response2 = _context2.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || "Error adding travelers");
-        case 17:
+          (0, _alert.showAlert)("error", errorMessage);
+          throw _context2.t0;
+        case 21:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 13]]);
+    }, _callee2, null, [[0, 15]]);
   }));
   return function addTravelersToBooking(_x4, _x5) {
     return _ref2.apply(this, arguments);
   };
 }();
+
+/**
+ * Requests a refund for a booking
+ */
 var requestRefund = exports.requestRefund = /*#__PURE__*/function () {
   var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(bookingId) {
-    var response, _err$response3;
+    var response, _err$response3, errorMessage;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
@@ -6821,39 +6856,291 @@ var requestRefund = exports.requestRefund = /*#__PURE__*/function () {
           return _axios.default.post("/api/v1/refunds/request/".concat(bookingId));
         case 3:
           response = _context3.sent;
-          if (response.data.status === "success") {
-            (0, _alert.showAlert)("success", "Refund requested successfully!");
-            window.setTimeout(function () {
-              location.reload();
-            }, 1500);
+          if (!(response.data.status === "success")) {
+            _context3.next = 8;
+            break;
           }
-          _context3.next = 11;
-          break;
-        case 7:
-          _context3.prev = 7;
-          _context3.t0 = _context3["catch"](0);
-          console.error("Refund request error:", _context3.t0);
-          (0, _alert.showAlert)("error", ((_err$response3 = _context3.t0.response) === null || _err$response3 === void 0 || (_err$response3 = _err$response3.data) === null || _err$response3 === void 0 ? void 0 : _err$response3.message) || "Error requesting refund");
+          (0, _alert.showAlert)("success", "Refund requested successfully!");
+          // Reload page after successful refund request
+          window.setTimeout(function () {
+            location.reload();
+          }, 1500);
+          return _context3.abrupt("return", true);
+        case 8:
+          throw new Error("Refund request failed");
         case 11:
+          _context3.prev = 11;
+          _context3.t0 = _context3["catch"](0);
+          errorMessage = ((_err$response3 = _context3.t0.response) === null || _err$response3 === void 0 || (_err$response3 = _err$response3.data) === null || _err$response3 === void 0 ? void 0 : _err$response3.message) || _context3.t0.message || "Error requesting refund";
+          console.error("Refund request error:", _context3.t0);
+          (0, _alert.showAlert)("error", errorMessage);
+          throw _context3.t0;
+        case 17:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[0, 7]]);
+    }, _callee3, null, [[0, 11]]);
   }));
   return function requestRefund(_x6) {
     return _ref3.apply(this, arguments);
   };
 }();
-},{"axios":"../../../node_modules/axios/index.js","../utils/alert":"utils/alert.js","../config":"config.js"}],"handlers/booking.js":[function(require,module,exports) {
+
+/**
+ * Gets all bookings for the current user
+ */
+var getUserBookings = exports.getUserBookings = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+    var response, _err$response4, errorMessage;
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
+        case 0:
+          _context4.prev = 0;
+          _context4.next = 3;
+          return _axios.default.get("/api/v1/bookings/my-bookings");
+        case 3:
+          response = _context4.sent;
+          return _context4.abrupt("return", response.data.data);
+        case 7:
+          _context4.prev = 7;
+          _context4.t0 = _context4["catch"](0);
+          errorMessage = ((_err$response4 = _context4.t0.response) === null || _err$response4 === void 0 || (_err$response4 = _err$response4.data) === null || _err$response4 === void 0 ? void 0 : _err$response4.message) || _context4.t0.message || "Error fetching bookings";
+          console.error("Fetch bookings error:", _context4.t0);
+          (0, _alert.showAlert)("error", errorMessage);
+          throw _context4.t0;
+        case 13:
+        case "end":
+          return _context4.stop();
+      }
+    }, _callee4, null, [[0, 7]]);
+  }));
+  return function getUserBookings() {
+    return _ref4.apply(this, arguments);
+  };
+}();
+},{"axios":"../../../node_modules/axios/index.js","../utils/alert":"utils/alert.js","../config":"config.js"}],"handlers/booking/CheckoutHandler.js":[function(require,module,exports) {
+var define;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.initBookingHandlers = void 0;
-var _bookingAPI = require("../api/bookingAPI");
-var _alert = require("../utils/alert");
-var _config = require("../config");
+exports.initCheckoutHandler = void 0;
+var _bookingAPI = require("../../api/bookingAPI");
+var _alert = require("../../utils/alert");
+var _config = require("../../config");
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } // handlers/booking/CheckoutHandler.js
+var CheckoutHandler = /*#__PURE__*/function () {
+  function CheckoutHandler() {
+    _classCallCheck(this, CheckoutHandler);
+    this.initializeStripe();
+    this.form = document.getElementById("bookingForm");
+    if (this.form) {
+      this.bindEvents();
+    }
+  }
+  return _createClass(CheckoutHandler, [{
+    key: "initializeStripe",
+    value: function initializeStripe() {
+      if (typeof Stripe === "undefined") {
+        console.error("Stripe not loaded");
+        (0, _alert.showAlert)("error", "Payment system not loaded. Please refresh the page.");
+        return;
+      }
+      try {
+        this.stripe = Stripe((0, _config.getStripeKey)());
+        console.log("Stripe initialized successfully");
+      } catch (error) {
+        console.error("Stripe initialization error:", error);
+        (0, _alert.showAlert)("error", "Failed to initialize payment system");
+      }
+    }
+  }, {
+    key: "bindEvents",
+    value: function bindEvents() {
+      var boundHandler = this.handleSubmit.bind(this);
+      this.form.removeEventListener("submit", boundHandler);
+      this.form.addEventListener("submit", boundHandler);
+    }
+  }, {
+    key: "handleSubmit",
+    value: function () {
+      var _handleSubmit = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(e) {
+        var _bookTourBtn$dataset, startDateSelect, numParticipantsInput, bookTourBtn, _bookTourBtn;
+        return _regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              e.preventDefault();
+              e.stopPropagation();
+              _context.prev = 2;
+              startDateSelect = document.getElementById("startDate");
+              numParticipantsInput = document.getElementById("numParticipants");
+              bookTourBtn = document.getElementById("bookTour");
+              if (!(!(startDateSelect !== null && startDateSelect !== void 0 && startDateSelect.value) || !(numParticipantsInput !== null && numParticipantsInput !== void 0 && numParticipantsInput.value) || !(bookTourBtn !== null && bookTourBtn !== void 0 && (_bookTourBtn$dataset = bookTourBtn.dataset) !== null && _bookTourBtn$dataset !== void 0 && _bookTourBtn$dataset.tourId))) {
+                _context.next = 8;
+                break;
+              }
+              throw new Error("Missing required booking information");
+            case 8:
+              bookTourBtn.textContent = "Processing...";
+              bookTourBtn.disabled = true;
+              _context.next = 12;
+              return (0, _bookingAPI.bookTour)(bookTourBtn.dataset.tourId, startDateSelect.value, numParticipantsInput.value);
+            case 12:
+              _context.next = 20;
+              break;
+            case 14:
+              _context.prev = 14;
+              _context.t0 = _context["catch"](2);
+              console.error("Booking submission error:", _context.t0);
+              (0, _alert.showAlert)("error", _context.t0.message || "Failed to process booking. Please try again.");
+              _bookTourBtn = document.getElementById("bookTour");
+              if (_bookTourBtn) {
+                _bookTourBtn.textContent = "Book now";
+                _bookTourBtn.disabled = false;
+              }
+            case 20:
+              return _context.abrupt("return", false);
+            case 21:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, null, [[2, 14]]);
+      }));
+      function handleSubmit(_x) {
+        return _handleSubmit.apply(this, arguments);
+      }
+      return handleSubmit;
+    }()
+  }]);
+}();
+var initCheckoutHandler = exports.initCheckoutHandler = function initCheckoutHandler() {
+  return new CheckoutHandler();
+};
+},{"../../api/bookingAPI":"api/bookingAPI.js","../../utils/alert":"utils/alert.js","../../config":"config.js"}],"handlers/booking/AddTravelersHandler.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.initAddTravelersHandler = void 0;
+var _bookingAPI = require("../../api/bookingAPI");
+var _alert = require("../../utils/alert");
+var _config = require("../../config");
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } // handlers/booking/AddTravelersHandler.js
+var AddTravelersHandler = /*#__PURE__*/function () {
+  function AddTravelersHandler() {
+    _classCallCheck(this, AddTravelersHandler);
+    this.initializeStripe();
+    this.form = document.querySelector(".add-travelers__form");
+    if (this.form) {
+      this.bindEvents();
+      this.initializeValidation();
+    }
+  }
+  return _createClass(AddTravelersHandler, [{
+    key: "initializeStripe",
+    value: function initializeStripe() {
+      if (typeof Stripe === "undefined") {
+        console.error("Stripe not loaded");
+        (0, _alert.showAlert)("error", "Payment system not loaded. Please refresh the page.");
+        return;
+      }
+      try {
+        this.stripe = Stripe((0, _config.getStripeKey)());
+        console.log("Stripe initialized successfully");
+      } catch (error) {
+        console.error("Stripe initialization error:", error);
+        (0, _alert.showAlert)("error", "Failed to initialize payment system");
+      }
+    }
+  }, {
+    key: "bindEvents",
+    value: function bindEvents() {
+      var boundHandler = this.handleSubmit.bind(this);
+      this.form.removeEventListener("submit", boundHandler);
+      this.form.addEventListener("submit", boundHandler);
+    }
+  }, {
+    key: "initializeValidation",
+    value: function initializeValidation() {
+      var numParticipantsInput = document.getElementById("numParticipants");
+      if (numParticipantsInput) {
+        numParticipantsInput.addEventListener("input", function (e) {
+          var availableSpots = parseInt(document.getElementById("availableSpots").value);
+          var requestedSpots = parseInt(e.target.value);
+          if (requestedSpots > availableSpots) {
+            e.target.setCustomValidity("Maximum ".concat(availableSpots, " additional participants allowed"));
+          } else {
+            e.target.setCustomValidity("");
+          }
+        });
+      }
+    }
+  }, {
+    key: "handleSubmit",
+    value: function () {
+      var _handleSubmit = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(e) {
+        var submitBtn, bookingId, numParticipants, availableSpots, requestedSpots;
+        return _regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              e.preventDefault();
+              submitBtn = document.querySelector(".add-travelers-submit");
+              bookingId = submitBtn.dataset.bookingId;
+              numParticipants = document.getElementById("numParticipants").value;
+              availableSpots = parseInt(document.getElementById("availableSpots").value);
+              requestedSpots = parseInt(numParticipants);
+              if (!(requestedSpots > availableSpots)) {
+                _context.next = 10;
+                break;
+              }
+              (0, _alert.hideAlert)();
+              (0, _alert.showAlert)("error", "Only ".concat(availableSpots, " spots available"));
+              return _context.abrupt("return");
+            case 10:
+              _context.next = 12;
+              return (0, _bookingAPI.addTravelersToBooking)(bookingId, numParticipants);
+            case 12:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee);
+      }));
+      function handleSubmit(_x) {
+        return _handleSubmit.apply(this, arguments);
+      }
+      return handleSubmit;
+    }()
+  }]);
+}();
+var initAddTravelersHandler = exports.initAddTravelersHandler = function initAddTravelersHandler() {
+  return new AddTravelersHandler();
+};
+},{"../../api/bookingAPI":"api/bookingAPI.js","../../utils/alert":"utils/alert.js","../../config":"config.js"}],"handlers/booking/BookingFiltersHandler.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.BookingFiltersHandler = void 0;
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
@@ -6864,6 +7151,106 @@ function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) 
 function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
 function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+// handlers/booking/BookingFiltersHandler.js
+var BookingFiltersHandler = exports.BookingFiltersHandler = /*#__PURE__*/function () {
+  function BookingFiltersHandler() {
+    _classCallCheck(this, BookingFiltersHandler);
+    this.tourFilter = document.getElementById("tourFilter");
+    this.sortBy = document.getElementById("sortBy");
+    this.bookingTableBody = document.getElementById("bookingTableBody");
+    this.originalRows = Array.from(this.bookingTableBody.querySelectorAll("tr"));
+    this.initializeEventListeners();
+  }
+  return _createClass(BookingFiltersHandler, [{
+    key: "initializeEventListeners",
+    value: function initializeEventListeners() {
+      var _this = this;
+      if (this.tourFilter) {
+        this.tourFilter.addEventListener("change", function () {
+          return _this.applyFilters();
+        });
+      }
+      if (this.sortBy) {
+        this.sortBy.addEventListener("change", function () {
+          return _this.applyFilters();
+        });
+      }
+    }
+  }, {
+    key: "applyFilters",
+    value: function applyFilters() {
+      var _this2 = this;
+      var filteredRows = _toConsumableArray(this.originalRows);
+
+      // Apply tour filter
+      var selectedTour = this.tourFilter.value;
+      if (selectedTour) {
+        filteredRows = filteredRows.filter(function (row) {
+          var _row$querySelector;
+          var tourName = (_row$querySelector = row.querySelector(".tour-name")) === null || _row$querySelector === void 0 ? void 0 : _row$querySelector.textContent;
+          return tourName === selectedTour;
+        });
+      }
+
+      // Apply sorting
+      var _this$sortBy$value$sp = this.sortBy.value.split("-"),
+        _this$sortBy$value$sp2 = _slicedToArray(_this$sortBy$value$sp, 2),
+        sortField = _this$sortBy$value$sp2[0],
+        sortDirection = _this$sortBy$value$sp2[1];
+      filteredRows.sort(function (a, b) {
+        var _a$querySelector, _b$querySelector, _a$querySelector2, _b$querySelector2, _a$querySelector3, _b$querySelector3;
+        var aValue, bValue;
+        switch (sortField) {
+          case "createdAt":
+            aValue = new Date((_a$querySelector = a.querySelector(".td-purchase")) === null || _a$querySelector === void 0 ? void 0 : _a$querySelector.textContent);
+            bValue = new Date((_b$querySelector = b.querySelector(".td-purchase")) === null || _b$querySelector === void 0 ? void 0 : _b$querySelector.textContent);
+            break;
+          case "price":
+            aValue = parseFloat((_a$querySelector2 = a.querySelector(".td-price")) === null || _a$querySelector2 === void 0 ? void 0 : _a$querySelector2.textContent.replace("$", "").replace(",", ""));
+            bValue = parseFloat((_b$querySelector2 = b.querySelector(".td-price")) === null || _b$querySelector2 === void 0 ? void 0 : _b$querySelector2.textContent.replace("$", "").replace(",", ""));
+            break;
+          case "startDate":
+            aValue = new Date((_a$querySelector3 = a.querySelector(".td-start")) === null || _a$querySelector3 === void 0 ? void 0 : _a$querySelector3.textContent);
+            bValue = new Date((_b$querySelector3 = b.querySelector(".td-start")) === null || _b$querySelector3 === void 0 ? void 0 : _b$querySelector3.textContent);
+            break;
+          default:
+            aValue = 0;
+            bValue = 0;
+        }
+        var compareResult = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+        return sortDirection === "asc" ? compareResult : -compareResult;
+      });
+
+      // Update the table
+      this.bookingTableBody.innerHTML = "";
+      if (filteredRows.length > 0) {
+        filteredRows.forEach(function (row) {
+          return _this2.bookingTableBody.appendChild(row.cloneNode(true));
+        });
+      } else {
+        var emptyRow = document.createElement("tr");
+        emptyRow.className = "empty-row";
+        emptyRow.innerHTML = "\n       <td colspan=\"7\">\n         <div class=\"empty-message\">\n           <i class=\"fas fa-calendar-times\"></i>\n           <p>No bookings found</p>\n         </div>\n       </td>\n     ";
+        this.bookingTableBody.appendChild(emptyRow);
+      }
+    }
+  }]);
+}();
+},{}],"handlers/booking/MyToursHandler.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.initMyToursHandler = void 0;
+var _bookingAPI = require("../../api/bookingAPI");
+var _alert = require("../../utils/alert");
+var _BookingFiltersHandler = require("./BookingFiltersHandler");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
@@ -6872,44 +7259,18 @@ function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Can
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
-function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } // handlers/booking.js
-var BookingHandler = /*#__PURE__*/function () {
-  function BookingHandler() {
-    _classCallCheck(this, BookingHandler);
-    try {
-      // Check which page we're on
-      this.isBookingPage = Boolean(document.querySelector("#bookingForm") || document.querySelector(".add-travelers__form"));
-      this.isManagementPage = Boolean(document.querySelector(".user-view__bookings-container"));
-
-      // Only initialize Stripe on booking pages
-      if (this.isBookingPage) {
-        if (typeof Stripe === "undefined") {
-          console.warn("Stripe not loaded");
-          return;
-        }
-        var bookingForm = document.querySelector("#bookingForm") || document.querySelector(".add-travelers__form");
-        if (bookingForm) {
-          this.stripe = Stripe((0, _config.getStripeKey)());
-        }
-      }
-
-      // Initialize components
-      this.init();
-      this.initializeEventListeners();
-    } catch (error) {
-      // Only show error if we're on a booking page
-      if (this.isBookingPage) {
-        console.error("BookingHandler initialization error:", error);
-        (0, _alert.showAlert)("error", "Failed to initialize booking system");
-      }
-    }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } // handlers/booking/MyToursHandler.js
+var MyToursHandler = /*#__PURE__*/function () {
+  function MyToursHandler() {
+    _classCallCheck(this, MyToursHandler);
+    this.initializeModals();
+    this.bindEvents();
+    // Create the filters handler
+    this.filtersHandler = new _BookingFiltersHandler.BookingFiltersHandler();
   }
-  return _createClass(BookingHandler, [{
-    key: "init",
-    value: function init() {
-      // Skip initialization if we're on the management page
-      if (this.isManagementPage) return;
-
+  return _createClass(MyToursHandler, [{
+    key: "initializeModals",
+    value: function initializeModals() {
       // Modal elements
       this.managementModal = document.getElementById("managementModal");
       this.refundModal = document.getElementById("refundModal");
@@ -6920,63 +7281,40 @@ var BookingHandler = /*#__PURE__*/function () {
       this.managePrice = document.getElementById("managePrice");
       this.manageStatus = document.getElementById("manageStatus");
 
-      // Action groups
-      this.viewTourAction = document.getElementById("viewTourAction");
-      this.reviewActions = document.getElementById("reviewActions");
-      this.upcomingActions = document.getElementById("upcomingActions");
-
       // Action buttons
       this.viewTourBtn = document.getElementById("viewTourBtn");
       this.writeReviewBtn = document.getElementById("writeReviewBtn");
       this.editReviewBtn = document.getElementById("editReviewBtn");
       this.addTravelersBtn = document.getElementById("addTravelersBtn");
       this.requestRefundBtn = document.getElementById("requestRefundBtn");
-
-      // Booking forms
-      this.bookingForm = document.getElementById("bookingForm");
-      this.addTravelersForm = document.querySelector(".add-travelers__form");
     }
   }, {
-    key: "initializeEventListeners",
-    value: function initializeEventListeners() {
+    key: "bindEvents",
+    value: function bindEvents() {
       var _this = this;
-      // Skip event listeners if we're on the management page
-      if (this.isManagementPage) return;
-
-      // Use event delegation for manage buttons
+      // Manage booking button clicks
       document.addEventListener("click", function (e) {
-        var manageBtn = e.target.closest(".manage-booking-btn");
-        if (manageBtn) {
-          _this.handleManageClick(manageBtn);
+        if (e.target.closest(".manage-booking-btn")) {
+          _this.handleManageClick(e.target.closest(".manage-booking-btn"));
         }
       });
 
-      // Modal close buttons using event delegation
+      // Modal action buttons
+      if (this.managementModal) {
+        this.managementModal.addEventListener("click", function (e) {
+          var target = e.target;
+          if (target.matches("#viewTourBtn")) _this.handleViewTour();else if (target.matches("#writeReviewBtn")) _this.handleWriteReview();else if (target.matches("#editReviewBtn")) _this.handleEditReview();else if (target.matches("#addTravelersBtn")) _this.handleAddTravelers();else if (target.matches("#requestRefundBtn")) _this.handleRequestRefund();
+        });
+      }
+
+      // Modal close buttons
       document.addEventListener("click", function (e) {
-        if (e.target.matches(".close-modal")) {
+        if (e.target.matches(".close-modal") || e.target === _this.managementModal || e.target === _this.refundModal) {
           _this.closeAllModals();
         }
       });
 
-      // Action buttons using event delegation
-      if (this.managementModal) {
-        this.managementModal.addEventListener("click", function (e) {
-          var target = e.target;
-          if (target.matches("#viewTourBtn")) {
-            _this.handleViewTour();
-          } else if (target.matches("#writeReviewBtn")) {
-            _this.handleWriteReview();
-          } else if (target.matches("#editReviewBtn")) {
-            _this.handleEditReview();
-          } else if (target.matches("#addTravelersBtn")) {
-            _this.handleAddTravelers();
-          } else if (target.matches("#requestRefundBtn")) {
-            _this.handleRequestRefund();
-          }
-        });
-      }
-
-      // Refund modal handlers using event delegation
+      // Refund modal actions
       if (this.refundModal) {
         this.refundModal.addEventListener("click", function (e) {
           if (e.target.matches("#confirmRefund")) {
@@ -6987,31 +7325,11 @@ var BookingHandler = /*#__PURE__*/function () {
         });
       }
 
-      // Close modals when clicking outside using event delegation
-      document.addEventListener("click", function (e) {
-        if (e.target === _this.managementModal || e.target === _this.refundModal) {
-          _this.closeAllModals();
-        }
-      });
-
-      // Handle escape key
+      // Escape key handler
       document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") {
-          _this.closeAllModals();
-        }
+        if (e.key === "Escape") _this.closeAllModals();
       });
-
-      // Booking form handlers
-      if (this.bookingForm) {
-        this.bookingForm.addEventListener("submit", this.handleBookingSubmit.bind(this));
-      }
-      if (this.addTravelersForm) {
-        this.addTravelersForm.addEventListener("submit", this.handleAddTravelersSubmit.bind(this));
-        this.initializeAddTravelersValidation();
-      }
     }
-
-    // The rest of the methods remain the same as they're only called when needed
   }, {
     key: "handleManageClick",
     value: function handleManageClick(btn) {
@@ -7158,182 +7476,60 @@ var BookingHandler = /*#__PURE__*/function () {
       }
       return confirmRefund;
     }()
-  }, {
-    key: "handleBookingSubmit",
-    value: function () {
-      var _handleBookingSubmit = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(e) {
-        var startDate, numParticipants, tourId;
-        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-          while (1) switch (_context2.prev = _context2.next) {
-            case 0:
-              e.preventDefault();
-              startDate = document.getElementById("startDate").value;
-              numParticipants = document.getElementById("numParticipants").value;
-              tourId = document.getElementById("bookTour").dataset.tourId;
-              document.querySelector("#bookTour").textContent = "Processing...";
-              _context2.next = 7;
-              return (0, _bookingAPI.bookTour)(tourId, startDate, numParticipants);
-            case 7:
-            case "end":
-              return _context2.stop();
-          }
-        }, _callee2);
-      }));
-      function handleBookingSubmit(_x) {
-        return _handleBookingSubmit.apply(this, arguments);
-      }
-      return handleBookingSubmit;
-    }()
-  }, {
-    key: "initializeAddTravelersValidation",
-    value: function initializeAddTravelersValidation() {
-      var numParticipantsInput = document.getElementById("numParticipants");
-      if (numParticipantsInput) {
-        numParticipantsInput.addEventListener("input", function (e) {
-          var availableSpots = parseInt(document.getElementById("availableSpots").value);
-          var requestedSpots = parseInt(e.target.value);
-          if (requestedSpots > availableSpots) {
-            e.target.setCustomValidity("Maximum ".concat(availableSpots, " additional participants allowed"));
-          } else {
-            e.target.setCustomValidity("");
-          }
-        });
-      }
-    }
-  }, {
-    key: "handleAddTravelersSubmit",
-    value: function () {
-      var _handleAddTravelersSubmit = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(e) {
-        var submitBtn, bookingId, numParticipants, availableSpots, requestedSpots;
-        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-          while (1) switch (_context3.prev = _context3.next) {
-            case 0:
-              e.preventDefault();
-              submitBtn = document.querySelector(".add-travelers-submit");
-              bookingId = submitBtn.dataset.bookingId;
-              numParticipants = document.getElementById("numParticipants").value;
-              availableSpots = parseInt(document.getElementById("availableSpots").value);
-              requestedSpots = parseInt(numParticipants);
-              if (!(requestedSpots > availableSpots)) {
-                _context3.next = 10;
-                break;
-              }
-              (0, _alert.hideAlert)();
-              (0, _alert.showAlert)("error", "Only ".concat(availableSpots, " spots available"));
-              return _context3.abrupt("return");
-            case 10:
-              _context3.next = 12;
-              return (0, _bookingAPI.addTravelersToBooking)(bookingId, numParticipants);
-            case 12:
-            case "end":
-              return _context3.stop();
-          }
-        }, _callee3);
-      }));
-      function handleAddTravelersSubmit(_x2) {
-        return _handleAddTravelersSubmit.apply(this, arguments);
-      }
-      return handleAddTravelersSubmit;
-    }()
   }]);
-}(); // Add this to your handlers/booking.js file
-var BookingFiltersHandler = /*#__PURE__*/function () {
-  function BookingFiltersHandler() {
-    _classCallCheck(this, BookingFiltersHandler);
-    this.tourFilter = document.getElementById("tourFilter");
-    this.sortBy = document.getElementById("sortBy");
-    this.bookingTableBody = document.getElementById("bookingTableBody");
-    this.originalRows = Array.from(this.bookingTableBody.querySelectorAll("tr"));
-    this.initializeEventListeners();
+}();
+var initMyToursHandler = exports.initMyToursHandler = function initMyToursHandler() {
+  return new MyToursHandler();
+};
+},{"../../api/bookingAPI":"api/bookingAPI.js","../../utils/alert":"utils/alert.js","./BookingFiltersHandler":"handlers/booking/BookingFiltersHandler.js"}],"handlers/booking/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "initAddTravelersHandler", {
+  enumerable: true,
+  get: function () {
+    return _AddTravelersHandler.initAddTravelersHandler;
   }
-  return _createClass(BookingFiltersHandler, [{
-    key: "initializeEventListeners",
-    value: function initializeEventListeners() {
-      var _this2 = this;
-      if (this.tourFilter) {
-        this.tourFilter.addEventListener("change", function () {
-          return _this2.applyFilters();
-        });
-      }
-      if (this.sortBy) {
-        this.sortBy.addEventListener("change", function () {
-          return _this2.applyFilters();
-        });
-      }
-    }
-  }, {
-    key: "applyFilters",
-    value: function applyFilters() {
-      var _this3 = this;
-      var filteredRows = _toConsumableArray(this.originalRows);
+});
+exports.initBookingHandlers = void 0;
+Object.defineProperty(exports, "initCheckoutHandler", {
+  enumerable: true,
+  get: function () {
+    return _CheckoutHandler.initCheckoutHandler;
+  }
+});
+Object.defineProperty(exports, "initMyToursHandler", {
+  enumerable: true,
+  get: function () {
+    return _MyToursHandler.initMyToursHandler;
+  }
+});
+var _CheckoutHandler = require("./CheckoutHandler");
+var _AddTravelersHandler = require("./AddTravelersHandler");
+var _MyToursHandler = require("./MyToursHandler");
+// handlers/booking/index.js
 
-      // Apply tour filter
-      var selectedTour = this.tourFilter.value;
-      if (selectedTour) {
-        filteredRows = filteredRows.filter(function (row) {
-          var _row$querySelector;
-          var tourName = (_row$querySelector = row.querySelector(".tour-name")) === null || _row$querySelector === void 0 ? void 0 : _row$querySelector.textContent;
-          return tourName === selectedTour;
-        });
-      }
+// Re-export the handlers
 
-      // Apply sorting
-      var _this$sortBy$value$sp = this.sortBy.value.split("-"),
-        _this$sortBy$value$sp2 = _slicedToArray(_this$sortBy$value$sp, 2),
-        sortField = _this$sortBy$value$sp2[0],
-        sortDirection = _this$sortBy$value$sp2[1];
-      filteredRows.sort(function (a, b) {
-        var _a$querySelector, _b$querySelector, _a$querySelector2, _b$querySelector2, _a$querySelector3, _b$querySelector3;
-        var aValue, bValue;
-        switch (sortField) {
-          case "createdAt":
-            aValue = new Date((_a$querySelector = a.querySelector(".td-purchase")) === null || _a$querySelector === void 0 ? void 0 : _a$querySelector.textContent);
-            bValue = new Date((_b$querySelector = b.querySelector(".td-purchase")) === null || _b$querySelector === void 0 ? void 0 : _b$querySelector.textContent);
-            break;
-          case "price":
-            aValue = parseFloat((_a$querySelector2 = a.querySelector(".td-price")) === null || _a$querySelector2 === void 0 ? void 0 : _a$querySelector2.textContent.replace("$", "").replace(",", ""));
-            bValue = parseFloat((_b$querySelector2 = b.querySelector(".td-price")) === null || _b$querySelector2 === void 0 ? void 0 : _b$querySelector2.textContent.replace("$", "").replace(",", ""));
-            break;
-          case "startDate":
-            aValue = new Date((_a$querySelector3 = a.querySelector(".td-start")) === null || _a$querySelector3 === void 0 ? void 0 : _a$querySelector3.textContent);
-            bValue = new Date((_b$querySelector3 = b.querySelector(".td-start")) === null || _b$querySelector3 === void 0 ? void 0 : _b$querySelector3.textContent);
-            break;
-          default:
-            aValue = 0;
-            bValue = 0;
-        }
-        var compareResult = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-        return sortDirection === "asc" ? compareResult : -compareResult;
-      });
-
-      // Update the table
-      this.bookingTableBody.innerHTML = "";
-      if (filteredRows.length > 0) {
-        filteredRows.forEach(function (row) {
-          return _this3.bookingTableBody.appendChild(row.cloneNode(true));
-        });
-      } else {
-        var emptyRow = document.createElement("tr");
-        emptyRow.className = "empty-row";
-        emptyRow.innerHTML = "\n        <td colspan=\"7\">\n          <div class=\"empty-message\">\n            <i class=\"fas fa-calendar-times\"></i>\n            <p>No bookings found</p>\n          </div>\n        </td>\n      ";
-        this.bookingTableBody.appendChild(emptyRow);
-      }
-    }
-  }]);
-}(); // Modify the initBookingHandlers function to include the filters handler
+// Main initialization function
 var initBookingHandlers = exports.initBookingHandlers = function initBookingHandlers() {
-  // Initialize booking handlers only on the my-tours page
-  if (window.location.pathname === "/my-tours") {
-    try {
-      new BookingHandler();
-      new BookingFiltersHandler(); // Add this line
-    } catch (error) {
-      console.error("Failed to initialize booking handlers:", error);
-      (0, _alert.showAlert)("error", "Failed to initialize booking system");
+  var path = window.location.pathname;
+  try {
+    if (path.includes("/tour/") && path.includes("/checkout")) {
+      (0, _CheckoutHandler.initCheckoutHandler)();
+    } else if (path.includes("/booking/") && path.includes("/add-travelers")) {
+      (0, _AddTravelersHandler.initAddTravelersHandler)();
+    } else if (path === "/my-tours") {
+      (0, _MyToursHandler.initMyToursHandler)();
     }
+  } catch (error) {
+    console.error("Failed to initialize booking handlers:", error);
+    showAlert("error", "Failed to initialize booking system");
   }
 };
-},{"../api/bookingAPI":"api/bookingAPI.js","../utils/alert":"utils/alert.js","../config":"config.js"}],"api/reviewAPI.js":[function(require,module,exports) {
+},{"./CheckoutHandler":"handlers/booking/CheckoutHandler.js","./AddTravelersHandler":"handlers/booking/AddTravelersHandler.js","./MyToursHandler":"handlers/booking/MyToursHandler.js"}],"api/reviewAPI.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10576,7 +10772,7 @@ var _alert = require("./utils/alert");
 var _mapbox = require("./utils/mapbox");
 var _elements = require("./utils/elements");
 var _auth = require("./handlers/auth");
-var _booking = require("./handlers/booking");
+var _index = require("./handlers/booking/index");
 var _review = require("./handlers/review");
 var _user = require("./handlers/user");
 var _refundManagement = require("./handlers/refundManagement");
@@ -10586,6 +10782,15 @@ var _userManagement = require("./handlers/userManagement");
 var _tourManagement = require("./handlers/tourManagement");
 var _billingManagement = require("./handlers/billingManagement");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
+function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
@@ -10612,6 +10817,7 @@ var App = exports.App = /*#__PURE__*/function () {
     key: "getPageConfig",
     value: function getPageConfig() {
       var path = window.location.pathname;
+      console.log("Current path:", path); // Debug log
 
       // Define page configurations
       var pageConfigs = {
@@ -10633,7 +10839,7 @@ var App = exports.App = /*#__PURE__*/function () {
           handlers: ["auth", "user"]
         },
         "/my-tours": {
-          handlers: ["auth", "booking", "review", "refund"]
+          handlers: ["auth", "booking"]
         },
         "/my-reviews": {
           handlers: ["auth", "review"]
@@ -10664,23 +10870,26 @@ var App = exports.App = /*#__PURE__*/function () {
         handlers: ["auth"] // Default handlers
       };
 
-      // Special handling for booking paths
-      if (path.startsWith("/booking/")) {
-        config.handlers = ["auth", "booking"];
+      // Special handling for paths
+      if (
+      // Checkout page
+      path.includes("/tour/") && path.includes("/checkout") ||
+      // Add travelers page
+      path.includes("/booking/") && path.includes("/add-travelers") ||
+      // My tours page
+      path === "/my-tours") {
+        config = _objectSpread(_objectSpread({}, config), {}, {
+          handlers: [].concat(_toConsumableArray(config.handlers || []), ["booking"])
+        });
       }
-      // Special handling for tour pages
-      else if (path.startsWith("/tour/")) {
-        if (path.includes("/review")) {
-          config.handlers = ["auth", "review"];
-        } else if (path.includes("/booking")) {
-          config.handlers = ["auth", "booking"];
-        } else if (path.includes("/checkout")) {
-          config.handlers = ["auth", "booking"];
-        } else {
-          config.handlers = ["auth"];
-          config.needsMap = true;
-        }
+      // Tour detail page
+      else if (path.startsWith("/tour/") && !path.includes("/review")) {
+        config = _objectSpread(_objectSpread({}, config), {}, {
+          handlers: ["auth"],
+          needsMap: true
+        });
       }
+      console.log("Page config:", config); // Debug log
       return config;
     }
   }, {
@@ -10690,11 +10899,13 @@ var App = exports.App = /*#__PURE__*/function () {
         handlers = _ref$handlers === void 0 ? [] : _ref$handlers,
         _ref$needsMap = _ref.needsMap,
         needsMap = _ref$needsMap === void 0 ? false : _ref$needsMap;
+      console.log("Initializing handlers:", handlers); // Debug log
+
       // Map handler names to initialization functions
       var handlerMap = {
         auth: _auth.initAuthHandlers,
         user: _user.initUserHandlers,
-        booking: _booking.initBookingHandlers,
+        booking: _index.initBookingHandlers,
         review: _review.initReviewHandlers,
         refund: _refundManagement.initRefundManagement,
         reviewManagement: _reviewManagement.initReviewManagement,
@@ -10749,7 +10960,7 @@ var App = exports.App = /*#__PURE__*/function () {
     }
   }]);
 }();
-},{"./utils/alert":"utils/alert.js","./utils/mapbox":"utils/mapbox.js","./utils/elements":"utils/elements.js","./handlers/auth":"handlers/auth.js","./handlers/booking":"handlers/booking.js","./handlers/review":"handlers/review.js","./handlers/user":"handlers/user.js","./handlers/refundManagement":"handlers/refundManagement.js","./handlers/reviewManagement":"handlers/reviewManagement.js","./handlers/bookingManagement":"handlers/bookingManagement.js","./handlers/userManagement":"handlers/userManagement.js","./handlers/tourManagement":"handlers/tourManagement.js","./handlers/billingManagement":"handlers/billingManagement.js"}],"index.js":[function(require,module,exports) {
+},{"./utils/alert":"utils/alert.js","./utils/mapbox":"utils/mapbox.js","./utils/elements":"utils/elements.js","./handlers/auth":"handlers/auth.js","./handlers/booking/index":"handlers/booking/index.js","./handlers/review":"handlers/review.js","./handlers/user":"handlers/user.js","./handlers/refundManagement":"handlers/refundManagement.js","./handlers/reviewManagement":"handlers/reviewManagement.js","./handlers/bookingManagement":"handlers/bookingManagement.js","./handlers/userManagement":"handlers/userManagement.js","./handlers/tourManagement":"handlers/tourManagement.js","./handlers/billingManagement":"handlers/billingManagement.js"}],"index.js":[function(require,module,exports) {
 "use strict";
 
 var _interceptors = require("./api/interceptors");
@@ -10785,7 +10996,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "44847" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39663" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

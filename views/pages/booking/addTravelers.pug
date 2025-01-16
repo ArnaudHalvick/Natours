@@ -20,7 +20,7 @@ block content
 
           .form__group.ma-bt-md
             label.form__label(for='startDate') Start Date
-            input#startDate.form__input(type='text', value=`${booking.startDate.toLocaleDateString('en-us', { year: 'numeric', month: 'long', day: 'numeric' })}`, readonly)
+            input#startDate.form__input(type='text', value=`${booking.startDate.toISOString().split('T')[0]}`, readonly)
 
           .form__group.ma-bt-md
             label.form__label(for='currentParticipants') Current Participants

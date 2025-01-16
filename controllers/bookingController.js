@@ -14,6 +14,8 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 // Get Stripe checkout session for booking a tour
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const tour = await Tour.findById(req.params.tourId);
+  if (!tour) return next(new AppError("Tour not found.", 404));
+
   const { startDate, numParticipants } = req.query;
   const token = req.cookies.jwt;
   const successUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking&jwt=${token}`;
@@ -36,26 +38,19 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError("Start date is required.", 400));
   }
 
-  // Check if user already booked this tour on the same date
-  const existingBooking = await Booking.findOne({
-    tour: req.params.tourId,
-    user: req.user._id,
-    startDate: startDateISO,
+  // Find start date object in the tour
+  const startDateObj = tour.startDates.find(sd => {
+    // Compare only year, month, and day
+    const tourDate = new Date(sd.date);
+    const selectedDate = new Date(startDateISO);
+
+    return (
+      tourDate.getUTCFullYear() === selectedDate.getUTCFullYear() &&
+      tourDate.getUTCMonth() === selectedDate.getUTCMonth() &&
+      tourDate.getUTCDate() === selectedDate.getUTCDate()
+    );
   });
 
-  if (existingBooking) {
-    return next(
-      new AppError(
-        "You have already booked this tour on this date. Please check your bookings if you want to add more travelers.",
-        400,
-      ),
-    );
-  }
-
-  // Find start date object in the tour
-  const startDateObj = tour.startDates.find(
-    sd => new Date(sd.date).getTime() === new Date(startDateISO).getTime(),
-  );
   if (!startDateObj) {
     return next(new AppError("Start date not found.", 400));
   }
@@ -109,8 +104,7 @@ const createBookingCheckout = async session => {
   try {
     const userEmail = session.customer_email;
     const price = session.amount_total / 100;
-    const { startDate, numParticipants, bookingId, tourId } = session.metadata;
-    const actualTourId = tourId || session.client_reference_id;
+    const { startDate, numParticipants, tourId } = session.metadata;
 
     const user = await User.findOne({ email: userEmail });
     if (!user) {
@@ -118,81 +112,33 @@ const createBookingCheckout = async session => {
       return;
     }
 
-    const mongooseSession = await mongoose.startSession();
-    mongooseSession.startTransaction();
-
-    try {
-      if (bookingId) {
-        // Update existing booking
-        const booking =
-          await Booking.findById(bookingId).session(mongooseSession);
-        if (!booking) throw new Error("Booking not found.");
-
-        const additionalParticipants = parseInt(numParticipants, 10);
-        if (isNaN(additionalParticipants)) {
-          throw new Error("Invalid number of participants");
-        }
-
-        const tour = await Tour.findById(actualTourId).session(mongooseSession);
-        if (!tour) throw new Error("Tour not found.");
-
-        booking.numParticipants += additionalParticipants;
-        await booking.save();
-
-        const startDateObj = tour.startDates.find(
-          sd => sd.date.toISOString() === startDate,
-        );
-        if (!startDateObj) throw new Error("Start date not found in tour.");
-
-        startDateObj.participants += additionalParticipants;
-        tour.markModified("startDates");
-        await tour.save();
-      } else {
-        // Create new booking
-        const tour = await Tour.findById(actualTourId).session(mongooseSession);
-        if (!tour) throw new Error("Tour not found.");
-
-        const startDateObj = tour.startDates.find(
-          sd => sd.date.getTime() === new Date(startDate).getTime(),
-        );
-        if (!startDateObj) throw new Error("Start date not found.");
-
-        const parsedParticipants = parseInt(numParticipants, 10);
-        const availableSpots = tour.maxGroupSize - startDateObj.participants;
-
-        if (parsedParticipants > availableSpots) {
-          throw new Error(
-            `Only ${availableSpots} spots left for this start date.`,
-          );
-        }
-
-        startDateObj.participants += parsedParticipants;
-        tour.markModified("startDates");
-        await tour.save();
-
-        await Booking.create(
-          [
-            {
-              tour: actualTourId,
-              user: user._id,
-              price,
-              startDate,
-              numParticipants: parsedParticipants,
-              paymentIntentId: session.payment_intent,
-            },
-          ],
-          { session: mongooseSession },
-        );
-      }
-
-      await mongooseSession.commitTransaction();
-    } catch (error) {
-      console.error("Booking checkout error:", error);
-      await mongooseSession.abortTransaction();
-      throw error;
-    } finally {
-      mongooseSession.endSession();
+    const tour = await Tour.findById(tourId);
+    if (!tour) {
+      console.error("Tour not found.");
+      return;
     }
+
+    const startDateObj = tour.startDates.find(
+      sd => new Date(sd.date).getTime() === new Date(startDate).getTime(),
+    );
+    if (!startDateObj) {
+      console.error("Start date not found in tour.");
+      return;
+    }
+
+    const parsedParticipants = parseInt(numParticipants, 10);
+    startDateObj.participants += parsedParticipants;
+    tour.markModified("startDates");
+    await tour.save();
+
+    await Booking.create({
+      tour: tourId,
+      user: user._id,
+      price,
+      startDate,
+      numParticipants: parsedParticipants,
+      paymentIntentId: session.payment_intent,
+    });
   } catch (error) {
     console.error("Error in createBookingCheckout:", error);
   }

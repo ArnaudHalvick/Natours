@@ -5,7 +5,7 @@ import { elements } from "./utils/elements";
 
 // Handler imports
 import { initAuthHandlers } from "./handlers/auth";
-import { initBookingHandlers } from "./handlers/booking";
+import { initBookingHandlers } from "./handlers/booking/index";
 import { initReviewHandlers } from "./handlers/review";
 import { initUserHandlers } from "./handlers/user";
 import { initRefundManagement } from "./handlers/refundManagement";
@@ -32,6 +32,7 @@ export class App {
 
   getPageConfig() {
     const path = window.location.pathname;
+    console.log("Current path:", path); // Debug log
 
     // Define page configurations
     const pageConfigs = {
@@ -54,7 +55,7 @@ export class App {
         handlers: ["auth", "user"],
       },
       "/my-tours": {
-        handlers: ["auth", "booking", "review", "refund"],
+        handlers: ["auth", "booking"],
       },
       "/my-reviews": {
         handlers: ["auth", "review"],
@@ -86,28 +87,36 @@ export class App {
       handlers: ["auth"], // Default handlers
     };
 
-    // Special handling for booking paths
-    if (path.startsWith("/booking/")) {
-      config.handlers = ["auth", "booking"];
+    // Special handling for paths
+    if (
+      // Checkout page
+      (path.includes("/tour/") && path.includes("/checkout")) ||
+      // Add travelers page
+      (path.includes("/booking/") && path.includes("/add-travelers")) ||
+      // My tours page
+      path === "/my-tours"
+    ) {
+      config = {
+        ...config,
+        handlers: [...(config.handlers || []), "booking"],
+      };
     }
-    // Special handling for tour pages
-    else if (path.startsWith("/tour/")) {
-      if (path.includes("/review")) {
-        config.handlers = ["auth", "review"];
-      } else if (path.includes("/booking")) {
-        config.handlers = ["auth", "booking"];
-      } else if (path.includes("/checkout")) {
-        config.handlers = ["auth", "booking"];
-      } else {
-        config.handlers = ["auth"];
-        config.needsMap = true;
-      }
+    // Tour detail page
+    else if (path.startsWith("/tour/") && !path.includes("/review")) {
+      config = {
+        ...config,
+        handlers: ["auth"],
+        needsMap: true,
+      };
     }
 
+    console.log("Page config:", config); // Debug log
     return config;
   }
 
   initializeRequiredFeatures({ handlers = [], needsMap = false }) {
+    console.log("Initializing handlers:", handlers); // Debug log
+
     // Map handler names to initialization functions
     const handlerMap = {
       auth: initAuthHandlers,
