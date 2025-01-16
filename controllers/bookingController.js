@@ -86,16 +86,17 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 // Function to create or update a booking after Stripe payment
 const createBookingCheckout = async session => {
   try {
-    const tourId = session.client_reference_id;
+    const tourId = session.metadata.tourId || session.client_reference_id;
     const userEmail = session.customer_email;
     const price = session.amount_total / 100;
-    const { startDate, numParticipants } = session.metadata;
+    const { startDate, numParticipants, bookingId } = session.metadata;
 
-    console.log("Creating booking with data:", {
+    console.log("Creating/Updating booking with data:", {
       tourId,
       userEmail,
       startDate,
       numParticipants,
+      bookingId,
     });
 
     const user = await User.findOne({ email: userEmail });
@@ -108,7 +109,7 @@ const createBookingCheckout = async session => {
       throw new Error("Tour not found");
     }
 
-    // Normalize the dates for comparison by stripping time component
+    // Normalize dates for comparison
     const bookingDate = new Date(startDate);
     const normalizedBookingDate = new Date(
       bookingDate.getUTCFullYear(),
@@ -125,20 +126,10 @@ const createBookingCheckout = async session => {
         tourDate.getUTCDate(),
       );
 
-      console.log("Comparing dates:", {
-        normalizedBookingDate: normalizedBookingDate.toISOString(),
-        normalizedTourDate: normalizedTourDate.toISOString(),
-      });
-
       return normalizedTourDate.getTime() === normalizedBookingDate.getTime();
     });
 
     if (!startDateObj) {
-      console.error(
-        "Available dates:",
-        tour.startDates.map(d => new Date(d.date).toISOString()),
-      );
-      console.error("Requested date:", normalizedBookingDate.toISOString());
       throw new Error("Start date not found in tour");
     }
 
@@ -148,21 +139,36 @@ const createBookingCheckout = async session => {
     tour.markModified("startDates");
     await tour.save();
 
-    // Create the booking
-    const booking = await Booking.create({
-      tour: tourId,
-      user: user._id,
-      price,
-      startDate: normalizedBookingDate,
-      numParticipants: parsedParticipants,
-      paymentIntentId: session.payment_intent,
-    });
+    if (bookingId) {
+      // Add travelers case: Update existing booking
+      const booking = await Booking.findById(bookingId);
+      if (!booking) {
+        throw new Error("Booking not found");
+      }
 
-    console.log("Booking created successfully:", booking);
-    return booking;
+      booking.numParticipants += parsedParticipants;
+      booking.price += price; // Add the additional price
+      await booking.save();
+
+      console.log("Updated booking with additional travelers:", booking);
+      return booking;
+    } else {
+      // New booking case: Create new booking
+      const booking = await Booking.create({
+        tour: tourId,
+        user: user._id,
+        price,
+        startDate: normalizedBookingDate,
+        numParticipants: parsedParticipants,
+        paymentIntentId: session.payment_intent,
+      });
+
+      console.log("Created new booking:", booking);
+      return booking;
+    }
   } catch (error) {
     console.error("Error in createBookingCheckout:", error);
-    throw error; // Re-throw to be handled by the webhook
+    throw error;
   }
 };
 
@@ -184,9 +190,26 @@ exports.addTravelersToBooking = catchAsync(async (req, res, next) => {
   const tour = await Tour.findById(tourId);
   if (!tour) return next(new AppError("Tour not found.", 404));
 
-  const startDateObj = tour.startDates.find(
-    sd => sd.date.getTime() === booking.startDate.getTime(),
+  // Normalize the booking date
+  const bookingDate = new Date(booking.startDate);
+  const normalizedBookingDate = new Date(
+    bookingDate.getUTCFullYear(),
+    bookingDate.getUTCMonth(),
+    bookingDate.getUTCDate(),
   );
+
+  // Find matching start date with normalized comparison
+  const startDateObj = tour.startDates.find(sd => {
+    const tourDate = new Date(sd.date);
+    const normalizedTourDate = new Date(
+      tourDate.getUTCFullYear(),
+      tourDate.getUTCMonth(),
+      tourDate.getUTCDate(),
+    );
+
+    return normalizedTourDate.getTime() === normalizedBookingDate.getTime();
+  });
+
   if (!startDateObj) return next(new AppError("Start date not found.", 400));
 
   const availableSpots = tour.maxGroupSize - startDateObj.participants;
@@ -220,7 +243,7 @@ exports.addTravelersToBooking = catchAsync(async (req, res, next) => {
       tourId: tour.id,
       bookingId: booking.id,
       numParticipants: numParticipantsInt.toString(),
-      startDate: booking.startDate.toISOString(),
+      startDate: normalizedBookingDate.toISOString(), // Use normalized date here
     },
   });
 
@@ -249,18 +272,26 @@ exports.webhookCheckout = (req, res, next) => {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
 
-    // Handle booking creation
+    // Process booking asynchronously but make sure to handle all errors
     createBookingCheckout(session)
       .then(booking => {
-        console.log("Booking created successfully:", booking);
+        console.log(
+          `Successfully ${session.metadata.bookingId ? "updated" : "created"} booking:`,
+          booking,
+        );
         res.status(200).json({ received: true });
       })
       .catch(err => {
-        console.error("Error creating booking:", err);
-        // Still return 200 to Stripe but log the error
+        console.error("Error processing booking:", err);
+        // Still return 200 to Stripe but include error info
         res.status(200).json({
           received: true,
           error: err.message,
+          // Add extra context for debugging
+          context: {
+            isAddingTravelers: !!session.metadata.bookingId,
+            tourId: session.metadata.tourId || session.client_reference_id,
+          },
         });
       });
   } else {
