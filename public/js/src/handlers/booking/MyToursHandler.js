@@ -5,10 +5,23 @@ import { BookingFiltersHandler } from "./BookingFiltersHandler";
 
 class MyToursHandler {
   constructor() {
+    // Prevent multiple instances
+    if (window.myToursHandler) {
+      return window.myToursHandler;
+    }
+    window.myToursHandler = this;
+
     this.initializeModals();
     this.bindEvents();
-    // Create the filters handler
     this.filtersHandler = new BookingFiltersHandler();
+    this.isProcessingRefund = false;
+
+    // Create bound event handlers
+    this.boundHandleManageClick = this.handleManageClick.bind(this);
+    this.boundHandleModalClick = this.handleModalClick.bind(this);
+    this.boundHandleCloseModal = this.handleCloseModal.bind(this);
+    this.boundHandleRefundModalClick = this.handleRefundModalClick.bind(this);
+    this.boundHandleEscapeKey = this.handleEscapeKey.bind(this);
   }
 
   initializeModals() {
@@ -31,55 +44,45 @@ class MyToursHandler {
   }
 
   bindEvents() {
-    // Manage booking button clicks
-    document.addEventListener("click", e => {
-      if (e.target.closest(".manage-booking-btn")) {
-        this.handleManageClick(e.target.closest(".manage-booking-btn"));
-      }
-    });
+    // Clean up existing event listeners
+    document.removeEventListener("click", this.boundHandleManageClick);
+    this.managementModal?.removeEventListener(
+      "click",
+      this.boundHandleModalClick,
+    );
+    document.removeEventListener("click", this.boundHandleCloseModal);
+    this.refundModal?.removeEventListener(
+      "click",
+      this.boundHandleRefundModalClick,
+    );
+    document.removeEventListener("keydown", this.boundHandleEscapeKey);
 
-    // Modal action buttons
+    // Add new event listeners
+    document.addEventListener("click", this.boundHandleManageClick);
+
     if (this.managementModal) {
-      this.managementModal.addEventListener("click", e => {
-        const target = e.target;
-        if (target.matches("#viewTourBtn")) this.handleViewTour();
-        else if (target.matches("#writeReviewBtn")) this.handleWriteReview();
-        else if (target.matches("#editReviewBtn")) this.handleEditReview();
-        else if (target.matches("#addTravelersBtn")) this.handleAddTravelers();
-        else if (target.matches("#requestRefundBtn"))
-          this.handleRequestRefund();
-      });
+      this.managementModal.addEventListener(
+        "click",
+        this.boundHandleModalClick,
+      );
     }
 
-    // Modal close buttons
-    document.addEventListener("click", e => {
-      if (
-        e.target.matches(".close-modal") ||
-        e.target === this.managementModal ||
-        e.target === this.refundModal
-      ) {
-        this.closeAllModals();
-      }
-    });
+    document.addEventListener("click", this.boundHandleCloseModal);
 
-    // Refund modal actions
     if (this.refundModal) {
-      this.refundModal.addEventListener("click", e => {
-        if (e.target.matches("#confirmRefund")) {
-          this.confirmRefund();
-        } else if (e.target.matches("#cancelRefund")) {
-          this.closeAllModals();
-        }
-      });
+      this.refundModal.addEventListener(
+        "click",
+        this.boundHandleRefundModalClick,
+      );
     }
 
-    // Escape key handler
-    document.addEventListener("keydown", e => {
-      if (e.key === "Escape") this.closeAllModals();
-    });
+    document.addEventListener("keydown", this.boundHandleEscapeKey);
   }
 
-  handleManageClick(btn) {
+  handleManageClick(e) {
+    const btn = e.target.closest(".manage-booking-btn");
+    if (!btn) return;
+
     const bookingData = btn.dataset;
 
     // Store current booking data
@@ -116,6 +119,38 @@ class MyToursHandler {
     // Show modal
     this.managementModal.style.display = "flex";
     this.managementModal.classList.add("show");
+  }
+
+  handleModalClick(e) {
+    const target = e.target;
+    if (target.matches("#viewTourBtn")) this.handleViewTour();
+    else if (target.matches("#writeReviewBtn")) this.handleWriteReview();
+    else if (target.matches("#editReviewBtn")) this.handleEditReview();
+    else if (target.matches("#addTravelersBtn")) this.handleAddTravelers();
+    else if (target.matches("#requestRefundBtn")) this.handleRequestRefund();
+  }
+
+  handleCloseModal(e) {
+    if (
+      e.target.matches(".close-modal") ||
+      e.target === this.managementModal ||
+      e.target === this.refundModal
+    ) {
+      this.closeAllModals();
+    }
+  }
+
+  handleRefundModalClick(e) {
+    if (e.target.matches("#confirmRefund")) {
+      e.preventDefault();
+      this.confirmRefund();
+    } else if (e.target.matches("#cancelRefund")) {
+      this.closeAllModals();
+    }
+  }
+
+  handleEscapeKey(e) {
+    if (e.key === "Escape") this.closeAllModals();
   }
 
   updateButtonStates(hasStarted, refundStatus, hasReview, isReviewHidden) {
@@ -237,9 +272,55 @@ class MyToursHandler {
   }
 
   async confirmRefund() {
-    await requestRefund(this.currentBookingId);
-    this.closeAllModals();
+    if (this.isProcessingRefund) return;
+
+    const confirmBtn = document.getElementById("confirmRefund");
+    const cancelBtn = document.getElementById("cancelRefund");
+
+    try {
+      this.isProcessingRefund = true;
+
+      // Disable both buttons and update UI
+      confirmBtn.disabled = true;
+      cancelBtn.disabled = true;
+      confirmBtn.textContent = "Processing...";
+
+      await requestRefund(this.currentBookingId);
+
+      // Close modal after successful refund
+      this.closeAllModals();
+    } catch (error) {
+      console.error("Refund error:", error);
+      // Only show error alert if it's not a duplicate request
+      if (!error.response?.data?.message?.includes("already been submitted")) {
+        showAlert(
+          "error",
+          error.response?.data?.message || "Error processing refund",
+        );
+      }
+    } finally {
+      this.isProcessingRefund = false;
+
+      // Reset button states
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = "Confirm Refund";
+      }
+      if (cancelBtn) {
+        cancelBtn.disabled = false;
+      }
+    }
   }
 }
 
-export const initMyToursHandler = () => new MyToursHandler();
+// Export singleton instance
+export const initMyToursHandler = () => {
+  // Return existing instance if available
+  if (window.myToursHandler) {
+    window.myToursHandler.bindEvents();
+    return window.myToursHandler;
+  }
+
+  // Create new instance if none exists
+  return new MyToursHandler();
+};

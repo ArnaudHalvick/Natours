@@ -7263,10 +7263,22 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 var MyToursHandler = /*#__PURE__*/function () {
   function MyToursHandler() {
     _classCallCheck(this, MyToursHandler);
+    // Prevent multiple instances
+    if (window.myToursHandler) {
+      return window.myToursHandler;
+    }
+    window.myToursHandler = this;
     this.initializeModals();
     this.bindEvents();
-    // Create the filters handler
     this.filtersHandler = new _BookingFiltersHandler.BookingFiltersHandler();
+    this.isProcessingRefund = false;
+
+    // Create bound event handlers
+    this.boundHandleManageClick = this.handleManageClick.bind(this);
+    this.boundHandleModalClick = this.handleModalClick.bind(this);
+    this.boundHandleCloseModal = this.handleCloseModal.bind(this);
+    this.boundHandleRefundModalClick = this.handleRefundModalClick.bind(this);
+    this.boundHandleEscapeKey = this.handleEscapeKey.bind(this);
   }
   return _createClass(MyToursHandler, [{
     key: "initializeModals",
@@ -7291,48 +7303,30 @@ var MyToursHandler = /*#__PURE__*/function () {
   }, {
     key: "bindEvents",
     value: function bindEvents() {
-      var _this = this;
-      // Manage booking button clicks
-      document.addEventListener("click", function (e) {
-        if (e.target.closest(".manage-booking-btn")) {
-          _this.handleManageClick(e.target.closest(".manage-booking-btn"));
-        }
-      });
+      var _this$managementModal, _this$refundModal;
+      // Clean up existing event listeners
+      document.removeEventListener("click", this.boundHandleManageClick);
+      (_this$managementModal = this.managementModal) === null || _this$managementModal === void 0 || _this$managementModal.removeEventListener("click", this.boundHandleModalClick);
+      document.removeEventListener("click", this.boundHandleCloseModal);
+      (_this$refundModal = this.refundModal) === null || _this$refundModal === void 0 || _this$refundModal.removeEventListener("click", this.boundHandleRefundModalClick);
+      document.removeEventListener("keydown", this.boundHandleEscapeKey);
 
-      // Modal action buttons
+      // Add new event listeners
+      document.addEventListener("click", this.boundHandleManageClick);
       if (this.managementModal) {
-        this.managementModal.addEventListener("click", function (e) {
-          var target = e.target;
-          if (target.matches("#viewTourBtn")) _this.handleViewTour();else if (target.matches("#writeReviewBtn")) _this.handleWriteReview();else if (target.matches("#editReviewBtn")) _this.handleEditReview();else if (target.matches("#addTravelersBtn")) _this.handleAddTravelers();else if (target.matches("#requestRefundBtn")) _this.handleRequestRefund();
-        });
+        this.managementModal.addEventListener("click", this.boundHandleModalClick);
       }
-
-      // Modal close buttons
-      document.addEventListener("click", function (e) {
-        if (e.target.matches(".close-modal") || e.target === _this.managementModal || e.target === _this.refundModal) {
-          _this.closeAllModals();
-        }
-      });
-
-      // Refund modal actions
+      document.addEventListener("click", this.boundHandleCloseModal);
       if (this.refundModal) {
-        this.refundModal.addEventListener("click", function (e) {
-          if (e.target.matches("#confirmRefund")) {
-            _this.confirmRefund();
-          } else if (e.target.matches("#cancelRefund")) {
-            _this.closeAllModals();
-          }
-        });
+        this.refundModal.addEventListener("click", this.boundHandleRefundModalClick);
       }
-
-      // Escape key handler
-      document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") _this.closeAllModals();
-      });
+      document.addEventListener("keydown", this.boundHandleEscapeKey);
     }
   }, {
     key: "handleManageClick",
-    value: function handleManageClick(btn) {
+    value: function handleManageClick(e) {
+      var btn = e.target.closest(".manage-booking-btn");
+      if (!btn) return;
       var bookingData = btn.dataset;
 
       // Store current booking data
@@ -7357,6 +7351,34 @@ var MyToursHandler = /*#__PURE__*/function () {
       // Show modal
       this.managementModal.style.display = "flex";
       this.managementModal.classList.add("show");
+    }
+  }, {
+    key: "handleModalClick",
+    value: function handleModalClick(e) {
+      var target = e.target;
+      if (target.matches("#viewTourBtn")) this.handleViewTour();else if (target.matches("#writeReviewBtn")) this.handleWriteReview();else if (target.matches("#editReviewBtn")) this.handleEditReview();else if (target.matches("#addTravelersBtn")) this.handleAddTravelers();else if (target.matches("#requestRefundBtn")) this.handleRequestRefund();
+    }
+  }, {
+    key: "handleCloseModal",
+    value: function handleCloseModal(e) {
+      if (e.target.matches(".close-modal") || e.target === this.managementModal || e.target === this.refundModal) {
+        this.closeAllModals();
+      }
+    }
+  }, {
+    key: "handleRefundModalClick",
+    value: function handleRefundModalClick(e) {
+      if (e.target.matches("#confirmRefund")) {
+        e.preventDefault();
+        this.confirmRefund();
+      } else if (e.target.matches("#cancelRefund")) {
+        this.closeAllModals();
+      }
+    }
+  }, {
+    key: "handleEscapeKey",
+    value: function handleEscapeKey(e) {
+      if (e.key === "Escape") this.closeAllModals();
     }
   }, {
     key: "updateButtonStates",
@@ -7458,18 +7480,58 @@ var MyToursHandler = /*#__PURE__*/function () {
     key: "confirmRefund",
     value: function () {
       var _confirmRefund = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+        var confirmBtn, cancelBtn, _error$response, _error$response2;
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
-              _context.next = 2;
-              return (0, _bookingAPI.requestRefund)(this.currentBookingId);
+              if (!this.isProcessingRefund) {
+                _context.next = 2;
+                break;
+              }
+              return _context.abrupt("return");
             case 2:
+              confirmBtn = document.getElementById("confirmRefund");
+              cancelBtn = document.getElementById("cancelRefund");
+              _context.prev = 4;
+              this.isProcessingRefund = true;
+
+              // Disable both buttons and update UI
+              confirmBtn.disabled = true;
+              cancelBtn.disabled = true;
+              confirmBtn.textContent = "Processing...";
+              _context.next = 11;
+              return (0, _bookingAPI.requestRefund)(this.currentBookingId);
+            case 11:
+              // Close modal after successful refund
               this.closeAllModals();
-            case 3:
+              _context.next = 18;
+              break;
+            case 14:
+              _context.prev = 14;
+              _context.t0 = _context["catch"](4);
+              console.error("Refund error:", _context.t0);
+              // Only show error alert if it's not a duplicate request
+              if (!((_error$response = _context.t0.response) !== null && _error$response !== void 0 && (_error$response = _error$response.data) !== null && _error$response !== void 0 && (_error$response = _error$response.message) !== null && _error$response !== void 0 && _error$response.includes("already been submitted"))) {
+                (0, _alert.showAlert)("error", ((_error$response2 = _context.t0.response) === null || _error$response2 === void 0 || (_error$response2 = _error$response2.data) === null || _error$response2 === void 0 ? void 0 : _error$response2.message) || "Error processing refund");
+              }
+            case 18:
+              _context.prev = 18;
+              this.isProcessingRefund = false;
+
+              // Reset button states
+              if (confirmBtn) {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = "Confirm Refund";
+              }
+              if (cancelBtn) {
+                cancelBtn.disabled = false;
+              }
+              return _context.finish(18);
+            case 23:
             case "end":
               return _context.stop();
           }
-        }, _callee, this);
+        }, _callee, this, [[4, 14, 18, 23]]);
       }));
       function confirmRefund() {
         return _confirmRefund.apply(this, arguments);
@@ -7477,8 +7539,15 @@ var MyToursHandler = /*#__PURE__*/function () {
       return confirmRefund;
     }()
   }]);
-}();
+}(); // Export singleton instance
 var initMyToursHandler = exports.initMyToursHandler = function initMyToursHandler() {
+  // Return existing instance if available
+  if (window.myToursHandler) {
+    window.myToursHandler.bindEvents();
+    return window.myToursHandler;
+  }
+
+  // Create new instance if none exists
   return new MyToursHandler();
 };
 },{"../../api/bookingAPI":"api/bookingAPI.js","../../utils/alert":"utils/alert.js","./BookingFiltersHandler":"handlers/booking/BookingFiltersHandler.js"}],"handlers/booking/index.js":[function(require,module,exports) {
@@ -10996,7 +11065,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "45383" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "36293" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
