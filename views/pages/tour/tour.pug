@@ -47,7 +47,7 @@ block content
             if user
                 a.btn.btn--green(href=`/tour/${tour.slug}/checkout`) Book Now!
             else
-              a.btn.btn--green(href="/login") Log in to book a tour
+                a.btn.btn--green(href="/login") Log in to book a tour
 
     section.section-description
         .overview-box
@@ -85,7 +85,8 @@ block content
     section.section-reviews
         .reviews
             each review in tour.reviews
-                +reviewCard(review)
+                if !review.hidden
+                    +reviewCard(review)
 
     section.section-cta
         .cta

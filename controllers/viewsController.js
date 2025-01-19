@@ -29,7 +29,7 @@ exports.getOverview = catchAsync(async (req, res) => {
 exports.getTour = catchAsync(async (req, res, next) => {
   const tour = await Tour.findOne({ slug: req.params.slug }).populate({
     path: "reviews",
-    select: "review rating user",
+    select: "review rating user hidden",
   });
 
   if (!tour) return next(new AppError("There is no tour with that name.", 404));
