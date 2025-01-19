@@ -35,10 +35,20 @@ const bookingSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    paymentIntentId: {
-      type: String,
-      required: [true, "Booking must have a Stripe Payment Intent ID"],
-    },
+    paymentIntents: [
+      {
+        id: {
+          type: String,
+          required: true,
+        },
+        amount: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
+    // Keep paymentIntentId for backwards compatibility
+    paymentIntentId: String,
   },
   {
     toJSON: { virtuals: true },

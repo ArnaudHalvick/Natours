@@ -147,10 +147,15 @@ const createBookingCheckout = async session => {
       }
 
       booking.numParticipants += parsedParticipants;
-      booking.price += price; // Add the additional price
-      await booking.save();
+      booking.price += price;
 
-      console.log("Updated booking with additional travelers:", booking);
+      // Add new payment intent to the array
+      booking.paymentIntents.push({
+        id: session.payment_intent,
+        amount: price,
+      });
+
+      await booking.save();
       return booking;
     } else {
       // New booking case: Create new booking
@@ -160,10 +165,14 @@ const createBookingCheckout = async session => {
         price,
         startDate: normalizedBookingDate,
         numParticipants: parsedParticipants,
-        paymentIntentId: session.payment_intent,
+        paymentIntentId: session.payment_intent, // Keep for backwards compatibility
+        paymentIntents: [
+          {
+            id: session.payment_intent,
+            amount: price,
+          },
+        ],
       });
-
-      console.log("Created new booking:", booking);
       return booking;
     }
   } catch (error) {

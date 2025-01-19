@@ -187,15 +187,20 @@ exports.processRefund = catchAsync(async (req, res, next) => {
   }
 
   try {
-    const paymentIntentId = refund.booking.paymentIntentId;
-    const refundResponse = await stripe.refunds.create({
-      payment_intent: paymentIntentId,
-      amount: refund.amount * 100,
+    // Process refund for each payment intent
+    const refundPromises = refund.booking.paymentIntents.map(async payment => {
+      return stripe.refunds.create({
+        payment_intent: payment.id,
+        amount: payment.amount * 100,
+      });
     });
 
+    const refundResults = await Promise.all(refundPromises);
+
+    // Update refund record
     refund.status = "processed";
     refund.processedAt = new Date();
-    refund.stripeRefundId = refundResponse.id;
+    refund.stripeRefundId = refundResults.map(r => r.id).join(",");
     await refund.save();
 
     res.status(200).json({
