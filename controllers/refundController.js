@@ -1,11 +1,13 @@
-// Importing required models and utilities
+// controllers/refundController.js
+
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
 const Booking = require("../models/bookingModel");
 const Refund = require("../models/refundModel");
+const Tour = require("../models/tourModel");
 
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
-
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // Allowed fields for sorting to prevent injection attacks
 const ALLOWED_SORT_FIELDS = [
@@ -15,7 +17,10 @@ const ALLOWED_SORT_FIELDS = [
   "-amount",
 ];
 
-// Get all refund requests with optional filtering, sorting, and pagination
+/**
+ * GET /api/v1/refunds
+ * Retrieve all refunds with optional search, filtering, sorting, pagination.
+ */
 exports.getAllRefunds = catchAsync(async (req, res, next) => {
   const { search, status, dateFrom, dateTo, sort } = req.query;
   const page = +req.query.page || 1;
@@ -42,14 +47,11 @@ exports.getAllRefunds = catchAsync(async (req, res, next) => {
     const dateQuery = {};
     if (dateFrom) dateQuery.$gte = new Date(dateFrom);
     if (dateTo) {
-      // Set time to end of day for dateTo
       const endDate = new Date(dateTo);
       endDate.setHours(23, 59, 59, 999);
       dateQuery.$lte = endDate;
     }
-    pipeline.push({
-      $match: { requestedAt: dateQuery },
-    });
+    pipeline.push({ $match: { requestedAt: dateQuery } });
   }
 
   // Lookup for user information
@@ -65,14 +67,13 @@ exports.getAllRefunds = catchAsync(async (req, res, next) => {
     { $unwind: "$userInfo" },
   );
 
-  // Search functionality
+  // Search
   if (search) {
     pipeline.push({
       $match: {
         $or: [
           { "userInfo.name": { $regex: search, $options: "i" } },
           { "userInfo.email": { $regex: search, $options: "i" } },
-          // Use $toString to convert ObjectId to string for searching
           {
             $expr: {
               $regexMatch: {
@@ -90,7 +91,7 @@ exports.getAllRefunds = catchAsync(async (req, res, next) => {
   // Apply sort stage
   pipeline.push({ $sort: sortStage });
 
-  // Add pagination facet
+  // Pagination with facet
   pipeline.push({
     $facet: {
       data: [{ $skip: skip }, { $limit: limit }],
@@ -110,7 +111,6 @@ exports.getAllRefunds = catchAsync(async (req, res, next) => {
       email: doc.userInfo.email,
     },
     userInfo: undefined,
-    bookingInfo: undefined,
   }));
 
   res.status(200).json({
@@ -128,25 +128,32 @@ exports.getAllRefunds = catchAsync(async (req, res, next) => {
   });
 });
 
-// Handle refund request from user
+/**
+ * POST /api/v1/refunds/request/:bookingId
+ * User-facing endpoint to request a refund.
+ */
 exports.requestRefund = catchAsync(async (req, res, next) => {
   const booking = await Booking.findById(req.params.bookingId);
 
-  if (!booking)
+  if (!booking) {
     return next(new AppError("No booking found with this ID.", 404));
+  }
 
+  // Ensure user requesting the refund is the owner of the booking
   if (booking.user._id.toString() !== req.user.id) {
     return next(
       new AppError("You do not have permission to refund this booking.", 403),
     );
   }
 
+  // Restrict refunds after the tour start date
   if (new Date(booking.startDate) < new Date()) {
     return next(
       new AppError("Refunds are not allowed after the tour start date.", 400),
     );
   }
 
+  // Create a new Refund document (one per booking per user)
   try {
     const refund = await Refund.create({
       booking: booking._id,
@@ -173,36 +180,76 @@ exports.requestRefund = catchAsync(async (req, res, next) => {
   }
 });
 
-// Admin processes a refund request
+/**
+ * PATCH /api/v1/refunds/process/:refundId
+ * Admin endpoint to process a pending refund (Stripe + update participants).
+ */
 exports.processRefund = catchAsync(async (req, res, next) => {
   const refund = await Refund.findById(req.params.refundId).populate("booking");
-
-  if (!refund)
+  if (!refund) {
     return next(new AppError("No refund request found with this ID.", 404));
+  }
 
+  // Ensure the refund is still pending
   if (refund.status !== "pending") {
     return next(
       new AppError("This refund request has already been processed.", 400),
     );
   }
 
+  // Grab the associated booking
+  const booking = refund.booking;
+  if (!booking) {
+    return next(new AppError("No booking found for this refund request.", 404));
+  }
+
   try {
-    // Process refund for each payment intent
-    const refundPromises = refund.booking.paymentIntents.map(async payment => {
-      return stripe.refunds.create({
-        payment_intent: payment.id,
-        amount: payment.amount * 100,
-      });
+    // 1) Create a refund in Stripe
+    const paymentIntentId = booking.paymentIntentId;
+    const stripeRefund = await stripe.refunds.create({
+      payment_intent: paymentIntentId,
+      amount: refund.amount * 100, // Convert to cents
     });
 
-    const refundResults = await Promise.all(refundPromises);
-
-    // Update refund record
+    // 2) Mark this refund as processed
     refund.status = "processed";
     refund.processedAt = new Date();
-    refund.stripeRefundId = refundResults.map(r => r.id).join(",");
+    refund.stripeRefundId = stripeRefund.id;
     await refund.save();
 
+    // 3) Find the correct Tour and reduce participants for the matching date
+    const tour = await Tour.findById(booking.tour);
+    if (tour) {
+      // Normalize both booking.startDate and each tour date to midnight UTC
+      const toUtcMidnight = date => {
+        const dt = new Date(date);
+        return new Date(
+          Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()),
+        );
+      };
+      const bookingMidnight = toUtcMidnight(booking.startDate).getTime();
+
+      // Find the matching tour date
+      const dateObj = tour.startDates.find(sd => {
+        return toUtcMidnight(sd.date).getTime() === bookingMidnight;
+      });
+
+      if (dateObj) {
+        dateObj.participants = Math.max(
+          0,
+          dateObj.participants - booking.numParticipants,
+        );
+        tour.markModified("startDates");
+        await tour.save();
+      }
+    }
+
+    // 4) Mark the booking as refunded
+    booking.paid = false;
+    booking.numParticipants = 0; // Must be 0, which is allowed if booking is not paid
+    await booking.save();
+
+    // 5) Respond to client
     res.status(200).json({
       status: "success",
       data: refund,
@@ -215,12 +262,16 @@ exports.processRefund = catchAsync(async (req, res, next) => {
   }
 });
 
-// Admin rejects a refund request
+/**
+ * PATCH /api/v1/refunds/reject/:refundId
+ * Admin endpoint to reject a pending refund.
+ */
 exports.rejectRefund = catchAsync(async (req, res, next) => {
   const refund = await Refund.findById(req.params.refundId);
 
-  if (!refund)
+  if (!refund) {
     return next(new AppError("No refund request found with this ID.", 404));
+  }
 
   if (refund.status !== "pending") {
     return next(

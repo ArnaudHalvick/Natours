@@ -25,7 +25,18 @@ const bookingSchema = new mongoose.Schema(
     numParticipants: {
       type: Number,
       required: [true, "Booking must have a number of participants"],
-      min: [1, "Number of participants must be at least 1"],
+      validate: {
+        validator: function (value) {
+          // If the booking is paid/active, require at least 1
+          if (this.paid) {
+            return value >= 1;
+          }
+          // If booking is no longer paid (canceled/refunded), 0 is allowed
+          return value >= 0;
+        },
+        message:
+          "Number of participants must be at least 1 for active bookings",
+      },
     },
     createdAt: {
       type: Date,
