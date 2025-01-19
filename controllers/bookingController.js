@@ -45,8 +45,6 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError("Start date is required.", 400));
   }
 
-  console.log("Creating checkout session with date:", startDateISO);
-
   // Create Stripe checkout session with normalized date
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
@@ -90,14 +88,6 @@ const createBookingCheckout = async session => {
     const userEmail = session.customer_email;
     const price = session.amount_total / 100;
     const { startDate, numParticipants, bookingId } = session.metadata;
-
-    console.log("Creating/Updating booking with data:", {
-      tourId,
-      userEmail,
-      startDate,
-      numParticipants,
-      bookingId,
-    });
 
     const user = await User.findOne({ email: userEmail });
     if (!user) {
@@ -284,10 +274,6 @@ exports.webhookCheckout = (req, res, next) => {
     // Process booking asynchronously but make sure to handle all errors
     createBookingCheckout(session)
       .then(booking => {
-        console.log(
-          `Successfully ${session.metadata.bookingId ? "updated" : "created"} booking:`,
-          booking,
-        );
         res.status(200).json({ received: true });
       })
       .catch(err => {

@@ -32,7 +32,6 @@ export class App {
 
   getPageConfig() {
     const path = window.location.pathname;
-    console.log("Current path:", path); // Debug log
 
     // Define page configurations
     const pageConfigs = {
@@ -110,12 +109,10 @@ export class App {
       };
     }
 
-    console.log("Page config:", config); // Debug log
     return config;
   }
 
   initializeRequiredFeatures({ handlers = [], needsMap = false }) {
-    console.log("Initializing handlers:", handlers); // Debug log
 
     // Map handler names to initialization functions
     const handlerMap = {
@@ -136,10 +133,8 @@ export class App {
       const initFunction = handlerMap[handlerName];
       if (initFunction) {
         try {
-          console.log(`Initializing ${handlerName} handler...`);
           initFunction();
         } catch (error) {
-          console.error(`${handlerName} handler initialization error:`, error);
         }
       }
     });

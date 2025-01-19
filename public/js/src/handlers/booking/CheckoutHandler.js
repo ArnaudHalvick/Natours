@@ -21,9 +21,7 @@ class CheckoutHandler {
 
     try {
       this.stripe = Stripe(getStripeKey());
-      console.log("Stripe initialized successfully");
     } catch (error) {
-      console.error("Stripe initialization error:", error);
       showAlert("error", "Failed to initialize payment system");
     }
   }

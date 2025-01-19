@@ -6957,9 +6957,7 @@ var CheckoutHandler = /*#__PURE__*/function () {
       }
       try {
         this.stripe = Stripe((0, _config.getStripeKey)());
-        console.log("Stripe initialized successfully");
       } catch (error) {
-        console.error("Stripe initialization error:", error);
         (0, _alert.showAlert)("error", "Failed to initialize payment system");
       }
     }
@@ -7064,9 +7062,7 @@ var AddTravelersHandler = /*#__PURE__*/function () {
       }
       try {
         this.stripe = Stripe((0, _config.getStripeKey)());
-        console.log("Stripe initialized successfully");
       } catch (error) {
-        console.error("Stripe initialization error:", error);
         (0, _alert.showAlert)("error", "Failed to initialize payment system");
       }
     }
@@ -8487,13 +8483,11 @@ var initAdminRefundHandlers = function initAdminRefundHandlers() {
 var initRefundManagement = exports.initRefundManagement = function initRefundManagement() {
   // Initialize user-facing functionality on my-tours page
   if (window.location.pathname === "/my-tours") {
-    console.log("DAFUQ");
     initUserRefundHandlers();
   }
 
   // Initialize admin management functionality on manage-refunds page
   if (window.location.pathname === "/manage-refunds") {
-    console.log("DAFUQ");
     initAdminRefundHandlers();
   }
 };
@@ -10886,7 +10880,6 @@ var App = exports.App = /*#__PURE__*/function () {
     key: "getPageConfig",
     value: function getPageConfig() {
       var path = window.location.pathname;
-      console.log("Current path:", path); // Debug log
 
       // Define page configurations
       var pageConfigs = {
@@ -10958,7 +10951,6 @@ var App = exports.App = /*#__PURE__*/function () {
           needsMap: true
         });
       }
-      console.log("Page config:", config); // Debug log
       return config;
     }
   }, {
@@ -10968,8 +10960,6 @@ var App = exports.App = /*#__PURE__*/function () {
         handlers = _ref$handlers === void 0 ? [] : _ref$handlers,
         _ref$needsMap = _ref.needsMap,
         needsMap = _ref$needsMap === void 0 ? false : _ref$needsMap;
-      console.log("Initializing handlers:", handlers); // Debug log
-
       // Map handler names to initialization functions
       var handlerMap = {
         auth: _auth.initAuthHandlers,
@@ -10989,11 +10979,8 @@ var App = exports.App = /*#__PURE__*/function () {
         var initFunction = handlerMap[handlerName];
         if (initFunction) {
           try {
-            console.log("Initializing ".concat(handlerName, " handler..."));
             initFunction();
-          } catch (error) {
-            console.error("".concat(handlerName, " handler initialization error:"), error);
-          }
+          } catch (error) {}
         }
       });
 
