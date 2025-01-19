@@ -43,22 +43,22 @@ const loadBookings = async () => {
       ? data
           .map(
             booking => `
-       <tr>
-         <td>${booking._id}</td>
-         <td>${booking.user.email}</td>
-         <td>${booking.tour.name}</td>
-         <td>${new Date(booking.startDate).toLocaleDateString()}</td>
-         <td>$${booking.price.toFixed(2)}</td>
-         <td>
-           <span class="status-badge status-badge--${booking.paid ? "paid" : "unpaid"}">
-             ${booking.paid ? "Paid" : "Unpaid"}
-           </span>
-         </td>
-         <td>
-           <button class="btn btn--small btn--edit btn--green" data-id="${booking._id}">Edit</button>
-         </td>
-       </tr>
-     `,
+              <tr>
+                <td>${booking._id}</td>
+                <td>${booking.user.email}</td>
+                <td>${booking.tour.name}</td>
+                <td>${new Date(booking.startDate).toLocaleDateString()}</td>
+                <td class="td-price" data-total-price="${booking.price}">$${booking.price.toLocaleString()}</td>
+                <td>
+                  <span class="status-badge status-badge--${booking.paid ? "paid" : "unpaid"}">
+                    ${booking.paid ? "Paid" : "Unpaid"}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn--small btn--edit btn--green" data-id="${booking._id}">Edit</button>
+                </td>
+              </tr>
+            `,
           )
           .join("")
       : '<tr><td colspan="7" style="text-align: center;">No bookings found.</td></tr>';
@@ -92,6 +92,28 @@ const handleEditClick = async bookingId => {
     document.getElementById("bookingId").textContent = booking._id;
     document.getElementById("bookingUser").textContent = booking.user.email;
     document.getElementById("bookingTour").textContent = booking.tour.name;
+
+    // Add payment breakdown in modal if multiple payments exist
+    const paymentInfoElement = document.getElementById("paymentInfo");
+    if (paymentInfoElement && booking.paymentIntents?.length > 0) {
+      paymentInfoElement.innerHTML = `
+        <div class="booking__info">
+          ${booking.paymentIntents
+            .map(
+              payment => `
+            <div class="booking__info-row">
+              <span><strong>Payment ID:</strong> ${payment.id}</span>
+              <span> <strong>Amount:</strong> $${payment.amount.toLocaleString()}</span>
+            </div>
+          `,
+            )
+            .join("")}
+          <div class="booking__info-row">
+            <strong>Total: $${booking.price.toLocaleString()}</strong>
+          </div>
+        </div>
+      `;
+    }
 
     // Update editable form fields
     const startDateInput = document.getElementById("startDate");

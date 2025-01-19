@@ -43,17 +43,18 @@ export class BookingFiltersHandler {
           bValue = new Date(b.querySelector(".td-purchase")?.textContent);
           break;
         case "price":
+          // Get total price from data attribute for proper sorting with multiple payments
           aValue = parseFloat(
-            a
-              .querySelector(".td-price")
-              ?.textContent.replace("$", "")
-              .replace(",", ""),
+            a.querySelector(".td-price")?.dataset?.totalPrice ||
+              a
+                .querySelector(".td-price")
+                ?.textContent.replace(/[^0-9.-]+/g, ""),
           );
           bValue = parseFloat(
-            b
-              .querySelector(".td-price")
-              ?.textContent.replace("$", "")
-              .replace(",", ""),
+            b.querySelector(".td-price")?.dataset?.totalPrice ||
+              b
+                .querySelector(".td-price")
+                ?.textContent.replace(/[^0-9.-]+/g, ""),
           );
           break;
         case "startDate":
@@ -64,6 +65,10 @@ export class BookingFiltersHandler {
           aValue = 0;
           bValue = 0;
       }
+
+      // Handle cases where parsing failed
+      if (isNaN(aValue)) aValue = 0;
+      if (isNaN(bValue)) bValue = 0;
 
       const compareResult = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
       return sortDirection === "asc" ? compareResult : -compareResult;

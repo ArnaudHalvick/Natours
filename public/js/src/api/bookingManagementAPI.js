@@ -30,6 +30,19 @@ export const fetchBookingById = async bookingId => {
       throw new Error("Booking not found");
     }
 
+    // Format payment information for display
+    booking.paymentInfo = booking.paymentIntents?.map(payment => ({
+      id: payment.id,
+      amount: payment.amount,
+      formattedAmount: `$${payment.amount.toLocaleString()}`,
+    })) || [
+      {
+        id: booking.paymentIntentId,
+        amount: booking.price,
+        formattedAmount: `$${booking.price.toLocaleString()}`,
+      },
+    ];
+
     return booking;
   } catch (err) {
     console.error("Error in fetchBookingById:", {

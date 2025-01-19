@@ -7199,7 +7199,7 @@ var BookingFiltersHandler = exports.BookingFiltersHandler = /*#__PURE__*/functio
         sortField = _this$sortBy$value$sp2[0],
         sortDirection = _this$sortBy$value$sp2[1];
       filteredRows.sort(function (a, b) {
-        var _a$querySelector, _b$querySelector, _a$querySelector2, _b$querySelector2, _a$querySelector3, _b$querySelector3;
+        var _a$querySelector, _b$querySelector, _a$querySelector2, _a$querySelector3, _b$querySelector2, _b$querySelector3, _a$querySelector4, _b$querySelector4;
         var aValue, bValue;
         switch (sortField) {
           case "createdAt":
@@ -7207,17 +7207,22 @@ var BookingFiltersHandler = exports.BookingFiltersHandler = /*#__PURE__*/functio
             bValue = new Date((_b$querySelector = b.querySelector(".td-purchase")) === null || _b$querySelector === void 0 ? void 0 : _b$querySelector.textContent);
             break;
           case "price":
-            aValue = parseFloat((_a$querySelector2 = a.querySelector(".td-price")) === null || _a$querySelector2 === void 0 ? void 0 : _a$querySelector2.textContent.replace("$", "").replace(",", ""));
-            bValue = parseFloat((_b$querySelector2 = b.querySelector(".td-price")) === null || _b$querySelector2 === void 0 ? void 0 : _b$querySelector2.textContent.replace("$", "").replace(",", ""));
+            // Get total price from data attribute for proper sorting with multiple payments
+            aValue = parseFloat(((_a$querySelector2 = a.querySelector(".td-price")) === null || _a$querySelector2 === void 0 || (_a$querySelector2 = _a$querySelector2.dataset) === null || _a$querySelector2 === void 0 ? void 0 : _a$querySelector2.totalPrice) || ((_a$querySelector3 = a.querySelector(".td-price")) === null || _a$querySelector3 === void 0 ? void 0 : _a$querySelector3.textContent.replace(/[^0-9.-]+/g, "")));
+            bValue = parseFloat(((_b$querySelector2 = b.querySelector(".td-price")) === null || _b$querySelector2 === void 0 || (_b$querySelector2 = _b$querySelector2.dataset) === null || _b$querySelector2 === void 0 ? void 0 : _b$querySelector2.totalPrice) || ((_b$querySelector3 = b.querySelector(".td-price")) === null || _b$querySelector3 === void 0 ? void 0 : _b$querySelector3.textContent.replace(/[^0-9.-]+/g, "")));
             break;
           case "startDate":
-            aValue = new Date((_a$querySelector3 = a.querySelector(".td-start")) === null || _a$querySelector3 === void 0 ? void 0 : _a$querySelector3.textContent);
-            bValue = new Date((_b$querySelector3 = b.querySelector(".td-start")) === null || _b$querySelector3 === void 0 ? void 0 : _b$querySelector3.textContent);
+            aValue = new Date((_a$querySelector4 = a.querySelector(".td-start")) === null || _a$querySelector4 === void 0 ? void 0 : _a$querySelector4.textContent);
+            bValue = new Date((_b$querySelector4 = b.querySelector(".td-start")) === null || _b$querySelector4 === void 0 ? void 0 : _b$querySelector4.textContent);
             break;
           default:
             aValue = 0;
             bValue = 0;
         }
+
+        // Handle cases where parsing failed
+        if (isNaN(aValue)) aValue = 0;
+        if (isNaN(bValue)) bValue = 0;
         var compareResult = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
         return sortDirection === "asc" ? compareResult : -compareResult;
       });
@@ -8867,7 +8872,7 @@ var fetchBookings = exports.fetchBookings = /*#__PURE__*/function () {
 }();
 var fetchBookingById = exports.fetchBookingById = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(bookingId) {
-    var res, booking, _err$response;
+    var _booking$paymentInten, res, booking, _err$response;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
@@ -8883,9 +8888,21 @@ var fetchBookingById = exports.fetchBookingById = /*#__PURE__*/function () {
           }
           throw new Error("Booking not found");
         case 7:
+          // Format payment information for display
+          booking.paymentInfo = ((_booking$paymentInten = booking.paymentIntents) === null || _booking$paymentInten === void 0 ? void 0 : _booking$paymentInten.map(function (payment) {
+            return {
+              id: payment.id,
+              amount: payment.amount,
+              formattedAmount: "$".concat(payment.amount.toLocaleString())
+            };
+          })) || [{
+            id: booking.paymentIntentId,
+            amount: booking.price,
+            formattedAmount: "$".concat(booking.price.toLocaleString())
+          }];
           return _context2.abrupt("return", booking);
-        case 10:
-          _context2.prev = 10;
+        case 11:
+          _context2.prev = 11;
           _context2.t0 = _context2["catch"](0);
           console.error("Error in fetchBookingById:", {
             error: _context2.t0,
@@ -8893,11 +8910,11 @@ var fetchBookingById = exports.fetchBookingById = /*#__PURE__*/function () {
             response: (_err$response = _context2.t0.response) === null || _err$response === void 0 ? void 0 : _err$response.data
           });
           throw _context2.t0;
-        case 14:
+        case 15:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 10]]);
+    }, _callee2, null, [[0, 11]]);
   }));
   return function fetchBookingById(_x8) {
     return _ref2.apply(this, arguments);
@@ -8983,7 +9000,7 @@ var loadBookings = /*#__PURE__*/function () {
           return _context.abrupt("return");
         case 10:
           bookingTableBody.innerHTML = data.length ? data.map(function (booking) {
-            return "\n       <tr>\n         <td>".concat(booking._id, "</td>\n         <td>").concat(booking.user.email, "</td>\n         <td>").concat(booking.tour.name, "</td>\n         <td>").concat(new Date(booking.startDate).toLocaleDateString(), "</td>\n         <td>$").concat(booking.price.toFixed(2), "</td>\n         <td>\n           <span class=\"status-badge status-badge--").concat(booking.paid ? "paid" : "unpaid", "\">\n             ").concat(booking.paid ? "Paid" : "Unpaid", "\n           </span>\n         </td>\n         <td>\n           <button class=\"btn btn--small btn--edit btn--green\" data-id=\"").concat(booking._id, "\">Edit</button>\n         </td>\n       </tr>\n     ");
+            return "\n              <tr>\n                <td>".concat(booking._id, "</td>\n                <td>").concat(booking.user.email, "</td>\n                <td>").concat(booking.tour.name, "</td>\n                <td>").concat(new Date(booking.startDate).toLocaleDateString(), "</td>\n                <td class=\"td-price\" data-total-price=\"").concat(booking.price, "\">$").concat(booking.price.toLocaleString(), "</td>\n                <td>\n                  <span class=\"status-badge status-badge--").concat(booking.paid ? "paid" : "unpaid", "\">\n                    ").concat(booking.paid ? "Paid" : "Unpaid", "\n                  </span>\n                </td>\n                <td>\n                  <button class=\"btn btn--small btn--edit btn--green\" data-id=\"").concat(booking._id, "\">Edit</button>\n                </td>\n              </tr>\n            ");
           }).join("") : '<tr><td colspan="7" style="text-align: center;">No bookings found.</td></tr>';
           pageInfo = document.getElementById("pageInfo");
           if (pageInfo) pageInfo.textContent = "Page ".concat(currentPage, " of ").concat(totalPages);
@@ -9007,7 +9024,7 @@ var loadBookings = /*#__PURE__*/function () {
 }();
 var handleEditClick = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(bookingId) {
-    var form, modal, booking, startDateInput, numParticipantsInput, priceInput, paidInput, missingInputs;
+    var _booking$paymentInten, form, modal, booking, paymentInfoElement, startDateInput, numParticipantsInput, priceInput, paidInput, missingInputs;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
@@ -9035,35 +9052,43 @@ var handleEditClick = /*#__PURE__*/function () {
           document.getElementById("bookingUser").textContent = booking.user.email;
           document.getElementById("bookingTour").textContent = booking.tour.name;
 
+          // Add payment breakdown in modal if multiple payments exist
+          paymentInfoElement = document.getElementById("paymentInfo");
+          if (paymentInfoElement && ((_booking$paymentInten = booking.paymentIntents) === null || _booking$paymentInten === void 0 ? void 0 : _booking$paymentInten.length) > 0) {
+            paymentInfoElement.innerHTML = "\n        <div class=\"booking__info\">\n          ".concat(booking.paymentIntents.map(function (payment) {
+              return "\n            <div class=\"booking__info-row\">\n              <span><strong>Payment ID:</strong> ".concat(payment.id, "</span>\n              <span> <strong>Amount:</strong> $").concat(payment.amount.toLocaleString(), "</span>\n            </div>\n          ");
+            }).join(""), "\n          <div class=\"booking__info-row\">\n            <strong>Total: $").concat(booking.price.toLocaleString(), "</strong>\n          </div>\n        </div>\n      ");
+          }
+
           // Update editable form fields
           startDateInput = document.getElementById("startDate");
           numParticipantsInput = document.getElementById("numParticipants");
           priceInput = document.getElementById("price");
           paidInput = document.getElementById("paid");
           if (!(!startDateInput || !numParticipantsInput || !priceInput || !paidInput)) {
-            _context2.next = 20;
+            _context2.next = 22;
             break;
           }
           missingInputs = [!startDateInput && "startDate", !numParticipantsInput && "numParticipants", !priceInput && "price", !paidInput && "paid"].filter(Boolean);
           throw new Error("Missing form inputs: ".concat(missingInputs.join(", ")));
-        case 20:
+        case 22:
           startDateInput.value = new Date(booking.startDate).toISOString().split("T")[0];
           numParticipantsInput.value = booking.numParticipants || 1;
           priceInput.value = booking.price || "";
           paidInput.value = booking.paid.toString();
           form.dataset.bookingId = bookingId;
           modal.classList.add("active");
-          _context2.next = 31;
+          _context2.next = 33;
           break;
-        case 28:
-          _context2.prev = 28;
+        case 30:
+          _context2.prev = 30;
           _context2.t0 = _context2["catch"](0);
           (0, _alert.showAlert)("error", "Error loading booking details: ".concat(_context2.t0.message));
-        case 31:
+        case 33:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 28]]);
+    }, _callee2, null, [[0, 30]]);
   }));
   return function handleEditClick(_x) {
     return _ref2.apply(this, arguments);
