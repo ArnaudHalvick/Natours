@@ -30,7 +30,7 @@ export const fetchBookingById = async bookingId => {
       throw new Error("Booking not found");
     }
 
-    // Format payment information for display
+    // Build a friendly array of payment info (though you may or may not use this)
     booking.paymentInfo = booking.paymentIntents?.map(payment => ({
       id: payment.id,
       amount: payment.amount,
@@ -45,11 +45,26 @@ export const fetchBookingById = async bookingId => {
 
     return booking;
   } catch (err) {
-    console.error("Error in fetchBookingById:", {
-      error: err,
-      message: err.message,
-      response: err.response?.data,
-    });
+    console.error("Error in fetchBookingById:", err);
+    throw err;
+  }
+};
+
+export const fetchTourById = async tourId => {
+  try {
+    const res = await axios.get(`/api/v1/tours/${tourId}`);
+    return res.data.data.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const updateTourDates = async (tourId, startDates) => {
+  try {
+    // PATCH the entire startDates array in the Tour
+    const res = await axios.patch(`/api/v1/tours/${tourId}`, { startDates });
+    return res.data.data.data;
+  } catch (err) {
     throw err;
   }
 };

@@ -8836,7 +8836,7 @@ var initReviewManagement = exports.initReviewManagement = function initReviewMan
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.updateBooking = exports.fetchBookings = exports.fetchBookingById = void 0;
+exports.updateTourDates = exports.updateBooking = exports.fetchTourById = exports.fetchBookings = exports.fetchBookingById = void 0;
 var _axios = _interopRequireDefault(require("axios"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
@@ -8872,7 +8872,7 @@ var fetchBookings = exports.fetchBookings = /*#__PURE__*/function () {
 }();
 var fetchBookingById = exports.fetchBookingById = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(bookingId) {
-    var _booking$paymentInten, res, booking, _err$response;
+    var _booking$paymentInten, res, booking;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
@@ -8888,7 +8888,7 @@ var fetchBookingById = exports.fetchBookingById = /*#__PURE__*/function () {
           }
           throw new Error("Booking not found");
         case 7:
-          // Format payment information for display
+          // Build a friendly array of payment info (though you may or may not use this)
           booking.paymentInfo = ((_booking$paymentInten = booking.paymentIntents) === null || _booking$paymentInten === void 0 ? void 0 : _booking$paymentInten.map(function (payment) {
             return {
               id: payment.id,
@@ -8904,11 +8904,7 @@ var fetchBookingById = exports.fetchBookingById = /*#__PURE__*/function () {
         case 11:
           _context2.prev = 11;
           _context2.t0 = _context2["catch"](0);
-          console.error("Error in fetchBookingById:", {
-            error: _context2.t0,
-            message: _context2.t0.message,
-            response: (_err$response = _context2.t0.response) === null || _err$response === void 0 ? void 0 : _err$response.data
-          });
+          console.error("Error in fetchBookingById:", _context2.t0);
           throw _context2.t0;
         case 15:
         case "end":
@@ -8920,22 +8916,18 @@ var fetchBookingById = exports.fetchBookingById = /*#__PURE__*/function () {
     return _ref2.apply(this, arguments);
   };
 }();
-var updateBooking = exports.updateBooking = /*#__PURE__*/function () {
-  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(bookingId, data) {
+var fetchTourById = exports.fetchTourById = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(tourId) {
     var res;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
           _context3.prev = 0;
           _context3.next = 3;
-          return (0, _axios.default)({
-            method: "PATCH",
-            url: "/api/v1/bookings/".concat(bookingId),
-            data: data
-          });
+          return _axios.default.get("/api/v1/tours/".concat(tourId));
         case 3:
           res = _context3.sent;
-          return _context3.abrupt("return", res.data);
+          return _context3.abrupt("return", res.data.data.data);
         case 7:
           _context3.prev = 7;
           _context3.t0 = _context3["catch"](0);
@@ -8946,8 +8938,66 @@ var updateBooking = exports.updateBooking = /*#__PURE__*/function () {
       }
     }, _callee3, null, [[0, 7]]);
   }));
-  return function updateBooking(_x9, _x10) {
+  return function fetchTourById(_x9) {
     return _ref3.apply(this, arguments);
+  };
+}();
+var updateTourDates = exports.updateTourDates = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(tourId, startDates) {
+    var res;
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
+        case 0:
+          _context4.prev = 0;
+          _context4.next = 3;
+          return _axios.default.patch("/api/v1/tours/".concat(tourId), {
+            startDates: startDates
+          });
+        case 3:
+          res = _context4.sent;
+          return _context4.abrupt("return", res.data.data.data);
+        case 7:
+          _context4.prev = 7;
+          _context4.t0 = _context4["catch"](0);
+          throw _context4.t0;
+        case 10:
+        case "end":
+          return _context4.stop();
+      }
+    }, _callee4, null, [[0, 7]]);
+  }));
+  return function updateTourDates(_x10, _x11) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+var updateBooking = exports.updateBooking = /*#__PURE__*/function () {
+  var _ref5 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5(bookingId, data) {
+    var res;
+    return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+      while (1) switch (_context5.prev = _context5.next) {
+        case 0:
+          _context5.prev = 0;
+          _context5.next = 3;
+          return (0, _axios.default)({
+            method: "PATCH",
+            url: "/api/v1/bookings/".concat(bookingId),
+            data: data
+          });
+        case 3:
+          res = _context5.sent;
+          return _context5.abrupt("return", res.data);
+        case 7:
+          _context5.prev = 7;
+          _context5.t0 = _context5["catch"](0);
+          throw _context5.t0;
+        case 10:
+        case "end":
+          return _context5.stop();
+      }
+    }, _callee5, null, [[0, 7]]);
+  }));
+  return function updateBooking(_x12, _x13) {
+    return _ref5.apply(this, arguments);
   };
 }();
 },{"axios":"../../../node_modules/axios/index.js"}],"handlers/bookingManagement.js":[function(require,module,exports) {
@@ -8958,12 +9008,27 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.initializeBookingManagement = void 0;
 var _alert = require("../utils/alert");
-var _bookingManagementAPI = require("../api/bookingManagementAPI");
 var _dom = require("../utils/dom");
+var _bookingManagementAPI = require("../api/bookingManagementAPI");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
-function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; } // handlers/bookingManagement.js
+/**
+ * Helper: convert a date (string or Date) to "YYYY-MM-DD" in UTC (midnight).
+ */
+function toUtcYyyymmdd(dateInput) {
+  var date = new Date(dateInput);
+  // Force to midnight UTC
+  var utcDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  // Return an ISO string and grab only "YYYY-MM-DD"
+  return utcDate.toISOString().split("T")[0];
+}
 var currentPage = 1;
 var totalPages = 1;
 var currentFilter = "";
@@ -9000,7 +9065,7 @@ var loadBookings = /*#__PURE__*/function () {
           return _context.abrupt("return");
         case 10:
           bookingTableBody.innerHTML = data.length ? data.map(function (booking) {
-            return "\n              <tr>\n                <td>".concat(booking._id, "</td>\n                <td>").concat(booking.user.email, "</td>\n                <td>").concat(booking.tour.name, "</td>\n                <td>").concat(new Date(booking.startDate).toLocaleDateString(), "</td>\n                <td class=\"td-price\" data-total-price=\"").concat(booking.price, "\">$").concat(booking.price.toLocaleString(), "</td>\n                <td>\n                  <span class=\"status-badge status-badge--").concat(booking.paid ? "paid" : "unpaid", "\">\n                    ").concat(booking.paid ? "Paid" : "Unpaid", "\n                  </span>\n                </td>\n                <td>\n                  <button class=\"btn btn--small btn--edit btn--green\" data-id=\"").concat(booking._id, "\">Edit</button>\n                </td>\n              </tr>\n            ");
+            return "\n          <tr>\n            <td>".concat(booking._id, "</td>\n            <td>").concat(booking.user.email, "</td>\n            <td>").concat(booking.tour.name, "</td>\n            <td>").concat(new Date(booking.startDate).toLocaleDateString(), "</td>\n            <td class=\"td-price\" data-total-price=\"").concat(booking.price, "\">$").concat(booking.price.toLocaleString(), "</td>\n            <td>\n              <span class=\"status-badge status-badge--").concat(booking.paid ? "paid" : "unpaid", "\">\n                ").concat(booking.paid ? "Paid" : "Unpaid", "\n              </span>\n            </td>\n            <td>\n              <button class=\"btn btn--small btn--edit btn--green\" data-id=\"").concat(booking._id, "\">Edit</button>\n            </td>\n          </tr>\n        ");
           }).join("") : '<tr><td colspan="7" style="text-align: center;">No bookings found.</td></tr>';
           pageInfo = document.getElementById("pageInfo");
           if (pageInfo) pageInfo.textContent = "Page ".concat(currentPage, " of ").concat(totalPages);
@@ -9024,7 +9089,7 @@ var loadBookings = /*#__PURE__*/function () {
 }();
 var handleEditClick = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(bookingId) {
-    var form, modal, booking, tourResponse, tour, paymentInfoElement, _booking$paymentInten, startDateInput, startDateSelect, currentBookingDate, formattedCurrentDate, numParticipantsInput, priceInput, paidInput, missingInputs;
+    var form, modal, booking, tour, paymentInfoElement, _booking$paymentInten, startDateInput, startDateSelect, formattedCurrentDate, numParticipantsInput, priceInput, paidInput, missingInputs;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
@@ -9047,16 +9112,22 @@ var handleEditClick = /*#__PURE__*/function () {
           }
           throw new Error("No booking data received");
         case 10:
-          _context2.next = 12;
-          return axios.get("/api/v1/tours/".concat(booking.tour._id));
-        case 12:
-          tourResponse = _context2.sent;
-          tour = tourResponse.data.data.data; // Update non-editable booking info
+          // Store the original date and participants in dataset (for later comparison)
+          form.dataset.originalDate = booking.startDate; // Full ISO date from backend
+          form.dataset.originalParticipants = booking.numParticipants;
+          form.dataset.tourId = booking.tour._id;
+
+          // Fetch fresh tour data (so we have up-to-date participants info)
+          _context2.next = 15;
+          return (0, _bookingManagementAPI.fetchTourById)(booking.tour._id);
+        case 15:
+          tour = _context2.sent;
+          // Update non-editable booking info
           document.getElementById("bookingId").textContent = booking._id;
           document.getElementById("bookingUser").textContent = booking.user.email;
           document.getElementById("bookingTour").textContent = booking.tour.name;
 
-          // Update payment info
+          // Update payment info display
           paymentInfoElement = document.getElementById("paymentInfo");
           if (paymentInfoElement) {
             if (((_booking$paymentInten = booking.paymentIntents) === null || _booking$paymentInten === void 0 ? void 0 : _booking$paymentInten.length) > 1) {
@@ -9068,44 +9139,51 @@ var handleEditClick = /*#__PURE__*/function () {
             }
           }
 
-          // Update start date select with available dates
+          // Prepare to replace the startDate input with a <select>
           startDateInput = document.getElementById("startDate");
           if (startDateInput) {
-            // Convert startDate select to a proper select element
             startDateSelect = document.createElement("select");
             startDateSelect.id = "startDate";
             startDateSelect.className = "form__input";
             startDateSelect.required = true;
 
-            // Get current booking date for comparison
-            currentBookingDate = new Date(booking.startDate);
-            formattedCurrentDate = currentBookingDate.toISOString().split("T")[0]; // Add options for each available start date
+            // Normalize the current booking date to "YYYY-MM-DD" (UTC)
+            formattedCurrentDate = toUtcYyyymmdd(booking.startDate); // Sort tour dates chronologically
             tour.startDates.sort(function (a, b) {
               return new Date(a.date) - new Date(b.date);
-            }).forEach(function (dateObj) {
-              var date = new Date(dateObj.date);
-              var formattedDate = date.toISOString().split("T")[0];
-              var availableSpots = tour.maxGroupSize - dateObj.participants;
+            });
 
-              // Add current booking's participants back to available spots if this is the current date
-              var isCurrentDate = formattedDate === formattedCurrentDate;
-              var actualAvailableSpots = isCurrentDate ? availableSpots + booking.numParticipants : availableSpots;
+            // Build the <option> list
+            tour.startDates.forEach(function (dateObj) {
+              var formattedDate = toUtcYyyymmdd(dateObj.date);
 
-              // Only show dates that have available spots or is the current booking date
-              if (actualAvailableSpots > 0 || isCurrentDate) {
+              // Calculate available spots
+              var availableSpots = tour.maxGroupSize - (dateObj.participants || 0);
+
+              // If this date is the user's current booking date,
+              // add back their participants so they can remain in that date.
+              if (formattedDate === formattedCurrentDate) {
+                availableSpots += booking.numParticipants;
+              }
+
+              // Only show dates with enough spots or the current date
+              if (formattedDate === formattedCurrentDate || availableSpots > 0) {
                 var option = document.createElement("option");
                 option.value = formattedDate;
-                option.textContent = "".concat(date.toLocaleDateString("en-US", {
+                option.textContent = "".concat(new Date(dateObj.date).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric"
-                }), " (").concat(actualAvailableSpots, " spots)");
-                option.selected = formattedDate === formattedCurrentDate;
+                }), " (").concat(availableSpots, " spots)");
+                // Mark the current booking date as selected
+                if (formattedDate === formattedCurrentDate) {
+                  option.selected = true;
+                }
                 startDateSelect.appendChild(option);
               }
             });
 
-            // Replace the date input with our select
+            // Replace the old input with our newly built <select>
             startDateInput.parentNode.replaceChild(startDateSelect, startDateInput);
           }
 
@@ -9114,65 +9192,160 @@ var handleEditClick = /*#__PURE__*/function () {
           priceInput = document.getElementById("price");
           paidInput = document.getElementById("paid");
           if (!(!numParticipantsInput || !priceInput || !paidInput)) {
-            _context2.next = 27;
+            _context2.next = 29;
             break;
           }
           missingInputs = [!numParticipantsInput && "numParticipants", !priceInput && "price", !paidInput && "paid"].filter(Boolean);
           throw new Error("Missing form inputs: ".concat(missingInputs.join(", ")));
-        case 27:
-          numParticipantsInput.value = booking.numParticipants || 1;
-          priceInput.value = booking.price || "";
+        case 29:
+          numParticipantsInput.value = booking.numParticipants;
+          priceInput.value = booking.price;
           paidInput.value = booking.paid.toString();
+
+          // Attach bookingId to form so we know what to PATCH on submit
           form.dataset.bookingId = bookingId;
+
+          // Show modal
           modal.classList.add("active");
-          _context2.next = 37;
+          _context2.next = 39;
           break;
-        case 34:
-          _context2.prev = 34;
+        case 36:
+          _context2.prev = 36;
           _context2.t0 = _context2["catch"](0);
           (0, _alert.showAlert)("error", "Error loading booking details: ".concat(_context2.t0.message));
-        case 37:
+        case 39:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 34]]);
+    }, _callee2, null, [[0, 36]]);
   }));
   return function handleEditClick(_x) {
     return _ref2.apply(this, arguments);
   };
 }();
 var handleSaveBooking = /*#__PURE__*/function () {
-  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(bookingId, data) {
-    var result, modal, _err$response2;
+  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(bookingId, formData) {
+    var form, originalDate, originalParticipants, tourId, newParticipants, tour, oldDateStr, newDateStr, findDateObj, oldDateObj, newDateObj, availableSpots, dateObj, bookingData, result, modal, _err$response2;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
           _context3.prev = 0;
-          _context3.next = 3;
-          return (0, _bookingManagementAPI.updateBooking)(bookingId, data);
-        case 3:
+          form = document.getElementById("bookingForm");
+          originalDate = form.dataset.originalDate;
+          originalParticipants = parseInt(form.dataset.originalParticipants, 10);
+          tourId = form.dataset.tourId;
+          newParticipants = parseInt(formData.numParticipants, 10);
+          if (tourId) {
+            _context3.next = 8;
+            break;
+          }
+          throw new Error("Tour ID not found");
+        case 8:
+          _context3.next = 10;
+          return (0, _bookingManagementAPI.fetchTourById)(tourId);
+        case 10:
+          tour = _context3.sent;
+          // Normalize both old & new date strings to "YYYY-MM-DD" to avoid timezone pitfalls
+          oldDateStr = toUtcYyyymmdd(originalDate);
+          newDateStr = toUtcYyyymmdd(formData.startDate); // Helper to find a date object in the tour startDates array by normalized date
+          findDateObj = function findDateObj(tourDates, rawDateStr) {
+            var target = toUtcYyyymmdd(rawDateStr);
+            return tourDates.find(function (d) {
+              return toUtcYyyymmdd(d.date) === target;
+            });
+          }; // If the date changed, we move participants from old date to new date
+          if (!(oldDateStr !== newDateStr)) {
+            _context3.next = 28;
+            break;
+          }
+          oldDateObj = findDateObj(tour.startDates, oldDateStr);
+          newDateObj = findDateObj(tour.startDates, newDateStr);
+          if (!(!oldDateObj || !newDateObj)) {
+            _context3.next = 19;
+            break;
+          }
+          throw new Error("Could not find one or both dates in tour data");
+        case 19:
+          // Check that the new date actually has enough available spots
+          availableSpots = tour.maxGroupSize - newDateObj.participants;
+          if (!(availableSpots < newParticipants)) {
+            _context3.next = 22;
+            break;
+          }
+          throw new Error("Only ".concat(availableSpots, " spots available for the selected date"));
+        case 22:
+          // Free up spots from old date
+          oldDateObj.participants = Math.max(0, oldDateObj.participants - originalParticipants);
+
+          // Take up spots in the new date
+          newDateObj.participants += newParticipants;
+
+          // Update the tour document with new participant counts
+          _context3.next = 26;
+          return (0, _bookingManagementAPI.updateTourDates)(tourId, tour.startDates);
+        case 26:
+          _context3.next = 38;
+          break;
+        case 28:
+          if (!(originalParticipants !== newParticipants)) {
+            _context3.next = 38;
+            break;
+          }
+          // The user only changed the participant count (same date)
+          dateObj = findDateObj(tour.startDates, oldDateStr);
+          if (dateObj) {
+            _context3.next = 32;
+            break;
+          }
+          throw new Error("Could not find tour date");
+        case 32:
+          // Remove old participant count
+          dateObj.participants -= originalParticipants;
+          // Add new
+          dateObj.participants += newParticipants;
+
+          // Check we did not exceed max group size
+          if (!(dateObj.participants > tour.maxGroupSize)) {
+            _context3.next = 36;
+            break;
+          }
+          throw new Error("Cannot exceed maximum group size of ".concat(tour.maxGroupSize));
+        case 36:
+          _context3.next = 38;
+          return (0, _bookingManagementAPI.updateTourDates)(tourId, tour.startDates);
+        case 38:
+          // Update the booking document itself
+          bookingData = _objectSpread(_objectSpread({}, formData), {}, {
+            tourId: tourId,
+            // Make sure to store the date in the same string format (backend can handle normalization too)
+            startDate: newDateStr,
+            numParticipants: newParticipants
+          });
+          _context3.next = 41;
+          return (0, _bookingManagementAPI.updateBooking)(bookingId, bookingData);
+        case 41:
           result = _context3.sent;
           if (!(result.status === "success")) {
-            _context3.next = 10;
+            _context3.next = 48;
             break;
           }
           (0, _alert.showAlert)("success", "Booking updated successfully!");
           modal = document.getElementById("bookingModal");
           modal === null || modal === void 0 || modal.classList.remove("active");
-          _context3.next = 10;
+          _context3.next = 48;
           return loadBookings();
-        case 10:
-          _context3.next = 15;
+        case 48:
+          _context3.next = 53;
           break;
-        case 12:
-          _context3.prev = 12;
+        case 50:
+          _context3.prev = 50;
           _context3.t0 = _context3["catch"](0);
-          (0, _alert.showAlert)("error", ((_err$response2 = _context3.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || "Error updating booking");
-        case 15:
+          (0, _alert.showAlert)("error", ((_err$response2 = _context3.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || _context3.t0.message || "Error updating booking");
+        case 53:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[0, 12]]);
+    }, _callee3, null, [[0, 50]]);
   }));
   return function handleSaveBooking(_x2, _x3) {
     return _ref3.apply(this, arguments);
@@ -9194,11 +9367,15 @@ var initializeBookingManagement = exports.initializeBookingManagement = function
     closeModalBtn: document.querySelector(".close-modal"),
     cancelBtn: document.getElementById("cancelBtn")
   };
+
+  // Search handler
   (_elements$searchInput = elements.searchInput) === null || _elements$searchInput === void 0 || _elements$searchInput.addEventListener("input", (0, _dom.debounce)(function (e) {
     currentSearch = e.target.value;
     currentPage = 1;
     loadBookings();
   }, 300));
+
+  // Filter handlers
   (_elements$tourFilter = elements.tourFilter) === null || _elements$tourFilter === void 0 || _elements$tourFilter.addEventListener("change", function (e) {
     currentTourFilter = e.target.value;
     currentPage = 1;
@@ -9217,6 +9394,8 @@ var initializeBookingManagement = exports.initializeBookingManagement = function
     dateTo = e.target.value;
     loadBookings();
   });
+
+  // Pagination handlers
   (_elements$prevPageBtn = elements.prevPageBtn) === null || _elements$prevPageBtn === void 0 || _elements$prevPageBtn.addEventListener("click", function () {
     if (currentPage > 1) {
       currentPage--;
@@ -9229,12 +9408,16 @@ var initializeBookingManagement = exports.initializeBookingManagement = function
       loadBookings();
     }
   });
+
+  // Edit booking handlers
   (_elements$bookingTabl = elements.bookingTableBody) === null || _elements$bookingTabl === void 0 || _elements$bookingTabl.addEventListener("click", function (e) {
     var editBtn = e.target.closest(".btn--edit");
     if (editBtn) {
       handleEditClick(editBtn.dataset.id);
     }
   });
+
+  // Form submission handler
   (_elements$bookingForm = elements.bookingForm) === null || _elements$bookingForm === void 0 || _elements$bookingForm.addEventListener("submit", function (e) {
     e.preventDefault();
     var bookingId = e.target.dataset.bookingId;
@@ -9246,6 +9429,8 @@ var initializeBookingManagement = exports.initializeBookingManagement = function
     };
     handleSaveBooking(bookingId, data);
   });
+
+  // Modal close handlers
   (_elements$closeModalB = elements.closeModalBtn) === null || _elements$closeModalB === void 0 || _elements$closeModalB.addEventListener("click", function () {
     var _elements$bookingModa;
     (_elements$bookingModa = elements.bookingModal) === null || _elements$bookingModa === void 0 || _elements$bookingModa.classList.remove("active");
@@ -9256,9 +9441,11 @@ var initializeBookingManagement = exports.initializeBookingManagement = function
     if (form) form.reset();
     (_elements$bookingModa2 = elements.bookingModal) === null || _elements$bookingModa2 === void 0 || _elements$bookingModa2.classList.remove("active");
   });
+
+  // Initialize bookings table
   loadBookings();
 };
-},{"../utils/alert":"utils/alert.js","../api/bookingManagementAPI":"api/bookingManagementAPI.js","../utils/dom":"utils/dom.js"}],"api/userManagementAPI.js":[function(require,module,exports) {
+},{"../utils/alert":"utils/alert.js","../utils/dom":"utils/dom.js","../api/bookingManagementAPI":"api/bookingManagementAPI.js"}],"api/userManagementAPI.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11124,7 +11311,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "44071" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "45473" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
