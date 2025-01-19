@@ -8959,8 +8959,9 @@ var updateTourDates = exports.updateTourDates = /*#__PURE__*/function () {
         case 7:
           _context4.prev = 7;
           _context4.t0 = _context4["catch"](0);
+          console.error("Error updating tour dates:", _context4.t0);
           throw _context4.t0;
-        case 10:
+        case 11:
         case "end":
           return _context4.stop();
       }
@@ -9132,7 +9133,7 @@ var handleEditClick = /*#__PURE__*/function () {
           if (paymentInfoElement) {
             if (((_booking$paymentInten = booking.paymentIntents) === null || _booking$paymentInten === void 0 ? void 0 : _booking$paymentInten.length) > 1) {
               paymentInfoElement.innerHTML = "\n          <div class=\"payments-list\">\n            ".concat(booking.paymentIntents.map(function (payment) {
-                return "\n              <div class=\"payment-item\">Payment: $".concat(payment.amount.toLocaleString(), "</div>\n            ");
+                return "\n                  <div class=\"payment-item\">Payment: $".concat(payment.amount.toLocaleString(), "</div>\n                ");
               }).join(""), "\n            <div class=\"payment-item payment-total\">Total: $").concat(booking.price.toLocaleString(), "</div>\n          </div>\n        ");
             } else {
               paymentInfoElement.innerHTML = "$".concat(booking.price.toLocaleString());
@@ -9155,28 +9156,21 @@ var handleEditClick = /*#__PURE__*/function () {
 
             // Build the <option> list
             tour.startDates.forEach(function (dateObj) {
-              var formattedDate = toUtcYyyymmdd(dateObj.date);
+              var dateIso = toUtcYyyymmdd(dateObj.date);
+              var spotsLeft = tour.maxGroupSize - (dateObj.participants || 0);
 
-              // Calculate available spots
-              var availableSpots = tour.maxGroupSize - (dateObj.participants || 0);
-
-              // If this date is the user's current booking date,
-              // add back their participants so they can remain in that date.
-              if (formattedDate === formattedCurrentDate) {
-                availableSpots += booking.numParticipants;
-              }
-
-              // Only show dates with enough spots or the current date
-              if (formattedDate === formattedCurrentDate || availableSpots > 0) {
+              // Show this date if not sold out OR it's the current booking date
+              if (spotsLeft > 0 || dateIso === formattedCurrentDate) {
                 var option = document.createElement("option");
-                option.value = formattedDate;
+                option.value = dateIso;
                 option.textContent = "".concat(new Date(dateObj.date).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric"
-                }), " (").concat(availableSpots, " spots)");
-                // Mark the current booking date as selected
-                if (formattedDate === formattedCurrentDate) {
+                }), " (").concat(spotsLeft, " spots left)");
+
+                // Mark the option selected if it matches the current booking date
+                if (dateIso === formattedCurrentDate) {
                   option.selected = true;
                 }
                 startDateSelect.appendChild(option);
@@ -11311,7 +11305,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "45473" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39139" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

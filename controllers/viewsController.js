@@ -290,9 +290,8 @@ exports.getManageUsersPage = (req, res) => {
 
 // Render admin page to manage bookings
 exports.getManageBookingsPage = catchAsync(async (req, res) => {
-  // Use only inclusion in select
   const tours = await Tour.find()
-    .select("name _id") // Only include what we need
+    .select("name _id startDates maxGroupSize")
     .sort({ name: 1 });
 
   res.status(200).render("pages/admin/manageBookings", {
@@ -301,6 +300,7 @@ exports.getManageBookingsPage = catchAsync(async (req, res) => {
     tours,
   });
 });
+
 // Render admin page to manage reviews
 exports.getManageReviewsPage = catchAsync(async (req, res) => {
   const [reviews, tours] = await Promise.all([

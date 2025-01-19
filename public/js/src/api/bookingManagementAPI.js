@@ -61,10 +61,11 @@ export const fetchTourById = async tourId => {
 
 export const updateTourDates = async (tourId, startDates) => {
   try {
-    // PATCH the entire startDates array in the Tour
+    // Ensure participants count is properly updated for each startDate
     const res = await axios.patch(`/api/v1/tours/${tourId}`, { startDates });
     return res.data.data.data;
   } catch (err) {
+    console.error("Error updating tour dates:", err);
     throw err;
   }
 };

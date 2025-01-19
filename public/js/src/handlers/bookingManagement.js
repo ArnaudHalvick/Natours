@@ -126,8 +126,8 @@ const handleEditClick = async bookingId => {
             ${booking.paymentIntents
               .map(
                 payment => `
-              <div class="payment-item">Payment: $${payment.amount.toLocaleString()}</div>
-            `,
+                  <div class="payment-item">Payment: $${payment.amount.toLocaleString()}</div>
+                `,
               )
               .join("")}
             <div class="payment-item payment-total">Total: $${booking.price.toLocaleString()}</div>
@@ -154,21 +154,13 @@ const handleEditClick = async bookingId => {
 
       // Build the <option> list
       tour.startDates.forEach(dateObj => {
-        const formattedDate = toUtcYyyymmdd(dateObj.date);
+        const dateIso = toUtcYyyymmdd(dateObj.date);
+        const spotsLeft = tour.maxGroupSize - (dateObj.participants || 0);
 
-        // Calculate available spots
-        let availableSpots = tour.maxGroupSize - (dateObj.participants || 0);
-
-        // If this date is the user's current booking date,
-        // add back their participants so they can remain in that date.
-        if (formattedDate === formattedCurrentDate) {
-          availableSpots += booking.numParticipants;
-        }
-
-        // Only show dates with enough spots or the current date
-        if (formattedDate === formattedCurrentDate || availableSpots > 0) {
+        // Show this date if not sold out OR it's the current booking date
+        if (spotsLeft > 0 || dateIso === formattedCurrentDate) {
           const option = document.createElement("option");
-          option.value = formattedDate;
+          option.value = dateIso;
           option.textContent = `${new Date(dateObj.date).toLocaleDateString(
             "en-US",
             {
@@ -176,11 +168,13 @@ const handleEditClick = async bookingId => {
               month: "long",
               day: "numeric",
             },
-          )} (${availableSpots} spots)`;
-          // Mark the current booking date as selected
-          if (formattedDate === formattedCurrentDate) {
+          )} (${spotsLeft} spots left)`;
+
+          // Mark the option selected if it matches the current booking date
+          if (dateIso === formattedCurrentDate) {
             option.selected = true;
           }
+
           startDateSelect.appendChild(option);
         }
       });
