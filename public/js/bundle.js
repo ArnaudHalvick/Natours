@@ -9024,7 +9024,7 @@ var loadBookings = /*#__PURE__*/function () {
 }();
 var handleEditClick = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(bookingId) {
-    var _booking$paymentInten, form, modal, booking, paymentInfoElement, startDateInput, numParticipantsInput, priceInput, paidInput, missingInputs;
+    var form, modal, booking, tourResponse, tour, paymentInfoElement, _booking$paymentInten, startDateInput, startDateSelect, currentBookingDate, formattedCurrentDate, numParticipantsInput, priceInput, paidInput, missingInputs;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
@@ -9047,48 +9047,95 @@ var handleEditClick = /*#__PURE__*/function () {
           }
           throw new Error("No booking data received");
         case 10:
-          // Update non-editable booking info
+          _context2.next = 12;
+          return axios.get("/api/v1/tours/".concat(booking.tour._id));
+        case 12:
+          tourResponse = _context2.sent;
+          tour = tourResponse.data.data.data; // Update non-editable booking info
           document.getElementById("bookingId").textContent = booking._id;
           document.getElementById("bookingUser").textContent = booking.user.email;
           document.getElementById("bookingTour").textContent = booking.tour.name;
 
-          // Add payment breakdown in modal if multiple payments exist
+          // Update payment info
           paymentInfoElement = document.getElementById("paymentInfo");
-          if (paymentInfoElement && ((_booking$paymentInten = booking.paymentIntents) === null || _booking$paymentInten === void 0 ? void 0 : _booking$paymentInten.length) > 0) {
-            paymentInfoElement.innerHTML = "\n        <div class=\"booking__info\">\n          ".concat(booking.paymentIntents.map(function (payment) {
-              return "\n            <div class=\"booking__info-row\">\n              <span><strong>Payment ID:</strong> ".concat(payment.id, "</span>\n              <span> <strong>Amount:</strong> $").concat(payment.amount.toLocaleString(), "</span>\n            </div>\n          ");
-            }).join(""), "\n          <div class=\"booking__info-row\">\n            <strong>Total: $").concat(booking.price.toLocaleString(), "</strong>\n          </div>\n        </div>\n      ");
+          if (paymentInfoElement) {
+            if (((_booking$paymentInten = booking.paymentIntents) === null || _booking$paymentInten === void 0 ? void 0 : _booking$paymentInten.length) > 1) {
+              paymentInfoElement.innerHTML = "\n          <div class=\"payments-list\">\n            ".concat(booking.paymentIntents.map(function (payment) {
+                return "\n              <div class=\"payment-item\">Payment: $".concat(payment.amount.toLocaleString(), "</div>\n            ");
+              }).join(""), "\n            <div class=\"payment-item payment-total\">Total: $").concat(booking.price.toLocaleString(), "</div>\n          </div>\n        ");
+            } else {
+              paymentInfoElement.innerHTML = "$".concat(booking.price.toLocaleString());
+            }
           }
 
-          // Update editable form fields
+          // Update start date select with available dates
           startDateInput = document.getElementById("startDate");
+          if (startDateInput) {
+            // Convert startDate select to a proper select element
+            startDateSelect = document.createElement("select");
+            startDateSelect.id = "startDate";
+            startDateSelect.className = "form__input";
+            startDateSelect.required = true;
+
+            // Get current booking date for comparison
+            currentBookingDate = new Date(booking.startDate);
+            formattedCurrentDate = currentBookingDate.toISOString().split("T")[0]; // Add options for each available start date
+            tour.startDates.sort(function (a, b) {
+              return new Date(a.date) - new Date(b.date);
+            }).forEach(function (dateObj) {
+              var date = new Date(dateObj.date);
+              var formattedDate = date.toISOString().split("T")[0];
+              var availableSpots = tour.maxGroupSize - dateObj.participants;
+
+              // Add current booking's participants back to available spots if this is the current date
+              var isCurrentDate = formattedDate === formattedCurrentDate;
+              var actualAvailableSpots = isCurrentDate ? availableSpots + booking.numParticipants : availableSpots;
+
+              // Only show dates that have available spots or is the current booking date
+              if (actualAvailableSpots > 0 || isCurrentDate) {
+                var option = document.createElement("option");
+                option.value = formattedDate;
+                option.textContent = "".concat(date.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric"
+                }), " (").concat(actualAvailableSpots, " spots)");
+                option.selected = formattedDate === formattedCurrentDate;
+                startDateSelect.appendChild(option);
+              }
+            });
+
+            // Replace the date input with our select
+            startDateInput.parentNode.replaceChild(startDateSelect, startDateInput);
+          }
+
+          // Update other form fields
           numParticipantsInput = document.getElementById("numParticipants");
           priceInput = document.getElementById("price");
           paidInput = document.getElementById("paid");
-          if (!(!startDateInput || !numParticipantsInput || !priceInput || !paidInput)) {
-            _context2.next = 22;
+          if (!(!numParticipantsInput || !priceInput || !paidInput)) {
+            _context2.next = 27;
             break;
           }
-          missingInputs = [!startDateInput && "startDate", !numParticipantsInput && "numParticipants", !priceInput && "price", !paidInput && "paid"].filter(Boolean);
+          missingInputs = [!numParticipantsInput && "numParticipants", !priceInput && "price", !paidInput && "paid"].filter(Boolean);
           throw new Error("Missing form inputs: ".concat(missingInputs.join(", ")));
-        case 22:
-          startDateInput.value = new Date(booking.startDate).toISOString().split("T")[0];
+        case 27:
           numParticipantsInput.value = booking.numParticipants || 1;
           priceInput.value = booking.price || "";
           paidInput.value = booking.paid.toString();
           form.dataset.bookingId = bookingId;
           modal.classList.add("active");
-          _context2.next = 33;
+          _context2.next = 37;
           break;
-        case 30:
-          _context2.prev = 30;
+        case 34:
+          _context2.prev = 34;
           _context2.t0 = _context2["catch"](0);
           (0, _alert.showAlert)("error", "Error loading booking details: ".concat(_context2.t0.message));
-        case 33:
+        case 37:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 30]]);
+    }, _callee2, null, [[0, 34]]);
   }));
   return function handleEditClick(_x) {
     return _ref2.apply(this, arguments);

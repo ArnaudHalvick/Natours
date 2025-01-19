@@ -83,47 +83,94 @@ const handleEditClick = async bookingId => {
     }
 
     const booking = await fetchBookingById(bookingId);
-
     if (!booking) {
       throw new Error("No booking data received");
     }
+
+    // Fetch tour details to get available start dates
+    const tourResponse = await axios.get(`/api/v1/tours/${booking.tour._id}`);
+    const tour = tourResponse.data.data.data;
 
     // Update non-editable booking info
     document.getElementById("bookingId").textContent = booking._id;
     document.getElementById("bookingUser").textContent = booking.user.email;
     document.getElementById("bookingTour").textContent = booking.tour.name;
 
-    // Add payment breakdown in modal if multiple payments exist
+    // Update payment info
     const paymentInfoElement = document.getElementById("paymentInfo");
-    if (paymentInfoElement && booking.paymentIntents?.length > 0) {
-      paymentInfoElement.innerHTML = `
-        <div class="booking__info">
-          ${booking.paymentIntents
-            .map(
-              payment => `
-            <div class="booking__info-row">
-              <span><strong>Payment ID:</strong> ${payment.id}</span>
-              <span> <strong>Amount:</strong> $${payment.amount.toLocaleString()}</span>
-            </div>
-          `,
-            )
-            .join("")}
-          <div class="booking__info-row">
-            <strong>Total: $${booking.price.toLocaleString()}</strong>
+    if (paymentInfoElement) {
+      if (booking.paymentIntents?.length > 1) {
+        paymentInfoElement.innerHTML = `
+          <div class="payments-list">
+            ${booking.paymentIntents
+              .map(
+                payment => `
+              <div class="payment-item">Payment: $${payment.amount.toLocaleString()}</div>
+            `,
+              )
+              .join("")}
+            <div class="payment-item payment-total">Total: $${booking.price.toLocaleString()}</div>
           </div>
-        </div>
-      `;
+        `;
+      } else {
+        paymentInfoElement.innerHTML = `$${booking.price.toLocaleString()}`;
+      }
     }
 
-    // Update editable form fields
+    // Update start date select with available dates
     const startDateInput = document.getElementById("startDate");
+    if (startDateInput) {
+      // Convert startDate select to a proper select element
+      const startDateSelect = document.createElement("select");
+      startDateSelect.id = "startDate";
+      startDateSelect.className = "form__input";
+      startDateSelect.required = true;
+
+      // Get current booking date for comparison
+      const currentBookingDate = new Date(booking.startDate);
+      const formattedCurrentDate = currentBookingDate
+        .toISOString()
+        .split("T")[0];
+
+      // Add options for each available start date
+      tour.startDates
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .forEach(dateObj => {
+          const date = new Date(dateObj.date);
+          const formattedDate = date.toISOString().split("T")[0];
+          const availableSpots = tour.maxGroupSize - dateObj.participants;
+
+          // Add current booking's participants back to available spots if this is the current date
+          const isCurrentDate = formattedDate === formattedCurrentDate;
+          const actualAvailableSpots = isCurrentDate
+            ? availableSpots + booking.numParticipants
+            : availableSpots;
+
+          // Only show dates that have available spots or is the current booking date
+          if (actualAvailableSpots > 0 || isCurrentDate) {
+            const option = document.createElement("option");
+            option.value = formattedDate;
+            option.textContent = `${date.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })} (${actualAvailableSpots} spots)`;
+            option.selected = formattedDate === formattedCurrentDate;
+            startDateSelect.appendChild(option);
+          }
+        });
+
+      // Replace the date input with our select
+      startDateInput.parentNode.replaceChild(startDateSelect, startDateInput);
+    }
+
+    // Update other form fields
     const numParticipantsInput = document.getElementById("numParticipants");
     const priceInput = document.getElementById("price");
     const paidInput = document.getElementById("paid");
 
-    if (!startDateInput || !numParticipantsInput || !priceInput || !paidInput) {
+    if (!numParticipantsInput || !priceInput || !paidInput) {
       const missingInputs = [
-        !startDateInput && "startDate",
         !numParticipantsInput && "numParticipants",
         !priceInput && "price",
         !paidInput && "paid",
@@ -132,9 +179,6 @@ const handleEditClick = async bookingId => {
       throw new Error(`Missing form inputs: ${missingInputs.join(", ")}`);
     }
 
-    startDateInput.value = new Date(booking.startDate)
-      .toISOString()
-      .split("T")[0];
     numParticipantsInput.value = booking.numParticipants || 1;
     priceInput.value = booking.price || "";
     paidInput.value = booking.paid.toString();
