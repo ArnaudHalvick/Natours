@@ -1,5 +1,6 @@
 // models/criticalErrorModel.js
 const mongoose = require("mongoose");
+const Email = require("../utils/email");
 
 const criticalErrorSchema = new mongoose.Schema({
   bookingError: {
@@ -26,11 +27,15 @@ const criticalErrorSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  // Additional fields for support team
   notifiedSupport: {
     type: Boolean,
     default: false,
   },
+  notificationAttempts: {
+    type: Number,
+    default: 0,
+  },
+  lastNotificationAttempt: Date,
   supportTicketId: String,
   resolved: {
     type: Boolean,
@@ -44,21 +49,57 @@ const criticalErrorSchema = new mongoose.Schema({
   },
 });
 
-// Index for efficient querying
-criticalErrorSchema.index({ timestamp: -1 });
-criticalErrorSchema.index({ sessionId: 1 }, { unique: true });
-criticalErrorSchema.index({ resolved: 1, timestamp: -1 });
-
-// Add a method to notify support if not already notified
 criticalErrorSchema.methods.notifySupport = async function () {
-  if (!this.notifiedSupport) {
-    // Implement your notification logic here
-    // For example:
-    // await sendEmailToSupport(this);
-    // await createSupportTicket(this);
+  if (this.notifiedSupport) return;
+
+  try {
+    if (this.notificationAttempts >= 3) {
+      console.error(
+        `Failed to notify support after ${this.notificationAttempts} attempts for error ${this._id}`,
+      );
+      return;
+    }
+
+    // Create a support user object
+    const supportUser = {
+      email: process.env.SUPPORT_TEAM_EMAIL || process.env.EMAIL_FROM,
+      name: "Support Team",
+    };
+
+    // Create a dummy URL for now (you can modify this to point to your admin panel)
+    const errorUrl = `${process.env.BASE_URL || "http://localhost:8000"}/admin/errors/${this.sessionId}`;
+
+    // Create and send the email
+    const email = new Email(supportUser, errorUrl);
+    await email.send("criticalError", "🚨 CRITICAL: Booking System Error", {
+      errorType: "Booking System Critical Error",
+      bookingError: this.bookingError,
+      refundError: this.refundError,
+      sessionId: this.sessionId,
+      paymentIntentId: this.paymentIntentId,
+      timestamp: this.timestamp.toISOString(),
+      metadata: this.metadata,
+    });
 
     this.notifiedSupport = true;
+    this.lastNotificationAttempt = new Date();
     await this.save();
+  } catch (error) {
+    console.error("Failed to notify support:", error);
+
+    this.notificationAttempts += 1;
+    this.lastNotificationAttempt = new Date();
+    await this.save();
+
+    // Retry after 5 minutes if failed
+    if (this.notificationAttempts < 3) {
+      setTimeout(
+        () => {
+          this.notifySupport();
+        },
+        5 * 60 * 1000,
+      );
+    }
   }
 };
 

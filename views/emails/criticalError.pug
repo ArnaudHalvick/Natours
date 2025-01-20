@@ -1,0 +1,35 @@
+//- views/emails/criticalError.pug
+extends baseEmail
+
+block content
+  p Hi #{firstName},
+  p A critical error has occurred in the booking system that requires immediate attention:
+  
+  table(style='width: 100%; border-collapse: collapse; margin-top: 20px;')
+    tr
+      td(style='padding: 10px; border: 1px solid #ccc; font-weight: bold;') Error Type:
+      td(style='padding: 10px; border: 1px solid #ccc;')= errorType
+    if bookingError
+      tr
+        td(style='padding: 10px; border: 1px solid #ccc; font-weight: bold;') Booking Error:
+        td(style='padding: 10px; border: 1px solid #ccc;')= bookingError
+    if refundError
+      tr
+        td(style='padding: 10px; border: 1px solid #ccc; font-weight: bold;') Refund Error:
+        td(style='padding: 10px; border: 1px solid #ccc;')= refundError
+    tr
+      td(style='padding: 10px; border: 1px solid #ccc; font-weight: bold;') Session ID:
+      td(style='padding: 10px; border: 1px solid #ccc;')= sessionId
+    tr
+      td(style='padding: 10px; border: 1px solid #ccc; font-weight: bold;') Payment Intent:
+      td(style='padding: 10px; border: 1px solid #ccc;')= paymentIntentId
+    tr
+      td(style='padding: 10px; border: 1px solid #ccc; font-weight: bold;') Timestamp:
+      td(style='padding: 10px; border: 1px solid #ccc;')= timestamp
+    if metadata
+      tr
+        td(style='padding: 10px; border: 1px solid #ccc; font-weight: bold;') Additional Info:
+        td(style='padding: 10px; border: 1px solid #ccc; white-space: pre-wrap;')= JSON.stringify(metadata, null, 2)
+
+  p Please investigate this issue immediately.
+  p.btn.btn-primary(href=`${url}`) View Error Details

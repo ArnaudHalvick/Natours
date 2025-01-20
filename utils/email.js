@@ -81,4 +81,29 @@ module.exports = class Email {
   async sendEmailChangeVerification() {
     await this.send("emailChange", "Verify your new email address");
   }
+
+  async sendCriticalErrorAlert(errorDetails) {
+    // Create a support user object
+    const supportUser = {
+      email: process.env.SUPPORT_TEAM_EMAIL || process.env.EMAIL_FROM,
+      name: "Support Team",
+    };
+
+    // Create a URL to view error details (if you have an admin dashboard)
+    const errorUrl = `${process.env.BASE_URL}/admin/errors/${errorDetails.sessionId}`;
+
+    // Create a new email instance
+    const email = new Email(supportUser, errorUrl);
+
+    // Send the critical error email
+    await email.send("criticalError", "🚨 CRITICAL: Booking System Error", {
+      errorType: "Booking System Critical Error",
+      bookingError: errorDetails.bookingError,
+      refundError: errorDetails.refundError,
+      sessionId: errorDetails.sessionId,
+      paymentIntentId: errorDetails.paymentIntentId,
+      timestamp: errorDetails.timestamp.toISOString(),
+      metadata: errorDetails.metadata,
+    });
+  }
 };
