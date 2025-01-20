@@ -9,6 +9,19 @@ import {
   updateTourDates,
   processAdminRefund,
 } from "../api/bookingManagementAPI";
+let availableDates = [];
+let initialTourOptions = [];
+
+// function to capture initial tour options
+const storeInitialTourOptions = () => {
+  const tourSelect = document.getElementById("bookingTour");
+  if (tourSelect) {
+    initialTourOptions = Array.from(tourSelect.options).map(opt => ({
+      value: opt.value,
+      text: opt.textContent,
+    }));
+  }
+};
 
 /**
  * Helper: convert a date (string or Date) to "YYYY-MM-DD" in UTC (midnight).
@@ -328,20 +341,35 @@ const handleSaveBooking = async (bookingId, formData) => {
   }
 };
 
-let availableDates = [];
-
 const handleCreateBookingClick = () => {
   const modal = document.getElementById("createBookingModal");
-  const form = document.getElementById("createBookingForm");
-  const dateSelect = document.getElementById("bookingDate");
+  if (modal) {
+    const form = document.getElementById("createBookingForm");
+    const tourSelect = document.getElementById("bookingTour");
+    const dateSelect = document.getElementById("bookingDate");
 
-  if (modal && form) {
-    modal.classList.add("active");
-    form.reset();
+    if (form) {
+      form.reset();
+    }
+
     if (dateSelect) {
       dateSelect.innerHTML = '<option value="">Select Tour First</option>';
       dateSelect.disabled = true;
     }
+
+    // Restore tour select options
+    if (tourSelect) {
+      tourSelect.innerHTML = "";
+      initialTourOptions.forEach(opt => {
+        const option = document.createElement("option");
+        option.value = opt.value;
+        option.textContent = opt.text;
+        tourSelect.appendChild(option);
+      });
+      tourSelect.disabled = false;
+    }
+
+    modal.classList.add("active");
   }
 };
 
@@ -438,6 +466,36 @@ const handleCreateBookingSubmit = async e => {
 const closeModal = modalElement => {
   if (!modalElement) return;
   modalElement.classList.remove("active");
+
+  // Special cleanup for edit modal
+  if (modalElement.id === "bookingModal") {
+    // Reset the startDate select back to its original state
+    const startDateContainer = document.getElementById("startDate")?.parentNode;
+    if (startDateContainer) {
+      const originalInput = document.createElement("select");
+      originalInput.id = "startDate";
+      originalInput.className = "form__input";
+      originalInput.required = true;
+
+      const currentSelect = document.getElementById("startDate");
+      if (currentSelect) {
+        startDateContainer.replaceChild(originalInput, currentSelect);
+      }
+    }
+
+    // Remove refund button if it exists
+    const refundBtn = modalElement.querySelector(".refund--btn");
+    refundBtn?.remove();
+
+    // Clear any stored data attributes
+    const form = document.getElementById("bookingForm");
+    if (form) {
+      form.removeAttribute("data-booking-id");
+      form.removeAttribute("data-original-date");
+      form.removeAttribute("data-original-participants");
+      form.removeAttribute("data-tour-id");
+    }
+  }
 };
 
 const handleEscKey = event => {
@@ -454,6 +512,8 @@ const initializeCreateBooking = () => {
   const createModal = document.getElementById("createBookingModal");
   const createForm = document.getElementById("createBookingForm");
   const tourSelect = document.getElementById("bookingTour");
+
+  storeInitialTourOptions();
 
   createBtn?.addEventListener("click", handleCreateBookingClick);
   createForm?.addEventListener("submit", handleCreateBookingSubmit);
