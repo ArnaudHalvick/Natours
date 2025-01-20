@@ -74,20 +74,34 @@ exports.getOne = (Model, populateOptions) =>
 // Update a document by ID
 exports.updateOne = Model =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
-      new: true, // Return the updated document
-      runValidators: true, // Run model validators
-    });
+    // 1) Find the document by ID
+    const doc = await Model.findById(req.params.id);
 
-    // If no document is found, return 404 error
+    // 2) Check if the document exists
     if (!doc) {
       return next(new AppError(`${Model.modelName} not found`, 404));
     }
 
-    // Send success response with the updated document
+    // 3) Check if the document is refunded (only applies to models with `refunded`)
+    if (doc.refunded) {
+      return next(
+        new AppError(
+          `Cannot edit a refunded ${Model.modelName.toLowerCase()}.`,
+          400,
+        ),
+      );
+    }
+
+    // 4) Proceed to update the document
+    const updatedDoc = await Model.findByIdAndUpdate(req.params.id, req.body, {
+      new: true, // Return the updated document
+      runValidators: true, // Run model validators
+    });
+
+    // 5) Send success response with the updated document
     res.status(200).json({
       status: "success",
-      data: { data: doc },
+      data: { data: updatedDoc },
     });
   });
 

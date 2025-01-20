@@ -9066,7 +9066,12 @@ var loadBookings = /*#__PURE__*/function () {
           return _context.abrupt("return");
         case 10:
           bookingTableBody.innerHTML = data.length ? data.map(function (booking) {
-            return "\n          <tr>\n            <td>".concat(booking._id, "</td>\n            <td>").concat(booking.user.email, "</td>\n            <td>").concat(booking.tour.name, "</td>\n            <td>").concat(new Date(booking.startDate).toLocaleDateString(), "</td>\n            <td class=\"td-price\" data-total-price=\"").concat(booking.price, "\">$").concat(booking.price.toLocaleString(), "</td>\n            <td>\n              <span class=\"status-badge status-badge--").concat(booking.paid ? "paid" : "unpaid", "\">\n                ").concat(booking.paid ? "Paid" : "Unpaid", "\n              </span>\n            </td>\n            <td>\n              <button class=\"btn btn--small btn--edit btn--green\" data-id=\"").concat(booking._id, "\">Edit</button>\n            </td>\n          </tr>\n        ");
+            // Determine the edit button state
+            var editButton = booking.refunded ? "" // No button if refunded
+            : "<button class=\"btn btn--small btn--edit btn--green\" data-id=\"".concat(booking._id, "\">Edit</button>");
+
+            // Build the table row
+            return "\n              <tr>\n                <td>".concat(booking._id, "</td>\n                <td>").concat(booking.user.email, "</td>\n                <td>").concat(booking.tour.name, "</td>\n                <td>").concat(new Date(booking.startDate).toLocaleDateString(), "</td>\n                <td>$").concat(booking.price.toLocaleString(), "</td>\n                <td>\n                  <span class=\"status-badge status-badge--").concat(booking.refunded ? "refunded" : booking.paid ? "paid" : "unpaid", "\">\n                    ").concat(booking.refunded ? "Refunded" : booking.paid ? "Paid" : "Unpaid", "\n                  </span>\n                </td>\n                <td>").concat(editButton, "</td>\n              </tr>\n            ");
           }).join("") : '<tr><td colspan="7" style="text-align: center;">No bookings found.</td></tr>';
           pageInfo = document.getElementById("pageInfo");
           if (pageInfo) pageInfo.textContent = "Page ".concat(currentPage, " of ").concat(totalPages);
@@ -9113,15 +9118,22 @@ var handleEditClick = /*#__PURE__*/function () {
           }
           throw new Error("No booking data received");
         case 10:
+          if (!booking.refunded) {
+            _context2.next = 13;
+            break;
+          }
+          (0, _alert.showAlert)("error", "Refunded bookings cannot be edited.");
+          return _context2.abrupt("return");
+        case 13:
           // Store the original date and participants in dataset (for later comparison)
           form.dataset.originalDate = booking.startDate; // Full ISO date from backend
           form.dataset.originalParticipants = booking.numParticipants;
           form.dataset.tourId = booking.tour._id;
 
           // Fetch fresh tour data (so we have up-to-date participants info)
-          _context2.next = 15;
+          _context2.next = 18;
           return (0, _bookingManagementAPI.fetchTourById)(booking.tour._id);
-        case 15:
+        case 18:
           tour = _context2.sent;
           // Update non-editable booking info
           document.getElementById("bookingId").textContent = booking._id;
@@ -9186,12 +9198,12 @@ var handleEditClick = /*#__PURE__*/function () {
           priceInput = document.getElementById("price");
           paidInput = document.getElementById("paid");
           if (!(!numParticipantsInput || !priceInput || !paidInput)) {
-            _context2.next = 29;
+            _context2.next = 32;
             break;
           }
           missingInputs = [!numParticipantsInput && "numParticipants", !priceInput && "price", !paidInput && "paid"].filter(Boolean);
           throw new Error("Missing form inputs: ".concat(missingInputs.join(", ")));
-        case 29:
+        case 32:
           numParticipantsInput.value = booking.numParticipants;
           priceInput.value = booking.price;
           paidInput.value = booking.paid.toString();
@@ -9201,17 +9213,17 @@ var handleEditClick = /*#__PURE__*/function () {
 
           // Show modal
           modal.classList.add("active");
-          _context2.next = 39;
+          _context2.next = 42;
           break;
-        case 36:
-          _context2.prev = 36;
+        case 39:
+          _context2.prev = 39;
           _context2.t0 = _context2["catch"](0);
           (0, _alert.showAlert)("error", "Error loading booking details: ".concat(_context2.t0.message));
-        case 39:
+        case 42:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 36]]);
+    }, _callee2, null, [[0, 39]]);
   }));
   return function handleEditClick(_x) {
     return _ref2.apply(this, arguments);
@@ -11313,7 +11325,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "40881" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "35729" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

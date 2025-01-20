@@ -46,6 +46,10 @@ const bookingSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    refunded: {
+      type: Boolean,
+      default: false,
+    },
     paymentIntents: [
       {
         id: {

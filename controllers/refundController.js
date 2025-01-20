@@ -245,8 +245,9 @@ exports.processRefund = catchAsync(async (req, res, next) => {
     }
 
     // 4) Mark the booking as refunded
+    booking.refunded = true;
     booking.paid = false;
-    booking.numParticipants = 0; // Must be 0, which is allowed if booking is not paid
+    booking.numParticipants = 0; // Ensures no participants remain on a refunded booking
     await booking.save();
 
     // 5) Respond to client

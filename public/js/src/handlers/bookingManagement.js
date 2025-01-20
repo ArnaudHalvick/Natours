@@ -58,25 +58,35 @@ const loadBookings = async () => {
 
     bookingTableBody.innerHTML = data.length
       ? data
-          .map(
-            booking => `
-          <tr>
-            <td>${booking._id}</td>
-            <td>${booking.user.email}</td>
-            <td>${booking.tour.name}</td>
-            <td>${new Date(booking.startDate).toLocaleDateString()}</td>
-            <td class="td-price" data-total-price="${booking.price}">$${booking.price.toLocaleString()}</td>
-            <td>
-              <span class="status-badge status-badge--${booking.paid ? "paid" : "unpaid"}">
-                ${booking.paid ? "Paid" : "Unpaid"}
-              </span>
-            </td>
-            <td>
-              <button class="btn btn--small btn--edit btn--green" data-id="${booking._id}">Edit</button>
-            </td>
-          </tr>
-        `,
-          )
+          .map(booking => {
+            // Determine the edit button state
+            const editButton = booking.refunded
+              ? "" // No button if refunded
+              : `<button class="btn btn--small btn--edit btn--green" data-id="${booking._id}">Edit</button>`;
+
+            // Build the table row
+            return `
+              <tr>
+                <td>${booking._id}</td>
+                <td>${booking.user.email}</td>
+                <td>${booking.tour.name}</td>
+                <td>${new Date(booking.startDate).toLocaleDateString()}</td>
+                <td>$${booking.price.toLocaleString()}</td>
+                <td>
+                  <span class="status-badge status-badge--${
+                    booking.refunded
+                      ? "refunded"
+                      : booking.paid
+                        ? "paid"
+                        : "unpaid"
+                  }">
+                    ${booking.refunded ? "Refunded" : booking.paid ? "Paid" : "Unpaid"}
+                  </span>
+                </td>
+                <td>${editButton}</td>
+              </tr>
+            `;
+          })
           .join("")
       : '<tr><td colspan="7" style="text-align: center;">No bookings found.</td></tr>';
 
@@ -102,6 +112,11 @@ const handleEditClick = async bookingId => {
     const booking = await fetchBookingById(bookingId);
     if (!booking) {
       throw new Error("No booking data received");
+    }
+
+    if (booking.refunded) {
+      showAlert("error", "Refunded bookings cannot be edited.");
+      return;
     }
 
     // Store the original date and participants in dataset (for later comparison)

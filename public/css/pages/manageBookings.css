@@ -139,6 +139,11 @@
   color: #d92d20;
 }
 
+.status-badge--refunded {
+  background-color: #f6e39e;
+  color: #866a15;
+}
+
 /* Modal Styles */
 .modal {
   display: none;
