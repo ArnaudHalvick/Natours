@@ -528,6 +528,42 @@ const handleCreateBookingSubmit = async e => {
   }
 };
 
+const closeModal = modalElement => {
+  if (!modalElement) return;
+  modalElement.classList.remove("active");
+
+  // If it's the edit booking modal, reset the form
+  const bookingForm = modalElement.querySelector("#bookingForm");
+  if (bookingForm) bookingForm.reset();
+
+  // If it's the create booking modal, reset the form
+  const createBookingForm = modalElement.querySelector("#createBookingForm");
+  if (createBookingForm) {
+    createBookingForm.reset();
+    // Reset the date dropdown
+    const dateSelect = document.getElementById("bookingDate");
+    if (dateSelect) {
+      dateSelect.innerHTML = '<option value="">Select Tour First</option>';
+      dateSelect.disabled = true;
+    }
+  }
+};
+
+// Handle ESC key press for all modals
+const handleEscKey = event => {
+  if (event.key === "Escape") {
+    const editModal = document.getElementById("bookingModal");
+    const createModal = document.getElementById("createBookingModal");
+
+    if (editModal?.classList.contains("active")) {
+      closeModal(editModal);
+    }
+    if (createModal?.classList.contains("active")) {
+      closeModal(createModal);
+    }
+  }
+};
+
 // Add these to your initialization function
 const initializeCreateBooking = () => {
   const createBtn = document.getElementById("createBookingBtn");
@@ -562,10 +598,14 @@ export const initializeBookingManagement = () => {
     nextPageBtn: document.getElementById("nextPage"),
     bookingTableBody: document.getElementById("bookingTableBody"),
     bookingModal: document.getElementById("bookingModal"),
+    createBookingModal: document.getElementById("createBookingModal"),
     bookingForm: document.getElementById("bookingForm"),
-    closeModalBtn: document.querySelector(".close-modal"),
+    closeModalBtns: document.querySelectorAll(".close-modal"),
     cancelBtn: document.getElementById("cancelBtn"),
   };
+
+  // ESC key handler
+  document.addEventListener("keydown", handleEscKey);
 
   // Search handler
   elements.searchInput?.addEventListener(
@@ -642,17 +682,27 @@ export const initializeBookingManagement = () => {
   });
 
   // Modal close handlers
-  elements.closeModalBtn?.addEventListener("click", () => {
-    elements.bookingModal?.classList.remove("active");
+  elements.closeModalBtns?.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const modal = btn.closest(".modal");
+      closeModal(modal);
+    });
   });
 
   elements.cancelBtn?.addEventListener("click", () => {
-    const form = document.getElementById("bookingForm");
-    if (form) form.reset();
-    elements.bookingModal?.classList.remove("active");
+    closeModal(elements.bookingModal);
+  });
+
+  document.getElementById("cancelCreateBtn")?.addEventListener("click", () => {
+    closeModal(elements.createBookingModal);
   });
 
   // Initialize bookings table
   initializeCreateBooking();
   loadBookings();
+
+  // Clean up when component unmounts or page changes
+  return () => {
+    document.removeEventListener("keydown", handleEscKey);
+  };
 };

@@ -9732,6 +9732,40 @@ var handleCreateBookingSubmit = /*#__PURE__*/function () {
     return _ref7.apply(this, arguments);
   };
 }();
+var closeModal = function closeModal(modalElement) {
+  if (!modalElement) return;
+  modalElement.classList.remove("active");
+
+  // If it's the edit booking modal, reset the form
+  var bookingForm = modalElement.querySelector("#bookingForm");
+  if (bookingForm) bookingForm.reset();
+
+  // If it's the create booking modal, reset the form
+  var createBookingForm = modalElement.querySelector("#createBookingForm");
+  if (createBookingForm) {
+    createBookingForm.reset();
+    // Reset the date dropdown
+    var dateSelect = document.getElementById("bookingDate");
+    if (dateSelect) {
+      dateSelect.innerHTML = '<option value="">Select Tour First</option>';
+      dateSelect.disabled = true;
+    }
+  }
+};
+
+// Handle ESC key press for all modals
+var handleEscKey = function handleEscKey(event) {
+  if (event.key === "Escape") {
+    var editModal = document.getElementById("bookingModal");
+    var createModal = document.getElementById("createBookingModal");
+    if (editModal !== null && editModal !== void 0 && editModal.classList.contains("active")) {
+      closeModal(editModal);
+    }
+    if (createModal !== null && createModal !== void 0 && createModal.classList.contains("active")) {
+      closeModal(createModal);
+    }
+  }
+};
 
 // Add these to your initialization function
 var initializeCreateBooking = function initializeCreateBooking() {
@@ -9754,7 +9788,7 @@ var initializeCreateBooking = function initializeCreateBooking() {
   });
 };
 var initializeBookingManagement = exports.initializeBookingManagement = function initializeBookingManagement() {
-  var _elements$searchInput, _elements$tourFilter, _elements$statusFilte, _elements$dateFromInp, _elements$dateToInput, _elements$prevPageBtn, _elements$nextPageBtn, _elements$bookingTabl, _elements$bookingForm, _elements$closeModalB, _elements$cancelBtn;
+  var _elements$searchInput, _elements$tourFilter, _elements$statusFilte, _elements$dateFromInp, _elements$dateToInput, _elements$prevPageBtn, _elements$nextPageBtn, _elements$bookingTabl, _elements$bookingForm, _elements$closeModalB, _elements$cancelBtn, _document$getElementB;
   var elements = {
     searchInput: document.getElementById("searchBooking"),
     tourFilter: document.getElementById("tourFilter"),
@@ -9765,10 +9799,14 @@ var initializeBookingManagement = exports.initializeBookingManagement = function
     nextPageBtn: document.getElementById("nextPage"),
     bookingTableBody: document.getElementById("bookingTableBody"),
     bookingModal: document.getElementById("bookingModal"),
+    createBookingModal: document.getElementById("createBookingModal"),
     bookingForm: document.getElementById("bookingForm"),
-    closeModalBtn: document.querySelector(".close-modal"),
+    closeModalBtns: document.querySelectorAll(".close-modal"),
     cancelBtn: document.getElementById("cancelBtn")
   };
+
+  // ESC key handler
+  document.addEventListener("keydown", handleEscKey);
 
   // Search handler
   (_elements$searchInput = elements.searchInput) === null || _elements$searchInput === void 0 || _elements$searchInput.addEventListener("input", (0, _dom.debounce)(function (e) {
@@ -9833,20 +9871,27 @@ var initializeBookingManagement = exports.initializeBookingManagement = function
   });
 
   // Modal close handlers
-  (_elements$closeModalB = elements.closeModalBtn) === null || _elements$closeModalB === void 0 || _elements$closeModalB.addEventListener("click", function () {
-    var _elements$bookingModa;
-    (_elements$bookingModa = elements.bookingModal) === null || _elements$bookingModa === void 0 || _elements$bookingModa.classList.remove("active");
+  (_elements$closeModalB = elements.closeModalBtns) === null || _elements$closeModalB === void 0 || _elements$closeModalB.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var modal = btn.closest(".modal");
+      closeModal(modal);
+    });
   });
   (_elements$cancelBtn = elements.cancelBtn) === null || _elements$cancelBtn === void 0 || _elements$cancelBtn.addEventListener("click", function () {
-    var _elements$bookingModa2;
-    var form = document.getElementById("bookingForm");
-    if (form) form.reset();
-    (_elements$bookingModa2 = elements.bookingModal) === null || _elements$bookingModa2 === void 0 || _elements$bookingModa2.classList.remove("active");
+    closeModal(elements.bookingModal);
+  });
+  (_document$getElementB = document.getElementById("cancelCreateBtn")) === null || _document$getElementB === void 0 || _document$getElementB.addEventListener("click", function () {
+    closeModal(elements.createBookingModal);
   });
 
   // Initialize bookings table
   initializeCreateBooking();
   loadBookings();
+
+  // Clean up when component unmounts or page changes
+  return function () {
+    document.removeEventListener("keydown", handleEscKey);
+  };
 };
 },{"../utils/alert":"utils/alert.js","../utils/dom":"utils/dom.js","../api/bookingManagementAPI":"api/bookingManagementAPI.js"}],"api/userManagementAPI.js":[function(require,module,exports) {
 "use strict";
