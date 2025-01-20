@@ -1,5 +1,11 @@
-// Importing custom AppError class for handling errors
-const AppError = require("../utils/appError");
+// controllers/errorController.js
+const {
+  AppError,
+  BookingError,
+  CriticalBookingError,
+} = require("../utils/appError");
+const FailedBooking = require("../models/failedBookingModel");
+const CriticalError = require("../models/criticalErrorModel");
 
 // Handle MongoDB CastError (invalid ObjectId)
 const handleCastErrorDB = err => {
@@ -47,57 +53,116 @@ const sendErrorDev = (err, req, res) => {
   }
 };
 
-// Send limited error information in production mode
-const sendErrorProduction = (err, req, res) => {
-  const renderError = (statusCode, title, message) => {
-    res.status(statusCode).render("error", {
-      title,
-      msg: message,
-    });
-  };
-
-  if (req.originalUrl.startsWith("/api")) {
-    const message =
-      err.statusCode === 404
-        ? "The requested resource could not be found."
-        : "Please try again later.";
-
-    res.status(err.statusCode).json({
-      status: err.status,
-      message: err.isOperational ? err.message : message,
-    });
-  } else {
-    const message = err.isOperational ? err.message : "Please try again later.";
-
-    renderError(err.statusCode || 500, "Something went wrong", message);
-
-    if (!err.isOperational) {
-      console.error(`ERROR 💥`, err);
+// Handler for booking errors
+const handleBookingError = async (err, req) => {
+  if (err instanceof BookingError) {
+    try {
+      await FailedBooking.create({
+        error: err.message,
+        sessionId: err.metadata.sessionId,
+        paymentIntentId: err.metadata.paymentIntentId,
+        metadata: err.metadata,
+        tourId: err.metadata.tourId,
+        userEmail: err.metadata.userEmail,
+        amount: err.metadata.amount,
+        timestamp: new Date(),
+      });
+    } catch (logError) {
+      console.error("Error logging failed booking:", logError);
     }
   }
+
+  if (err instanceof CriticalBookingError) {
+    try {
+      const criticalError = await CriticalError.create({
+        bookingError: err.message,
+        refundError: err.metadata.refundError,
+        sessionId: err.metadata.sessionId,
+        paymentIntentId: err.metadata.paymentIntentId,
+        metadata: err.metadata,
+        timestamp: new Date(),
+        priority: "critical",
+      });
+
+      // Notify support team
+      await criticalError.notifySupport();
+    } catch (logError) {
+      console.error("Error logging critical error:", logError);
+    }
+  }
+
+  return err;
+};
+
+// Send limited error information in production mode
+const sendErrorProduction = async (err, req, res) => {
+  // Log booking errors first
+  if (err instanceof BookingError || err instanceof CriticalBookingError) {
+    err = await handleBookingError(err, req);
+  }
+
+  if (req.originalUrl.startsWith("/api")) {
+    // API error response
+    if (err.isOperational) {
+      return res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message,
+        ...(err.requiresRefund && { requiresRefund: true }),
+        ...(err.metadata?.refundId && { refundId: err.metadata.refundId }),
+      });
+    }
+
+    // Log unexpected errors
+    console.error("ERROR 💥", err);
+    return res.status(500).json({
+      status: "error",
+      message: "Something went wrong!",
+    });
+  }
+
+  // Rendered website error
+  if (err.isOperational) {
+    return res.status(err.statusCode).render("error", {
+      title: "Something went wrong!",
+      msg: err.message,
+    });
+  }
+
+  // Log unexpected errors
+  console.error("ERROR 💥", err);
+  res.status(500).render("error", {
+    title: "Something went wrong!",
+    msg: "Please try again later.",
+  });
 };
 
 // Global error handling middleware
-module.exports = (err, req, res, next) => {
+module.exports = async (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
   if (process.env.NODE_ENV === "development") {
     sendErrorDev(err, req, res);
-  } else if (process.env.NODE_ENV === "production") {
+  } else {
     let error = { ...err };
     error.message = err.message;
     error.name = err.name;
+    error.metadata = err.metadata;
 
-    // Handle specific errors
+    // Handle all error types
     if (error.name === "CastError") error = handleCastErrorDB(error);
     if (error.code === 11000) error = handleDuplicateFieldsDB(error);
     if (error.name === "ValidationError")
       error = handleValidationErrorDB(error);
     if (error.name === "JsonWebTokenError") error = handleJWTError();
     if (error.name === "TokenExpiredError") error = handleJWTExpiredError();
+    if (
+      error.name === "BookingError" ||
+      error.name === "CriticalBookingError"
+    ) {
+      error = await handleBookingError(error, req);
+    }
 
-    // Send the appropriate error response
-    sendErrorProduction(error, req, res);
+    await sendErrorProduction(error, req, res);
   }
 };

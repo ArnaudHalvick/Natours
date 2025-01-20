@@ -7,34 +7,35 @@ const Booking = require("../models/bookingModel");
 
 const catchAsync = require("../utils/catchAsync");
 const factory = require("./handlerFactory");
-const AppError = require("../utils/appError");
+const {
+  AppError,
+  BookingError,
+  CriticalBookingError,
+} = require("../utils/appError");
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // Get Stripe checkout session for booking a tour
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
+  // 1. Verify tour exists and validate inputs first
   const tour = await Tour.findById(req.params.tourId);
   if (!tour) return next(new AppError("Tour not found.", 404));
 
   const { startDate, numParticipants } = req.query;
-  const token = req.cookies.jwt;
-  const successUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking&jwt=${token}`;
 
-  // Validate numParticipants
+  // 2. Validate numParticipants
   const numParticipantsInt = parseInt(numParticipants, 10);
   if (isNaN(numParticipantsInt) || numParticipantsInt < 1) {
     return next(new AppError("Invalid number of participants.", 400));
   }
 
-  // Normalize the date to UTC and strip time component
+  // 3. Validate and normalize date
   let startDateISO = "";
   if (startDate) {
     const dateObj = new Date(startDate);
     if (isNaN(dateObj.getTime())) {
       return next(new AppError("Invalid start date selected.", 400));
     }
-
-    // Normalize to UTC midnight
     const normalizedDate = new Date(
       dateObj.getUTCFullYear(),
       dateObj.getUTCMonth(),
@@ -45,7 +46,32 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError("Start date is required.", 400));
   }
 
-  // Create Stripe checkout session with normalized date
+  // 4. Verify available spots
+  const startDateObj = tour.startDates.find(sd => {
+    const tourDate = new Date(sd.date);
+    const normalizedTourDate = new Date(
+      tourDate.getUTCFullYear(),
+      tourDate.getUTCMonth(),
+      tourDate.getUTCDate(),
+    );
+    return normalizedTourDate.getTime() === new Date(startDateISO).getTime();
+  });
+
+  if (!startDateObj) {
+    return next(new AppError("Selected start date not available.", 400));
+  }
+
+  const availableSpots = tour.maxGroupSize - startDateObj.participants;
+  if (numParticipantsInt > availableSpots) {
+    return next(
+      new AppError(`Only ${availableSpots} spots left for this date.`, 400),
+    );
+  }
+
+  const token = req.cookies.jwt;
+  const successUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking&jwt=${token}`;
+
+  // 5. Create Stripe session with additional metadata
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     success_url: successUrl,
@@ -72,6 +98,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     metadata: {
       startDate: startDateISO,
       numParticipants: numParticipantsInt.toString(),
+      maxRetries: "3", // Add metadata for retry attempts
     },
   });
 
@@ -81,25 +108,68 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   });
 });
 
-// Function to create or update a booking after Stripe payment
+// Helper function to create booking with retries
 const createBookingCheckout = async session => {
+  const maxRetries = parseInt(session.metadata.maxRetries) || 3;
+  let lastError;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const booking = await processBooking(session);
+      return booking;
+    } catch (error) {
+      console.error(`Booking attempt ${attempt} failed:`, error);
+      lastError = error;
+
+      // If this was the last attempt, throw the error
+      if (attempt === maxRetries) {
+        throw new Error(
+          `Booking failed after ${maxRetries} attempts: ${lastError.message}`,
+        );
+      }
+
+      // Wait before retrying (exponential backoff)
+      await new Promise(resolve =>
+        setTimeout(resolve, Math.pow(2, attempt) * 1000),
+      );
+    }
+  }
+};
+
+// Helper function to process a single booking attempt
+const processBooking = async stripeSession => {
+  const tourId =
+    stripeSession.metadata.tourId || stripeSession.client_reference_id;
+  const userEmail = stripeSession.customer_email;
+  const price = stripeSession.amount_total / 100;
+  const { startDate, numParticipants, bookingId } = stripeSession.metadata;
+
+  // Start a MongoDB transaction
+  const mongoSession = await mongoose.startSession();
+  mongoSession.startTransaction();
+
   try {
-    const tourId = session.metadata.tourId || session.client_reference_id;
-    const userEmail = session.customer_email;
-    const price = session.amount_total / 100;
-    const { startDate, numParticipants, bookingId } = session.metadata;
-
-    const user = await User.findOne({ email: userEmail });
+    // 1. Find user and tour
+    const user = await User.findOne({ email: userEmail }).session(mongoSession);
     if (!user) {
-      throw new Error(`No user found with email: ${userEmail}`);
+      throw new BookingError("User not found", {
+        sessionId: stripeSession.id,
+        paymentIntentId: stripeSession.payment_intent,
+        userEmail,
+      });
     }
 
-    const tour = await Tour.findById(tourId);
+    const tour = await Tour.findById(tourId).session(mongoSession);
     if (!tour) {
-      throw new Error("Tour not found");
+      throw new BookingError("Tour not found", {
+        sessionId: stripeSession.id,
+        paymentIntentId: stripeSession.payment_intent,
+        tourId,
+        userEmail,
+      });
     }
 
-    // Normalize dates for comparison
+    // 2. Normalize dates and verify start date
     const bookingDate = new Date(startDate);
     const normalizedBookingDate = new Date(
       bookingDate.getUTCFullYear(),
@@ -107,7 +177,6 @@ const createBookingCheckout = async session => {
       bookingDate.getUTCDate(),
     );
 
-    // Find matching start date
     const startDateObj = tour.startDates.find(sd => {
       const tourDate = new Date(sd.date);
       const normalizedTourDate = new Date(
@@ -115,59 +184,145 @@ const createBookingCheckout = async session => {
         tourDate.getUTCMonth(),
         tourDate.getUTCDate(),
       );
-
       return normalizedTourDate.getTime() === normalizedBookingDate.getTime();
     });
 
     if (!startDateObj) {
-      throw new Error("Start date not found in tour");
+      throw new BookingError("Start date not found or no longer available", {
+        sessionId: stripeSession.id,
+        paymentIntentId: stripeSession.payment_intent,
+        tourId,
+        userEmail,
+        startDate,
+      });
     }
 
-    // Update participants count
+    // 3. Verify available spots
     const parsedParticipants = parseInt(numParticipants, 10);
-    startDateObj.participants += parsedParticipants;
-    tour.markModified("startDates");
-    await tour.save();
+    const availableSpots = tour.maxGroupSize - startDateObj.participants;
+    if (parsedParticipants > availableSpots) {
+      throw new BookingError(
+        `Only ${availableSpots} spots left for this date`,
+        {
+          sessionId: stripeSession.id,
+          paymentIntentId: stripeSession.payment_intent,
+          tourId,
+          userEmail,
+          startDate,
+          requested: parsedParticipants,
+          available: availableSpots,
+        },
+      );
+    }
 
+    // 4. Create or update booking
+    let booking;
     if (bookingId) {
-      // Add travelers case: Update existing booking
-      const booking = await Booking.findById(bookingId);
+      booking = await Booking.findById(bookingId).session(mongoSession);
       if (!booking) {
-        throw new Error("Booking not found");
+        throw new BookingError("Existing booking not found", {
+          sessionId: stripeSession.id,
+          paymentIntentId: stripeSession.payment_intent,
+          bookingId,
+        });
       }
 
       booking.numParticipants += parsedParticipants;
       booking.price += price;
-
-      // Add new payment intent to the array
       booking.paymentIntents.push({
-        id: session.payment_intent,
+        id: stripeSession.payment_intent,
         amount: price,
       });
 
-      await booking.save();
-      return booking;
+      await booking.save({ session: mongoSession });
     } else {
-      // New booking case: Create new booking
-      const booking = await Booking.create({
-        tour: tourId,
-        user: user._id,
-        price,
-        startDate: normalizedBookingDate,
-        numParticipants: parsedParticipants,
-        paymentIntentId: session.payment_intent, // Keep for backwards compatibility
-        paymentIntents: [
+      booking = await Booking.create(
+        [
           {
-            id: session.payment_intent,
-            amount: price,
+            tour: tourId,
+            user: user._id,
+            price,
+            startDate: normalizedBookingDate,
+            numParticipants: parsedParticipants,
+            paymentIntentId: stripeSession.payment_intent,
+            paymentIntents: [
+              {
+                id: stripeSession.payment_intent,
+                amount: price,
+              },
+            ],
           },
         ],
-      });
-      return booking;
+        { session: mongoSession },
+      );
+      booking = booking[0];
     }
+
+    // 5. Update tour participants
+    startDateObj.participants += parsedParticipants;
+    tour.markModified("startDates");
+    await tour.save({ session: mongoSession });
+
+    await mongoSession.commitTransaction();
+    return booking;
   } catch (error) {
-    console.error("Error in createBookingCheckout:", error);
-    throw error;
+    await mongoSession.abortTransaction();
+
+    // Rethrow BookingError or CriticalBookingError as is
+    if (
+      error instanceof BookingError ||
+      error instanceof CriticalBookingError
+    ) {
+      throw error;
+    }
+
+    // Wrap other errors as BookingError
+    throw new BookingError(error.message || "Booking creation failed", {
+      sessionId: stripeSession.id,
+      paymentIntentId: stripeSession.payment_intent,
+      originalError: error.message,
+    });
+  } finally {
+    mongoSession.endSession();
+  }
+};
+
+// Helper function to log failed bookings
+const logFailedBooking = async data => {
+  try {
+    // You can implement your logging mechanism here
+    // For example, saving to a FailedBooking collection
+    await FailedBooking.create({
+      error: data.error,
+      sessionId: data.session.id,
+      paymentIntentId: data.session.payment_intent,
+      refundId: data.refund?.id,
+      metadata: data.session.metadata,
+      timestamp: data.timestamp,
+    });
+  } catch (error) {
+    console.error("Error logging failed booking:", error);
+  }
+};
+
+// Helper function to log critical errors
+const logCriticalError = async data => {
+  try {
+    // You can implement your critical error logging mechanism here
+    // For example, saving to a CriticalError collection
+    await CriticalError.create({
+      bookingError: data.bookingError.message,
+      refundError: data.refundError.message,
+      sessionId: data.session.id,
+      paymentIntentId: data.session.payment_intent,
+      metadata: data.session.metadata,
+      timestamp: data.timestamp,
+    });
+
+    // You might also want to send notifications to support team
+    // await notifySupport(data);
+  } catch (error) {
+    console.error("Error logging critical error:", error);
   }
 };
 
@@ -253,7 +408,7 @@ exports.addTravelersToBooking = catchAsync(async (req, res, next) => {
 });
 
 // Stripe webhook handler for checkout session completion
-exports.webhookCheckout = (req, res, next) => {
+exports.webhookCheckout = async (req, res) => {
   const signature = req.headers["stripe-signature"];
   let event;
 
@@ -271,24 +426,42 @@ exports.webhookCheckout = (req, res, next) => {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
 
-    // Process booking asynchronously but make sure to handle all errors
-    createBookingCheckout(session)
-      .then(booking => {
-        res.status(200).json({ received: true });
-      })
-      .catch(err => {
-        console.error("Error processing booking:", err);
-        // Still return 200 to Stripe but include error info
-        res.status(200).json({
-          received: true,
-          error: err.message,
-          // Add extra context for debugging
-          context: {
-            isAddingTravelers: !!session.metadata.bookingId,
-            tourId: session.metadata.tourId || session.client_reference_id,
-          },
+    try {
+      const booking = await createBookingCheckout(session);
+      res.status(200).json({ received: true, success: true });
+    } catch (error) {
+      console.error("Error processing booking:", error);
+
+      try {
+        // Attempt to refund the payment
+        const refund = await stripe.refunds.create({
+          payment_intent: session.payment_intent,
+          reason: "requested_by_customer",
         });
-      });
+
+        throw new CriticalBookingError(
+          "Booking failed and payment was refunded",
+          {
+            sessionId: session.id,
+            paymentIntentId: session.payment_intent,
+            refundId: refund.id,
+            originalError: error.message,
+            metadata: session.metadata,
+          },
+        );
+      } catch (refundError) {
+        throw new CriticalBookingError(
+          "Critical: Booking failed and refund failed",
+          {
+            sessionId: session.id,
+            paymentIntentId: session.payment_intent,
+            bookingError: error.message,
+            refundError: refundError.message,
+            metadata: session.metadata,
+          },
+        );
+      }
+    }
   } else {
     res.status(200).json({ received: true });
   }

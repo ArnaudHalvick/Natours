@@ -1,13 +1,33 @@
+// utils/appError.js
 class AppError extends Error {
-  constructor(message, statusCode) {
-    super(message); // Call the parent constructor (Error) and pass the message
+  constructor(message, statusCode, metadata = {}) {
+    super(message);
 
     this.statusCode = statusCode;
-    this.status = `${statusCode}`.startsWith("4") ? "fail" : "error"; // 4xx are client errors, 5xx are server errors
-    this.isOperational = true; // Marking this error as an operational error
+    this.status = `${statusCode}`.startsWith("4") ? "fail" : "error";
+    this.isOperational = true;
+    this.metadata = metadata; // Add metadata for logging purposes
 
-    Error.captureStackTrace(this, this.constructor); // Captures the stack trace and excludes the constructor
+    Error.captureStackTrace(this, this.constructor);
   }
 }
 
-module.exports = AppError;
+// Add specific booking error classes
+class BookingError extends AppError {
+  constructor(message, metadata = {}) {
+    super(message, 400, metadata);
+    this.name = "BookingError";
+    this.requiresRefund = true; // Flag to indicate refund needed
+  }
+}
+
+class CriticalBookingError extends AppError {
+  constructor(message, metadata = {}) {
+    super(message, 500, metadata);
+    this.name = "CriticalBookingError";
+    this.requiresRefund = true;
+    this.requiresSupport = true; // Flag to indicate support team notification needed
+  }
+}
+
+module.exports = { AppError, BookingError, CriticalBookingError };
