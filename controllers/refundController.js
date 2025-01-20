@@ -204,20 +204,62 @@ exports.processRefund = catchAsync(async (req, res, next) => {
   }
 
   try {
-    // 1) Create a refund in Stripe
-    const paymentIntentId = booking.paymentIntentId;
-    const stripeRefund = await stripe.refunds.create({
-      payment_intent: paymentIntentId,
-      amount: refund.amount * 100, // Convert to cents
-    });
+    // 1) Calculate total paid by summing all PaymentIntents
+    const totalPaid = booking.paymentIntents.reduce(
+      (acc, pi) => acc + pi.amount,
+      0,
+    );
 
-    // 2) Mark this refund as processed
+    // Check if we're trying to refund more than was paid
+    if (refund.amount > totalPaid) {
+      return next(
+        new AppError(
+          `Refund amount ($${refund.amount.toFixed(
+            2,
+          )}) exceeds total paid ($${totalPaid.toFixed(2)}) for this booking.`,
+          400,
+        ),
+      );
+    }
+
+    // 2) Create partial refunds across paymentIntents if needed
+    let remainingToRefund = refund.amount;
+    const stripeRefundIds = [];
+
+    // Loop through paymentIntents in the order they were stored
+    for (const pi of booking.paymentIntents) {
+      if (remainingToRefund <= 0) break; // Done refunding
+
+      const canRefund = Math.min(pi.amount, remainingToRefund);
+      if (canRefund <= 0) continue;
+
+      // Create a partial refund in Stripe
+      const stripeResponse = await stripe.refunds.create({
+        payment_intent: pi.id,
+        amount: canRefund * 100, // convert to cents
+      });
+
+      stripeRefundIds.push(stripeResponse.id);
+      remainingToRefund -= canRefund;
+    }
+
+    // If somehow we couldn't fully refund the requested amount
+    if (remainingToRefund > 0) {
+      return next(
+        new AppError(
+          "Unable to fully refund the requested amount. Please check logs.",
+          500,
+        ),
+      );
+    }
+
+    // 3) Mark this refund as processed
     refund.status = "processed";
     refund.processedAt = new Date();
-    refund.stripeRefundId = stripeRefund.id;
+    refund.stripeRefundId = stripeRefundIds.join(", ");
     await refund.save();
 
-    // 3) Find the correct Tour and reduce participants for the matching date
+    // 4) Reduce participants in the correct Tour date
     const tour = await Tour.findById(booking.tour);
     if (tour) {
       // Normalize both booking.startDate and each tour date to midnight UTC
@@ -230,9 +272,9 @@ exports.processRefund = catchAsync(async (req, res, next) => {
       const bookingMidnight = toUtcMidnight(booking.startDate).getTime();
 
       // Find the matching tour date
-      const dateObj = tour.startDates.find(sd => {
-        return toUtcMidnight(sd.date).getTime() === bookingMidnight;
-      });
+      const dateObj = tour.startDates.find(
+        sd => toUtcMidnight(sd.date).getTime() === bookingMidnight,
+      );
 
       if (dateObj) {
         dateObj.participants = Math.max(
@@ -244,13 +286,13 @@ exports.processRefund = catchAsync(async (req, res, next) => {
       }
     }
 
-    // 4) Mark the booking as refunded
+    // 5) Mark the booking as refunded
     booking.refunded = true;
     booking.paid = false;
     booking.numParticipants = 0; // Ensures no participants remain on a refunded booking
     await booking.save();
 
-    // 5) Respond to client
+    // 6) Respond to client
     res.status(200).json({
       status: "success",
       data: refund,
