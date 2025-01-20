@@ -62,8 +62,6 @@ const bookingSchema = new mongoose.Schema(
         },
       },
     ],
-    // Keep paymentIntentId for backwards compatibility
-    paymentIntentId: String,
   },
   {
     toJSON: { virtuals: true },
