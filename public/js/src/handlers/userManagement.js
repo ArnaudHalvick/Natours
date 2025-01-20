@@ -19,9 +19,6 @@ const LIMIT = 10;
 const renderUserRow = (user, currentUserId) => {
   const isCurrentUser = user._id === currentUserId;
   const inactiveClass = !user.active ? "user--inactive" : "";
-  const emailStatus = user.emailConfirmed
-    ? '<span class="badge badge--success">Confirmed</span>'
-    : '<span class="badge badge--warning">Pending</span>';
 
   return `
     <tr class="${inactiveClass}">
@@ -55,17 +52,20 @@ const renderUserRow = (user, currentUserId) => {
                 Delete
               </button>
               ${
-                user.active
-                  ? `
-                <button
-                  class="btn btn--small btn--orange btn--resend"
-                  data-id="${user._id}"
-                  data-email="${user.email}"
-                >
-                  Resend Email
-                </button>
-              `
-                  : ""
+                user.emailConfirmed
+                  ? `<button
+                      class="btn btn--small btn--orange btn--confirmed disabled"
+                      disabled
+                    >
+                      Email Confirmed
+                    </button>`
+                  : `<button
+                      class="btn btn--small btn--orange btn--resend"
+                      data-id="${user._id}"
+                      data-email="${user.email}"
+                    >
+                      Resend Email
+                    </button>`
               }
             `
         }

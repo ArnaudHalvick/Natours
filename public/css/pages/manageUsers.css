@@ -74,10 +74,19 @@
 
 .user-table .btn--edit,
 .user-table .btn--delete,
-.user-table .btn--resend {
+.user-table .btn--resend,
+.user-table .btn.disabled {
   padding: 0.8rem 1.5rem !important;
   font-size: 1.2rem !important;
   border-radius: 4px;
+}
+
+.btn.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #ccc !important;
+  border-color: #bbb !important;
+  color: #666 !important;
 }
 
 /* ==============================================
