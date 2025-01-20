@@ -403,6 +403,133 @@ const handleSaveBooking = async (bookingId, formData) => {
   }
 };
 
+let availableDates = [];
+
+const handleCreateBookingClick = () => {
+  const modal = document.getElementById("createBookingModal");
+  if (modal) {
+    modal.classList.add("active");
+    // Reset form
+    document.getElementById("createBookingForm").reset();
+    // Reset the date dropdown
+    const dateSelect = document.getElementById("bookingDate");
+    dateSelect.innerHTML = '<option value="">Select Tour First</option>';
+    dateSelect.disabled = true;
+  }
+};
+
+const updateAvailableDates = async tourId => {
+  try {
+    const tour = await fetchTourById(tourId);
+    const dateSelect = document.getElementById("bookingDate");
+    dateSelect.innerHTML = '<option value="">Select Date</option>';
+
+    if (tour && tour.startDates) {
+      // Sort dates chronologically
+      availableDates = tour.startDates
+        .filter(date => new Date(date.date) >= new Date()) // Only future dates
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      availableDates.forEach(dateObj => {
+        const availableSpots = tour.maxGroupSize - (dateObj.participants || 0);
+        if (availableSpots > 0) {
+          const option = document.createElement("option");
+          option.value = dateObj.date;
+          option.textContent = `${new Date(dateObj.date).toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            },
+          )} (${availableSpots} spots available)`;
+          dateSelect.appendChild(option);
+        }
+      });
+    }
+
+    dateSelect.disabled = false;
+  } catch (err) {
+    console.error("Error fetching tour dates:", err);
+    showAlert("error", "Error loading tour dates");
+  }
+};
+
+const handleTourChange = async e => {
+  const tourId = e.target.value;
+  if (tourId) {
+    await updateAvailableDates(tourId);
+    // Set default price from tour
+    try {
+      const tour = await fetchTourById(tourId);
+      if (tour) {
+        document.getElementById("bookingPrice").value = tour.price;
+      }
+    } catch (err) {
+      console.error("Error fetching tour price:", err);
+    }
+  } else {
+    const dateSelect = document.getElementById("bookingDate");
+    dateSelect.innerHTML = '<option value="">Select Tour First</option>';
+    dateSelect.disabled = true;
+    document.getElementById("bookingPrice").value = "";
+  }
+};
+
+const handleCreateBookingSubmit = async e => {
+  e.preventDefault();
+
+  const form = e.target;
+  const tourId = form.bookingTour.value;
+  const startDate = form.bookingDate.value;
+  const userId = form.bookingUserId.value;
+  const numParticipants = parseInt(form.bookingParticipants.value, 10);
+  const price = parseFloat(form.bookingPrice.value);
+  const paid = form.bookingPaid.value === "true";
+
+  try {
+    const res = await axios.post("/api/v1/bookings/manual", {
+      tourId,
+      userId,
+      startDate,
+      numParticipants,
+      price,
+      paid,
+    });
+
+    if (res.data.status === "success") {
+      showAlert("success", "Booking created successfully!");
+      document.getElementById("createBookingModal").classList.remove("active");
+      await loadBookings(); // Refresh the bookings table
+    }
+  } catch (err) {
+    showAlert("error", err.response?.data?.message || "Error creating booking");
+  }
+};
+
+// Add these to your initialization function
+const initializeCreateBooking = () => {
+  const createBtn = document.getElementById("createBookingBtn");
+  const createModal = document.getElementById("createBookingModal");
+  const createForm = document.getElementById("createBookingForm");
+  const tourSelect = document.getElementById("bookingTour");
+  const cancelBtn = document.getElementById("cancelCreateBtn");
+  const closeBtn = createModal?.querySelector(".close-modal");
+
+  createBtn?.addEventListener("click", handleCreateBookingClick);
+  createForm?.addEventListener("submit", handleCreateBookingSubmit);
+  tourSelect?.addEventListener("change", handleTourChange);
+
+  // Close modal handlers
+  cancelBtn?.addEventListener("click", () => {
+    createModal?.classList.remove("active");
+  });
+
+  closeBtn?.addEventListener("click", () => {
+    createModal?.classList.remove("active");
+  });
+};
+
 export const initializeBookingManagement = () => {
   const elements = {
     searchInput: document.getElementById("searchBooking"),
@@ -505,5 +632,6 @@ export const initializeBookingManagement = () => {
   });
 
   // Initialize bookings table
+  initializeCreateBooking();
   loadBookings();
 };

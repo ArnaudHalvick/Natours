@@ -705,8 +705,106 @@ exports.getAllUserTransactions = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.createManualBooking = catchAsync(async (req, res, next) => {
+  const { tourId, userId, startDate, numParticipants, price, paid } = req.body;
+
+  // 1. Start a MongoDB transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    // 2. Verify tour exists and has available spots
+    const tour = await Tour.findById(tourId).session(session);
+    if (!tour) {
+      throw new AppError("Tour not found", 404);
+    }
+
+    // 3. Verify user exists
+    const user = await User.findById(userId).session(session);
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    // 4. Find the specific start date and verify availability
+    const bookingDate = new Date(startDate);
+    const normalizedBookingDate = new Date(
+      Date.UTC(
+        bookingDate.getUTCFullYear(),
+        bookingDate.getUTCMonth(),
+        bookingDate.getUTCDate(),
+      ),
+    );
+
+    const startDateObj = tour.startDates.find(sd => {
+      const tourDate = new Date(sd.date);
+      const normalizedTourDate = new Date(
+        Date.UTC(
+          tourDate.getUTCFullYear(),
+          tourDate.getUTCMonth(),
+          tourDate.getUTCDate(),
+        ),
+      );
+      return normalizedTourDate.getTime() === normalizedBookingDate.getTime();
+    });
+
+    if (!startDateObj) {
+      throw new AppError("Selected start date not available", 400);
+    }
+
+    const availableSpots = tour.maxGroupSize - startDateObj.participants;
+    if (numParticipants > availableSpots) {
+      throw new AppError(
+        `Only ${availableSpots} spots available for this date`,
+        400,
+      );
+    }
+
+    // 5. Create the booking
+    const booking = await Booking.create(
+      [
+        {
+          tour: tourId,
+          user: userId,
+          price,
+          startDate: normalizedBookingDate,
+          numParticipants,
+          paid,
+          paymentIntents: paid
+            ? [
+                {
+                  id: "MANUAL-" + new Date().getTime(),
+                  amount: price,
+                },
+              ]
+            : [],
+        },
+      ],
+      { session },
+    );
+
+    // 6. Update tour participants
+    startDateObj.participants += numParticipants;
+    tour.markModified("startDates");
+    await tour.save({ session });
+
+    // 7. Commit the transaction
+    await session.commitTransaction();
+
+    res.status(201).json({
+      status: "success",
+      data: {
+        data: booking[0],
+      },
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+});
+
 // CRUD operations for bookings using the handler factory
-exports.createBooking = factory.createOne(Booking);
 exports.getBooking = factory.getOne(Booking);
 exports.updateBooking = factory.updateOne(Booking);
 exports.deleteBooking = factory.deleteOne(Booking);

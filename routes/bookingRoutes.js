@@ -24,12 +24,12 @@ router.use(authController.protect, authController.restrictTo("admin"));
 // Admin routes for managing bookings
 router.get("/regex", bookingController.getAllBookingsRegex);
 
-router.route("/").post(bookingController.createBooking);
-
 router
   .route("/:id")
   .get(bookingController.getBooking)
   .patch(bookingController.updateBooking)
   .delete(bookingController.deleteBooking);
+
+router.post("/manual", bookingController.createManualBooking);
 
 module.exports = router;

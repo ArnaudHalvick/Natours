@@ -57,7 +57,7 @@ block content
                     type='date',
                     name='startDateTo'
                   )
-
+                  button.btn.btn--small.btn--green#createBookingBtn Create Booking
 
           // Bookings Table
           .booking-table
@@ -80,6 +80,60 @@ block content
             button.btn.btn--small#prevPage Previous
             span#pageInfo Page 1 of 1
             button.btn.btn--small#nextPage Next
+
+          // Create Booking Modal
+          .modal#createBookingModal
+            .modal-content
+              span.close-modal &times;
+              h3#modalTitle Create New Booking
+              form#createBookingForm.form
+                .form__group
+                  label.form__label(for='bookingTour') Tour*
+                  select#bookingTour.form__input(required)
+                    option(value='') Select Tour
+                    if tours && tours.length
+                      each tour in tours
+                        option(value=`${tour._id}`)= tour.name
+                
+                .form__group
+                  label.form__label(for='bookingDate') Start Date*
+                  select#bookingDate.form__input(required)
+                    option(value='') Select Tour First
+                
+                .form__group
+                  label.form__label(for='bookingUserId') User ID*
+                  input#bookingUserId.form__input(
+                    type='text',
+                    required,
+                    placeholder='User ID'
+                  )
+                
+                .form__group
+                  label.form__label(for='bookingParticipants') Number of Participants*
+                  input#bookingParticipants.form__input(
+                    type='number',
+                    required,
+                    min='1'
+                  )
+                
+                .form__group
+                  label.form__label(for='bookingPrice') Price*
+                  input#bookingPrice.form__input(
+                    type='number',
+                    required,
+                    step='0.01',
+                    min='0'
+                  )
+                
+                .form__group
+                  label.form__label(for='bookingPaid') Payment Status
+                  select#bookingPaid.form__input
+                    option(value='true') Paid
+                    option(value='false') Unpaid
+                
+                .form__group.right
+                  button.btn.btn--small.btn--grey#cancelCreateBtn(type='button') Cancel
+                  button.btn.btn--small.btn--green(type='submit') Create Booking
 
 
           // Edit Booking Modal

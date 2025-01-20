@@ -1,6 +1,26 @@
 // api/bookingManagementAPI.js
 import axios from "axios";
 
+// helper function to validate booking data
+export const validateBookingData = data => {
+  const errors = {};
+
+  if (!data.tourId) errors.tourId = "Tour is required";
+  if (!data.userId) errors.userId = "User ID is required";
+  if (!data.startDate) errors.startDate = "Start date is required";
+  if (!data.numParticipants || data.numParticipants < 1) {
+    errors.numParticipants = "Number of participants must be at least 1";
+  }
+  if (!data.price || data.price < 0) {
+    errors.price = "Price must be a positive number";
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+};
+
 export const fetchBookings = async (
   page,
   limit,
@@ -53,7 +73,17 @@ export const fetchBookingById = async bookingId => {
 export const fetchTourById = async tourId => {
   try {
     const res = await axios.get(`/api/v1/tours/${tourId}`);
-    return res.data.data.data;
+    const tour = res.data.data.data;
+
+    // Ensure startDates are properly formatted
+    if (tour.startDates) {
+      tour.startDates = tour.startDates.map(date => ({
+        ...date,
+        participants: date.participants || 0,
+      }));
+    }
+
+    return tour;
   } catch (err) {
     throw err;
   }
@@ -97,6 +127,19 @@ export const processAdminRefund = async bookingId => {
       `/api/v1/refunds/process/${refund.data.data._id}`,
     );
     return result.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const createManualBooking = async bookingData => {
+  try {
+    const res = await axios({
+      method: "POST",
+      url: "/api/v1/bookings/manual",
+      data: bookingData,
+    });
+    return res.data;
   } catch (err) {
     throw err;
   }
