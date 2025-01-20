@@ -67,9 +67,6 @@ const bookingSchema = new mongoose.Schema(
   },
 );
 
-// Indexes
-bookingSchema.index({ tour: 1, user: 1, startDate: 1 }, { unique: true });
-
 // Middleware to populate references
 const autoPopulate = function (next) {
   this.populate("user").populate({
