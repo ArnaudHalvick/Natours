@@ -66,6 +66,9 @@ block content
               span.close-modal &times;
               h3#modalTitle Create New User
               form#userForm.form
+                .form__group.edit-only
+                  label.form__label(for='userId') User ID
+                  input#userId.form__input(type='text', readonly)
                 .form__group
                   label.form__label(for='userName') Name
                   input#userName.form__input(type='text', required)

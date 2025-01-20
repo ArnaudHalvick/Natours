@@ -292,6 +292,7 @@ const initializeEventListeners = () => {
         document.getElementById("userName").value = name;
         document.getElementById("userRole").value = role;
         document.getElementById("userActive").value = active;
+        document.getElementById("userId").value = userId; // Populate the user ID field
         toggleFormFields(form, false);
         document.getElementById("modalTitle").textContent = "Edit User";
         toggleModal("userModal", true);

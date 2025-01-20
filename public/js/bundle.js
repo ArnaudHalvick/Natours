@@ -10269,6 +10269,7 @@ var initializeEventListeners = function initializeEventListeners() {
                 document.getElementById("userName").value = name;
                 document.getElementById("userRole").value = role;
                 document.getElementById("userActive").value = active;
+                document.getElementById("userId").value = userId; // Populate the user ID field
                 (0, _dom.toggleFormFields)(form, false);
                 document.getElementById("modalTitle").textContent = "Edit User";
                 (0, _dom.toggleModal)("userModal", true);
