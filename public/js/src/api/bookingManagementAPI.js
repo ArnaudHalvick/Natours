@@ -82,3 +82,22 @@ export const updateBooking = async (bookingId, data) => {
     throw err;
   }
 };
+
+export const processAdminRefund = async bookingId => {
+  try {
+    // Create a refund request
+    const refund = await axios.post(`/api/v1/refunds/request/${bookingId}`);
+
+    if (refund.data.status !== "success") {
+      throw new Error("Failed to create refund request");
+    }
+
+    // Process the refund immediately (admin endpoint)
+    const result = await axios.patch(
+      `/api/v1/refunds/process/${refund.data.data._id}`,
+    );
+    return result.data;
+  } catch (err) {
+    throw err;
+  }
+};

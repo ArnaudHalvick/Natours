@@ -7,6 +7,7 @@ import {
   updateBooking,
   fetchTourById,
   updateTourDates,
+  processAdminRefund,
 } from "../api/bookingManagementAPI";
 
 /**
@@ -120,7 +121,7 @@ const handleEditClick = async bookingId => {
     }
 
     // Store the original date and participants in dataset (for later comparison)
-    form.dataset.originalDate = booking.startDate; // Full ISO date from backend
+    form.dataset.originalDate = booking.startDate;
     form.dataset.originalParticipants = booking.numParticipants;
     form.dataset.tourId = booking.tour._id;
 
@@ -219,10 +220,62 @@ const handleEditClick = async bookingId => {
     // Attach bookingId to form so we know what to PATCH on submit
     form.dataset.bookingId = bookingId;
 
+    // Add refund button if booking is paid and not refunded
+    const actionBtns = form.querySelector(".action-btns");
+    if (actionBtns) {
+      // First, remove any existing refund button (cleanup)
+      const existingRefundBtn = actionBtns.querySelector(".btn--red");
+      if (existingRefundBtn) {
+        existingRefundBtn.remove();
+      }
+
+      // Add new refund button if booking is paid and not refunded
+      if (booking.paid && !booking.refunded) {
+        const refundBtn = document.createElement("button");
+        refundBtn.className = "btn btn--small btn--red";
+        refundBtn.textContent = "Process Refund";
+        refundBtn.onclick = e => {
+          e.preventDefault();
+          handleRefundBooking(bookingId, booking.price);
+        };
+
+        // Insert before the cancel button
+        const cancelBtn = actionBtns.querySelector("#cancelBtn");
+        if (cancelBtn) {
+          actionBtns.insertBefore(refundBtn, cancelBtn);
+        }
+      }
+    }
+
     // Show modal
     modal.classList.add("active");
   } catch (err) {
     showAlert("error", `Error loading booking details: ${err.message}`);
+  }
+};
+
+const handleRefundBooking = async (bookingId, price) => {
+  // Show confirmation dialog
+  const confirmed = window.confirm(
+    `Are you sure you want to process a refund for $${price.toLocaleString()}? This action cannot be undone.`,
+  );
+
+  if (!confirmed) return;
+
+  try {
+    const result = await processAdminRefund(bookingId);
+
+    if (result.status === "success") {
+      showAlert("success", "Refund processed successfully!");
+      const modal = document.getElementById("bookingModal");
+      modal?.classList.remove("active");
+      await loadBookings(); // Reload the bookings table
+    }
+  } catch (err) {
+    showAlert(
+      "error",
+      err.response?.data?.message || err.message || "Error processing refund",
+    );
   }
 };
 

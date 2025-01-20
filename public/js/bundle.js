@@ -8831,12 +8831,13 @@ var initReviewManagement = exports.initReviewManagement = function initReviewMan
   handleReviewLoad();
 };
 },{"../utils/dom":"utils/dom.js","../utils/alert":"utils/alert.js","../utils/pagination":"utils/pagination.js","../api/reviewManagementAPI":"api/reviewManagementAPI.js"}],"api/bookingManagementAPI.js":[function(require,module,exports) {
+var define;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.updateTourDates = exports.updateBooking = exports.fetchTourById = exports.fetchBookings = exports.fetchBookingById = void 0;
+exports.updateTourDates = exports.updateBooking = exports.processAdminRefund = exports.fetchTourById = exports.fetchBookings = exports.fetchBookingById = void 0;
 var _axios = _interopRequireDefault(require("axios"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
@@ -9001,7 +9002,44 @@ var updateBooking = exports.updateBooking = /*#__PURE__*/function () {
     return _ref5.apply(this, arguments);
   };
 }();
+var processAdminRefund = exports.processAdminRefund = /*#__PURE__*/function () {
+  var _ref6 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee6(bookingId) {
+    var refund, result;
+    return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+      while (1) switch (_context6.prev = _context6.next) {
+        case 0:
+          _context6.prev = 0;
+          _context6.next = 3;
+          return _axios.default.post("/api/v1/refunds/request/".concat(bookingId));
+        case 3:
+          refund = _context6.sent;
+          if (!(refund.data.status !== "success")) {
+            _context6.next = 6;
+            break;
+          }
+          throw new Error("Failed to create refund request");
+        case 6:
+          _context6.next = 8;
+          return _axios.default.patch("/api/v1/refunds/process/".concat(refund.data.data._id));
+        case 8:
+          result = _context6.sent;
+          return _context6.abrupt("return", result.data);
+        case 12:
+          _context6.prev = 12;
+          _context6.t0 = _context6["catch"](0);
+          throw _context6.t0;
+        case 15:
+        case "end":
+          return _context6.stop();
+      }
+    }, _callee6, null, [[0, 12]]);
+  }));
+  return function processAdminRefund(_x14) {
+    return _ref6.apply(this, arguments);
+  };
+}();
 },{"axios":"../../../node_modules/axios/index.js"}],"handlers/bookingManagement.js":[function(require,module,exports) {
+var define;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9095,7 +9133,7 @@ var loadBookings = /*#__PURE__*/function () {
 }();
 var handleEditClick = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(bookingId) {
-    var form, modal, booking, tour, paymentInfoElement, _booking$paymentInten, startDateInput, startDateSelect, formattedCurrentDate, numParticipantsInput, priceInput, paidInput, missingInputs;
+    var form, modal, booking, tour, paymentInfoElement, _booking$paymentInten, startDateInput, startDateSelect, formattedCurrentDate, numParticipantsInput, priceInput, paidInput, missingInputs, actionBtns, existingRefundBtn, refundBtn, cancelBtn;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
@@ -9126,7 +9164,7 @@ var handleEditClick = /*#__PURE__*/function () {
           return _context2.abrupt("return");
         case 13:
           // Store the original date and participants in dataset (for later comparison)
-          form.dataset.originalDate = booking.startDate; // Full ISO date from backend
+          form.dataset.originalDate = booking.startDate;
           form.dataset.originalParticipants = booking.numParticipants;
           form.dataset.tourId = booking.tour._id;
 
@@ -9211,46 +9249,118 @@ var handleEditClick = /*#__PURE__*/function () {
           // Attach bookingId to form so we know what to PATCH on submit
           form.dataset.bookingId = bookingId;
 
+          // Add refund button if booking is paid and not refunded
+          actionBtns = form.querySelector(".action-btns");
+          if (actionBtns) {
+            // First, remove any existing refund button (cleanup)
+            existingRefundBtn = actionBtns.querySelector(".btn--red");
+            if (existingRefundBtn) {
+              existingRefundBtn.remove();
+            }
+
+            // Add new refund button if booking is paid and not refunded
+            if (booking.paid && !booking.refunded) {
+              refundBtn = document.createElement("button");
+              refundBtn.className = "btn btn--small btn--red";
+              refundBtn.textContent = "Process Refund";
+              refundBtn.onclick = function (e) {
+                e.preventDefault();
+                handleRefundBooking(bookingId, booking.price);
+              };
+
+              // Insert before the cancel button
+              cancelBtn = actionBtns.querySelector("#cancelBtn");
+              if (cancelBtn) {
+                actionBtns.insertBefore(refundBtn, cancelBtn);
+              }
+            }
+          }
+
           // Show modal
           modal.classList.add("active");
-          _context2.next = 42;
+          _context2.next = 44;
           break;
-        case 39:
-          _context2.prev = 39;
+        case 41:
+          _context2.prev = 41;
           _context2.t0 = _context2["catch"](0);
           (0, _alert.showAlert)("error", "Error loading booking details: ".concat(_context2.t0.message));
-        case 42:
+        case 44:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 39]]);
+    }, _callee2, null, [[0, 41]]);
   }));
   return function handleEditClick(_x) {
     return _ref2.apply(this, arguments);
   };
 }();
-var handleSaveBooking = /*#__PURE__*/function () {
-  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(bookingId, formData) {
-    var form, originalDate, originalParticipants, tourId, newParticipants, tour, oldDateStr, newDateStr, findDateObj, oldDateObj, newDateObj, availableSpots, dateObj, bookingData, result, modal, _err$response2;
+var handleRefundBooking = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(bookingId, price) {
+    var confirmed, result, modal, _err$response2;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
-          _context3.prev = 0;
+          // Show confirmation dialog
+          confirmed = window.confirm("Are you sure you want to process a refund for $".concat(price.toLocaleString(), "? This action cannot be undone."));
+          if (confirmed) {
+            _context3.next = 3;
+            break;
+          }
+          return _context3.abrupt("return");
+        case 3:
+          _context3.prev = 3;
+          _context3.next = 6;
+          return (0, _bookingManagementAPI.processAdminRefund)(bookingId);
+        case 6:
+          result = _context3.sent;
+          if (!(result.status === "success")) {
+            _context3.next = 13;
+            break;
+          }
+          (0, _alert.showAlert)("success", "Refund processed successfully!");
+          modal = document.getElementById("bookingModal");
+          modal === null || modal === void 0 || modal.classList.remove("active");
+          _context3.next = 13;
+          return loadBookings();
+        case 13:
+          _context3.next = 18;
+          break;
+        case 15:
+          _context3.prev = 15;
+          _context3.t0 = _context3["catch"](3);
+          (0, _alert.showAlert)("error", ((_err$response2 = _context3.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || _context3.t0.message || "Error processing refund");
+        case 18:
+        case "end":
+          return _context3.stop();
+      }
+    }, _callee3, null, [[3, 15]]);
+  }));
+  return function handleRefundBooking(_x2, _x3) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+var handleSaveBooking = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(bookingId, formData) {
+    var form, originalDate, originalParticipants, tourId, newParticipants, tour, oldDateStr, newDateStr, findDateObj, oldDateObj, newDateObj, availableSpots, dateObj, bookingData, result, modal, _err$response3;
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
+        case 0:
+          _context4.prev = 0;
           form = document.getElementById("bookingForm");
           originalDate = form.dataset.originalDate;
           originalParticipants = parseInt(form.dataset.originalParticipants, 10);
           tourId = form.dataset.tourId;
           newParticipants = parseInt(formData.numParticipants, 10);
           if (tourId) {
-            _context3.next = 8;
+            _context4.next = 8;
             break;
           }
           throw new Error("Tour ID not found");
         case 8:
-          _context3.next = 10;
+          _context4.next = 10;
           return (0, _bookingManagementAPI.fetchTourById)(tourId);
         case 10:
-          tour = _context3.sent;
+          tour = _context4.sent;
           // Normalize both old & new date strings to "YYYY-MM-DD" to avoid timezone pitfalls
           oldDateStr = toUtcYyyymmdd(originalDate);
           newDateStr = toUtcYyyymmdd(formData.startDate); // Helper to find a date object in the tour startDates array by normalized date
@@ -9261,13 +9371,13 @@ var handleSaveBooking = /*#__PURE__*/function () {
             });
           }; // If the date changed, we move participants from old date to new date
           if (!(oldDateStr !== newDateStr)) {
-            _context3.next = 28;
+            _context4.next = 28;
             break;
           }
           oldDateObj = findDateObj(tour.startDates, oldDateStr);
           newDateObj = findDateObj(tour.startDates, newDateStr);
           if (!(!oldDateObj || !newDateObj)) {
-            _context3.next = 19;
+            _context4.next = 19;
             break;
           }
           throw new Error("Could not find one or both dates in tour data");
@@ -9275,7 +9385,7 @@ var handleSaveBooking = /*#__PURE__*/function () {
           // Check that the new date actually has enough available spots
           availableSpots = tour.maxGroupSize - newDateObj.participants;
           if (!(availableSpots < newParticipants)) {
-            _context3.next = 22;
+            _context4.next = 22;
             break;
           }
           throw new Error("Only ".concat(availableSpots, " spots available for the selected date"));
@@ -9287,20 +9397,20 @@ var handleSaveBooking = /*#__PURE__*/function () {
           newDateObj.participants += newParticipants;
 
           // Update the tour document with new participant counts
-          _context3.next = 26;
+          _context4.next = 26;
           return (0, _bookingManagementAPI.updateTourDates)(tourId, tour.startDates);
         case 26:
-          _context3.next = 38;
+          _context4.next = 38;
           break;
         case 28:
           if (!(originalParticipants !== newParticipants)) {
-            _context3.next = 38;
+            _context4.next = 38;
             break;
           }
           // The user only changed the participant count (same date)
           dateObj = findDateObj(tour.startDates, oldDateStr);
           if (dateObj) {
-            _context3.next = 32;
+            _context4.next = 32;
             break;
           }
           throw new Error("Could not find tour date");
@@ -9312,12 +9422,12 @@ var handleSaveBooking = /*#__PURE__*/function () {
 
           // Check we did not exceed max group size
           if (!(dateObj.participants > tour.maxGroupSize)) {
-            _context3.next = 36;
+            _context4.next = 36;
             break;
           }
           throw new Error("Cannot exceed maximum group size of ".concat(tour.maxGroupSize));
         case 36:
-          _context3.next = 38;
+          _context4.next = 38;
           return (0, _bookingManagementAPI.updateTourDates)(tourId, tour.startDates);
         case 38:
           // Update the booking document itself
@@ -9327,34 +9437,34 @@ var handleSaveBooking = /*#__PURE__*/function () {
             startDate: newDateStr,
             numParticipants: newParticipants
           });
-          _context3.next = 41;
+          _context4.next = 41;
           return (0, _bookingManagementAPI.updateBooking)(bookingId, bookingData);
         case 41:
-          result = _context3.sent;
+          result = _context4.sent;
           if (!(result.status === "success")) {
-            _context3.next = 48;
+            _context4.next = 48;
             break;
           }
           (0, _alert.showAlert)("success", "Booking updated successfully!");
           modal = document.getElementById("bookingModal");
           modal === null || modal === void 0 || modal.classList.remove("active");
-          _context3.next = 48;
+          _context4.next = 48;
           return loadBookings();
         case 48:
-          _context3.next = 53;
+          _context4.next = 53;
           break;
         case 50:
-          _context3.prev = 50;
-          _context3.t0 = _context3["catch"](0);
-          (0, _alert.showAlert)("error", ((_err$response2 = _context3.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || _context3.t0.message || "Error updating booking");
+          _context4.prev = 50;
+          _context4.t0 = _context4["catch"](0);
+          (0, _alert.showAlert)("error", ((_err$response3 = _context4.t0.response) === null || _err$response3 === void 0 || (_err$response3 = _err$response3.data) === null || _err$response3 === void 0 ? void 0 : _err$response3.message) || _context4.t0.message || "Error updating booking");
         case 53:
         case "end":
-          return _context3.stop();
+          return _context4.stop();
       }
-    }, _callee3, null, [[0, 50]]);
+    }, _callee4, null, [[0, 50]]);
   }));
-  return function handleSaveBooking(_x2, _x3) {
-    return _ref3.apply(this, arguments);
+  return function handleSaveBooking(_x4, _x5) {
+    return _ref4.apply(this, arguments);
   };
 }();
 var initializeBookingManagement = exports.initializeBookingManagement = function initializeBookingManagement() {
