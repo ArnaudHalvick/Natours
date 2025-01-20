@@ -1,5 +1,3 @@
-// bookingModel.js
-
 const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema(
@@ -27,12 +25,12 @@ const bookingSchema = new mongoose.Schema(
       required: [true, "Booking must have a number of participants"],
       validate: {
         validator: function (value) {
-          // If the booking is paid/active, require at least 1
-          if (this.paid) {
-            return value >= 1;
+          // Allow 0 participants only if booking is refunded
+          if (this.paid === "refunded") {
+            return value >= 0;
           }
-          // If booking is no longer paid (canceled/refunded), 0 is allowed
-          return value >= 0;
+          // Otherwise require at least 1
+          return value >= 1;
         },
         message:
           "Number of participants must be at least 1 for active bookings",
@@ -43,25 +41,29 @@ const bookingSchema = new mongoose.Schema(
       default: Date.now,
     },
     paid: {
-      type: Boolean,
-      default: true,
+      type: String,
+      enum: ["true", "false", "refunded"],
+      default: "true",
     },
-    refunded: {
+    isManual: {
       type: Boolean,
       default: false,
     },
-    paymentIntents: [
-      {
-        id: {
-          type: String,
-          required: true,
+    paymentIntents: {
+      type: [
+        {
+          id: {
+            type: String,
+            required: true,
+          },
+          amount: {
+            type: Number,
+            required: true,
+          },
         },
-        amount: {
-          type: Number,
-          required: true,
-        },
-      },
-    ],
+      ],
+      default: [],
+    },
   },
   {
     toJSON: { virtuals: true },

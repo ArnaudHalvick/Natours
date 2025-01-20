@@ -115,17 +115,8 @@ export const updateBooking = async (bookingId, data) => {
 
 export const processAdminRefund = async bookingId => {
   try {
-    // Create a refund request
-    const refund = await axios.post(`/api/v1/refunds/request/${bookingId}`);
-
-    if (refund.data.status !== "success") {
-      throw new Error("Failed to create refund request");
-    }
-
-    // Process the refund immediately (admin endpoint)
-    const result = await axios.patch(
-      `/api/v1/refunds/process/${refund.data.data._id}`,
-    );
+    // Use the new direct admin refund endpoint
+    const result = await axios.post(`/api/v1/refunds/admin/${bookingId}`);
     return result.data;
   } catch (err) {
     throw err;

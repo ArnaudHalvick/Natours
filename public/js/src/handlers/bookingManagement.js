@@ -41,6 +41,26 @@ let dateFrom = "";
 let dateTo = "";
 const limit = 10;
 
+const getStatusBadge = paid => {
+  let statusClass, statusText;
+
+  switch (paid) {
+    case "refunded":
+      statusClass = "refunded";
+      statusText = "Refunded";
+      break;
+    case "true":
+      statusClass = "paid";
+      statusText = "Paid";
+      break;
+    case "false":
+      statusClass = "unpaid";
+      statusText = "Unpaid";
+      break;
+  }
+  return `<span class="status-badge status-badge--${statusClass}">${statusText}</span>`;
+};
+
 const updatePaginationButtons = () => {
   const prevPageBtn = document.getElementById("prevPage");
   const nextPageBtn = document.getElementById("nextPage");
@@ -66,36 +86,28 @@ const loadBookings = async () => {
     const bookingTableBody = document.getElementById("bookingTableBody");
     if (!bookingTableBody) return;
 
+    console.log(data);
+
     bookingTableBody.innerHTML = data.length
       ? data
           .map(booking => {
-            // Determine the edit button state
-            const editButton = booking.refunded
-              ? "" // No button if refunded
-              : `<button class="btn btn--small btn--edit btn--green" data-id="${booking._id}">Edit</button>`;
-
-            // Build the table row
             return `
-              <tr>
-                <td>${booking._id}</td>
-                <td>${booking.user.email}</td>
-                <td>${booking.tour.name}</td>
-                <td>${new Date(booking.startDate).toLocaleDateString()}</td>
-                <td>$${booking.price.toLocaleString()}</td>
-                <td>
-                  <span class="status-badge status-badge--${
-                    booking.refunded
-                      ? "refunded"
-                      : booking.paid
-                        ? "paid"
-                        : "unpaid"
-                  }">
-                    ${booking.refunded ? "Refunded" : booking.paid ? "Paid" : "Unpaid"}
-                  </span>
-                </td>
-                <td>${editButton}</td>
-              </tr>
-            `;
+          <tr>
+            <td>${booking._id}</td>
+            <td>${booking.user.email}</td>
+            <td>${booking.tour.name}</td>
+            <td>${new Date(booking.startDate).toLocaleDateString()}</td>
+            <td>$${booking.price.toLocaleString()}</td>
+            <td>${getStatusBadge(booking.paid)}</td>
+            <td>
+              ${
+                booking.paid === "refunded"
+                  ? ""
+                  : `<button class="btn btn--small btn--edit btn--green" data-id="${booking._id}">Edit</button>`
+              }
+            </td>
+          </tr>
+        `;
           })
           .join("")
       : '<tr><td colspan="7" style="text-align: center;">No bookings found.</td></tr>';
@@ -230,21 +242,25 @@ const handleEditClick = async bookingId => {
     form.dataset.bookingId = bookingId;
 
     // Add refund button if booking is paid and not refunded
+    // Add refund button if booking is paid and not refunded
     const actionBtns = form.querySelector(".action-btns");
     if (actionBtns) {
       // First, remove any existing refund button (cleanup)
-      const existingRefundBtn = actionBtns.querySelector(".btn--red");
+      const existingRefundBtn = actionBtns.querySelector(".refund--btn");
       if (existingRefundBtn) {
         existingRefundBtn.remove();
       }
 
       // Add new refund button if booking is paid and not refunded
-      if (booking.paid && !booking.refunded) {
+      if (booking.paid === "true") {
         const refundBtn = document.createElement("button");
-        refundBtn.className = "btn btn--small btn--red";
-        refundBtn.textContent = "Process Refund";
+        refundBtn.className = `btn btn--small refund--btn ${
+          booking.isManual ? "btn--blue" : "btn--red"
+        }`;
+        refundBtn.textContent = booking.isManual
+          ? "Record Refund"
+          : "Process Refund";
 
-        // Check if the tour date is in the past or today
         const isPastTour = isPastOrToday(booking.startDate);
 
         if (isPastTour) {
@@ -255,11 +271,10 @@ const handleEditClick = async bookingId => {
         } else {
           refundBtn.onclick = e => {
             e.preventDefault();
-            handleRefundBooking(bookingId, booking.price);
+            handleRefundBooking(bookingId, booking.price, booking.isManual);
           };
         }
 
-        // Insert before the cancel button
         const cancelBtn = actionBtns.querySelector("#cancelBtn");
         if (cancelBtn) {
           actionBtns.insertBefore(refundBtn, cancelBtn);
@@ -274,22 +289,28 @@ const handleEditClick = async bookingId => {
   }
 };
 
-const handleRefundBooking = async (bookingId, price) => {
-  // Show confirmation dialog
-  const confirmed = window.confirm(
-    `Are you sure you want to process a refund for $${price.toLocaleString()}? This action cannot be undone.`,
-  );
+const handleRefundBooking = async (bookingId, price, isManual) => {
+  // Customize confirmation message based on booking type
+  const message = isManual
+    ? `Are you sure that the client was refunded? This action cannot be undone.`
+    : `Are you sure you want to process a refund for $${price.toLocaleString()}? This action cannot be undone.`;
 
+  const confirmed = window.confirm(message);
   if (!confirmed) return;
 
   try {
     const result = await processAdminRefund(bookingId);
 
     if (result.status === "success") {
-      showAlert("success", "Refund processed successfully!");
+      showAlert(
+        "success",
+        isManual
+          ? "Refund recorded successfully!"
+          : "Refund processed successfully!",
+      );
       const modal = document.getElementById("bookingModal");
       modal?.classList.remove("active");
-      await loadBookings(); // Reload the bookings table
+      await loadBookings();
     }
   } catch (err) {
     showAlert(

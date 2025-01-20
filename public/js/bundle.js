@@ -8831,7 +8831,6 @@ var initReviewManagement = exports.initReviewManagement = function initReviewMan
   handleReviewLoad();
 };
 },{"../utils/dom":"utils/dom.js","../utils/alert":"utils/alert.js","../utils/pagination":"utils/pagination.js","../api/reviewManagementAPI":"api/reviewManagementAPI.js"}],"api/bookingManagementAPI.js":[function(require,module,exports) {
-var define;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9034,35 +9033,25 @@ var updateBooking = exports.updateBooking = /*#__PURE__*/function () {
 }();
 var processAdminRefund = exports.processAdminRefund = /*#__PURE__*/function () {
   var _ref6 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee6(bookingId) {
-    var refund, result;
+    var result;
     return _regeneratorRuntime().wrap(function _callee6$(_context6) {
       while (1) switch (_context6.prev = _context6.next) {
         case 0:
           _context6.prev = 0;
           _context6.next = 3;
-          return _axios.default.post("/api/v1/refunds/request/".concat(bookingId));
+          return _axios.default.post("/api/v1/refunds/admin/".concat(bookingId));
         case 3:
-          refund = _context6.sent;
-          if (!(refund.data.status !== "success")) {
-            _context6.next = 6;
-            break;
-          }
-          throw new Error("Failed to create refund request");
-        case 6:
-          _context6.next = 8;
-          return _axios.default.patch("/api/v1/refunds/process/".concat(refund.data.data._id));
-        case 8:
           result = _context6.sent;
           return _context6.abrupt("return", result.data);
-        case 12:
-          _context6.prev = 12;
+        case 7:
+          _context6.prev = 7;
           _context6.t0 = _context6["catch"](0);
           throw _context6.t0;
-        case 15:
+        case 10:
         case "end":
           return _context6.stop();
       }
-    }, _callee6, null, [[0, 12]]);
+    }, _callee6, null, [[0, 7]]);
   }));
   return function processAdminRefund(_x14) {
     return _ref6.apply(this, arguments);
@@ -9145,6 +9134,24 @@ var currentTourFilter = "";
 var dateFrom = "";
 var dateTo = "";
 var limit = 10;
+var getStatusBadge = function getStatusBadge(paid) {
+  var statusClass, statusText;
+  switch (paid) {
+    case "refunded":
+      statusClass = "refunded";
+      statusText = "Refunded";
+      break;
+    case "true":
+      statusClass = "paid";
+      statusText = "Paid";
+      break;
+    case "false":
+      statusClass = "unpaid";
+      statusText = "Unpaid";
+      break;
+  }
+  return "<span class=\"status-badge status-badge--".concat(statusClass, "\">").concat(statusText, "</span>");
+};
 var updatePaginationButtons = function updatePaginationButtons() {
   var prevPageBtn = document.getElementById("prevPage");
   var nextPageBtn = document.getElementById("nextPage");
@@ -9172,29 +9179,25 @@ var loadBookings = /*#__PURE__*/function () {
           }
           return _context.abrupt("return");
         case 10:
+          console.log(data);
           bookingTableBody.innerHTML = data.length ? data.map(function (booking) {
-            // Determine the edit button state
-            var editButton = booking.refunded ? "" // No button if refunded
-            : "<button class=\"btn btn--small btn--edit btn--green\" data-id=\"".concat(booking._id, "\">Edit</button>");
-
-            // Build the table row
-            return "\n              <tr>\n                <td>".concat(booking._id, "</td>\n                <td>").concat(booking.user.email, "</td>\n                <td>").concat(booking.tour.name, "</td>\n                <td>").concat(new Date(booking.startDate).toLocaleDateString(), "</td>\n                <td>$").concat(booking.price.toLocaleString(), "</td>\n                <td>\n                  <span class=\"status-badge status-badge--").concat(booking.refunded ? "refunded" : booking.paid ? "paid" : "unpaid", "\">\n                    ").concat(booking.refunded ? "Refunded" : booking.paid ? "Paid" : "Unpaid", "\n                  </span>\n                </td>\n                <td>").concat(editButton, "</td>\n              </tr>\n            ");
+            return "\n          <tr>\n            <td>".concat(booking._id, "</td>\n            <td>").concat(booking.user.email, "</td>\n            <td>").concat(booking.tour.name, "</td>\n            <td>").concat(new Date(booking.startDate).toLocaleDateString(), "</td>\n            <td>$").concat(booking.price.toLocaleString(), "</td>\n            <td>").concat(getStatusBadge(booking.paid), "</td>\n            <td>\n              ").concat(booking.paid === "refunded" ? "" : "<button class=\"btn btn--small btn--edit btn--green\" data-id=\"".concat(booking._id, "\">Edit</button>"), "\n            </td>\n          </tr>\n        ");
           }).join("") : '<tr><td colspan="7" style="text-align: center;">No bookings found.</td></tr>';
           pageInfo = document.getElementById("pageInfo");
           if (pageInfo) pageInfo.textContent = "Page ".concat(currentPage, " of ").concat(totalPages);
           updatePaginationButtons();
-          _context.next = 20;
+          _context.next = 21;
           break;
-        case 16:
-          _context.prev = 16;
+        case 17:
+          _context.prev = 17;
           _context.t0 = _context["catch"](0);
           console.error("Error loading bookings:", _context.t0);
           (0, _alert.showAlert)("error", ((_err$response = _context.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || "Error loading bookings");
-        case 20:
+        case 21:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[0, 16]]);
+    }, _callee, null, [[0, 17]]);
   }));
   return function loadBookings() {
     return _ref.apply(this, arguments);
@@ -9319,21 +9322,20 @@ var handleEditClick = /*#__PURE__*/function () {
           form.dataset.bookingId = bookingId;
 
           // Add refund button if booking is paid and not refunded
+          // Add refund button if booking is paid and not refunded
           actionBtns = form.querySelector(".action-btns");
           if (actionBtns) {
             // First, remove any existing refund button (cleanup)
-            existingRefundBtn = actionBtns.querySelector(".btn--red");
+            existingRefundBtn = actionBtns.querySelector(".refund--btn");
             if (existingRefundBtn) {
               existingRefundBtn.remove();
             }
 
             // Add new refund button if booking is paid and not refunded
-            if (booking.paid && !booking.refunded) {
+            if (booking.paid === "true") {
               refundBtn = document.createElement("button");
-              refundBtn.className = "btn btn--small btn--red";
-              refundBtn.textContent = "Process Refund";
-
-              // Check if the tour date is in the past or today
+              refundBtn.className = "btn btn--small refund--btn ".concat(booking.isManual ? "btn--blue" : "btn--red");
+              refundBtn.textContent = booking.isManual ? "Record Refund" : "Process Refund";
               isPastTour = isPastOrToday(booking.startDate);
               if (isPastTour) {
                 refundBtn.disabled = true;
@@ -9343,11 +9345,9 @@ var handleEditClick = /*#__PURE__*/function () {
               } else {
                 refundBtn.onclick = function (e) {
                   e.preventDefault();
-                  handleRefundBooking(bookingId, booking.price);
+                  handleRefundBooking(bookingId, booking.price, booking.isManual);
                 };
               }
-
-              // Insert before the cancel button
               cancelBtn = actionBtns.querySelector("#cancelBtn");
               if (cancelBtn) {
                 actionBtns.insertBefore(refundBtn, cancelBtn);
@@ -9374,47 +9374,48 @@ var handleEditClick = /*#__PURE__*/function () {
   };
 }();
 var handleRefundBooking = /*#__PURE__*/function () {
-  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(bookingId, price) {
-    var confirmed, result, modal, _err$response2;
+  var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(bookingId, price, isManual) {
+    var message, confirmed, result, modal, _err$response2;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
-          // Show confirmation dialog
-          confirmed = window.confirm("Are you sure you want to process a refund for $".concat(price.toLocaleString(), "? This action cannot be undone."));
+          // Customize confirmation message based on booking type
+          message = isManual ? "Are you sure that the client was refunded? This action cannot be undone." : "Are you sure you want to process a refund for $".concat(price.toLocaleString(), "? This action cannot be undone.");
+          confirmed = window.confirm(message);
           if (confirmed) {
-            _context3.next = 3;
+            _context3.next = 4;
             break;
           }
           return _context3.abrupt("return");
-        case 3:
-          _context3.prev = 3;
-          _context3.next = 6;
+        case 4:
+          _context3.prev = 4;
+          _context3.next = 7;
           return (0, _bookingManagementAPI.processAdminRefund)(bookingId);
-        case 6:
+        case 7:
           result = _context3.sent;
           if (!(result.status === "success")) {
-            _context3.next = 13;
+            _context3.next = 14;
             break;
           }
-          (0, _alert.showAlert)("success", "Refund processed successfully!");
+          (0, _alert.showAlert)("success", isManual ? "Refund recorded successfully!" : "Refund processed successfully!");
           modal = document.getElementById("bookingModal");
           modal === null || modal === void 0 || modal.classList.remove("active");
-          _context3.next = 13;
+          _context3.next = 14;
           return loadBookings();
-        case 13:
-          _context3.next = 18;
+        case 14:
+          _context3.next = 19;
           break;
-        case 15:
-          _context3.prev = 15;
-          _context3.t0 = _context3["catch"](3);
+        case 16:
+          _context3.prev = 16;
+          _context3.t0 = _context3["catch"](4);
           (0, _alert.showAlert)("error", ((_err$response2 = _context3.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || _context3.t0.message || "Error processing refund");
-        case 18:
+        case 19:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[3, 15]]);
+    }, _callee3, null, [[4, 16]]);
   }));
-  return function handleRefundBooking(_x2, _x3) {
+  return function handleRefundBooking(_x2, _x3, _x4) {
     return _ref3.apply(this, arguments);
   };
 }();
@@ -9542,7 +9543,7 @@ var handleSaveBooking = /*#__PURE__*/function () {
       }
     }, _callee4, null, [[0, 50]]);
   }));
-  return function handleSaveBooking(_x4, _x5) {
+  return function handleSaveBooking(_x5, _x6) {
     return _ref4.apply(this, arguments);
   };
 }();
@@ -9608,7 +9609,7 @@ var updateAvailableDates = /*#__PURE__*/function () {
       }
     }, _callee5, null, [[0, 10]]);
   }));
-  return function updateAvailableDates(_x6) {
+  return function updateAvailableDates(_x7) {
     return _ref5.apply(this, arguments);
   };
 }();
@@ -9654,7 +9655,7 @@ var handleTourChange = /*#__PURE__*/function () {
       }
     }, _callee6, null, [[4, 11]]);
   }));
-  return function handleTourChange(_x7) {
+  return function handleTourChange(_x8) {
     return _ref6.apply(this, arguments);
   };
 }();
@@ -9705,7 +9706,7 @@ var handleCreateBookingSubmit = /*#__PURE__*/function () {
       }
     }, _callee7, null, [[8, 19]]);
   }));
-  return function handleCreateBookingSubmit(_x8) {
+  return function handleCreateBookingSubmit(_x9) {
     return _ref7.apply(this, arguments);
   };
 }();
@@ -11699,7 +11700,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39869" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "32965" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

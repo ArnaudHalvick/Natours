@@ -12,14 +12,22 @@ router.get(
   refundController.getAllRefunds,
 );
 
-// Route for user to request a refund
+// Route for direct admin refund (no refund request needed)
+router.post(
+  "/admin/:bookingId",
+  authController.protect,
+  authController.restrictTo("admin"),
+  refundController.adminDirectRefund,
+);
+
+// Regular user refund request flow
 router.post(
   "/request/:bookingId",
   authController.protect,
   refundController.requestRefund,
 );
 
-// Route for admin to process the refund
+// Route for admin to process user-requested refund
 router.patch(
   "/process/:refundId",
   authController.protect,
@@ -32,7 +40,7 @@ router.patch(
   "/reject/:refundId",
   authController.protect,
   authController.restrictTo("admin"),
-  refundController.rejectRefund, // This function will be added
+  refundController.rejectRefund,
 );
 
 module.exports = router;

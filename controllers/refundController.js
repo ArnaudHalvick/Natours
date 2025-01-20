@@ -203,63 +203,68 @@ exports.processRefund = catchAsync(async (req, res, next) => {
     return next(new AppError("No booking found for this refund request.", 404));
   }
 
+  // Check if booking is already refunded
+  if (booking.paid === "refunded") {
+    return next(new AppError("This booking has already been refunded.", 400));
+  }
+
   try {
-    // 1) Calculate total paid by summing all PaymentIntents
-    const totalPaid = booking.paymentIntents.reduce(
-      (acc, pi) => acc + pi.amount,
-      0,
-    );
-
-    // Check if we're trying to refund more than was paid
-    if (refund.amount > totalPaid) {
-      return next(
-        new AppError(
-          `Refund amount ($${refund.amount.toFixed(
-            2,
-          )}) exceeds total paid ($${totalPaid.toFixed(2)}) for this booking.`,
-          400,
-        ),
+    // Only process Stripe refund for non-manual bookings
+    if (!booking.isManual && booking.paymentIntents?.length > 0) {
+      // Calculate total paid by summing all PaymentIntents
+      const totalPaid = booking.paymentIntents.reduce(
+        (acc, pi) => acc + pi.amount,
+        0,
       );
+
+      // Check if we're trying to refund more than was paid
+      if (refund.amount > totalPaid) {
+        return next(
+          new AppError(
+            `Refund amount ($${refund.amount.toFixed(
+              2,
+            )}) exceeds total paid ($${totalPaid.toFixed(2)}) for this booking.`,
+            400,
+          ),
+        );
+      }
+
+      // Create partial refunds across paymentIntents if needed
+      let remainingToRefund = refund.amount;
+      const stripeRefundIds = [];
+
+      // Loop through paymentIntents in the order they were stored
+      for (const pi of booking.paymentIntents) {
+        if (remainingToRefund <= 0) break; // Done refunding
+
+        const canRefund = Math.min(pi.amount, remainingToRefund);
+        if (canRefund <= 0) continue;
+
+        // Create a partial refund in Stripe
+        const stripeResponse = await stripe.refunds.create({
+          payment_intent: pi.id,
+          amount: canRefund * 100, // convert to cents
+        });
+
+        stripeRefundIds.push(stripeResponse.id);
+        remainingToRefund -= canRefund;
+      }
+
+      // If somehow we couldn't fully refund the requested amount
+      if (remainingToRefund > 0) {
+        return next(
+          new AppError(
+            "Unable to fully refund the requested amount. Please check logs.",
+            500,
+          ),
+        );
+      }
+
+      // Store Stripe refund IDs
+      refund.stripeRefundId = stripeRefundIds.join(", ");
     }
 
-    // 2) Create partial refunds across paymentIntents if needed
-    let remainingToRefund = refund.amount;
-    const stripeRefundIds = [];
-
-    // Loop through paymentIntents in the order they were stored
-    for (const pi of booking.paymentIntents) {
-      if (remainingToRefund <= 0) break; // Done refunding
-
-      const canRefund = Math.min(pi.amount, remainingToRefund);
-      if (canRefund <= 0) continue;
-
-      // Create a partial refund in Stripe
-      const stripeResponse = await stripe.refunds.create({
-        payment_intent: pi.id,
-        amount: canRefund * 100, // convert to cents
-      });
-
-      stripeRefundIds.push(stripeResponse.id);
-      remainingToRefund -= canRefund;
-    }
-
-    // If somehow we couldn't fully refund the requested amount
-    if (remainingToRefund > 0) {
-      return next(
-        new AppError(
-          "Unable to fully refund the requested amount. Please check logs.",
-          500,
-        ),
-      );
-    }
-
-    // 3) Mark this refund as processed
-    refund.status = "processed";
-    refund.processedAt = new Date();
-    refund.stripeRefundId = stripeRefundIds.join(", ");
-    await refund.save();
-
-    // 4) Reduce participants in the correct Tour date
+    // Process tour participant updates (for both manual and Stripe bookings)
     const tour = await Tour.findById(booking.tour);
     if (tour) {
       // Normalize both booking.startDate and each tour date to midnight UTC
@@ -277,6 +282,7 @@ exports.processRefund = catchAsync(async (req, res, next) => {
       );
 
       if (dateObj) {
+        // Reduce participant count
         dateObj.participants = Math.max(
           0,
           dateObj.participants - booking.numParticipants,
@@ -286,21 +292,28 @@ exports.processRefund = catchAsync(async (req, res, next) => {
       }
     }
 
-    // 5) Mark the booking as refunded
-    booking.refunded = true;
-    booking.paid = false;
+    // Mark refund as processed
+    refund.status = "processed";
+    refund.processedAt = new Date();
+    await refund.save();
+
+    // Update booking status
+    booking.paid = "refunded"; // Use new enum value instead of separate flags
     booking.numParticipants = 0; // Ensures no participants remain on a refunded booking
     await booking.save();
 
-    // 6) Respond to client
+    // Respond to client
     res.status(200).json({
       status: "success",
       data: refund,
     });
   } catch (error) {
-    console.error("Stripe refund error:", error);
+    console.error("Refund processing error:", error);
     return next(
-      new AppError("Failed to process the refund. Please try again.", 500),
+      new AppError(
+        `Failed to ${booking.isManual ? "record" : "process"} the refund. Please try again.`,
+        500,
+      ),
     );
   }
 });
@@ -329,4 +342,84 @@ exports.rejectRefund = catchAsync(async (req, res, next) => {
     status: "success",
     data: refund,
   });
+});
+
+/**
+ * POST /api/v1/refunds/admin/:bookingId
+ * Admin endpoint to directly refund a booking without creating a refund request.
+ */
+exports.adminDirectRefund = catchAsync(async (req, res, next) => {
+  const booking = await Booking.findById(req.params.bookingId);
+
+  if (!booking) {
+    return next(new AppError("No booking found with this ID.", 404));
+  }
+
+  // Restrict refunds after the tour start date
+  if (new Date(booking.startDate) < new Date()) {
+    return next(
+      new AppError("Refunds are not allowed after the tour start date.", 400),
+    );
+  }
+
+  try {
+    // Create and process refund in one step
+    const refund = await Refund.create({
+      booking: booking._id,
+      user: booking.user,
+      status: "processed", // Immediately mark as processed
+      amount: booking.price,
+      requestedAt: new Date(),
+      processedAt: new Date(),
+    });
+
+    // Process tour participant updates
+    const tour = await Tour.findById(booking.tour);
+    if (tour) {
+      const bookingDate = new Date(booking.startDate);
+      const normalizedBookingDate = new Date(
+        Date.UTC(
+          bookingDate.getUTCFullYear(),
+          bookingDate.getUTCMonth(),
+          bookingDate.getUTCDate(),
+        ),
+      );
+
+      const dateObj = tour.startDates.find(sd => {
+        const tourDate = new Date(sd.date);
+        const normalizedTourDate = new Date(
+          Date.UTC(
+            tourDate.getUTCFullYear(),
+            tourDate.getUTCMonth(),
+            tourDate.getUTCDate(),
+          ),
+        );
+        return normalizedTourDate.getTime() === normalizedBookingDate.getTime();
+      });
+
+      if (dateObj) {
+        dateObj.participants = Math.max(
+          0,
+          dateObj.participants - booking.numParticipants,
+        );
+        tour.markModified("startDates");
+        await tour.save();
+      }
+    }
+
+    // Update booking status
+    booking.paid = "refunded";
+    booking.numParticipants = 0;
+    await booking.save();
+
+    res.status(200).json({
+      status: "success",
+      data: refund,
+    });
+  } catch (error) {
+    console.error("Refund processing error:", error);
+    return next(
+      new AppError("Failed to process the refund. Please try again.", 500),
+    );
+  }
 });

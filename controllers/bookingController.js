@@ -768,7 +768,8 @@ exports.createManualBooking = catchAsync(async (req, res, next) => {
           price,
           startDate: normalizedBookingDate,
           numParticipants,
-          paid,
+          paid: paid ? "true" : "false",
+          isManual: true,
           paymentIntents: paid
             ? [
                 {
