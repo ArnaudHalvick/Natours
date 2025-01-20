@@ -11134,7 +11134,7 @@ var App = exports.App = /*#__PURE__*/function () {
     value: function getPageConfig() {
       var path = window.location.pathname;
 
-      // Define page configurations
+      // Define page configurations for exact routes
       var pageConfigs = {
         // Auth pages
         "/login": {
@@ -11180,28 +11180,33 @@ var App = exports.App = /*#__PURE__*/function () {
         }
       };
 
-      // Get the matching configuration or use default
+      // Use the matching configuration or default
       var config = pageConfigs[path] || {
         handlers: ["auth"] // Default handlers
       };
 
-      // Special handling for paths
-      if (
-      // Checkout page
-      path.includes("/tour/") && path.includes("/checkout") ||
-      // Add travelers page
-      path.includes("/booking/") && path.includes("/add-travelers") ||
-      // My tours page
-      path === "/my-tours") {
+      // Special handling for certain dynamic paths:
+
+      // 1) Checkout page or add-travelers page or /my-tours
+      if (path.includes("/tour/") && path.includes("/checkout") || path.includes("/booking/") && path.includes("/add-travelers") || path === "/my-tours") {
         config = _objectSpread(_objectSpread({}, config), {}, {
           handlers: [].concat(_toConsumableArray(config.handlers || []), ["booking"])
         });
       }
-      // Tour detail page
+
+      // 2) Tour detail page (with a map), but NOT the review pages
       else if (path.startsWith("/tour/") && !path.includes("/review")) {
         config = _objectSpread(_objectSpread({}, config), {}, {
-          handlers: ["auth"],
+          handlers: [].concat(_toConsumableArray(config.handlers || []), ["auth"]),
           needsMap: true
+        });
+      }
+
+      // 3) Tour review pages (Create or Edit) => need the "auth" + "review" handlers
+      if (path.startsWith("/tour/") && path.includes("/review")) {
+        config = _objectSpread(_objectSpread({}, config), {}, {
+          handlers: _toConsumableArray(new Set([].concat(_toConsumableArray(config.handlers || []), ["auth", "review"]))),
+          needsMap: false
         });
       }
       return config;
@@ -11233,7 +11238,9 @@ var App = exports.App = /*#__PURE__*/function () {
         if (initFunction) {
           try {
             initFunction();
-          } catch (error) {}
+          } catch (error) {
+            console.error("Error initializing ".concat(handlerName, ":"), error);
+          }
         }
       });
 
@@ -11248,7 +11255,8 @@ var App = exports.App = /*#__PURE__*/function () {
   }, {
     key: "initializeAlerts",
     value: function initializeAlerts() {
-      var alertMessage = document.querySelector("body").dataset.alert;
+      var _document$querySelect;
+      var alertMessage = (_document$querySelect = document.querySelector("body")) === null || _document$querySelect === void 0 || (_document$querySelect = _document$querySelect.dataset) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.alert;
       if (alertMessage) {
         (0, _alert.showAlert)("success", alertMessage, 15);
       }

@@ -91,12 +91,6 @@
   flex-wrap: wrap;
 }
 
-.action-buttons .btn {
-  padding: 0.8rem 1.2rem;
-  font-size: 1.2rem;
-  border-radius: 4px;
-}
-
 /* Hidden (admin) review style */
 .review--hidden td {
   opacity: 0.6;

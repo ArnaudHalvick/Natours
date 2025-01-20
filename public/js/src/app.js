@@ -33,7 +33,7 @@ export class App {
   getPageConfig() {
     const path = window.location.pathname;
 
-    // Define page configurations
+    // Define page configurations for exact routes
     const pageConfigs = {
       // Auth pages
       "/login": {
@@ -81,18 +81,17 @@ export class App {
       },
     };
 
-    // Get the matching configuration or use default
+    // Use the matching configuration or default
     let config = pageConfigs[path] || {
       handlers: ["auth"], // Default handlers
     };
 
-    // Special handling for paths
+    // Special handling for certain dynamic paths:
+
+    // 1) Checkout page or add-travelers page or /my-tours
     if (
-      // Checkout page
       (path.includes("/tour/") && path.includes("/checkout")) ||
-      // Add travelers page
       (path.includes("/booking/") && path.includes("/add-travelers")) ||
-      // My tours page
       path === "/my-tours"
     ) {
       config = {
@@ -100,12 +99,22 @@ export class App {
         handlers: [...(config.handlers || []), "booking"],
       };
     }
-    // Tour detail page
+
+    // 2) Tour detail page (with a map), but NOT the review pages
     else if (path.startsWith("/tour/") && !path.includes("/review")) {
       config = {
         ...config,
-        handlers: ["auth"],
+        handlers: [...(config.handlers || []), "auth"],
         needsMap: true,
+      };
+    }
+
+    // 3) Tour review pages (Create or Edit) => need the "auth" + "review" handlers
+    if (path.startsWith("/tour/") && path.includes("/review")) {
+      config = {
+        ...config,
+        handlers: [...new Set([...(config.handlers || []), "auth", "review"])],
+        needsMap: false,
       };
     }
 
@@ -113,7 +122,6 @@ export class App {
   }
 
   initializeRequiredFeatures({ handlers = [], needsMap = false }) {
-
     // Map handler names to initialization functions
     const handlerMap = {
       auth: initAuthHandlers,
@@ -135,6 +143,7 @@ export class App {
         try {
           initFunction();
         } catch (error) {
+          console.error(`Error initializing ${handlerName}:`, error);
         }
       }
     });
@@ -149,7 +158,7 @@ export class App {
   }
 
   initializeAlerts() {
-    const alertMessage = document.querySelector("body").dataset.alert;
+    const alertMessage = document.querySelector("body")?.dataset?.alert;
     if (alertMessage) {
       showAlert("success", alertMessage, 15);
     }
