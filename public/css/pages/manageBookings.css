@@ -25,6 +25,12 @@
   flex: 1;
 }
 
+.flex__container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 /* Form Groups and Inputs */
 .form__group {
   margin-bottom: 1.5rem;
@@ -58,16 +64,6 @@
 }
 
 /* Date Inputs Specific Styles */
-.date-inputs {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.date-inputs .form__input {
-  flex: 1;
-}
-
 .date-separator {
   color: #666;
   font-size: 1.4rem;

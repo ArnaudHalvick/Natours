@@ -47,17 +47,19 @@ block content
             .booking-controls__dates
               .form__group
                 label.form__label(for='startDateFrom') Date Range
-                .date-inputs
-                  input#startDateFrom.form__input(
-                    type='date',
-                    name='startDateFrom'
-                  )
-                  span.date-separator to
-                  input#startDateTo.form__input(
-                    type='date',
-                    name='startDateTo'
-                  )
-                  button.btn.btn--small.btn--green#createBookingBtn Create Booking
+                .flex__container
+                  .date-inputs
+                    input#startDateFrom.form__input(
+                      type='date',
+                      name='startDateFrom'
+                    )
+                    span.date-separator to
+                    input#startDateTo.form__input(
+                      type='date',
+                      name='startDateTo'
+                    )
+                  .booking-creation
+                    button.btn.btn--small.btn--green#createBookingBtn Create Booking
 
           // Bookings Table
           .booking-table
