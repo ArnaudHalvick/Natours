@@ -1,9 +1,6 @@
 // controllers/errorController.js
-const {
-  AppError,
-  BookingError,
-  CriticalBookingError,
-} = require("../utils/appError");
+const AppError = require("../utils/appError"); // Default import
+const { BookingError, CriticalBookingError } = require("../utils/appError"); // Named imports
 const FailedBooking = require("../models/failedBookingModel");
 const CriticalError = require("../models/criticalErrorModel");
 

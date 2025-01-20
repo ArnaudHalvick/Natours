@@ -30,4 +30,6 @@ class CriticalBookingError extends AppError {
   }
 }
 
-module.exports = { AppError, BookingError, CriticalBookingError };
+module.exports = AppError; // Default export
+module.exports.BookingError = BookingError; // Named export
+module.exports.CriticalBookingError = CriticalBookingError; // Named export
