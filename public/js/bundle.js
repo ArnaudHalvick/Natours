@@ -6143,46 +6143,66 @@ function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyri
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; } // api/interceptors.js
 var initializeAxiosInterceptors = exports.initializeAxiosInterceptors = function initializeAxiosInterceptors() {
+  // Flag to track if we're currently refreshing the token
+  var isRefreshing = false;
   _axios.default.interceptors.response.use(function (response) {
     return response;
   }, /*#__PURE__*/function () {
     var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(error) {
       var _error$response;
-      var originalRequest, res;
+      var originalRequest, res, _refreshError$respons;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
-            originalRequest = error.config;
-            if (!(((_error$response = error.response) === null || _error$response === void 0 ? void 0 : _error$response.status) === 401 && !originalRequest._retry)) {
-              _context.next = 15;
+            originalRequest = error.config; // Don't attempt refresh if:
+            // 1. It's not a 401 error
+            // 2. It's a login endpoint error
+            // 3. It's a refresh token endpoint error
+            // 4. Request has already been retried
+            if (!(((_error$response = error.response) === null || _error$response === void 0 ? void 0 : _error$response.status) !== 401 || originalRequest.url === "/api/v1/users/login" || originalRequest.url === "/api/v1/users/refresh-token" || originalRequest._retry)) {
+              _context.next = 3;
               break;
             }
+            return _context.abrupt("return", Promise.reject(error));
+          case 3:
+            if (!isRefreshing) {
+              _context.next = 5;
+              break;
+            }
+            return _context.abrupt("return", Promise.reject(error));
+          case 5:
             originalRequest._retry = true;
-            _context.prev = 3;
-            _context.next = 6;
+            isRefreshing = true;
+            _context.prev = 7;
+            _context.next = 10;
             return _axios.default.post("/api/v1/users/refresh-token");
-          case 6:
+          case 10:
             res = _context.sent;
             if (!(res.data.status === "success")) {
-              _context.next = 9;
+              _context.next = 14;
               break;
             }
+            isRefreshing = false;
             return _context.abrupt("return", (0, _axios.default)(originalRequest));
-          case 9:
-            _context.next = 15;
+          case 14:
+            _context.next = 21;
             break;
-          case 11:
-            _context.prev = 11;
-            _context.t0 = _context["catch"](3);
-            window.location.href = "/login";
-            return _context.abrupt("return", Promise.reject(_context.t0));
-          case 15:
-            return _context.abrupt("return", Promise.reject(error));
           case 16:
+            _context.prev = 16;
+            _context.t0 = _context["catch"](7);
+            isRefreshing = false;
+            // Only redirect to login if it's actually a token issue
+            if (((_refreshError$respons = _context.t0.response) === null || _refreshError$respons === void 0 ? void 0 : _refreshError$respons.status) === 401) {
+              window.location.href = "/login";
+            }
+            return _context.abrupt("return", Promise.reject(_context.t0));
+          case 21:
+            return _context.abrupt("return", Promise.reject(error));
+          case 22:
           case "end":
             return _context.stop();
         }
-      }, _callee, null, [[3, 11]]);
+      }, _callee, null, [[7, 16]]);
     }));
     return function (_x) {
       return _ref.apply(this, arguments);
