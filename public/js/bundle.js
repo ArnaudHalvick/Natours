@@ -9068,6 +9068,15 @@ function toUtcYyyymmdd(dateInput) {
   // Return an ISO string and grab only "YYYY-MM-DD"
   return utcDate.toISOString().split("T")[0];
 }
+
+// helper function for date comparison
+var isPastOrToday = function isPastOrToday(dateStr) {
+  var today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to midnight for date-only comparison
+  var date = new Date(dateStr);
+  date.setHours(0, 0, 0, 0);
+  return date <= today;
+};
 var currentPage = 1;
 var totalPages = 1;
 var currentFilter = "";
@@ -9133,7 +9142,7 @@ var loadBookings = /*#__PURE__*/function () {
 }();
 var handleEditClick = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(bookingId) {
-    var form, modal, booking, tour, paymentInfoElement, _booking$paymentInten, startDateInput, startDateSelect, formattedCurrentDate, numParticipantsInput, priceInput, paidInput, missingInputs, actionBtns, existingRefundBtn, refundBtn, cancelBtn;
+    var form, modal, booking, tour, paymentInfoElement, _booking$paymentInten, startDateInput, startDateSelect, formattedCurrentDate, numParticipantsInput, priceInput, paidInput, missingInputs, actionBtns, existingRefundBtn, refundBtn, isPastTour, cancelBtn;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
@@ -9263,10 +9272,20 @@ var handleEditClick = /*#__PURE__*/function () {
               refundBtn = document.createElement("button");
               refundBtn.className = "btn btn--small btn--red";
               refundBtn.textContent = "Process Refund";
-              refundBtn.onclick = function (e) {
-                e.preventDefault();
-                handleRefundBooking(bookingId, booking.price);
-              };
+
+              // Check if the tour date is in the past or today
+              isPastTour = isPastOrToday(booking.startDate);
+              if (isPastTour) {
+                refundBtn.disabled = true;
+                refundBtn.textContent = "Can't Refund";
+                refundBtn.title = "Cannot refund past tours";
+                refundBtn.classList.add("btn--disabled");
+              } else {
+                refundBtn.onclick = function (e) {
+                  e.preventDefault();
+                  handleRefundBooking(bookingId, booking.price);
+                };
+              }
 
               // Insert before the cancel button
               cancelBtn = actionBtns.querySelector("#cancelBtn");

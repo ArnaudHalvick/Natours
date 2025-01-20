@@ -23,6 +23,15 @@ function toUtcYyyymmdd(dateInput) {
   return utcDate.toISOString().split("T")[0];
 }
 
+// helper function for date comparison
+const isPastOrToday = dateStr => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to midnight for date-only comparison
+  const date = new Date(dateStr);
+  date.setHours(0, 0, 0, 0);
+  return date <= today;
+};
+
 let currentPage = 1;
 let totalPages = 1;
 let currentFilter = "";
@@ -234,10 +243,21 @@ const handleEditClick = async bookingId => {
         const refundBtn = document.createElement("button");
         refundBtn.className = "btn btn--small btn--red";
         refundBtn.textContent = "Process Refund";
-        refundBtn.onclick = e => {
-          e.preventDefault();
-          handleRefundBooking(bookingId, booking.price);
-        };
+
+        // Check if the tour date is in the past or today
+        const isPastTour = isPastOrToday(booking.startDate);
+
+        if (isPastTour) {
+          refundBtn.disabled = true;
+          refundBtn.textContent = "Can't Refund";
+          refundBtn.title = "Cannot refund past tours";
+          refundBtn.classList.add("btn--disabled");
+        } else {
+          refundBtn.onclick = e => {
+            e.preventDefault();
+            handleRefundBooking(bookingId, booking.price);
+          };
+        }
 
         // Insert before the cancel button
         const cancelBtn = actionBtns.querySelector("#cancelBtn");
