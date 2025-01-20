@@ -7924,7 +7924,7 @@ var updateSettings = exports.updateSettings = /*#__PURE__*/function () {
               // Only reload if it's not an email change (which shows a verification message)
               window.setTimeout(function () {
                 return location.reload();
-              }, 1500);
+              }, 5000);
             }
           }
           return _context.abrupt("return", res.data);
@@ -7959,7 +7959,7 @@ function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; } // handlers/user.js
 var handleSettingsUpdate = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(e) {
-    var form, type, data, res, _err$response, _err$response2, errorMessage;
+    var form, type, data, res, successMessage, _err$response, _err$response2, errorMessage;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
@@ -7980,7 +7980,9 @@ var handleSettingsUpdate = /*#__PURE__*/function () {
         case 7:
           res = _context.sent;
           if (res.status === "success") {
-            (0, _alert.showAlert)("success", "".concat(type.toUpperCase(), " updated successfully!"));
+            // Use the server-provided message if available
+            successMessage = res.message || "".concat(type.toUpperCase(), " updated successfully!");
+            (0, _alert.showAlert)("success", successMessage);
             if (type === "password") {
               // Clear password fields
               document.getElementById("password-current").value = "";
@@ -7989,7 +7991,7 @@ var handleSettingsUpdate = /*#__PURE__*/function () {
             } else {
               window.setTimeout(function () {
                 return location.reload();
-              }, 1500);
+              }, 5000);
             }
           }
           _context.next = 15;
@@ -11701,7 +11703,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "32965" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42633" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

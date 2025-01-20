@@ -111,6 +111,7 @@ exports.getMe = (req, res, next) => {
 };
 
 // Update current user's details (authenticated users only)
+// Update current user's details (authenticated users only)
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Check if request includes password data
   if (req.body.password || req.body.passwordConfirm) {
@@ -125,6 +126,8 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   // 2) Filter allowed fields
   const filteredBody = filterObj(req.body, "name", "email");
   if (req.file) filteredBody.photo = req.file.filename;
+
+  let messages = []; // Array to accumulate messages
 
   // 3) Handle email change separately
   if (filteredBody.email && filteredBody.email !== req.user.email) {
@@ -146,17 +149,9 @@ exports.updateMe = catchAsync(async (req, res, next) => {
       // Remove email from filteredBody so it's not updated yet
       delete filteredBody.email;
 
-      res.status(200).json({
-        status: "success",
-        message:
-          "Verification email sent to new email address. Please verify to complete the change.",
-        data: {
-          user: await User.findByIdAndUpdate(req.user.id, filteredBody, {
-            new: true,
-            runValidators: true,
-          }),
-        },
-      });
+      messages.push(
+        "Verification email sent to your new email address. Please verify to complete the change.",
+      );
     } catch (err) {
       user.pendingEmail = undefined;
       user.pendingEmailToken = undefined;
@@ -164,28 +159,38 @@ exports.updateMe = catchAsync(async (req, res, next) => {
       await user.save({ validateBeforeSave: false });
 
       return next(
-        new AppError("There was an error sending the email. Try again later!"),
-        500,
+        new AppError(
+          "There was an error sending the verification email. Try again later!",
+          500,
+        ),
       );
     }
-  } else {
-    // If no email change, update other fields normally
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user.id,
-      filteredBody,
-      {
-        new: true,
-        runValidators: true,
-      },
-    );
-
-    res.status(200).json({
-      status: "success",
-      data: {
-        user: updatedUser,
-      },
-    });
   }
+
+  // 4) Update other fields (e.g., name, photo) if present
+  const otherFields = { ...filteredBody };
+  if (filteredBody.email) delete otherFields.email; // Already handled email
+
+  let updatedUser;
+  if (Object.keys(otherFields).length > 0) {
+    updatedUser = await User.findByIdAndUpdate(req.user.id, otherFields, {
+      new: true,
+      runValidators: true,
+    });
+    messages.push("Your name has been updated successfully.");
+  } else {
+    // If no other fields are updated, fetch the current user data
+    updatedUser = await User.findById(req.user.id);
+  }
+
+  // 5) Send combined messages to the frontend
+  res.status(200).json({
+    status: "success",
+    message: messages.join(" "), // Combine messages into a single string
+    data: {
+      user: updatedUser,
+    },
+  });
 });
 
 // Deactivate current user's account (authenticated users only)

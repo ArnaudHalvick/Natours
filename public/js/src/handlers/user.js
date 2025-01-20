@@ -25,7 +25,10 @@ const handleSettingsUpdate = async e => {
     const res = await updateSettings(data, type);
 
     if (res.status === "success") {
-      showAlert("success", `${type.toUpperCase()} updated successfully!`);
+      // Use the server-provided message if available
+      const successMessage =
+        res.message || `${type.toUpperCase()} updated successfully!`;
+      showAlert("success", successMessage);
 
       if (type === "password") {
         // Clear password fields
@@ -33,7 +36,7 @@ const handleSettingsUpdate = async e => {
         document.getElementById("password").value = "";
         document.getElementById("password-confirm").value = "";
       } else {
-        window.setTimeout(() => location.reload(), 1500);
+        window.setTimeout(() => location.reload(), 5000);
       }
     }
   } catch (err) {

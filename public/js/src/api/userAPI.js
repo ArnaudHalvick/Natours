@@ -35,7 +35,7 @@ export const updateSettings = async (data, type) => {
         document.getElementById("password-confirm").value = "";
       } else if (!res.data.message) {
         // Only reload if it's not an email change (which shows a verification message)
-        window.setTimeout(() => location.reload(), 1500);
+        window.setTimeout(() => location.reload(), 5000);
       }
     }
 
