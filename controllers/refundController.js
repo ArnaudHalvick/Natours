@@ -350,7 +350,6 @@ exports.rejectRefund = catchAsync(async (req, res, next) => {
  */
 exports.adminDirectRefund = catchAsync(async (req, res, next) => {
   const booking = await Booking.findById(req.params.bookingId);
-
   if (!booking) {
     return next(new AppError("No booking found with this ID.", 404));
   }
@@ -363,17 +362,72 @@ exports.adminDirectRefund = catchAsync(async (req, res, next) => {
   }
 
   try {
-    // Create and process refund in one step
+    // ————————————————————————
+    // 1) Perform actual Stripe refund if needed
+    // ————————————————————————
+    let stripeRefundIds = [];
+    let refundAmount = booking.price; // or whatever logic you need
+
+    if (!booking.isManual && booking.paymentIntents?.length > 0) {
+      // Calculate total paid
+      const totalPaid = booking.paymentIntents.reduce(
+        (acc, pi) => acc + pi.amount,
+        0,
+      );
+
+      if (refundAmount > totalPaid) {
+        return next(
+          new AppError(
+            `Refund amount (${refundAmount}) exceeds total paid (${totalPaid}).`,
+            400,
+          ),
+        );
+      }
+
+      // Partial refunds across multiple PaymentIntents if necessary
+      let remainingToRefund = refundAmount;
+      for (const pi of booking.paymentIntents) {
+        if (remainingToRefund <= 0) break;
+
+        const canRefund = Math.min(pi.amount, remainingToRefund);
+        if (canRefund <= 0) continue;
+
+        // Call Stripe’s refund endpoint
+        const stripeResponse = await stripe.refunds.create({
+          payment_intent: pi.id,
+          amount: canRefund * 100, // convert to cents
+        });
+
+        stripeRefundIds.push(stripeResponse.id);
+        remainingToRefund -= canRefund;
+      }
+
+      if (remainingToRefund > 0) {
+        return next(
+          new AppError(
+            "Unable to fully refund the requested amount. Please check logs.",
+            500,
+          ),
+        );
+      }
+    }
+
+    // ————————————————————————
+    // 2) Create a Refund doc in our DB
+    // ————————————————————————
     const refund = await Refund.create({
       booking: booking._id,
       user: booking.user,
-      status: "processed", // Immediately mark as processed
+      status: "processed", // or 'pending' if you prefer
       amount: booking.price,
       requestedAt: new Date(),
       processedAt: new Date(),
+      stripeRefundId: stripeRefundIds.join(", "), // store all the IDs
     });
 
-    // Process tour participant updates
+    // ————————————————————————
+    // 3) Decrement participant counts
+    // ————————————————————————
     const tour = await Tour.findById(booking.tour);
     if (tour) {
       const bookingDate = new Date(booking.startDate);
@@ -407,11 +461,16 @@ exports.adminDirectRefund = catchAsync(async (req, res, next) => {
       }
     }
 
-    // Update booking status
+    // ————————————————————————
+    // 4) Mark booking as refunded
+    // ————————————————————————
     booking.paid = "refunded";
     booking.numParticipants = 0;
     await booking.save();
 
+    // ————————————————————————
+    // 5) Return success to the client
+    // ————————————————————————
     res.status(200).json({
       status: "success",
       data: refund,
