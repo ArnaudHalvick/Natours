@@ -25,9 +25,17 @@ block content
             use(xlink:href='/img/icons.svg#icon-user')
           span= `${tour.maxGroupSize} people max.`
         .booking__price
-          p
-            span.card__footer-value= `$${tour.price} `
-            span.card__footer-text per person
+          if tour.priceDiscount
+              .price-display
+                  .price-info
+                      span.original-price $#{tour.price}
+                      span.discount-badge -#{tour.discountPercentage}%
+                  span.final-price $#{tour.priceDiscount}
+                  span.card__footer-text per person
+          else
+              p
+                  span.card__footer-value $#{tour.price}
+                  span.card__footer-text per person
         form#bookingForm(data-stripe-key=`${stripePublicKey}`)
           .form__group
             label.form__label(for="startDate") Select a start date

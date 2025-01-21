@@ -50,13 +50,26 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid start date format.", 400));
   }
 
-  // 4. Validate date availability
+  // 4. Validate date availability and get slot details
   try {
     const dateSlot = await Tour.validateDateAvailability(
       tour.id,
       startDate,
       numParticipantsInt,
     );
+
+    // Verify the slot has enough capacity
+    if (dateSlot.participants + numParticipantsInt > tour.maxGroupSize) {
+      return next(
+        new AppError(
+          `Only ${tour.maxGroupSize - dateSlot.participants} spots available for this date.`,
+          400,
+        ),
+      );
+    }
+
+    // Use priceDiscount if available, otherwise use regular price
+    const finalPrice = tour.priceDiscount || tour.price;
 
     // Generate the JWT token from cookies (assuming it's there)
     const token = req.cookies.jwt;
@@ -65,7 +78,13 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     const successUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking&jwt=${token}`;
     const failUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking-failed&jwt=${token}`;
 
-    // 5. Create Stripe session with normalized date
+    // Prepare product description with discount info if applicable
+    let productDescription = tour.summary;
+    if (tour.priceDiscount) {
+      productDescription = `${tour.summary}\nSpecial offer: ${tour.priceDiscount}% discount applied!`;
+    }
+
+    // 5. Create Stripe session with normalized date and discounted price
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       success_url: successUrl,
@@ -76,13 +95,17 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
         {
           price_data: {
             currency: "usd",
-            unit_amount: tour.price * 100,
+            unit_amount: finalPrice * 100,
             product_data: {
               name: `${tour.name} Tour`,
-              description: tour.summary,
+              description: productDescription,
               images: [
                 `${req.protocol}://${req.get("host")}/img/tours/${tour.imageCover}`,
               ],
+              metadata: {
+                originalPrice: tour.price,
+                discountedPrice: tour.priceDiscount || tour.price,
+              },
             },
           },
           quantity: numParticipantsInt,
@@ -93,12 +116,20 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
         startDate: startDateObj.toISOString(),
         numParticipants: numParticipantsInt.toString(),
         maxRetries: "3",
+        originalPrice: tour.price.toString(),
+        discountPercentage: (tour.priceDiscount || 0).toString(),
+        finalPrice: finalPrice.toString(),
       },
     });
 
     res.status(200).json({
       status: "success",
       session,
+      tourData: {
+        originalPrice: tour.price,
+        finalPrice,
+        discountPercentage: tour.discountPercentage,
+      },
     });
   } catch (error) {
     return next(new AppError(error.message, 400));
@@ -413,9 +444,23 @@ exports.addTravelersToBooking = catchAsync(async (req, res, next) => {
     );
   }
 
+  // Calculate discount percentage for display
+  const discountPercentage = tour.priceDiscount
+    ? Math.round(((tour.price - tour.priceDiscount) / tour.price) * 100)
+    : 0;
+
+  // Use priceDiscount if available, otherwise use regular price
+  const finalPrice = tour.priceDiscount || tour.price;
+
   const token = req.cookies.jwt;
   const successUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking&jwt=${token}`;
   const failUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking-failed&jwt=${token}`;
+
+  // Prepare description with discount info
+  let productDescription = `Adding ${numParticipants} travelers to booking`;
+  if (tour.priceDiscount) {
+    productDescription += `\nSpecial price: $${finalPrice} (${discountPercentage}% off)`;
+  }
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
@@ -427,10 +472,15 @@ exports.addTravelersToBooking = catchAsync(async (req, res, next) => {
       {
         price_data: {
           currency: "usd",
-          unit_amount: tour.price * 100,
+          unit_amount: finalPrice * 100, // Using discounted price
           product_data: {
             name: `${tour.name} Tour - Additional Travelers`,
-            description: `Adding ${numParticipants} travelers to booking`,
+            description: productDescription,
+            metadata: {
+              originalPrice: tour.price,
+              discountedPrice: finalPrice,
+              discountPercentage,
+            },
           },
         },
         quantity: numParticipants,
@@ -442,6 +492,9 @@ exports.addTravelersToBooking = catchAsync(async (req, res, next) => {
       bookingId: booking.id,
       numParticipants: numParticipants.toString(),
       startDate: normalizedBookingDate,
+      originalPrice: tour.price.toString(),
+      finalPrice: finalPrice.toString(),
+      discountPercentage: discountPercentage.toString(),
     },
   });
 

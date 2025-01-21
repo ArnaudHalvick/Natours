@@ -281,23 +281,31 @@ exports.getAddTravelers = catchAsync(async (req, res, next) => {
   const booking = await Booking.findById(bookingId);
   if (!booking) return next(new AppError("Booking not found", 404));
 
-  // 2. Fetch the associated tour
+  // 2. Fetch the associated tour with price fields
   const tour = await Tour.findById(booking.tour)
-    .select("_id name maxGroupSize startDates slug")
+    .select("_id name maxGroupSize startDates slug price priceDiscount")
     .lean();
   if (!tour) return next(new AppError("Tour not found", 404));
 
-  // 3. Format the date before passing to template
+  // 3. Calculate discount percentage if priceDiscount exists
+  if (tour.priceDiscount) {
+    tour.discountPercentage = Math.round(
+      ((tour.price - tour.priceDiscount) / tour.price) * 100,
+    );
+  }
+
+  // 4. Format the date before passing to template
   const formattedBooking = {
     ...booking.toObject(),
     startDate: new Date(booking.startDate),
   };
 
-  // 4. Render the page
+  // 5. Render the page
   res.status(200).render("pages/booking/addTravelers", {
     title: "Add Travelers",
     booking: formattedBooking,
     tour,
+    stripePublicKey: process.env.STRIPE_PUBLIC_KEY, // Add this for Stripe
   });
 });
 

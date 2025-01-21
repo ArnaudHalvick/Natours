@@ -139,6 +139,13 @@ tourSchema.virtual("reviews", {
   localField: "_id",
 });
 
+// Virtual Populate for Discounts
+tourSchema.virtual("discountPercentage").get(function () {
+  if (!this.priceDiscount) return 0;
+  const discount = ((this.price - this.priceDiscount) / this.price) * 100;
+  return Math.round(discount); // Round to nearest integer
+});
+
 // Indexes for Performance
 tourSchema.index({ price: 1, ratingsAverage: -1 });
 tourSchema.index({ slug: 1 });

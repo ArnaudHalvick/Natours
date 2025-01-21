@@ -32,6 +32,13 @@ export const bookTour = async (tourId, startDate, numParticipants) => {
     const stripe = initializeStripe();
     const formattedDate = formatDateForAPI(startDate);
 
+    // Get tour data first to calculate proper price
+    const tourResponse = await axios.get(`/api/v1/tours/${tourId}`);
+    const tour = tourResponse.data.data.data;
+
+    // Use priceDiscount if available, otherwise use regular price
+    const finalPrice = tour.priceDiscount || tour.price;
+
     // Get checkout session from our API
     const response = await axios.get(
       `/api/v1/bookings/checkout-session/${tourId}`,
@@ -39,6 +46,7 @@ export const bookTour = async (tourId, startDate, numParticipants) => {
         params: {
           startDate: formattedDate,
           numParticipants,
+          finalPrice, // Pass the calculated price to backend
         },
       },
     );
@@ -70,8 +78,6 @@ export const bookTour = async (tourId, startDate, numParticipants) => {
 export const addTravelersToBooking = async (bookingId, numParticipants) => {
   try {
     const stripe = initializeStripe();
-
-    // Get tourId from the submit button's data attributes
     const submitButton = document.querySelector(".add-travelers-submit");
     if (!submitButton?.dataset?.tourId) {
       throw new Error("Tour information not found");
@@ -79,12 +85,20 @@ export const addTravelersToBooking = async (bookingId, numParticipants) => {
 
     const tourId = submitButton.dataset.tourId;
 
+    // Get tour data first to calculate proper price
+    const tourResponse = await axios.get(`/api/v1/tours/${tourId}`);
+    const tour = tourResponse.data.data.data;
+
+    // Use priceDiscount if available, otherwise use regular price
+    const finalPrice = tour.priceDiscount || tour.price;
+
     // Get checkout session from our API
     const response = await axios.post(
       `/api/v1/bookings/${bookingId}/add-travelers`,
       {
         tourId,
         numParticipants,
+        finalPrice, // Pass the calculated price to backend
       },
     );
 
@@ -92,7 +106,6 @@ export const addTravelersToBooking = async (bookingId, numParticipants) => {
       throw new Error("Invalid session response from server");
     }
 
-    // Redirect to Stripe checkout
     await stripe.redirectToCheckout({
       sessionId: response.data.session.id,
     });
@@ -101,7 +114,7 @@ export const addTravelersToBooking = async (bookingId, numParticipants) => {
       err.response?.data?.message || err.message || "Error adding travelers";
     console.error("Add travelers error:", err);
     showAlert("error", errorMessage);
-    throw err; // Re-throw for handler error boundary
+    throw err;
   }
 };
 

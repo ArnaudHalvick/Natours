@@ -40,6 +40,27 @@ block content
             input#availableSpots.form__input(type='number', value=`${availableSpots}`, readonly)
 
           .form__group.ma-bt-md
+            label.form__label Price per Person
+            if tour.priceDiscount
+              .price-display
+                .price-info
+                  span.original-price $#{tour.price.toFixed(2)}
+                  span.discount-badge -#{tour.discountPercentage}%
+                span.final-price $#{tour.priceDiscount.toFixed(2)}
+                // Add an input to store the price for the form submission
+                input#price.form__input(
+                  type='hidden',
+                  value=`${tour.priceDiscount}`,
+                  readonly
+                )
+            else
+              input#price.form__input(
+                type='text',
+                value=`$${tour.price.toFixed(2)}`,
+                readonly
+              )
+
+          .form__group.ma-bt-md
             label.form__label(for='numParticipants') Number of Additional Participants
             input#numParticipants.form__input(
               type='number',

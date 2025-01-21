@@ -6759,54 +6759,61 @@ var formatDateForAPI = function formatDateForAPI(date) {
  */
 var bookTour = exports.bookTour = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(tourId, startDate, numParticipants) {
-    var _response$data, stripe, formattedDate, response, result, _result$error, _err$response, errorMessage;
+    var _response$data, stripe, formattedDate, tourResponse, tour, finalPrice, response, result, _result$error, _err$response, errorMessage;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
           _context.prev = 0;
           stripe = initializeStripe();
-          formattedDate = formatDateForAPI(startDate); // Get checkout session from our API
+          formattedDate = formatDateForAPI(startDate); // Get tour data first to calculate proper price
           _context.next = 5;
+          return _axios.default.get("/api/v1/tours/".concat(tourId));
+        case 5:
+          tourResponse = _context.sent;
+          tour = tourResponse.data.data.data; // Use priceDiscount if available, otherwise use regular price
+          finalPrice = tour.priceDiscount || tour.price; // Get checkout session from our API
+          _context.next = 10;
           return _axios.default.get("/api/v1/bookings/checkout-session/".concat(tourId), {
             params: {
               startDate: formattedDate,
-              numParticipants: numParticipants
+              numParticipants: numParticipants,
+              finalPrice: finalPrice // Pass the calculated price to backend
             }
           });
-        case 5:
+        case 10:
           response = _context.sent;
           if ((_response$data = response.data) !== null && _response$data !== void 0 && (_response$data = _response$data.session) !== null && _response$data !== void 0 && _response$data.id) {
-            _context.next = 8;
-            break;
-          }
-          throw new Error("Invalid session response from server");
-        case 8:
-          _context.next = 10;
-          return stripe.redirectToCheckout({
-            sessionId: response.data.session.id
-          });
-        case 10:
-          result = _context.sent;
-          if (!(result !== null && result !== void 0 && result.error || !(result !== null && result !== void 0 && result.success))) {
             _context.next = 13;
             break;
           }
-          throw new Error(((_result$error = result.error) === null || _result$error === void 0 ? void 0 : _result$error.message) || "Booking failed");
+          throw new Error("Invalid session response from server");
         case 13:
-          _context.next = 21;
-          break;
+          _context.next = 15;
+          return stripe.redirectToCheckout({
+            sessionId: response.data.session.id
+          });
         case 15:
-          _context.prev = 15;
+          result = _context.sent;
+          if (!(result !== null && result !== void 0 && result.error || !(result !== null && result !== void 0 && result.success))) {
+            _context.next = 18;
+            break;
+          }
+          throw new Error(((_result$error = result.error) === null || _result$error === void 0 ? void 0 : _result$error.message) || "Booking failed");
+        case 18:
+          _context.next = 26;
+          break;
+        case 20:
+          _context.prev = 20;
           _context.t0 = _context["catch"](0);
           errorMessage = ((_err$response = _context.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || _context.t0.message || "Booking error occurred";
           console.error("Booking error:", _context.t0);
           (0, _alert.showAlert)("error", errorMessage);
           throw _context.t0;
-        case 21:
+        case 26:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[0, 15]]);
+    }, _callee, null, [[0, 20]]);
   }));
   return function bookTour(_x, _x2, _x3) {
     return _ref.apply(this, arguments);
@@ -6818,12 +6825,12 @@ var bookTour = exports.bookTour = /*#__PURE__*/function () {
  */
 var addTravelersToBooking = exports.addTravelersToBooking = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(bookingId, numParticipants) {
-    var _submitButton$dataset, _response$data2, stripe, submitButton, tourId, response, _err$response2, errorMessage;
+    var _submitButton$dataset, _response$data2, stripe, submitButton, tourId, tourResponse, tour, finalPrice, response, _err$response2, errorMessage;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
           _context2.prev = 0;
-          stripe = initializeStripe(); // Get tourId from the submit button's data attributes
+          stripe = initializeStripe();
           submitButton = document.querySelector(".add-travelers-submit");
           if (submitButton !== null && submitButton !== void 0 && (_submitButton$dataset = submitButton.dataset) !== null && _submitButton$dataset !== void 0 && _submitButton$dataset.tourId) {
             _context2.next = 5;
@@ -6831,39 +6838,46 @@ var addTravelersToBooking = exports.addTravelersToBooking = /*#__PURE__*/functio
           }
           throw new Error("Tour information not found");
         case 5:
-          tourId = submitButton.dataset.tourId; // Get checkout session from our API
+          tourId = submitButton.dataset.tourId; // Get tour data first to calculate proper price
           _context2.next = 8;
+          return _axios.default.get("/api/v1/tours/".concat(tourId));
+        case 8:
+          tourResponse = _context2.sent;
+          tour = tourResponse.data.data.data; // Use priceDiscount if available, otherwise use regular price
+          finalPrice = tour.priceDiscount || tour.price; // Get checkout session from our API
+          _context2.next = 13;
           return _axios.default.post("/api/v1/bookings/".concat(bookingId, "/add-travelers"), {
             tourId: tourId,
-            numParticipants: numParticipants
+            numParticipants: numParticipants,
+            finalPrice: finalPrice // Pass the calculated price to backend
           });
-        case 8:
+        case 13:
           response = _context2.sent;
           if ((_response$data2 = response.data) !== null && _response$data2 !== void 0 && (_response$data2 = _response$data2.session) !== null && _response$data2 !== void 0 && _response$data2.id) {
-            _context2.next = 11;
+            _context2.next = 16;
             break;
           }
           throw new Error("Invalid session response from server");
-        case 11:
-          _context2.next = 13;
+        case 16:
+          _context2.next = 18;
           return stripe.redirectToCheckout({
             sessionId: response.data.session.id
           });
-        case 13:
-          _context2.next = 21;
+        case 18:
+          _context2.next = 26;
           break;
-        case 15:
-          _context2.prev = 15;
+        case 20:
+          _context2.prev = 20;
           _context2.t0 = _context2["catch"](0);
           errorMessage = ((_err$response2 = _context2.t0.response) === null || _err$response2 === void 0 || (_err$response2 = _err$response2.data) === null || _err$response2 === void 0 ? void 0 : _err$response2.message) || _context2.t0.message || "Error adding travelers";
           console.error("Add travelers error:", _context2.t0);
           (0, _alert.showAlert)("error", errorMessage);
           throw _context2.t0;
-        case 21:
+        case 26:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 15]]);
+    }, _callee2, null, [[0, 20]]);
   }));
   return function addTravelersToBooking(_x4, _x5) {
     return _ref2.apply(this, arguments);
