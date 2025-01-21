@@ -73,38 +73,6 @@ exports.updateTour = factory.updateOne(Tour);
 // Delete a tour by ID
 exports.deleteTour = factory.deleteOne(Tour);
 
-// Update tour guides (add/remove guides by ID)
-exports.updateTourGuides = catchAsync(async (req, res, next) => {
-  const { guidesToRemove, guidesToAdd } = req.body;
-  const tour = await Tour.findById(req.params.id);
-
-  if (!tour) return next(new AppError("Tour not found", 404));
-
-  if (guidesToRemove && guidesToRemove[0].toLowerCase() === "all") {
-    tour.guides = [];
-  } else if (guidesToRemove && guidesToRemove.length > 0) {
-    tour.guides = tour.guides.filter(
-      guideId => !guidesToRemove.some(removeId => guideId.equals(removeId)),
-    );
-  }
-
-  if (guidesToAdd && guidesToAdd.length > 0) {
-    const validGuides = await Promise.all(
-      guidesToAdd.map(async id => {
-        const guide = await User.findById(id);
-        if (!guide)
-          throw new AppError(`Guide with ID ${id} does not exist.`, 404);
-        return guide._id;
-      }),
-    );
-
-    tour.guides.push(
-      ...validGuides.filter(
-        guideId => !tour.guides.some(existingId => existingId.equals(guideId)),
-      ),
-    );
-  }
-
   await tour.save();
 
   res.status(200).json({

@@ -58,6 +58,4 @@ router
 // Other admin routes
 router.route("/:id/hide").patch(reviewController.hideReview);
 
-router.route("/guides/:id").patch(tourController.updateTourGuides);
-
 module.exports = router;
