@@ -10,9 +10,13 @@ const AppError = require("../utils/appError");
 // Middleware to handle alerts based on query parameters
 exports.alerts = (req, res, next) => {
   const { alert } = req.query;
-  if (alert === "booking")
+  if (alert === "booking") {
     res.locals.alert =
-      "Your booking was successful! Please check your email for confirmation. If your booking doesn't show up here immediately, please come back later.";
+      "Your booking was successful! Please check your email for confirmation.";
+  } else if (alert === "booking-failed") {
+    res.locals.alert =
+      "Booking failed. If any payment was made, it has been refunded.";
+  }
   next();
 };
 

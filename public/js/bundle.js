@@ -6750,7 +6750,8 @@ var initializeStripe = function initializeStripe() {
 // Helper function to format date consistently
 var formatDateForAPI = function formatDateForAPI(date) {
   var dateObj = new Date(date);
-  return new Date(dateObj.getUTCFullYear(), dateObj.getUTCMonth(), dateObj.getUTCDate()).toISOString();
+  // Create date at UTC midnight
+  return new Date(Date.UTC(dateObj.getUTCFullYear(), dateObj.getUTCMonth(), dateObj.getUTCDate())).toISOString();
 };
 
 /**
@@ -6758,7 +6759,7 @@ var formatDateForAPI = function formatDateForAPI(date) {
  */
 var bookTour = exports.bookTour = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(tourId, startDate, numParticipants) {
-    var _response$data, stripe, formattedDate, response, _err$response, errorMessage;
+    var _response$data, stripe, formattedDate, response, result, _result$error, _err$response, errorMessage;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
@@ -6785,20 +6786,27 @@ var bookTour = exports.bookTour = /*#__PURE__*/function () {
             sessionId: response.data.session.id
           });
         case 10:
-          _context.next = 18;
+          result = _context.sent;
+          if (!(result !== null && result !== void 0 && result.error || !(result !== null && result !== void 0 && result.success))) {
+            _context.next = 13;
+            break;
+          }
+          throw new Error(((_result$error = result.error) === null || _result$error === void 0 ? void 0 : _result$error.message) || "Booking failed");
+        case 13:
+          _context.next = 21;
           break;
-        case 12:
-          _context.prev = 12;
+        case 15:
+          _context.prev = 15;
           _context.t0 = _context["catch"](0);
           errorMessage = ((_err$response = _context.t0.response) === null || _err$response === void 0 || (_err$response = _err$response.data) === null || _err$response === void 0 ? void 0 : _err$response.message) || _context.t0.message || "Booking error occurred";
           console.error("Booking error:", _context.t0);
           (0, _alert.showAlert)("error", errorMessage);
           throw _context.t0;
-        case 18:
+        case 21:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[0, 12]]);
+    }, _callee, null, [[0, 15]]);
   }));
   return function bookTour(_x, _x2, _x3) {
     return _ref.apply(this, arguments);
@@ -11683,7 +11691,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33459" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "41939" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

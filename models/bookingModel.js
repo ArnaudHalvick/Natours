@@ -1,4 +1,8 @@
 const mongoose = require("mongoose");
+const {
+  isValidISODate,
+  normalizeToUTCMidnight,
+} = require("../utils/dateUtils");
 
 const bookingSchema = new mongoose.Schema(
   {
@@ -17,8 +21,17 @@ const bookingSchema = new mongoose.Schema(
       required: [true, "Booking must have a price"],
     },
     startDate: {
-      type: Date,
+      type: String, // Changed to String to store ISO format
       required: [true, "Booking must have a date"],
+      validate: {
+        validator: function (value) {
+          return isValidISODate(value);
+        },
+        message: "Invalid date format. Please use ISO date string.",
+      },
+      set: function (value) {
+        return normalizeToUTCMidnight(value);
+      },
     },
     numParticipants: {
       type: Number,
@@ -37,8 +50,12 @@ const bookingSchema = new mongoose.Schema(
       },
     },
     createdAt: {
-      type: Date,
-      default: Date.now,
+      type: String, // Changed to String to store ISO format
+      default: () => new Date().toISOString(),
+      validate: {
+        validator: isValidISODate,
+        message: "Invalid date format for createdAt",
+      },
     },
     paid: {
       type: String,
@@ -60,6 +77,14 @@ const bookingSchema = new mongoose.Schema(
             type: Number,
             required: true,
           },
+          timestamp: {
+            type: String,
+            default: () => new Date().toISOString(),
+            validate: {
+              validator: isValidISODate,
+              message: "Invalid date format for payment timestamp",
+            },
+          },
         },
       ],
       default: [],
@@ -71,15 +96,35 @@ const bookingSchema = new mongoose.Schema(
   },
 );
 
+// Index for common queries
+bookingSchema.index({ tour: 1, user: 1 });
+bookingSchema.index({ startDate: 1 });
+bookingSchema.index({ createdAt: -1 });
+
 // Middleware to populate references
-const autoPopulate = function (next) {
+bookingSchema.pre(/^find/, function (next) {
   this.populate("user").populate({
     path: "tour",
     select: "name slug startLocation imageCover",
   });
   next();
+});
+
+// Method to check if booking is in the future
+bookingSchema.methods.isFutureBooking = function () {
+  return new Date(this.startDate) > new Date();
 };
 
-bookingSchema.pre(/^find/, autoPopulate);
+// Method to check if booking can be modified
+bookingSchema.methods.canBeModified = function () {
+  return this.paid !== "refunded" && this.isFutureBooking();
+};
 
-module.exports = mongoose.model("Booking", bookingSchema);
+// Method to calculate total amount from payment intents
+bookingSchema.methods.getTotalPaid = function () {
+  return this.paymentIntents.reduce((sum, pi) => sum + pi.amount, 0);
+};
+
+const Booking = mongoose.model("Booking", bookingSchema);
+
+module.exports = Booking;

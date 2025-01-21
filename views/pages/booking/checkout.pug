@@ -18,10 +18,6 @@ block content
           span= tour.startLocation.description
         .booking__data
           svg.booking__icon
-            use(xlink:href='/img/icons.svg#icon-calendar')
-          span= new Date(tour.startDates[0].date).toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric' })
-        .booking__data
-          svg.booking__icon
             use(xlink:href='/img/icons.svg#icon-flag')
           span= `${tour.locations.length} stops`
         .booking__data
@@ -40,8 +36,8 @@ block content
               if availableStartDates && availableStartDates.length > 0
                 each dateObj in availableStartDates
                   - const date = new Date(dateObj.date)
-                  - const isoDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()).toISOString()
-                  option(value=isoDate)= `${date.toLocaleDateString("en-us", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })} (${dateObj.availableSpots} spots left)`
+                  - const formattedDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())).toISOString()
+                  option(value=formattedDate)= `${date.toLocaleDateString("en-us", {  year: 'numeric', month: 'long', day: 'numeric',timeZone: 'UTC' })} (${dateObj.availableSpots} spots left)`
               else
                 option(value='') No available dates
           .form__group

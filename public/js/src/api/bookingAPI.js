@@ -14,10 +14,13 @@ const initializeStripe = () => {
 // Helper function to format date consistently
 const formatDateForAPI = date => {
   const dateObj = new Date(date);
+  // Create date at UTC midnight
   return new Date(
-    dateObj.getUTCFullYear(),
-    dateObj.getUTCMonth(),
-    dateObj.getUTCDate(),
+    Date.UTC(
+      dateObj.getUTCFullYear(),
+      dateObj.getUTCMonth(),
+      dateObj.getUTCDate(),
+    ),
   ).toISOString();
 };
 
@@ -44,16 +47,20 @@ export const bookTour = async (tourId, startDate, numParticipants) => {
       throw new Error("Invalid session response from server");
     }
 
-    // Redirect to Stripe checkout
-    await stripe.redirectToCheckout({
+    // Get the result of the checkout
+    const result = await stripe.redirectToCheckout({
       sessionId: response.data.session.id,
     });
+
+    if (result?.error || !result?.success) {
+      throw new Error(result.error?.message || "Booking failed");
+    }
   } catch (err) {
     const errorMessage =
       err.response?.data?.message || err.message || "Booking error occurred";
     console.error("Booking error:", err);
     showAlert("error", errorMessage);
-    throw err; // Re-throw for handler error boundary
+    throw err;
   }
 };
 

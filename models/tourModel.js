@@ -5,12 +5,42 @@ const slugify = require("slugify");
 const validator = require("validator");
 const User = require("./userModel");
 const AppError = require("../utils/appError");
+const {
+  normalizeToUTCMidnight,
+  isValidISODate,
+  isSameUTCDay,
+} = require("../utils/dateUtils");
 
 // Start Date Subschema
 const startDateSchema = new mongoose.Schema({
-  date: { type: Date, required: [true, "A tour must have a start date"] },
-  participants: { type: Number, default: 0 },
+  date: {
+    type: Date, // Changed back to Date type to match MongoDB storage
+    required: [true, "A tour must have a start date"],
+    validate: {
+      validator: function (value) {
+        return value instanceof Date && !isNaN(value);
+      },
+      message: "Invalid date format",
+    },
+  },
+  participants: {
+    type: Number,
+    default: 0,
+    min: [0, "Participants cannot be negative"],
+  },
 });
+
+// Helper method to compare dates accounting for timezone differences
+startDateSchema.methods.isSameDay = function (otherDate) {
+  const thisDate = new Date(this.date);
+  const compareDate = new Date(otherDate);
+
+  return (
+    thisDate.getUTCFullYear() === compareDate.getUTCFullYear() &&
+    thisDate.getUTCMonth() === compareDate.getUTCMonth() &&
+    thisDate.getUTCDate() === compareDate.getUTCDate()
+  );
+};
 
 // Tour Schema
 const tourSchema = new mongoose.Schema(
@@ -62,15 +92,7 @@ const tourSchema = new mongoose.Schema(
       required: [true, "A tour must have a price"],
       min: 0,
     },
-    priceDiscount: {
-      type: Number,
-      // validate: {
-      //   validator: function (val) {
-      //     return val < this.price;
-      //   },
-      //   message: "Discount price ({VALUE}) should be below the regular price",
-      // },
-    },
+    priceDiscount: Number,
     summary: {
       type: String,
       trim: true,
@@ -86,7 +108,10 @@ const tourSchema = new mongoose.Schema(
       required: [true, "A tour must have a cover image"],
     },
     images: [String],
-    createdAt: { type: Date, default: Date.now, select: false },
+    createdAt: {
+      type: Date, // Changed to Date type
+      default: Date.now,
+    },
     startDates: [startDateSchema],
     hidden: { type: Boolean, default: false },
     startLocation: {
@@ -124,7 +149,30 @@ tourSchema.index({ price: 1, ratingsAverage: -1 });
 tourSchema.index({ slug: 1 });
 tourSchema.index({ startLocation: "2dsphere" });
 
-// DOCUMENT MIDDLEWARE
+// Tour methods for date operations
+tourSchema.methods.findAvailableDateSlot = function (requestedDate) {
+  return this.startDates.find(
+    startDate =>
+      startDate.isSameDay(requestedDate) &&
+      startDate.participants < this.maxGroupSize,
+  );
+};
+
+// Middleware to validate and sort dates before saving
+tourSchema.pre("save", function (next) {
+  if (this.isModified("startDates")) {
+    // Sort dates chronologically
+    this.startDates.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Check for duplicate dates
+    const dateStrings = this.startDates.map(sd => sd.date);
+    const uniqueDates = new Set(dateStrings);
+    if (dateStrings.length !== uniqueDates.size) {
+      return next(new AppError("Duplicate start dates are not allowed", 400));
+    }
+  }
+  next();
+});
 
 // Generate slug before saving
 tourSchema.pre("save", function (next) {
@@ -157,15 +205,39 @@ tourSchema.pre("save", async function (next) {
   next();
 });
 
-// QUERY MIDDLEWARE
-
 // Populate guides information
 tourSchema.pre(/^find/, function (next) {
   this.populate({ path: "guides", select: "-__v -passwordChangedAt" });
   next();
 });
 
-// MODEL METHODS
+// Static method to validate date availability
+tourSchema.statics.validateDateAvailability = async function (
+  tourId,
+  requestedDate,
+  participants,
+) {
+  const tour = await this.findById(tourId);
+  if (!tour) throw new AppError("Tour not found", 404);
+
+  // Convert requestedDate to Date object if it's a string
+  const requestDate = new Date(requestedDate);
+  if (isNaN(requestDate.getTime())) {
+    throw new AppError("Invalid date format", 400);
+  }
+
+  const dateSlot = tour.findAvailableDateSlot(requestDate);
+  if (!dateSlot) {
+    throw new AppError("Selected start date not available", 400);
+  }
+
+  const availableSpots = tour.maxGroupSize - dateSlot.participants;
+  if (participants > availableSpots) {
+    throw new AppError(`Only ${availableSpots} spots left for this date`, 400);
+  }
+
+  return dateSlot;
+};
 
 // Calculate average ratings and quantity
 tourSchema.statics.calcAverageRatings = async function (tourId) {
@@ -207,6 +279,5 @@ tourSchema.post("save", function () {
   this.constructor.calcAverageRatings(this._id);
 });
 
-// EXPORT MODEL
 const Tour = mongoose.model("Tour", tourSchema);
 module.exports = Tour;

@@ -24,8 +24,14 @@ const criticalErrorSchema = new mongoose.Schema({
     required: [true, "Session metadata is required"],
   },
   timestamp: {
-    type: Date,
-    default: Date.now,
+    type: String,
+    default: () => new Date().toISOString(),
+    validate: {
+      validator: function (value) {
+        return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value);
+      },
+      message: props => `${props.value} is not a valid ISO date string!`,
+    },
   },
   notifiedSupport: {
     type: Boolean,
@@ -35,7 +41,18 @@ const criticalErrorSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  lastNotificationAttempt: Date,
+  lastNotificationAttempt: {
+    // Only in CriticalError model
+    type: String,
+    validate: {
+      validator: function (value) {
+        return (
+          !value || /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value)
+        );
+      },
+      message: props => `${props.value} is not a valid ISO date string!`,
+    },
+  },
   supportTicketId: String,
   resolved: {
     type: Boolean,
