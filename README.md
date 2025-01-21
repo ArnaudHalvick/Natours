@@ -10,17 +10,20 @@ A feature-rich tour booking platform built with Node.js and MongoDB. This projec
 ## 🚀 Features Added Beyond Original Course
 
 - **Enhanced Authentication**
+
   - Two-factor authentication with refresh tokens
   - Email confirmation for account creation and changes
   - Secure password reset system
 
 - **Advanced Booking System**
+
   - Multiple payments per booking
   - Complex refund processing
   - Capacity tracking for tour dates
   - Manual booking creation for admins
 
 - **Comprehensive Admin Interface**
+
   - User management with search and filters
   - Review moderation system
   - Booking management dashboard
@@ -44,35 +47,42 @@ A feature-rich tour booking platform built with Node.js and MongoDB. This projec
 ## 🔧 Setup & Installation
 
 1. Clone the repository
+
 ```bash
 git clone https://github.com/yourusername/natours.git
 ```
 
 2. Install dependencies
+
 ```bash
 npm install
 ```
 
 3. Set up environment variables
+
 ```bash
 cp config.env.example config.env
 # Edit config.env with your values
 ```
 
 4. Run development server
+
 ```bash
-npm run dev
+npm run start for dev mode
+npm run start:prod for production
 ```
 
 ## 💳 Stripe Testing
 
 Use these test card numbers:
+
 - Success: 4242 4242 4242 4242
 - Failure: 4000 0000 0000 0002
 
 ## 🌟 Key Features
 
 ### User Features
+
 - Tour booking with secure payment processing
 - User authentication and profile management
 - Tour reviews and ratings
@@ -80,6 +90,7 @@ Use these test card numbers:
 - Invoice downloads
 
 ### Admin Features
+
 - Comprehensive user management
 - Tour creation and management
 - Booking oversight and manual creation
@@ -89,12 +100,14 @@ Use these test card numbers:
 ## 📚 Major Learning Outcomes
 
 ### Technical Insights
+
 - Complex date/timezone handling
 - Payment processing with rollbacks
 - Secure authentication flows
 - MongoDB optimization techniques
 
 ### Project Management
+
 - Importance of upfront planning
 - Value of modular development
 - Necessity of thorough testing
@@ -103,6 +116,7 @@ Use these test card numbers:
 ## 🔄 Business Logic Implementations
 
 - **Booking Management**
+
   - Multiple payment tracking
   - Partial refund processing
   - Capacity management
@@ -117,11 +131,13 @@ Use these test card numbers:
 ## 🛠️ Future Improvements
 
 1. **Invoice System**
+
    - Separate invoice persistence
    - Archival system
    - Enhanced formatting options
 
 2. **Payment System**
+
    - Multiple provider integration
    - Additional payment methods
    - Enhanced error recovery
@@ -131,12 +147,9 @@ Use these test card numbers:
    - Enhanced user notifications
    - Real-time updates
 
-## 📝 License
-
-This project is open-source and available under the MIT License.
-
 ## 🙏 Acknowledgments
 
 - Based on Jonas Schmedtmann's Node.js course
+- Claude AI and ChatGPT are great tools
 - Extended with significant additional features and real-world business logic
 - Built with modern Node.js and MongoDB best practices
