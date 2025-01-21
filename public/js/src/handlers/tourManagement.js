@@ -98,57 +98,82 @@ const loadGuides = async () => {
   try {
     const guides = await fetchAvailableGuides();
     availableGuides = guides;
-    populateGuideSelects();
+
+    const leadGuideSelect = document.getElementById("leadGuide");
+    const guide1Select = document.getElementById("guide1");
+    const guide2Select = document.getElementById("guide2");
+
+    if (!leadGuideSelect || !guide1Select || !guide2Select) return;
+
+    // Clear existing options
+    [leadGuideSelect, guide1Select, guide2Select].forEach(select => {
+      select.innerHTML = "";
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.textContent = "Select Guide";
+      select.appendChild(defaultOption);
+    });
+
+    // For lead guide select, include both lead guides and regular guides for backward compatibility
+    const allGuides = [...guides.leadGuides, ...guides.regularGuides];
+
+    // Populate lead guide select
+    allGuides.forEach(guide => {
+      const option = document.createElement("option");
+      option.value = guide._id || guide.id;
+      option.textContent = `${guide.name} (${guide.role === "lead-guide" ? "Lead Guide" : "Guide"})`;
+      leadGuideSelect.appendChild(option.cloneNode(true));
+    });
+
+    // Populate other guide selects
+    allGuides.forEach(guide => {
+      const option = document.createElement("option");
+      option.value = guide._id || guide.id;
+      option.textContent = `${guide.name} (${guide.role === "lead-guide" ? "Lead Guide" : "Guide"})`;
+      guide1Select.appendChild(option.cloneNode(true));
+      guide2Select.appendChild(option.cloneNode(true));
+    });
   } catch (err) {
     console.error("Failed to load guides:", err);
     showAlert("error", "Failed to load available guides");
   }
 };
 
-const populateGuideSelects = () => {
-  const leadGuideSelect = document.getElementById("leadGuide");
-  const guide1Select = document.getElementById("guide1");
-  const guide2Select = document.getElementById("guide2");
-
-  if (!leadGuideSelect || !guide1Select || !guide2Select) return;
-
-  // Clear existing options
-  [leadGuideSelect, guide1Select, guide2Select].forEach(select => {
-    select.innerHTML = "";
-    select.appendChild(new Option("Select Guide", ""));
-  });
-
-  // Populate lead guide select (lead guides only)
-  availableGuides.leadGuides.forEach(guide => {
-    leadGuideSelect.appendChild(new Option(guide.name, guide._id));
-  });
-
-  // Populate regular guide selects (all guides)
-  const allGuides = [
-    ...availableGuides.leadGuides,
-    ...availableGuides.regularGuides,
-  ];
-  allGuides.forEach(guide => {
-    guide1Select.appendChild(new Option(guide.name, guide._id));
-    guide2Select.appendChild(new Option(guide.name, guide._id));
-  });
-};
-
 // Update the handleEditClick function to populate guides
 const populateExistingGuides = tour => {
-  if (!tour.guides) return;
-
   const leadGuideSelect = document.getElementById("leadGuide");
   const guide1Select = document.getElementById("guide1");
   const guide2Select = document.getElementById("guide2");
+
+  if (!tour.guides || !Array.isArray(tour.guides)) {
+    // If no guides or invalid guides data, just ensure dropdowns are enabled
+    guide1Select.disabled = false;
+    guide2Select.disabled = false;
+    return;
+  }
 
   // Find lead guide and other guides
   const leadGuide = tour.guides.find(g => g.role === "lead-guide");
   const otherGuides = tour.guides.filter(g => g.role !== "lead-guide");
 
-  if (leadGuide) leadGuideSelect.value = leadGuide._id;
-  if (otherGuides[0]) guide1Select.value = otherGuides[0]._id;
-  if (otherGuides[1]) guide2Select.value = otherGuides[1]._id;
+  // Populate lead guide if exists
+  if (leadGuide && leadGuideSelect) {
+    leadGuideSelect.value = leadGuide.id || leadGuide._id;
+  }
+
+  // Populate other guides
+  if (otherGuides.length > 0 && guide1Select) {
+    guide1Select.value = otherGuides[0].id || otherGuides[0]._id;
+    guide1Select.disabled = false;
+  }
+
+  if (otherGuides.length > 1 && guide2Select) {
+    guide2Select.value = otherGuides[1].id || otherGuides[1]._id;
+    guide2Select.disabled = false;
+  } else if (guide2Select) {
+    // If there's no second guide, disable the second select unless first is populated
+    guide2Select.disabled = !guide1Select.value;
+  }
 };
 
 // Add to handleFormSubmit function when creating formData
@@ -157,11 +182,13 @@ const addGuidesToFormData = formData => {
   const guide1Id = document.getElementById("guide1").value;
   const guide2Id = document.getElementById("guide2").value;
 
-  if (!leadGuideId) {
-    throw new Error("Lead guide is required");
+  // For existing tours without a lead guide, allow any guide type
+  if (!leadGuideId && !guide1Id && !guide2Id) {
+    return; // No guides selected, let the model handle default behavior
   }
 
-  const guides = [leadGuideId];
+  const guides = [];
+  if (leadGuideId) guides.push(leadGuideId);
   if (guide1Id) guides.push(guide1Id);
   if (guide2Id) guides.push(guide2Id);
 
@@ -169,11 +196,14 @@ const addGuidesToFormData = formData => {
 };
 
 const initializeGuideValidation = () => {
+  const leadGuideSelect = document.getElementById("leadGuide");
   const guide1Select = document.getElementById("guide1");
   const guide2Select = document.getElementById("guide2");
 
-  guide1Select?.addEventListener("change", () => {
-    // If guide1 is empty, guide2 should be disabled
+  if (!guide1Select || !guide2Select) return;
+
+  // Handle guide1 changes
+  guide1Select.addEventListener("change", () => {
     if (!guide1Select.value) {
       guide2Select.value = "";
       guide2Select.disabled = true;
@@ -181,6 +211,11 @@ const initializeGuideValidation = () => {
       guide2Select.disabled = false;
     }
   });
+
+  // Initial state
+  if (!guide1Select.value) {
+    guide2Select.disabled = true;
+  }
 };
 
 const handleEditClick = async tourId => {
@@ -206,6 +241,8 @@ const handleEditClick = async tourId => {
     form.elements.summary.value = tour.summary || "";
     form.elements.description.value = tour.description || "";
     form.elements.hidden.value = tour.hidden?.toString() || "false";
+
+    populateExistingGuides(tour);
 
     initializeLocationManager(tour.locations, false);
 

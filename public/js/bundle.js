@@ -10998,7 +10998,7 @@ var initializeLocationManager = function initializeLocationManager() {
 };
 var loadGuides = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-    var guides;
+    var guides, leadGuideSelect, guide1Select, guide2Select, allGuides;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
@@ -11008,55 +11008,70 @@ var loadGuides = /*#__PURE__*/function () {
         case 3:
           guides = _context2.sent;
           availableGuides = guides;
-          populateGuideSelects();
-          _context2.next = 12;
+          leadGuideSelect = document.getElementById("leadGuide");
+          guide1Select = document.getElementById("guide1");
+          guide2Select = document.getElementById("guide2");
+          if (!(!leadGuideSelect || !guide1Select || !guide2Select)) {
+            _context2.next = 10;
+            break;
+          }
+          return _context2.abrupt("return");
+        case 10:
+          // Clear existing options
+          [leadGuideSelect, guide1Select, guide2Select].forEach(function (select) {
+            select.innerHTML = "";
+            var defaultOption = document.createElement("option");
+            defaultOption.value = "";
+            defaultOption.textContent = "Select Guide";
+            select.appendChild(defaultOption);
+          });
+
+          // For lead guide select, include both lead guides and regular guides for backward compatibility
+          allGuides = [].concat(_toConsumableArray(guides.leadGuides), _toConsumableArray(guides.regularGuides)); // Populate lead guide select
+          allGuides.forEach(function (guide) {
+            var option = document.createElement("option");
+            option.value = guide._id || guide.id;
+            option.textContent = "".concat(guide.name, " (").concat(guide.role === "lead-guide" ? "Lead Guide" : "Guide", ")");
+            leadGuideSelect.appendChild(option.cloneNode(true));
+          });
+
+          // Populate other guide selects
+          allGuides.forEach(function (guide) {
+            var option = document.createElement("option");
+            option.value = guide._id || guide.id;
+            option.textContent = "".concat(guide.name, " (").concat(guide.role === "lead-guide" ? "Lead Guide" : "Guide", ")");
+            guide1Select.appendChild(option.cloneNode(true));
+            guide2Select.appendChild(option.cloneNode(true));
+          });
+          _context2.next = 20;
           break;
-        case 8:
-          _context2.prev = 8;
+        case 16:
+          _context2.prev = 16;
           _context2.t0 = _context2["catch"](0);
           console.error("Failed to load guides:", _context2.t0);
           (0, _alert.showAlert)("error", "Failed to load available guides");
-        case 12:
+        case 20:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[0, 8]]);
+    }, _callee2, null, [[0, 16]]);
   }));
   return function loadGuides() {
     return _ref2.apply(this, arguments);
   };
 }();
-var populateGuideSelects = function populateGuideSelects() {
-  var leadGuideSelect = document.getElementById("leadGuide");
-  var guide1Select = document.getElementById("guide1");
-  var guide2Select = document.getElementById("guide2");
-  if (!leadGuideSelect || !guide1Select || !guide2Select) return;
-
-  // Clear existing options
-  [leadGuideSelect, guide1Select, guide2Select].forEach(function (select) {
-    select.innerHTML = "";
-    select.appendChild(new Option("Select Guide", ""));
-  });
-
-  // Populate lead guide select (lead guides only)
-  availableGuides.leadGuides.forEach(function (guide) {
-    leadGuideSelect.appendChild(new Option(guide.name, guide._id));
-  });
-
-  // Populate regular guide selects (all guides)
-  var allGuides = [].concat(_toConsumableArray(availableGuides.leadGuides), _toConsumableArray(availableGuides.regularGuides));
-  allGuides.forEach(function (guide) {
-    guide1Select.appendChild(new Option(guide.name, guide._id));
-    guide2Select.appendChild(new Option(guide.name, guide._id));
-  });
-};
 
 // Update the handleEditClick function to populate guides
 var populateExistingGuides = function populateExistingGuides(tour) {
-  if (!tour.guides) return;
   var leadGuideSelect = document.getElementById("leadGuide");
   var guide1Select = document.getElementById("guide1");
   var guide2Select = document.getElementById("guide2");
+  if (!tour.guides || !Array.isArray(tour.guides)) {
+    // If no guides or invalid guides data, just ensure dropdowns are enabled
+    guide1Select.disabled = false;
+    guide2Select.disabled = false;
+    return;
+  }
 
   // Find lead guide and other guides
   var leadGuide = tour.guides.find(function (g) {
@@ -11065,9 +11080,24 @@ var populateExistingGuides = function populateExistingGuides(tour) {
   var otherGuides = tour.guides.filter(function (g) {
     return g.role !== "lead-guide";
   });
-  if (leadGuide) leadGuideSelect.value = leadGuide._id;
-  if (otherGuides[0]) guide1Select.value = otherGuides[0]._id;
-  if (otherGuides[1]) guide2Select.value = otherGuides[1]._id;
+
+  // Populate lead guide if exists
+  if (leadGuide && leadGuideSelect) {
+    leadGuideSelect.value = leadGuide.id || leadGuide._id;
+  }
+
+  // Populate other guides
+  if (otherGuides.length > 0 && guide1Select) {
+    guide1Select.value = otherGuides[0].id || otherGuides[0]._id;
+    guide1Select.disabled = false;
+  }
+  if (otherGuides.length > 1 && guide2Select) {
+    guide2Select.value = otherGuides[1].id || otherGuides[1]._id;
+    guide2Select.disabled = false;
+  } else if (guide2Select) {
+    // If there's no second guide, disable the second select unless first is populated
+    guide2Select.disabled = !guide1Select.value;
+  }
 };
 
 // Add to handleFormSubmit function when creating formData
@@ -11075,19 +11105,25 @@ var addGuidesToFormData = function addGuidesToFormData(formData) {
   var leadGuideId = document.getElementById("leadGuide").value;
   var guide1Id = document.getElementById("guide1").value;
   var guide2Id = document.getElementById("guide2").value;
-  if (!leadGuideId) {
-    throw new Error("Lead guide is required");
+
+  // For existing tours without a lead guide, allow any guide type
+  if (!leadGuideId && !guide1Id && !guide2Id) {
+    return; // No guides selected, let the model handle default behavior
   }
-  var guides = [leadGuideId];
+  var guides = [];
+  if (leadGuideId) guides.push(leadGuideId);
   if (guide1Id) guides.push(guide1Id);
   if (guide2Id) guides.push(guide2Id);
   formData.append("guides", JSON.stringify(guides));
 };
 var initializeGuideValidation = function initializeGuideValidation() {
+  var leadGuideSelect = document.getElementById("leadGuide");
   var guide1Select = document.getElementById("guide1");
   var guide2Select = document.getElementById("guide2");
-  guide1Select === null || guide1Select === void 0 || guide1Select.addEventListener("change", function () {
-    // If guide1 is empty, guide2 should be disabled
+  if (!guide1Select || !guide2Select) return;
+
+  // Handle guide1 changes
+  guide1Select.addEventListener("change", function () {
     if (!guide1Select.value) {
       guide2Select.value = "";
       guide2Select.disabled = true;
@@ -11095,6 +11131,11 @@ var initializeGuideValidation = function initializeGuideValidation() {
       guide2Select.disabled = false;
     }
   });
+
+  // Initial state
+  if (!guide1Select.value) {
+    guide2Select.disabled = true;
+  }
 };
 var handleEditClick = /*#__PURE__*/function () {
   var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(tourId) {
@@ -11130,6 +11171,7 @@ var handleEditClick = /*#__PURE__*/function () {
           form.elements.summary.value = tour.summary || "";
           form.elements.description.value = tour.description || "";
           form.elements.hidden.value = ((_tour$hidden = tour.hidden) === null || _tour$hidden === void 0 ? void 0 : _tour$hidden.toString()) || "false";
+          populateExistingGuides(tour);
           initializeLocationManager(tour.locations, false);
           if (tour.startLocation) {
             locationManager.setStartLocation(tour.startLocation);
@@ -11162,18 +11204,18 @@ var handleEditClick = /*#__PURE__*/function () {
           form.dataset.tourId = tourId;
           modalTitle.textContent = "Edit Tour";
           modal.classList.add("active");
-          _context3.next = 37;
+          _context3.next = 38;
           break;
-        case 33:
-          _context3.prev = 33;
+        case 34:
+          _context3.prev = 34;
           _context3.t0 = _context3["catch"](0);
           console.error("Edit error:", _context3.t0);
           (0, _alert.showAlert)("error", "Failed to load tour details");
-        case 37:
+        case 38:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[0, 33]]);
+    }, _callee3, null, [[0, 34]]);
   }));
   return function handleEditClick(_x) {
     return _ref3.apply(this, arguments);
@@ -11877,7 +11919,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "35911" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "37283" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
