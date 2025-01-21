@@ -29,7 +29,6 @@ router.post("/manual", bookingController.createManualBooking);
 router
   .route("/:id")
   .get(bookingController.getBooking)
-  .patch(bookingController.updateBooking)
-  .delete(bookingController.deleteBooking);
+  .patch(bookingController.updateBooking);
 
 module.exports = router;
