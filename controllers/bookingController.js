@@ -471,17 +471,10 @@ exports.webhookCheckout = async (req, res) => {
     const session = event.data.object;
 
     try {
-      // Convert timestamp to ISO string if necessary
-      if (session.metadata.startDate && !isNaN(session.metadata.startDate)) {
-        session.metadata.startDate = new Date(
-          parseInt(session.metadata.startDate) * 1000,
-        ).toISOString();
-      }
-
       const booking = await createBookingCheckout(session);
-      res.status(200).json({ received: true, success: true });
+      return res.status(200).json({ received: true, success: true });
     } catch (error) {
-      console.error("Booking error:", error);
+      console.error("Error processing booking:", error);
 
       try {
         // Attempt to refund the payment
@@ -492,37 +485,39 @@ exports.webhookCheckout = async (req, res) => {
 
         await logCriticalError({
           type: "booking_failed_refund_success",
-          bookingError: error.message,
-          refundError: "Payment refunded successfully",
+          bookingError: error,
           session,
           refund,
           timestamp: new Date().toISOString(),
         });
 
-        return res.status(500).json({
-          received: true,
+        // Instead of 500, send 400 to indicate the webhook should not be retried
+        return res.status(400).json({
+          received: false, // Changed to false
           success: false,
           error: "Booking failed but payment was refunded",
         });
       } catch (refundError) {
         await logCriticalError({
           type: "booking_and_refund_failed",
-          bookingError: error.message,
-          refundError: refundError.message,
+          bookingError: error,
+          refundError,
           session,
           timestamp: new Date().toISOString(),
         });
 
-        return res.status(500).json({
-          received: true,
+        // Use 400 here as well
+        return res.status(400).json({
+          received: false, // Changed to false
           success: false,
           error: "Critical: Booking failed and refund failed",
         });
       }
     }
-  } else {
-    res.status(200).json({ received: true });
   }
+
+  // For other event types, still acknowledge receipt
+  res.status(200).json({ received: true });
 };
 
 // Get all bookings with optional filters (search, date range, paid status)
