@@ -73,14 +73,6 @@ exports.updateTour = factory.updateOne(Tour);
 // Delete a tour by ID
 exports.deleteTour = factory.deleteOne(Tour);
 
-  await tour.save();
-
-  res.status(200).json({
-    status: "success",
-    data: { tour },
-  });
-});
-
 // Get aggregated statistics for tours
 exports.getTourStats = catchAsync(async (req, res) => {
   const stats = await Tour.aggregate([
