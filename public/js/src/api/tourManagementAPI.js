@@ -83,3 +83,12 @@ export const toggleTourVisibility = async (tourId, hidden) => {
     throw error;
   }
 };
+
+export const fetchAvailableGuides = async () => {
+  try {
+    const res = await axios.get("/api/v1/tours/available-guides");
+    return res.data.data;
+  } catch (error) {
+    throw error;
+  }
+};

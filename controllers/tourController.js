@@ -58,6 +58,26 @@ exports.resizeTourImages = catchAsync(async (req, res, next) => {
   next();
 });
 
+// Get all guides with active account
+exports.getAvailableGuides = catchAsync(async (req, res, next) => {
+  const guides = await User.find({
+    role: { $in: ["guide", "lead-guide"] },
+    active: true,
+  }).select("name role _id");
+
+  // Separate lead guides and regular guides
+  const leadGuides = guides.filter(guide => guide.role === "lead-guide");
+  const regularGuides = guides.filter(guide => guide.role === "guide");
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      leadGuides,
+      regularGuides,
+    },
+  });
+});
+
 // Get all tours with advanced filtering, sorting, and pagination
 exports.getAllTours = factory.getAll(Tour);
 

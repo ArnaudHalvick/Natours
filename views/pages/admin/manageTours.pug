@@ -117,6 +117,23 @@ block content
                   label.form__label Tour Dates
                   #startDatesContainer.dates-container
                   button.btn.btn--small.btn--blue#addStartDateBtn(type='button') Add Date
+                .form__group.full-width
+                  h4.heading-quaternary Tour Guides
+                  .guides-container
+                    .form__group
+                      label.form__label(for='leadGuide') Lead Guide (Required)
+                      select#leadGuide.form__input(required)
+                        option(value='') Select Lead Guide
+
+                    .form__group
+                      label.form__label(for='guide1') Additional Guide 1
+                      select#guide1.form__input
+                        option(value='') Select Guide
+
+                    .form__group
+                      label.form__label(for='guide2') Additional Guide 2
+                      select#guide2.form__input
+                        option(value='') Select Guide
                 .edit-action-btns.full-width
                   button.btn.btn--small.btn--red#deleteTourBtn(type='button') Delete Tour
                   button.btn.btn--small.btn--grey#cancelTourBtn(type='button') Cancel

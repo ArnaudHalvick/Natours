@@ -7,16 +7,18 @@ import {
   updateTour,
   createTour,
   deleteTour,
+  fetchAvailableGuides,
 } from "../api/tourManagementAPI";
 import { updatePaginationInfo } from "../utils/pagination";
 import { LocationManager } from "../utils/locationManager";
 
+const limit = 10;
 let currentPage = 1;
 let totalPages = 1;
 let currentSearch = "";
 let currentDifficulty = "";
-const limit = 10;
 let locationManager;
+let availableGuides = { leadGuides: [], regularGuides: [] };
 
 const handleTourLoad = async () => {
   try {
@@ -90,6 +92,95 @@ const initializeLocationManager = (locations = [], showMap = false) => {
   } catch (error) {
     console.error("Failed to initialize location manager:", error);
   }
+};
+
+const loadGuides = async () => {
+  try {
+    const guides = await fetchAvailableGuides();
+    availableGuides = guides;
+    populateGuideSelects();
+  } catch (err) {
+    console.error("Failed to load guides:", err);
+    showAlert("error", "Failed to load available guides");
+  }
+};
+
+const populateGuideSelects = () => {
+  const leadGuideSelect = document.getElementById("leadGuide");
+  const guide1Select = document.getElementById("guide1");
+  const guide2Select = document.getElementById("guide2");
+
+  if (!leadGuideSelect || !guide1Select || !guide2Select) return;
+
+  // Clear existing options
+  [leadGuideSelect, guide1Select, guide2Select].forEach(select => {
+    select.innerHTML = "";
+    select.appendChild(new Option("Select Guide", ""));
+  });
+
+  // Populate lead guide select (lead guides only)
+  availableGuides.leadGuides.forEach(guide => {
+    leadGuideSelect.appendChild(new Option(guide.name, guide._id));
+  });
+
+  // Populate regular guide selects (all guides)
+  const allGuides = [
+    ...availableGuides.leadGuides,
+    ...availableGuides.regularGuides,
+  ];
+  allGuides.forEach(guide => {
+    guide1Select.appendChild(new Option(guide.name, guide._id));
+    guide2Select.appendChild(new Option(guide.name, guide._id));
+  });
+};
+
+// Update the handleEditClick function to populate guides
+const populateExistingGuides = tour => {
+  if (!tour.guides) return;
+
+  const leadGuideSelect = document.getElementById("leadGuide");
+  const guide1Select = document.getElementById("guide1");
+  const guide2Select = document.getElementById("guide2");
+
+  // Find lead guide and other guides
+  const leadGuide = tour.guides.find(g => g.role === "lead-guide");
+  const otherGuides = tour.guides.filter(g => g.role !== "lead-guide");
+
+  if (leadGuide) leadGuideSelect.value = leadGuide._id;
+  if (otherGuides[0]) guide1Select.value = otherGuides[0]._id;
+  if (otherGuides[1]) guide2Select.value = otherGuides[1]._id;
+};
+
+// Add to handleFormSubmit function when creating formData
+const addGuidesToFormData = formData => {
+  const leadGuideId = document.getElementById("leadGuide").value;
+  const guide1Id = document.getElementById("guide1").value;
+  const guide2Id = document.getElementById("guide2").value;
+
+  if (!leadGuideId) {
+    throw new Error("Lead guide is required");
+  }
+
+  const guides = [leadGuideId];
+  if (guide1Id) guides.push(guide1Id);
+  if (guide2Id) guides.push(guide2Id);
+
+  formData.append("guides", JSON.stringify(guides));
+};
+
+const initializeGuideValidation = () => {
+  const guide1Select = document.getElementById("guide1");
+  const guide2Select = document.getElementById("guide2");
+
+  guide1Select?.addEventListener("change", () => {
+    // If guide1 is empty, guide2 should be disabled
+    if (!guide1Select.value) {
+      guide2Select.value = "";
+      guide2Select.disabled = true;
+    } else {
+      guide2Select.disabled = false;
+    }
+  });
 };
 
 const handleEditClick = async tourId => {
@@ -191,6 +282,7 @@ const handleFormSubmit = async e => {
 
     formData.append("startLocation", JSON.stringify(startLocation));
     formData.append("locations", JSON.stringify(locations));
+    addGuidesToFormData(formData);
 
     // Handle dates
     const startDates = Array.from(form.querySelectorAll(".date-inputs")).map(
@@ -407,6 +499,9 @@ const initializeEventListeners = () => {
 
 export const initializeTourManagement = () => {
   if (!document.querySelector(".user-view__content")) return;
+
+  loadGuides(); // Load available guides
   initializeEventListeners();
+  initializeGuideValidation();
   handleTourLoad();
 };
