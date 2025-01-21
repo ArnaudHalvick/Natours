@@ -50,7 +50,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid start date format.", 400));
   }
 
-  // 4. Validate date availability using the new Tour model method
+  // 4. Validate date availability
   try {
     const dateSlot = await Tour.validateDateAvailability(
       tour.id,
@@ -58,15 +58,18 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
       numParticipantsInt,
     );
 
+    // Generate the JWT token from cookies (assuming it's there)
     const token = req.cookies.jwt;
+
+    // Define your success and failure/cancel URLs
     const successUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking&jwt=${token}`;
-    const failureUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking-failed&jwt=${token}`;
+    const failUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking-failed&jwt=${token}`;
 
     // 5. Create Stripe session with normalized date
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       success_url: successUrl,
-      cancel_url: `${req.protocol}://${req.get("host")}/tour/${tour.slug}`,
+      cancel_url: failUrl,
       customer_email: req.user.email,
       client_reference_id: req.params.tourId,
       line_items: [
@@ -364,18 +367,21 @@ exports.addTravelersToBooking = catchAsync(async (req, res, next) => {
   const { bookingId } = req.params;
   const { tourId, numParticipants } = req.body;
 
+  // 1. Find the booking by ID
   const booking = await Booking.findById(bookingId);
   if (!booking) return next(new AppError("Booking not found.", 404));
 
+  // 2. Find the tour by ID
   const tour = await Tour.findById(tourId);
   if (!tour) return next(new AppError("Tour not found.", 404));
 
+  // 3. Check if the booking’s date is still in the future
   const normalizedBookingDate = normalizeToUTCMidnight(booking.startDate);
   if (!isFutureDate(normalizedBookingDate)) {
     return next(new AppError("Cannot add travelers to a past tour.", 400));
   }
 
-  // Validate availability using the new Tour model method
+  // 4. Validate date availability
   try {
     const dateSlot = await Tour.validateDateAvailability(
       tourId,
@@ -383,20 +389,26 @@ exports.addTravelersToBooking = catchAsync(async (req, res, next) => {
       numParticipants,
     );
 
+    // Generate the JWT token from cookies
     const token = req.cookies.jwt;
-    const successUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking&jwt=${token}`;
 
+    // Define success and fail URLs
+    const successUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking&jwt=${token}`;
+    const failUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking-failed&jwt=${token}`;
+
+    // 5. Create Stripe session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       success_url: successUrl,
-      cancel_url: `${req.protocol}://${req.get("host")}/tour/${tour.slug}`,
+      // Use failUrl for cancel_url
+      cancel_url: failUrl,
       customer_email: req.user.email,
       client_reference_id: booking.id,
       line_items: [
         {
           price_data: {
             currency: "usd",
-            unit_amount: tour.price * 100,
+            unit_amount: tour.price * 100, // or however you're calculating cost
             product_data: {
               name: `${tour.name} Tour - Additional Travelers`,
               description: `Adding ${numParticipants} travelers to booking`,
