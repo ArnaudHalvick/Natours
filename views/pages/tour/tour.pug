@@ -33,21 +33,22 @@ block content
                         use(xlink:href='/img/icons.svg#icon-map-pin')
                     span.heading-box__text= tour.startLocation.description
 
-
     // Availability banner
     section.section-availability
         .banner
-            each startDate in tour.startDates.slice(0, 3)
+            each startDate in futureStartDates.slice(0, 3)
+                - const startDateObj = new Date(startDate.date);
                 - const spotsLeft = tour.maxGroupSize - startDate.participants;
-                - const dateFormatted = new Date(startDate.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' ,timeZone: 'UTC' });
+                - const dateFormatted = startDateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
                 if spotsLeft > 0
                     p= `${dateFormatted}: ${spotsLeft} spots left!`
                 else
                     p= `${dateFormatted}: Sold Out`
-            if user
-                a.btn.btn--green(href=`/tour/${tour.slug}/checkout`) Book Now!
-            else
-                a.btn.btn--green(href="/login") Log in to book a tour
+        if user
+            a.btn.btn--green(href=`/tour/${tour.slug}/checkout`) Book Now!
+        else
+            a.btn.btn--green(href="/login") Log in to book a tour
+
 
     section.section-description
         .overview-box

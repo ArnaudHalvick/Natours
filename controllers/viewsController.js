@@ -6,6 +6,7 @@ const Refund = require("../models/refundModel");
 const catchAsync = require("../utils/catchAsync");
 
 const AppError = require("../utils/appError");
+const { isFutureDate } = require("../utils/dateUtils");
 
 // Middleware to handle alerts based on query parameters
 exports.alerts = (req, res, next) => {
@@ -38,9 +39,15 @@ exports.getTour = catchAsync(async (req, res, next) => {
 
   if (!tour) return next(new AppError("There is no tour with that name.", 404));
 
+  // Filter start dates in the future
+  const futureStartDates = tour.startDates.filter(startDate =>
+    isFutureDate(startDate.date),
+  );
+
   res.status(200).render("pages/tour/tour", {
     title: `${tour.name}`,
     tour,
+    futureStartDates, // Pass filtered dates
   });
 });
 
@@ -128,11 +135,16 @@ exports.getCheckout = catchAsync(async (req, res, next) => {
   if (!tour) return next(new AppError("There is no tour with that name.", 404));
 
   const availableStartDates = tour.startDates
-    .filter(startDate => startDate.participants < tour.maxGroupSize)
+    .filter(
+      startDate =>
+        isFutureDate(startDate.date) &&
+        startDate.participants < tour.maxGroupSize,
+    )
     .map(startDate => ({
       date: startDate.date,
       availableSpots: tour.maxGroupSize - startDate.participants,
-    }));
+    }))
+    .sort((a, b) => new Date(a.date) - new Date(b.date)); // Sort chronologically
 
   res.status(200).render("pages/booking/checkout", {
     title: `Book ${tour.name} Tour`,
