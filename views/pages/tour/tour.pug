@@ -44,11 +44,23 @@ block content
                     p= `${dateFormatted}: ${spotsLeft} spots left!`
                 else
                     p= `${dateFormatted}: Sold Out`
+
+        // Price and Discounted Price
+        .price-container
+            if tour.priceDiscount
+                .price-display
+                    .price-info
+                        span.original-price $#{tour.price.toFixed(2)}
+                        span.discount-badge -#{tour.discountPercentage}%
+                    span.final-price $#{tour.priceDiscount.toFixed(2)} per person
+            else
+                .price-display
+                    span.final-price $#{tour.price.toFixed(2)} per person
+
         if user
             a.btn.btn--green(href=`/tour/${tour.slug}/checkout`) Book Now!
         else
             a.btn.btn--green(href="/login") Log in to book a tour
-
 
     section.section-description
         .overview-box

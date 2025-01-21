@@ -454,3 +454,40 @@
   font-size: 1.9rem;
   font-weight: 400;
 }
+
+/* Price Display */
+.price-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.price-info {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 1.6rem;
+}
+
+.original-price {
+  font-size: 1.4rem;
+  text-decoration: line-through;
+  color: #ff6f61;
+}
+
+.discount-badge {
+  font-size: 1.2rem;
+  background-color: #ff6f61;
+  color: #fff;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.final-price {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #55c57a;
+}
