@@ -743,4 +743,3 @@ exports.getAllUserTransactions = catchAsync(async (req, res, next) => {
 // CRUD operations for bookings using the handler factory
 exports.getBooking = factory.getOne(Booking);
 exports.updateBooking = factory.updateOne(Booking);
-exports.deleteBooking = factory.deleteOne(Booking);
