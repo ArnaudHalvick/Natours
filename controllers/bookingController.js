@@ -140,12 +140,22 @@ const processBooking = async stripeSession => {
   const price = stripeSession.amount_total / 100;
   const { startDate, numParticipants, bookingId } = stripeSession.metadata;
 
-  // Start a MongoDB transaction
+  let normalizedStartDate;
+  try {
+    normalizedStartDate = normalizeToUTCMidnight(startDate);
+  } catch (error) {
+    throw new BookingError("Invalid date format", {
+      sessionId: stripeSession.id,
+      paymentIntentId: stripeSession.payment_intent,
+      startDate,
+    });
+  }
+
   const mongoSession = await mongoose.startSession();
   mongoSession.startTransaction();
 
   try {
-    // 1. Find user and tour
+    // Find user and tour
     const user = await User.findOne({ email: userEmail }).session(mongoSession);
     if (!user) {
       throw new BookingError("User not found", {
@@ -165,88 +175,92 @@ const processBooking = async stripeSession => {
       });
     }
 
-    // 2. Validate date availability using Tour model method
-    try {
-      const normalizedStartDate = normalizeToUTCMidnight(startDate);
-      const dateSlot = await Tour.validateDateAvailability(
-        tourId,
-        normalizedStartDate,
-        parseInt(numParticipants, 10),
-      );
+    // Find matching date slot
+    const dateSlot = tour.startDates.find(
+      sd =>
+        new Date(sd.date).toISOString().split("T")[0] ===
+        new Date(normalizedStartDate).toISOString().split("T")[0],
+    );
 
-      // 3. Create or update booking
-      let booking;
-      if (bookingId) {
-        booking = await Booking.findById(bookingId).session(mongoSession);
-        if (!booking) {
-          throw new BookingError("Existing booking not found", {
-            sessionId: stripeSession.id,
-            paymentIntentId: stripeSession.payment_intent,
-            bookingId,
-          });
-        }
-
-        booking.numParticipants += parseInt(numParticipants, 10);
-        booking.price += price;
-        booking.paymentIntents.push({
-          id: stripeSession.payment_intent,
-          amount: price,
-        });
-
-        await booking.save({ session: mongoSession });
-      } else {
-        booking = await Booking.create(
-          [
-            {
-              tour: tourId,
-              user: user._id,
-              price,
-              startDate: dateSlot.date, // Using the normalized date
-              numParticipants: parseInt(numParticipants, 10),
-              paymentIntentId: stripeSession.payment_intent,
-              paymentIntents: [
-                {
-                  id: stripeSession.payment_intent,
-                  amount: price,
-                },
-              ],
-            },
-          ],
-          { session: mongoSession },
-        );
-        booking = booking[0];
-      }
-
-      // 4. Update tour participants
-      dateSlot.participants += parseInt(numParticipants, 10);
-      tour.markModified("startDates");
-      await tour.save({ session: mongoSession });
-
-      await mongoSession.commitTransaction();
-      return booking;
-    } catch (error) {
-      throw new BookingError(error.message, {
+    if (!dateSlot) {
+      throw new BookingError("Selected start date not available", {
         sessionId: stripeSession.id,
         paymentIntentId: stripeSession.payment_intent,
         tourId,
-        startDate,
+        startDate: normalizedStartDate,
       });
     }
-  } catch (error) {
-    await mongoSession.abortTransaction();
 
-    if (
-      error instanceof BookingError ||
-      error instanceof CriticalBookingError
-    ) {
-      throw error;
+    const parsedParticipants = parseInt(numParticipants, 10);
+    const availableSpots = tour.maxGroupSize - dateSlot.participants;
+
+    if (parsedParticipants > availableSpots) {
+      throw new BookingError(
+        `Only ${availableSpots} spots left for this date`,
+        {
+          sessionId: stripeSession.id,
+          paymentIntentId: stripeSession.payment_intent,
+          tourId,
+          startDate: normalizedStartDate,
+          requested: parsedParticipants,
+          available: availableSpots,
+        },
+      );
     }
 
-    throw new BookingError(error.message || "Booking creation failed", {
-      sessionId: stripeSession.id,
-      paymentIntentId: stripeSession.payment_intent,
-      originalError: error.message,
-    });
+    // Create or update booking
+    let booking;
+    if (bookingId) {
+      booking = await Booking.findById(bookingId).session(mongoSession);
+      if (!booking) {
+        throw new BookingError("Existing booking not found", {
+          sessionId: stripeSession.id,
+          paymentIntentId: stripeSession.payment_intent,
+          bookingId,
+        });
+      }
+
+      booking.numParticipants += parsedParticipants;
+      booking.price += price;
+      booking.paymentIntents.push({
+        id: stripeSession.payment_intent,
+        amount: price,
+      });
+
+      await booking.save({ session: mongoSession });
+    } else {
+      booking = await Booking.create(
+        [
+          {
+            tour: tourId,
+            user: user._id,
+            price,
+            startDate: normalizedStartDate,
+            numParticipants: parsedParticipants,
+            paymentIntentId: stripeSession.payment_intent,
+            paymentIntents: [
+              {
+                id: stripeSession.payment_intent,
+                amount: price,
+              },
+            ],
+          },
+        ],
+        { session: mongoSession },
+      );
+      booking = booking[0];
+    }
+
+    // Update tour participants
+    dateSlot.participants += parsedParticipants;
+    tour.markModified("startDates");
+    await tour.save({ session: mongoSession });
+
+    await mongoSession.commitTransaction();
+    return booking;
+  } catch (error) {
+    await mongoSession.abortTransaction();
+    throw error;
   } finally {
     mongoSession.endSession();
   }
@@ -367,72 +381,74 @@ exports.addTravelersToBooking = catchAsync(async (req, res, next) => {
   const { bookingId } = req.params;
   const { tourId, numParticipants } = req.body;
 
-  // 1. Find the booking by ID
   const booking = await Booking.findById(bookingId);
   if (!booking) return next(new AppError("Booking not found.", 404));
 
-  // 2. Find the tour by ID
   const tour = await Tour.findById(tourId);
   if (!tour) return next(new AppError("Tour not found.", 404));
 
-  // 3. Check if the booking’s date is still in the future
   const normalizedBookingDate = normalizeToUTCMidnight(booking.startDate);
   if (!isFutureDate(normalizedBookingDate)) {
     return next(new AppError("Cannot add travelers to a past tour.", 400));
   }
 
-  // 4. Validate date availability
-  try {
-    const dateSlot = await Tour.validateDateAvailability(
-      tourId,
-      normalizedBookingDate,
-      numParticipants,
-    );
+  // Find matching date slot
+  const dateSlot = tour.startDates.find(
+    sd =>
+      new Date(sd.date).toISOString().split("T")[0] ===
+      normalizedBookingDate.split("T")[0],
+  );
 
-    // Generate the JWT token from cookies
-    const token = req.cookies.jwt;
-
-    // Define success and fail URLs
-    const successUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking&jwt=${token}`;
-    const failUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking-failed&jwt=${token}`;
-
-    // 5. Create Stripe session
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      success_url: successUrl,
-      // Use failUrl for cancel_url
-      cancel_url: failUrl,
-      customer_email: req.user.email,
-      client_reference_id: booking.id,
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            unit_amount: tour.price * 100, // or however you're calculating cost
-            product_data: {
-              name: `${tour.name} Tour - Additional Travelers`,
-              description: `Adding ${numParticipants} travelers to booking`,
-            },
-          },
-          quantity: numParticipants,
-        },
-      ],
-      mode: "payment",
-      metadata: {
-        tourId: tour.id,
-        bookingId: booking.id,
-        numParticipants: numParticipants.toString(),
-        startDate: dateSlot.date, // Using the normalized date
-      },
-    });
-
-    res.status(200).json({
-      status: "success",
-      session,
-    });
-  } catch (error) {
-    return next(new AppError(error.message, 400));
+  if (!dateSlot) {
+    return next(new AppError("Tour date no longer available.", 400));
   }
+
+  const availableSpots = tour.maxGroupSize - dateSlot.participants;
+  if (numParticipants > availableSpots) {
+    return next(
+      new AppError(
+        `Only ${availableSpots} spots available for this date.`,
+        400,
+      ),
+    );
+  }
+
+  const token = req.cookies.jwt;
+  const successUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking&jwt=${token}`;
+  const failUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking-failed&jwt=${token}`;
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    success_url: successUrl,
+    cancel_url: failUrl,
+    customer_email: req.user.email,
+    client_reference_id: booking.id,
+    line_items: [
+      {
+        price_data: {
+          currency: "usd",
+          unit_amount: tour.price * 100,
+          product_data: {
+            name: `${tour.name} Tour - Additional Travelers`,
+            description: `Adding ${numParticipants} travelers to booking`,
+          },
+        },
+        quantity: numParticipants,
+      },
+    ],
+    mode: "payment",
+    metadata: {
+      tourId: tour.id,
+      bookingId: booking.id,
+      numParticipants: numParticipants.toString(),
+      startDate: normalizedBookingDate,
+    },
+  });
+
+  res.status(200).json({
+    status: "success",
+    session,
+  });
 });
 
 // Stripe webhook handler for checkout session completion
@@ -455,15 +471,17 @@ exports.webhookCheckout = async (req, res) => {
     const session = event.data.object;
 
     try {
+      // Convert timestamp to ISO string if necessary
+      if (session.metadata.startDate && !isNaN(session.metadata.startDate)) {
+        session.metadata.startDate = new Date(
+          parseInt(session.metadata.startDate) * 1000,
+        ).toISOString();
+      }
+
       const booking = await createBookingCheckout(session);
       res.status(200).json({ received: true, success: true });
     } catch (error) {
-      // Log the initial booking error
-      await logFailedBooking({
-        error: error.message,
-        session,
-        timestamp: new Date().toISOString(),
-      });
+      console.error("Booking error:", error);
 
       try {
         // Attempt to refund the payment
@@ -474,7 +492,8 @@ exports.webhookCheckout = async (req, res) => {
 
         await logCriticalError({
           type: "booking_failed_refund_success",
-          bookingError: error,
+          bookingError: error.message,
+          refundError: "Payment refunded successfully",
           session,
           refund,
           timestamp: new Date().toISOString(),
@@ -488,8 +507,8 @@ exports.webhookCheckout = async (req, res) => {
       } catch (refundError) {
         await logCriticalError({
           type: "booking_and_refund_failed",
-          bookingError: error,
-          refundError,
+          bookingError: error.message,
+          refundError: refundError.message,
           session,
           timestamp: new Date().toISOString(),
         });

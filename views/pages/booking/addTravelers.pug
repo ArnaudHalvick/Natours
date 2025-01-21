@@ -20,14 +20,18 @@ block content
 
           .form__group.ma-bt-md
             label.form__label(for='startDate') Start Date
-            input#startDate.form__input(type='text', value=`${booking.startDate.toISOString().split('T')[0]}`, readonly)
+            - const formattedDate = new Date(booking.startDate).toISOString().split('T')[0]
+            input#startDate.form__input(type='text', value=formattedDate, readonly)
 
           .form__group.ma-bt-md
             label.form__label(for='currentParticipants') Current Participants
             input#currentParticipants.form__input(type='number', value=`${booking.numParticipants}`, readonly)
 
-          - const bookingDate = booking.startDate
-          - const matchingStartDate = tour.startDates.find(sd => new Date(sd.date).toISOString().split('T')[0] === bookingDate.toISOString().split('T')[0])
+          - const bookingDate = new Date(booking.startDate)
+          - const matchingStartDate = tour.startDates.find(sd => {
+          -   const tourDate = new Date(sd.date)
+          -   return tourDate.toISOString().split('T')[0] === bookingDate.toISOString().split('T')[0]
+          - })
           - const currentParticipants = matchingStartDate ? matchingStartDate.participants : 0
           - const availableSpots = tour.maxGroupSize - currentParticipants
 

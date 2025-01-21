@@ -5,11 +5,6 @@ const slugify = require("slugify");
 const validator = require("validator");
 const User = require("./userModel");
 const AppError = require("../utils/appError");
-const {
-  normalizeToUTCMidnight,
-  isValidISODate,
-  isSameUTCDay,
-} = require("../utils/dateUtils");
 
 // Start Date Subschema
 const startDateSchema = new mongoose.Schema({

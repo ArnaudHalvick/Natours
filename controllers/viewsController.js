@@ -275,10 +275,16 @@ exports.getAddTravelers = catchAsync(async (req, res, next) => {
     .lean();
   if (!tour) return next(new AppError("Tour not found", 404));
 
-  // 3. Render the page once both are fetched
+  // 3. Format the date before passing to template
+  const formattedBooking = {
+    ...booking.toObject(),
+    startDate: new Date(booking.startDate),
+  };
+
+  // 4. Render the page
   res.status(200).render("pages/booking/addTravelers", {
     title: "Add Travelers",
-    booking,
+    booking: formattedBooking,
     tour,
   });
 });
