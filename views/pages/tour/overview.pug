@@ -43,11 +43,9 @@ block content
                                     span.original-price $#{tour.price}
                                     span.discount-badge -#{tour.discountPercentage}%
                                 span.final-price $#{tour.priceDiscount}
-                                span.card__footer-text per person
                         else
                             p
                                 span.card__footer-value $#{tour.price}
-                                span.card__footer-text per person
                         p.card__ratings
                             span.card__footer-value= tour.ratingsAverage ? `${tour.ratingsAverage.toFixed(1)}` : "No rating yet"
                             span.card__footer-text= tour.ratingsAverage ? ` rating (${tour.ratingsQuantity})` : ""

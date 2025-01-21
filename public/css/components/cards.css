@@ -123,3 +123,45 @@
   justify-self: end;
   align-self: center;
 }
+
+/* Price Section in Cards */
+.price-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.price-info {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.original-price {
+  font-size: 1.4rem;
+  color: #ff6f61; /* Strikethrough price color */
+  text-decoration: line-through;
+}
+
+.discount-badge {
+  font-size: 1.2rem;
+  background-color: #ff6f61;
+  color: #ffffff;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.final-price {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #55c57a; /* Highlighted green color for final price */
+}
+
+.card__footer-text {
+  font-size: 1.2rem;
+  color: #777;
+  margin-left: 0.5rem;
+}

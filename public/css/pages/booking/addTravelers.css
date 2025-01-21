@@ -1,3 +1,4 @@
+/* General Container */
 .add-travelers {
   max-width: 120rem;
   margin: 0 auto;
@@ -17,6 +18,7 @@
   margin-top: 3rem;
 }
 
+/* Form Groups */
 .form__group {
   margin-bottom: 2.5rem;
 }
@@ -63,4 +65,87 @@
 
 .form__input[type="number"] {
   -moz-appearance: textfield;
+}
+
+/* Price Display */
+.price-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.price-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.original-price {
+  font-size: 1.4rem;
+  color: #ff6f61;
+  text-decoration: line-through;
+}
+
+.discount-badge {
+  font-size: 1.2rem;
+  background-color: #ff6f61;
+  color: #fff;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.final-price {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #55c57a;
+}
+
+/* Button */
+.add-travelers-submit {
+  display: inline-block;
+  background-color: #55c57a;
+  color: #fff;
+  font-size: 1.6rem;
+  font-weight: 700;
+  padding: 1.5rem 3rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  text-align: center;
+  transition: all 0.3s;
+  border: none;
+  cursor: pointer;
+}
+
+.add-travelers-submit:hover {
+  background-color: #28b487;
+  transform: translateY(-2px);
+}
+
+.add-travelers-submit:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .add-travelers__content {
+    padding: 3rem;
+  }
+
+  .form__label {
+    font-size: 1.4rem;
+  }
+
+  .form__input {
+    padding: 1rem 1.5rem;
+    font-size: 1.4rem;
+  }
+
+  .add-travelers-submit {
+    font-size: 1.4rem;
+    padding: 1.2rem 2.5rem;
+  }
 }
