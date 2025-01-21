@@ -9460,20 +9460,73 @@ var handleRefundBooking = /*#__PURE__*/function () {
 }();
 var handleSaveBooking = /*#__PURE__*/function () {
   var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(bookingId, formData) {
-    var _err$response3;
+    var form, originalDate, originalParticipants, tourId, updateData, updatedBooking, tour, updatedStartDates, modal, _err$response3;
     return _regeneratorRuntime().wrap(function _callee4$(_context4) {
       while (1) switch (_context4.prev = _context4.next) {
         case 0:
-          try {
-            // [Previous handleSaveBooking code remains the same until the last catch block...]
-          } catch (err) {
-            (0, _alert.showAlert)("error", ((_err$response3 = err.response) === null || _err$response3 === void 0 || (_err$response3 = _err$response3.data) === null || _err$response3 === void 0 ? void 0 : _err$response3.message) || err.message || "Error updating booking");
+          _context4.prev = 0;
+          form = document.getElementById("bookingForm");
+          originalDate = form.dataset.originalDate;
+          originalParticipants = parseInt(form.dataset.originalParticipants, 10);
+          tourId = form.dataset.tourId; // Prepare the update data
+          updateData = {
+            startDate: formData.startDate,
+            numParticipants: formData.numParticipants,
+            price: formData.price,
+            paid: formData.paid
+          }; // First update the booking
+          _context4.next = 8;
+          return (0, _bookingManagementAPI.updateBooking)(bookingId, updateData);
+        case 8:
+          updatedBooking = _context4.sent;
+          if (!(updatedBooking.status === "success")) {
+            _context4.next = 22;
+            break;
           }
-        case 1:
+          if (!(originalDate !== formData.startDate || originalParticipants !== formData.numParticipants)) {
+            _context4.next = 17;
+            break;
+          }
+          _context4.next = 13;
+          return (0, _bookingManagementAPI.fetchTourById)(tourId);
+        case 13:
+          tour = _context4.sent;
+          // Find and update the date slots
+          updatedStartDates = tour.startDates.map(function (dateSlot) {
+            var dateStr = new Date(dateSlot.date).toISOString().split("T")[0];
+
+            // Remove participants from original date
+            if (new Date(originalDate).toISOString().split("T")[0] === dateStr) {
+              dateSlot.participants = Math.max(0, dateSlot.participants - originalParticipants);
+            }
+
+            // Add participants to new date
+            if (new Date(formData.startDate).toISOString().split("T")[0] === dateStr) {
+              dateSlot.participants = (dateSlot.participants || 0) + formData.numParticipants;
+            }
+            return dateSlot;
+          }); // Update tour with new participant counts
+          _context4.next = 17;
+          return (0, _bookingManagementAPI.updateTourDates)(tourId, updatedStartDates);
+        case 17:
+          (0, _alert.showAlert)("success", "Booking updated successfully!");
+          modal = document.getElementById("bookingModal");
+          closeModal(modal);
+          _context4.next = 22;
+          return loadBookings();
+        case 22:
+          _context4.next = 28;
+          break;
+        case 24:
+          _context4.prev = 24;
+          _context4.t0 = _context4["catch"](0);
+          console.error("Error in handleSaveBooking:", _context4.t0);
+          (0, _alert.showAlert)("error", ((_err$response3 = _context4.t0.response) === null || _err$response3 === void 0 || (_err$response3 = _err$response3.data) === null || _err$response3 === void 0 ? void 0 : _err$response3.message) || _context4.t0.message || "Error updating booking");
+        case 28:
         case "end":
           return _context4.stop();
       }
-    }, _callee4);
+    }, _callee4, null, [[0, 24]]);
   }));
   return function handleSaveBooking(_x5, _x6) {
     return _ref4.apply(this, arguments);

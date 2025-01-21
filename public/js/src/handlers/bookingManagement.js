@@ -332,8 +332,67 @@ const handleRefundBooking = async (bookingId, price, isManual) => {
 
 const handleSaveBooking = async (bookingId, formData) => {
   try {
-    // [Previous handleSaveBooking code remains the same until the last catch block...]
+    const form = document.getElementById("bookingForm");
+    const originalDate = form.dataset.originalDate;
+    const originalParticipants = parseInt(
+      form.dataset.originalParticipants,
+      10,
+    );
+    const tourId = form.dataset.tourId;
+
+    // Prepare the update data
+    const updateData = {
+      startDate: formData.startDate,
+      numParticipants: formData.numParticipants,
+      price: formData.price,
+      paid: formData.paid,
+    };
+
+    // First update the booking
+    const updatedBooking = await updateBooking(bookingId, updateData);
+
+    if (updatedBooking.status === "success") {
+      // If date or participants changed, we need to update tour participant counts
+      if (
+        originalDate !== formData.startDate ||
+        originalParticipants !== formData.numParticipants
+      ) {
+        const tour = await fetchTourById(tourId);
+
+        // Find and update the date slots
+        const updatedStartDates = tour.startDates.map(dateSlot => {
+          const dateStr = new Date(dateSlot.date).toISOString().split("T")[0];
+
+          // Remove participants from original date
+          if (new Date(originalDate).toISOString().split("T")[0] === dateStr) {
+            dateSlot.participants = Math.max(
+              0,
+              dateSlot.participants - originalParticipants,
+            );
+          }
+
+          // Add participants to new date
+          if (
+            new Date(formData.startDate).toISOString().split("T")[0] === dateStr
+          ) {
+            dateSlot.participants =
+              (dateSlot.participants || 0) + formData.numParticipants;
+          }
+
+          return dateSlot;
+        });
+
+        // Update tour with new participant counts
+        await updateTourDates(tourId, updatedStartDates);
+      }
+
+      showAlert("success", "Booking updated successfully!");
+      const modal = document.getElementById("bookingModal");
+      closeModal(modal);
+      await loadBookings(); // Refresh the bookings table
+    }
   } catch (err) {
+    console.error("Error in handleSaveBooking:", err);
     showAlert(
       "error",
       err.response?.data?.message || err.message || "Error updating booking",
