@@ -18,6 +18,96 @@ const ALLOWED_SORT_FIELDS = [
 ];
 
 /**
+ * Helper: Perform partial Stripe refunds if this is not a manual booking.
+ * Returns an array of Stripe Refund IDs or an empty array if no Stripe calls were made.
+ */
+async function partialStripeRefund(booking, refundAmount) {
+  // If it's a manual booking or there's no recorded paymentIntents, skip Stripe
+  if (booking.isManual || !booking.paymentIntents?.length) {
+    return [];
+  }
+
+  // Calculate total paid
+  const totalPaid = booking.paymentIntents.reduce(
+    (acc, pi) => acc + pi.amount,
+    0,
+  );
+
+  // Check if we're trying to refund more than was actually paid
+  if (refundAmount > totalPaid) {
+    throw new AppError(
+      `Refund amount (${refundAmount.toFixed(
+        2,
+      )}) exceeds total paid (${totalPaid.toFixed(2)}).`,
+      400,
+    );
+  }
+
+  let remainingToRefund = refundAmount;
+  const stripeRefundIds = [];
+
+  // Loop through paymentIntents in the order they were stored
+  for (const pi of booking.paymentIntents) {
+    if (remainingToRefund <= 0) break; // Done refunding
+
+    const canRefund = Math.min(pi.amount, remainingToRefund);
+    if (canRefund <= 0) continue;
+
+    // Create a partial refund in Stripe
+    const stripeResponse = await stripe.refunds.create({
+      payment_intent: pi.id,
+      amount: canRefund * 100, // convert dollars to cents
+    });
+
+    stripeRefundIds.push(stripeResponse.id);
+    remainingToRefund -= canRefund;
+  }
+
+  // If somehow we couldn't fully refund the requested amount
+  if (remainingToRefund > 0) {
+    throw new AppError(
+      "Unable to fully refund the requested amount. Please check logs.",
+      500,
+    );
+  }
+
+  return stripeRefundIds;
+}
+
+/**
+ * Helper: Decrement the participants count in the Tour for the booking's date.
+ */
+async function updateTourParticipants(booking) {
+  const tour = await Tour.findById(booking.tour);
+  if (!tour) return;
+
+  // Normalize both booking.startDate and each tour date to midnight UTC
+  const toUtcMidnight = date => {
+    const dt = new Date(date);
+    return new Date(
+      Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()),
+    );
+  };
+
+  const bookingMidnight = toUtcMidnight(booking.startDate).getTime();
+
+  // Find the matching tour date
+  const dateObj = tour.startDates.find(
+    sd => toUtcMidnight(sd.date).getTime() === bookingMidnight,
+  );
+
+  if (dateObj) {
+    // Reduce participant count
+    dateObj.participants = Math.max(
+      0,
+      dateObj.participants - booking.numParticipants,
+    );
+    tour.markModified("startDates");
+    await tour.save();
+  }
+}
+
+/**
  * GET /api/v1/refunds
  * Retrieve all refunds with optional search, filtering, sorting, pagination.
  */
@@ -168,6 +258,7 @@ exports.requestRefund = catchAsync(async (req, res, next) => {
       data: refund,
     });
   } catch (err) {
+    // Handle duplicate key error if a refund is already requested
     if (err.code === 11000) {
       return next(
         new AppError(
@@ -209,100 +300,28 @@ exports.processRefund = catchAsync(async (req, res, next) => {
   }
 
   try {
-    // Only process Stripe refund for non-manual bookings
-    if (!booking.isManual && booking.paymentIntents?.length > 0) {
-      // Calculate total paid by summing all PaymentIntents
-      const totalPaid = booking.paymentIntents.reduce(
-        (acc, pi) => acc + pi.amount,
-        0,
-      );
+    // Perform partial Stripe refund (if needed)
+    const stripeRefundIds = await partialStripeRefund(booking, refund.amount);
 
-      // Check if we're trying to refund more than was paid
-      if (refund.amount > totalPaid) {
-        return next(
-          new AppError(
-            `Refund amount ($${refund.amount.toFixed(
-              2,
-            )}) exceeds total paid ($${totalPaid.toFixed(2)}) for this booking.`,
-            400,
-          ),
-        );
-      }
-
-      // Create partial refunds across paymentIntents if needed
-      let remainingToRefund = refund.amount;
-      const stripeRefundIds = [];
-
-      // Loop through paymentIntents in the order they were stored
-      for (const pi of booking.paymentIntents) {
-        if (remainingToRefund <= 0) break; // Done refunding
-
-        const canRefund = Math.min(pi.amount, remainingToRefund);
-        if (canRefund <= 0) continue;
-
-        // Create a partial refund in Stripe
-        const stripeResponse = await stripe.refunds.create({
-          payment_intent: pi.id,
-          amount: canRefund * 100, // convert to cents
-        });
-
-        stripeRefundIds.push(stripeResponse.id);
-        remainingToRefund -= canRefund;
-      }
-
-      // If somehow we couldn't fully refund the requested amount
-      if (remainingToRefund > 0) {
-        return next(
-          new AppError(
-            "Unable to fully refund the requested amount. Please check logs.",
-            500,
-          ),
-        );
-      }
-
-      // Store Stripe refund IDs
+    // If we actually did a Stripe refund, store the IDs
+    if (stripeRefundIds.length > 0) {
       refund.stripeRefundId = stripeRefundIds.join(", ");
     }
 
-    // Process tour participant updates (for both manual and Stripe bookings)
-    const tour = await Tour.findById(booking.tour);
-    if (tour) {
-      // Normalize both booking.startDate and each tour date to midnight UTC
-      const toUtcMidnight = date => {
-        const dt = new Date(date);
-        return new Date(
-          Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()),
-        );
-      };
-      const bookingMidnight = toUtcMidnight(booking.startDate).getTime();
-
-      // Find the matching tour date
-      const dateObj = tour.startDates.find(
-        sd => toUtcMidnight(sd.date).getTime() === bookingMidnight,
-      );
-
-      if (dateObj) {
-        // Reduce participant count
-        dateObj.participants = Math.max(
-          0,
-          dateObj.participants - booking.numParticipants,
-        );
-        tour.markModified("startDates");
-        await tour.save();
-      }
-    }
+    // Update participants on the relevant tour date
+    await updateTourParticipants(booking);
 
     // Mark refund as processed
     refund.status = "processed";
     refund.processedAt = new Date();
     await refund.save();
 
-    // Update booking status
-    booking.paid = "refunded"; // Use new enum value instead of separate flags
-    booking.numParticipants = 0; // Ensures no participants remain on a refunded booking
+    // Mark booking as refunded
+    booking.paid = "refunded"; // or whatever your "refunded" status is
+    booking.numParticipants = 0; // no participants remain on a refunded booking
     await booking.save();
 
-    // Respond to client
+    // Respond to the client
     res.status(200).json({
       status: "success",
       data: refund,
@@ -311,7 +330,9 @@ exports.processRefund = catchAsync(async (req, res, next) => {
     console.error("Refund processing error:", error);
     return next(
       new AppError(
-        `Failed to ${booking.isManual ? "record" : "process"} the refund. Please try again.`,
+        `Failed to ${
+          booking.isManual ? "record" : "process"
+        } the refund. Please try again.`,
         500,
       ),
     );
@@ -362,115 +383,31 @@ exports.adminDirectRefund = catchAsync(async (req, res, next) => {
   }
 
   try {
-    // ————————————————————————
-    // 1) Perform actual Stripe refund if needed
-    // ————————————————————————
-    let stripeRefundIds = [];
-    let refundAmount = booking.price; // or whatever logic you need
+    const refundAmount = booking.price; // or compute a custom amount if needed
 
-    if (!booking.isManual && booking.paymentIntents?.length > 0) {
-      // Calculate total paid
-      const totalPaid = booking.paymentIntents.reduce(
-        (acc, pi) => acc + pi.amount,
-        0,
-      );
+    // Perform partial Stripe refund (if needed)
+    const stripeRefundIds = await partialStripeRefund(booking, refundAmount);
 
-      if (refundAmount > totalPaid) {
-        return next(
-          new AppError(
-            `Refund amount (${refundAmount}) exceeds total paid (${totalPaid}).`,
-            400,
-          ),
-        );
-      }
-
-      // Partial refunds across multiple PaymentIntents if necessary
-      let remainingToRefund = refundAmount;
-      for (const pi of booking.paymentIntents) {
-        if (remainingToRefund <= 0) break;
-
-        const canRefund = Math.min(pi.amount, remainingToRefund);
-        if (canRefund <= 0) continue;
-
-        // Call Stripe’s refund endpoint
-        const stripeResponse = await stripe.refunds.create({
-          payment_intent: pi.id,
-          amount: canRefund * 100, // convert to cents
-        });
-
-        stripeRefundIds.push(stripeResponse.id);
-        remainingToRefund -= canRefund;
-      }
-
-      if (remainingToRefund > 0) {
-        return next(
-          new AppError(
-            "Unable to fully refund the requested amount. Please check logs.",
-            500,
-          ),
-        );
-      }
-    }
-
-    // ————————————————————————
-    // 2) Create a Refund doc in our DB
-    // ————————————————————————
+    // Create a new Refund document immediately as 'processed'
     const refund = await Refund.create({
       booking: booking._id,
       user: booking.user,
-      status: "processed", // or 'pending' if you prefer
+      status: "processed", // directly processed since admin is doing it
       amount: booking.price,
       requestedAt: new Date(),
       processedAt: new Date(),
-      stripeRefundId: stripeRefundIds.join(", "), // store all the IDs
+      stripeRefundId: stripeRefundIds.join(", "),
     });
 
-    // ————————————————————————
-    // 3) Decrement participant counts
-    // ————————————————————————
-    const tour = await Tour.findById(booking.tour);
-    if (tour) {
-      const bookingDate = new Date(booking.startDate);
-      const normalizedBookingDate = new Date(
-        Date.UTC(
-          bookingDate.getUTCFullYear(),
-          bookingDate.getUTCMonth(),
-          bookingDate.getUTCDate(),
-        ),
-      );
+    // Update participants on the relevant tour date
+    await updateTourParticipants(booking);
 
-      const dateObj = tour.startDates.find(sd => {
-        const tourDate = new Date(sd.date);
-        const normalizedTourDate = new Date(
-          Date.UTC(
-            tourDate.getUTCFullYear(),
-            tourDate.getUTCMonth(),
-            tourDate.getUTCDate(),
-          ),
-        );
-        return normalizedTourDate.getTime() === normalizedBookingDate.getTime();
-      });
-
-      if (dateObj) {
-        dateObj.participants = Math.max(
-          0,
-          dateObj.participants - booking.numParticipants,
-        );
-        tour.markModified("startDates");
-        await tour.save();
-      }
-    }
-
-    // ————————————————————————
-    // 4) Mark booking as refunded
-    // ————————————————————————
+    // Mark booking as refunded
     booking.paid = "refunded";
     booking.numParticipants = 0;
     await booking.save();
 
-    // ————————————————————————
-    // 5) Return success to the client
-    // ————————————————————————
+    // Return success response
     res.status(200).json({
       status: "success",
       data: refund,
