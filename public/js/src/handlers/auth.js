@@ -6,12 +6,14 @@ import {
   verify2FA,
   forgotPassword,
   resetPassword,
+  signup
 } from "../api/authAPI";
 import { showAlert } from "../utils/alert";
 
 export const initAuthHandlers = () => {
   const {
     loginForm,
+    signupForm,
     logoutBtn,
     twoFAForm,
     resetPasswordForm,
@@ -24,6 +26,17 @@ export const initAuthHandlers = () => {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       login(email, password);
+    });
+  }
+
+  if (signupForm()) {
+    signupForm().addEventListener("submit", e => {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const passwordConfirm = document.getElementById("passwordConfirm").value;
+      signup(name, email, password, passwordConfirm);
     });
   }
 
