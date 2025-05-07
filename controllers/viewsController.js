@@ -4,6 +4,7 @@ const Booking = require("../models/bookingModel");
 const Review = require("../models/reviewModel");
 const Refund = require("../models/refundModel");
 const catchAsync = require("../utils/catchAsync");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const AppError = require("../utils/appError");
 const { isFutureDate } = require("../utils/dateUtils");
@@ -204,7 +205,7 @@ exports.getEditReviewForm = catchAsync(async (req, res, next) => {
 
 // Render user's reviews page
 exports.getMyReviews = catchAsync(async (req, res) => {
-  // 1) Fetch this user’s reviews, including each associated tour
+  // 1) Fetch this user's reviews, including each associated tour
   const reviews = await Review.find({ user: req.user.id }).populate("tour");
 
   // 2) Build a userTours array to populate the Tour filter dropdown
@@ -359,3 +360,33 @@ exports.getEmailChangeSuccess = (req, res) => {
     title: "Email Changed Successfully",
   });
 };
+
+// Handle booking confirmation page and check payment status
+exports.getBookingConfirmation = catchAsync(async (req, res, next) => {
+  const { session_id } = req.query;
+  
+  if (!session_id) {
+    return next(new AppError('No session ID provided', 400));
+  }
+  
+  try {
+    // Get the session from Stripe
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+    
+    // Check payment status
+    if (session.payment_status === 'paid') {
+      // If paid, redirect to success page
+      const successUrl = session.metadata.successUrl || '/my-tours?alert=booking';
+      return res.redirect(successUrl);
+    } else {
+      // Show confirmation page while payment is processing
+      return res.status(200).render('pages/booking/confirmation', {
+        title: 'Confirming Payment',
+        sessionId: session_id
+      });
+    }
+  } catch (error) {
+    // If there's an error retrieving the session, redirect to failure page
+    return res.redirect('/my-tours?alert=booking-failed');
+  }
+});

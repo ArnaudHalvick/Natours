@@ -42,7 +42,7 @@ router.get(
   viewsController.getReviewForm,
 );
 
-// Route for “Edit Review” page
+// Route for "Edit Review" page
 router.get(
   "/tour/:slug/review/:reviewId/edit",
   authController.protect,
@@ -102,5 +102,12 @@ router.get(
 router.get("/checkEmail", viewsController.getCheckEmail);
 router.get("/confirmSuccess", viewsController.getConfirmSuccess);
 router.get("/verify-2fa", viewsController.getVerify2FA);
+
+// Route for confirming booking after Stripe payment
+router.get(
+  "/confirm-booking",
+  authController.protect,
+  viewsController.getBookingConfirmation
+);
 
 module.exports = router;

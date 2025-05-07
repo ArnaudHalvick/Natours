@@ -33,7 +33,7 @@ app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
 
 // Make Stripe public key available to templates
-app.locals.stripePublicKey = process.env.STRIPE_PUBLIC_KEY;
+app.locals.stripePublicKey = 'pk_test_51POLLYP4vWrJMwjYSab2mjfjTHapAaoMKrHderrbS8aOyuykkduvF0sPdBB6VpulZCmMxGfRd3NpmGHFE3D9RAEK0038a5wjiI';
 
 app.use(cors()); // This is now correctly required
 

@@ -74,7 +74,8 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     // Generate the JWT token from cookies (assuming it's there)
     const token = req.cookies.jwt;
 
-    // Define your success and failure/cancel URLs
+    // Define confirmation, success and failure/cancel URLs
+    const confirmationUrl = `${req.protocol}://${req.get("host")}/confirm-booking?session_id={CHECKOUT_SESSION_ID}&jwt=${token}`;
     const successUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking&jwt=${token}`;
     const failUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking-failed&jwt=${token}`;
 
@@ -87,7 +88,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     // 5. Create Stripe session with normalized date and discounted price
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
-      success_url: successUrl,
+      success_url: confirmationUrl,
       cancel_url: failUrl,
       customer_email: req.user.email,
       client_reference_id: req.params.tourId,
@@ -119,6 +120,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
         originalPrice: tour.price.toString(),
         discountPercentage: (tour.priceDiscount || 0).toString(),
         finalPrice: finalPrice.toString(),
+        successUrl: successUrl
       },
     });
 

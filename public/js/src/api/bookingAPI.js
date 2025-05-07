@@ -55,14 +55,13 @@ export const bookTour = async (tourId, startDate, numParticipants) => {
       throw new Error("Invalid session response from server");
     }
 
-    // Get the result of the checkout
-    const result = await stripe.redirectToCheckout({
+    // Redirect to Stripe checkout
+    await stripe.redirectToCheckout({
       sessionId: response.data.session.id,
     });
-
-    if (result?.error || !result?.success) {
-      throw new Error(result.error?.message || "Booking failed");
-    }
+    
+    // Note: We don't need to handle the success here as Stripe will 
+    // redirect to our success or cancel URL defined on the server
   } catch (err) {
     const errorMessage =
       err.response?.data?.message || err.message || "Booking error occurred";
