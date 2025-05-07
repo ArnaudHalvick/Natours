@@ -292,10 +292,8 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Incorrect email or password", 401));
   }
 
-  if (
-    process.env.NODE_ENV === "development" &&
-    process.env.SKIP_2FA === "true"
-  ) {
+  // Check if 2FA is disabled in config
+  if (process.env.ENABLE_2FA !== 'true') {
     return createSendToken(user, 200, res, req);
   }
 
