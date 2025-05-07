@@ -1,0 +1,225 @@
+{
+  "refunds": {
+    "name": "Refunds",
+    "item": [
+      {
+        "name": "Get All Refunds (Admin)",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "{{URL}}/api/v1/refunds",
+            "host": ["{{URL}}"],
+            "path": ["api", "v1", "refunds"]
+          },
+          "auth": {
+            "type": "bearer",
+            "bearer": [
+              {
+                "key": "token",
+                "value": "{{jwt}}",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Admin Direct Refund",
+        "request": {
+          "method": "POST",
+          "url": {
+            "raw": "{{URL}}/api/v1/refunds/admin/:bookingId",
+            "host": ["{{URL}}"],
+            "path": ["api", "v1", "refunds", "admin", ":bookingId"],
+            "variable": [
+              {
+                "key": "bookingId",
+                "value": "booking-id-here"
+              }
+            ]
+          },
+          "auth": {
+            "type": "bearer",
+            "bearer": [
+              {
+                "key": "token",
+                "value": "{{jwt}}",
+                "type": "string"
+              }
+            ]
+          },
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"amount\": 497,\n  \"reason\": \"Customer requested refund\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Request Refund",
+        "request": {
+          "method": "POST",
+          "url": {
+            "raw": "{{URL}}/api/v1/refunds/request/:bookingId",
+            "host": ["{{URL}}"],
+            "path": ["api", "v1", "refunds", "request", ":bookingId"],
+            "variable": [
+              {
+                "key": "bookingId",
+                "value": "booking-id-here"
+              }
+            ]
+          },
+          "auth": {
+            "type": "bearer",
+            "bearer": [
+              {
+                "key": "token",
+                "value": "{{jwt}}",
+                "type": "string"
+              }
+            ]
+          },
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"reason\": \"I need to cancel my trip\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Process Refund (Admin)",
+        "request": {
+          "method": "PATCH",
+          "url": {
+            "raw": "{{URL}}/api/v1/refunds/process/:refundId",
+            "host": ["{{URL}}"],
+            "path": ["api", "v1", "refunds", "process", ":refundId"],
+            "variable": [
+              {
+                "key": "refundId",
+                "value": "refund-id-here"
+              }
+            ]
+          },
+          "auth": {
+            "type": "bearer",
+            "bearer": [
+              {
+                "key": "token",
+                "value": "{{jwt}}",
+                "type": "string"
+              }
+            ]
+          },
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"amount\": 497,\n  \"adminNote\": \"Approved as per cancellation policy\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Reject Refund (Admin)",
+        "request": {
+          "method": "PATCH",
+          "url": {
+            "raw": "{{URL}}/api/v1/refunds/reject/:refundId",
+            "host": ["{{URL}}"],
+            "path": ["api", "v1", "refunds", "reject", ":refundId"],
+            "variable": [
+              {
+                "key": "refundId",
+                "value": "refund-id-here"
+              }
+            ]
+          },
+          "auth": {
+            "type": "bearer",
+            "bearer": [
+              {
+                "key": "token",
+                "value": "{{jwt}}",
+                "type": "string"
+              }
+            ]
+          },
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"adminNote\": \"Refund rejected - outside cancellation window\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "billing": {
+    "name": "Billing",
+    "item": [
+      {
+        "name": "Get User Transactions",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "{{URL}}/api/v1/billing/transactions",
+            "host": ["{{URL}}"],
+            "path": ["api", "v1", "billing", "transactions"]
+          },
+          "auth": {
+            "type": "bearer",
+            "bearer": [
+              {
+                "key": "token",
+                "value": "{{jwt}}",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Download Invoice",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "{{URL}}/api/v1/billing/download-invoice/:transactionId",
+            "host": ["{{URL}}"],
+            "path": ["api", "v1", "billing", "download-invoice", ":transactionId"],
+            "variable": [
+              {
+                "key": "transactionId",
+                "value": "transaction-id-here"
+              }
+            ]
+          },
+          "auth": {
+            "type": "bearer",
+            "bearer": [
+              {
+                "key": "token",
+                "value": "{{jwt}}",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+} 

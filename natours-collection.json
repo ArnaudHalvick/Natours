@@ -1,0 +1,1426 @@
+{
+  "info": {
+    "name": "Natours API",
+    "description": "Complete API collection for Natours application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Tours",
+      "item": [
+        {
+          "name": "Get All Tours",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/tours",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "tours"]
+            }
+          }
+        },
+        {
+          "name": "Get All Tours (Regex)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/tours/regex",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "tours", "regex"]
+            }
+          }
+        },
+        {
+          "name": "Get Tour Stats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/tours/tour-stats",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "tours", "tour-stats"]
+            }
+          }
+        },
+        {
+          "name": "Get Tours Within Distance",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/tours/tours-within/:distance/center/:latlng/unit/:unit",
+              "host": ["{{URL}}"],
+              "path": [
+                "api",
+                "v1",
+                "tours",
+                "tours-within",
+                ":distance",
+                "center",
+                ":latlng",
+                "unit",
+                ":unit"
+              ],
+              "variable": [
+                {
+                  "key": "distance",
+                  "value": "300"
+                },
+                {
+                  "key": "latlng",
+                  "value": "34.111745,-118.113491"
+                },
+                {
+                  "key": "unit",
+                  "value": "mi"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Distances To Tours",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/tours/distances/:latlng/unit/:unit",
+              "host": ["{{URL}}"],
+              "path": [
+                "api",
+                "v1",
+                "tours",
+                "distances",
+                ":latlng",
+                "unit",
+                ":unit"
+              ],
+              "variable": [
+                {
+                  "key": "latlng",
+                  "value": "34.111745,-118.113491"
+                },
+                {
+                  "key": "unit",
+                  "value": "mi"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Available Guides",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/tours/available-guides",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "tours", "available-guides"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create New Tour",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{URL}}/api/v1/tours",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "tours"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Test Tour",
+                  "type": "text"
+                },
+                {
+                  "key": "duration",
+                  "value": "5",
+                  "type": "text"
+                },
+                {
+                  "key": "maxGroupSize",
+                  "value": "10",
+                  "type": "text"
+                },
+                {
+                  "key": "difficulty",
+                  "value": "medium",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "497",
+                  "type": "text"
+                },
+                {
+                  "key": "summary",
+                  "value": "Test tour summary",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Test tour description",
+                  "type": "text"
+                },
+                {
+                  "key": "imageCover",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "images",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "startLocation",
+                  "value": "{\"type\":\"Point\",\"coordinates\":[-118.113491,34.111745],\"address\":\"Los Angeles, USA\",\"description\":\"Starting point\"}",
+                  "type": "text"
+                },
+                {
+                  "key": "locations",
+                  "value": "[{\"type\":\"Point\",\"coordinates\":[-118.5,34.0],\"address\":\"Location 1\",\"description\":\"Point 1\",\"day\":1},{\"type\":\"Point\",\"coordinates\":[-118.4,34.1],\"address\":\"Location 2\",\"description\":\"Point 2\",\"day\":3}]",
+                  "type": "text"
+                },
+                {
+                  "key": "startDates",
+                  "value": "[\"2023-04-25\",\"2023-07-20\",\"2023-10-05\"]",
+                  "type": "text"
+                },
+                {
+                  "key": "guides",
+                  "value": "[\"5c8a1f292f8fb814b56fa184\",\"5c8a1f4e2f8fb814b56fa185\"]",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Tour By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/tours/:id",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "tours", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "5c88fa8cf4afda39709c2955"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Tour",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{URL}}/api/v1/tours/:id",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "tours", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "5c88fa8cf4afda39709c2955"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Updated Tour Name",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "599",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Tour",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{URL}}/api/v1/tours/:id",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "tours", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "5c88fa8cf4afda39709c2955"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Hide Review",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{URL}}/api/v1/tours/:id/hide",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "tours", ":id", "hide"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "5c88fa8cf4afda39709c2955"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users & Auth",
+      "item": [
+        {
+          "name": "Confirm Email",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/confirmEmail/:token",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "confirmEmail", ":token"],
+              "variable": [
+                {
+                  "key": "token",
+                  "value": "confirmation-token-here"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify Email Change",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/verifyEmailChange/:token",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "verifyEmailChange", ":token"],
+              "variable": [
+                {
+                  "key": "token",
+                  "value": "verification-token-here"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify 2FA",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/verify2FA",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "verify2FA"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user-id-here\",\n  \"code\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Resend 2FA",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/resend2FA",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "resend2FA"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user-id-here\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Resend Confirmation Email",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/resendConfirmation",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "resendConfirmation"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Signup",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/signup",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "signup"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password12345\",\n  \"passwordConfirm\": \"password12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('jwt', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/login",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/logout",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/refresh-token",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "refresh-token"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"refresh-token-here\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/forgotPassword",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "forgotPassword"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/resetPassword/:token",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "resetPassword", ":token"],
+              "variable": [
+                {
+                  "key": "token",
+                  "value": "reset-token-here"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"newpassword12345\",\n  \"passwordConfirm\": \"newpassword12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/me",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "me"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update My Password",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/updateMyPassword",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "updateMyPassword"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordCurrent\": \"password12345\",\n  \"password\": \"newpassword12345\",\n  \"passwordConfirm\": \"newpassword12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/updateMe",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "updateMe"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Updated Name",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "updated@example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete My Account",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/deleteMe",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "deleteMe"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/users",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Users Regex (Admin)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/regex",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", "regex"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create User (Admin)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{URL}}/api/v1/users",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New User\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password12345\",\n  \"passwordConfirm\": \"password12345\",\n  \"role\": \"user\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get User By ID (Admin)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/:id",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "5c8a1d5b0190b214360dc057"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update User (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/:id",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "5c8a1d5b0190b214360dc057"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated User\",\n  \"email\": \"updated@example.com\",\n  \"role\": \"guide\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete User (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{URL}}/api/v1/users/:id",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "5c8a1d5b0190b214360dc057"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "Get All Reviews",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/reviews",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "reviews"]
+            }
+          }
+        },
+        {
+          "name": "Get Tour Reviews",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/tours/:tourId/reviews",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "tours", ":tourId", "reviews"],
+              "variable": [
+                {
+                  "key": "tourId",
+                  "value": "5c88fa8cf4afda39709c2955"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Reviews Regex",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/reviews/regex",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "reviews", "regex"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Review",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{URL}}/api/v1/tours/:tourId/reviews",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "tours", ":tourId", "reviews"],
+              "variable": [
+                {
+                  "key": "tourId",
+                  "value": "5c88fa8cf4afda39709c2955"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"review\": \"This was an amazing tour! Highly recommended.\",\n  \"rating\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get Review By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/reviews/:id",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "reviews", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "5c8a34ed14eb5c17645c9108"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{URL}}/api/v1/reviews/:id",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "reviews", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "5c8a34ed14eb5c17645c9108"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"review\": \"Updated review text\",\n  \"rating\": 4\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{URL}}/api/v1/reviews/:id",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "reviews", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "5c8a34ed14eb5c17645c9108"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "Get Checkout Session",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/bookings/checkout-session/:tourId",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "bookings", "checkout-session", ":tourId"],
+              "variable": [
+                {
+                  "key": "tourId",
+                  "value": "5c88fa8cf4afda39709c2955"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Travelers to Booking",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{URL}}/api/v1/bookings/:bookingId/add-travelers",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "bookings", ":bookingId", "add-travelers"],
+              "variable": [
+                {
+                  "key": "bookingId",
+                  "value": "booking-id-here"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"travelers\": [\n    {\n      \"name\": \"Traveler 1\",\n      \"email\": \"traveler1@example.com\"\n    },\n    {\n      \"name\": \"Traveler 2\",\n      \"email\": \"traveler2@example.com\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get All Bookings Regex (Admin)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/bookings/regex",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "bookings", "regex"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Manual Booking (Admin)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{URL}}/api/v1/bookings/manual",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "bookings", "manual"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tour\": \"5c88fa8cf4afda39709c2955\",\n  \"user\": \"5c8a1dfa2f8fb814b56fa181\",\n  \"price\": 997,\n  \"paid\": true,\n  \"travelers\": [\n    {\n      \"name\": \"Manual Traveler 1\",\n      \"email\": \"manual1@example.com\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get Booking By ID (Admin)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/bookings/:id",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "bookings", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "booking-id-here"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Booking (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{URL}}/api/v1/bookings/:id",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "bookings", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "booking-id-here"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 1200,\n  \"paid\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Refunds",
+      "item": [
+        {
+          "name": "Get All Refunds (Admin)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/refunds",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "refunds"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin Direct Refund",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{URL}}/api/v1/refunds/admin/:bookingId",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "refunds", "admin", ":bookingId"],
+              "variable": [
+                {
+                  "key": "bookingId",
+                  "value": "booking-id-here"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 497,\n  \"reason\": \"Customer requested refund\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Request Refund",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{URL}}/api/v1/refunds/request/:bookingId",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "refunds", "request", ":bookingId"],
+              "variable": [
+                {
+                  "key": "bookingId",
+                  "value": "booking-id-here"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"I need to cancel my trip\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Process Refund (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{URL}}/api/v1/refunds/process/:refundId",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "refunds", "process", ":refundId"],
+              "variable": [
+                {
+                  "key": "refundId",
+                  "value": "refund-id-here"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 497,\n  \"adminNote\": \"Approved as per cancellation policy\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Reject Refund (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{URL}}/api/v1/refunds/reject/:refundId",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "refunds", "reject", ":refundId"],
+              "variable": [
+                {
+                  "key": "refundId",
+                  "value": "refund-id-here"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"adminNote\": \"Refund rejected - outside cancellation window\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Billing",
+      "item": [
+        {
+          "name": "Get User Transactions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/billing/transactions",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "billing", "transactions"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Download Invoice",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{URL}}/api/v1/billing/download-invoice/:transactionId",
+              "host": ["{{URL}}"],
+              "path": ["api", "v1", "billing", "download-invoice", ":transactionId"],
+              "variable": [
+                {
+                  "key": "transactionId",
+                  "value": "transaction-id-here"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+} 
