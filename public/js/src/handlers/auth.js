@@ -6,7 +6,8 @@ import {
   verify2FA,
   forgotPassword,
   resetPassword,
-  signup
+  signup,
+  resend2FA
 } from "../api/authAPI";
 import { showAlert } from "../utils/alert";
 
@@ -53,6 +54,15 @@ export const initAuthHandlers = () => {
       const code = document.getElementById("code").value;
       verify2FA(code);
     });
+
+    // Add event listener for the Resend Code button
+    const resendBtn = document.getElementById("resendCode");
+    if (resendBtn) {
+      resendBtn.addEventListener("click", e => {
+        e.preventDefault();
+        resend2FA();
+      });
+    }
   }
 
   if (forgotPasswordBtn()) {

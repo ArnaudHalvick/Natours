@@ -98,6 +98,25 @@ export const verify2FA = async code => {
   }
 };
 
+export const resend2FA = async () => {
+  try {
+    const tempToken = localStorage.getItem("tempToken");
+    const res = await axios({
+      method: "POST",
+      url: "/api/v1/users/resend2FA",
+      headers: {
+        Authorization: `Bearer ${tempToken}`,
+      }
+    });
+
+    if (res.data.status === "success") {
+      showAlert("success", res.data.message || "A new 2FA code has been sent to your email");
+    }
+  } catch (err) {
+    showAlert("error", err.response?.data?.message || "Failed to resend 2FA code");
+  }
+};
+
 export const forgotPassword = async email => {
   try {
     const res = await axios({
