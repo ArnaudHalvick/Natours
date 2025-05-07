@@ -44,6 +44,63 @@ A feature-rich tour booking platform built with Node.js and MongoDB. This projec
 - **Email**: SendGrid/Nodemailer
 - **Frontend**: Pug templates, CSS, JavaScript
 
+## 📂 Project Structure
+
+### Controllers (`/controllers`)
+Handle business logic for HTTP requests and responses:
+- `authController.js` - Authentication operations (login, signup, password reset)
+- `bookingController.js` - Tour booking and payment processing
+- `errorController.js` - Centralized error handling
+- `invoiceController.js` - Invoice generation and management
+- `refundController.js` - Refund processing
+- `reviewController.js` - Tour review management
+- `tourController.js` - Tour data operations
+- `userController.js` - User profile management
+- `viewsController.js` - Server-side template rendering
+
+### Models (`/models`)
+Define database schemas and business logic:
+- `bookingModel.js` - Tour reservation schema and validation
+- `criticalErrorModel.js` - Error logging and categorization
+- `failedBookingModel.js` - Tracks unsuccessful booking attempts
+- `refundModel.js` - Refund request data and statuses
+- `reviewModel.js` - Tour ratings and user feedback
+- `tourModel.js` - Tour details, geospatial data, and analytics
+- `userModel.js` - User authentication and profile information
+
+### Routes (`/routes`)
+Establish API endpoints for the application:
+- `billingRoutes.js` - Payment and invoice endpoints
+- `bookingRoutes.js` - Tour booking operations
+- `refundRoutes.js` - Refund processing
+- `reviewRoutes.js` - Tour review management
+- `tourRoutes.js` - Tour data endpoints and geospatial queries
+- `userRoutes.js` - User account operations
+- `viewRoutes.js` - Server-side rendered page routes
+
+### Views (`/views`)
+Pug templates for server-side rendering:
+- `base.pug` - Main layout template
+- Partials (`_header.pug`, `_footer.pug`, `_reviewCard.pug`, `_sidenav.pug`)
+- Email templates in `/emails`
+- Page templates organized by feature in `/pages`
+
+### Utilities (`/utils`)
+Common functionality shared across the application:
+- `apiFeatures.js` - API query handling (filtering, sorting, pagination)
+- `appError.js` - Custom error handling class
+- `catchAsync.js` - Async error wrapper
+- `dateUtils.js` - Date manipulation and formatting
+- `email.js` - Email sending functionality
+- `parseJSONFields.js` - JSON data handling
+- `setJwtFromQuery.js` - JWT extraction middleware
+
+### Public Assets (`/public`)
+Static files served to the client:
+- `/css` - Stylesheets organized by base, components, layout, and pages
+- `/img` - Images for tours and user profiles
+- `/js` - Client-side JavaScript with API interactions and event handlers
+
 ## 🔧 Setup & Installation
 
 1. Clone the repository
