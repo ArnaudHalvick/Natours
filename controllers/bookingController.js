@@ -14,11 +14,8 @@ const {
   isFutureDate,
 } = require("../utils/dateUtils");
 const factory = require("./handlerFactory");
-const {
-  AppError,
-  BookingError,
-  CriticalBookingError,
-} = require("../utils/appError");
+const AppError = require("../utils/appError");
+const { BookingError } = require("../utils/appError");
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
